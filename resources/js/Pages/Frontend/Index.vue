@@ -24,9 +24,9 @@
               </a>
             </div>
           </div>
-          <div class="flex justify-center">
+          <div class="flex justify-center ">
             <h1
-              class="text-center text-3xl md:text-5xl leading-[1.3] w-full md:w-3/4 font-semibold px-4 md:px-0 text-[#1A1A1A]"
+              class="text-center text-3xl md:text-5xl leading-[1.3] w-full md:w-3/4 font-semibold px-4 md:px-0 !text-[#1A1A1A]"
             >
               {{ $t("Revolutionise Your Whatsapp Messaging Today") }}
             </h1>
