@@ -1,0 +1,72 @@
+# These are some examples of commonly ignored file patterns.
+# You should customize this list as applicable to your project.
+# Learn more about .gitignore:
+#     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
+
+# Node artifact files
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PHP vendor directory (Composer dependencies)
+vendor/
+
+# Environment files
+.env
+.env.backup
+.env.production
+.env.staging
+.env.testing
+!.env.testing.example
+
+# OS / editor artifacts
+.DS_Store
+Thumbs.db
+
+/public/hot
+/public/storage
+/public/build/
+/.idea
+/.env
+/.phpunit.result.cache
+/.eslintcache
+/.phpstan.cache
+/_archive/
+/temp.zip
+/_write_test.txt
+/_root_write_test.txt
+/tmp/
+/bootstrap/cache/*.tmp
+/storage/app/probe_*.php
+
+# Laravel runtime artifacts
+/storage/*.key
+/storage/installed
+/storage/pail
+/storage/logs/*
+!/storage/logs/.gitignore
+/storage/framework/cache/*
+!/storage/framework/cache/.gitignore
+!/storage/framework/cache/data/
+/storage/framework/cache/data/*
+!/storage/framework/cache/data/.gitignore
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/storage/framework/testing/*
+!/storage/framework/testing/.gitignore
+/storage/framework/views/*
+!/storage/framework/views/.gitignore
+/storage/framework/views-testing/*
+!/storage/framework/views-testing/.gitignore
+/storage/app/*
+!/storage/app/.gitignore
+!/storage/app/public/
+/storage/app/public/*
+!/storage/app/public/.gitignore
+/storage/backups/
+
+# Local UX audit runtime artifacts
+/docs/reports/frontend-ux-phase3-screenshots/
+/docs/reports/frontend-ux-phase3-runtime-results.json
+/docs/reports/frontend-ux-phase3-*-runtime-results.json

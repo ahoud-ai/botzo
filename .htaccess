@@ -1,0 +1,39 @@
+Options -Indexes
+DirectoryIndex index.php index.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Allow ACME challenge (AutoSSL / Let's Encrypt)
+    RewriteRule ^\.well-known/ - [L]
+
+    # Force HTTPS for all non-ACME requests.
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301,NE]
+
+    # Root request should always bootstrap Laravel from /public.
+    RewriteRule ^$ public/index.php [L]
+
+    # Serve real files/directories from /public (build assets, images, storage, etc).
+    RewriteCond %{REQUEST_URI} !^/public/ [NC]
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+    RewriteRule ^(.*)$ public/$1 [L,NC]
+
+    # Any other request is an application route handled by Laravel.
+    RewriteCond %{REQUEST_URI} !^/public/ [NC]
+    RewriteRule ^(.*)$ public/index.php [L]
+</IfModule>
+
+# Block .env
+<IfModule mod_authz_core.c>
+  <Files ".env">
+    Require all denied
+  </Files>
+</IfModule>
+<IfModule !mod_authz_core.c>
+  <Files ".env">
+    Order allow,deny
+    Deny from all
+  </Files>
+</IfModule>

@@ -1,0 +1,21 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/Modules
+        - app/Console/Commands/SystemPrepareTestingDatabaseCommand.php
+        - app/Console/Commands/SystemTestSafetyCheckCommand.php
+        - app/Services/System/TestingDatabasePreparationService.php
+        - app/Services/AutomationFlows/AutomationFlowAssetService.php
+        - app/Http/Controllers/User/AutomationFlowController.php
+        - app/Http/Controllers/Admin/UtilityController.php
+        - app/Http/Controllers/Admin/PaymentGatewayController.php
+        - app/Http/Controllers/Admin/SettingController.php
+        - app/Providers/AppServiceProvider.php
+        - app/Providers/MailConfigServiceProvider.php
+        - app/Providers/RecaptchaServiceProvider.php
+        - app/Models/AutomationFlow.php
+        - app/Models/AutomationFlowAsset.php
+    level: 1
+    tmpDir: .phpstan.cache

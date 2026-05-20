@@ -1,0 +1,18 @@
+<svg width="960" height="220" viewBox="0 0 960 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="220" rx="20" fill="#F8FAFF"/>
+  <rect x="40" y="52" width="180" height="116" rx="16" fill="#1A1F71"/>
+  <text x="98" y="121" fill="white" font-family="Arial, sans-serif" font-size="34" font-weight="700">VISA</text>
+
+  <rect x="250" y="52" width="180" height="116" rx="16" fill="#F4F4F6"/>
+  <circle cx="324" cy="110" r="30" fill="#EB001B"/>
+  <circle cx="357" cy="110" r="30" fill="#F79E1B" fill-opacity="0.92"/>
+  <text x="284" y="153" fill="#1F2937" font-family="Arial, sans-serif" font-size="15">Mastercard</text>
+
+  <rect x="460" y="52" width="180" height="116" rx="16" fill="#111827"/>
+  <text x="497" y="104" fill="white" font-family="Arial, sans-serif" font-size="17" font-weight="700">APPLE PAY</text>
+  <text x="520" y="128" fill="#D1D5DB" font-family="Arial, sans-serif" font-size="13">Wallet</text>
+
+  <rect x="670" y="52" width="250" height="116" rx="16" fill="#EEF2FF"/>
+  <text x="710" y="105" fill="#3730A3" font-family="Arial, sans-serif" font-size="16" font-weight="700">Moyasar</text>
+  <text x="710" y="132" fill="#4B5563" font-family="Arial, sans-serif" font-size="14">Saudi cards and Apple Pay</text>
+</svg>

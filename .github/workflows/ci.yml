@@ -1,0 +1,131 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: app_testing
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=6
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: app_testing
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      I18N_GATE_STARTED_AT: "2026-03-16T00:00:00Z"
+      I18N_GATE_WARN_HOURS: "48"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, pdo_mysql, curl, fileinfo, zip, imagick
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-8.2-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.2-
+
+      - name: Install PHP Dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Prepare Testing Environment
+        run: |
+          cp .env.example .env
+          cp .env.testing.example .env.testing
+          php artisan key:generate --env=testing --force
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Repository Hygiene
+        run: composer check:hygiene
+
+      - name: PHP Formatting
+        run: composer lint:php
+
+      - name: Architecture Guards
+        run: composer check:architecture
+
+      - name: PHP Static Analysis
+        run: composer analyse:php
+
+      - name: Frontend Lint
+        run: npm run lint
+
+      - name: Security Audit (Composer Production Dependencies)
+        run: |
+          mkdir -p tmp
+          composer audit --locked --no-dev --format=json > tmp/composer-audit.json || true
+          php -r "\$r=json_decode(file_get_contents('tmp/composer-audit.json'),true); \$count=0; foreach((\$r['advisories']??[]) as \$pkg=>\$items){foreach((array)\$items as \$a){\$sev=strtolower((string)(\$a['severity']??'')); if(in_array(\$sev,['high','critical'],true)){\$count++;}}} if(\$count>0){fwrite(STDERR,'Composer high/critical advisories: '.\$count.PHP_EOL); exit(1);}"
+
+      - name: Security Audit (NPM Runtime Dependencies)
+        run: |
+          mkdir -p tmp
+          npm audit --omit=dev --json > tmp/npm-audit.json || true
+          node -e "const fs=require('fs'); const report=JSON.parse(fs.readFileSync('tmp/npm-audit.json','utf8')); const v=(report.metadata&&report.metadata.vulnerabilities)||{}; const high=(v.high||0)+(v.critical||0); if(high>0){console.error('NPM runtime high/critical vulnerabilities:', high); process.exit(1);}"
+
+      - name: Run PHP Tests
+        run: |
+          php artisan config:clear
+          php artisan system:test-safety-check --env=testing
+          php artisan system:prepare-testing-database --env=testing --force
+          php scripts/i18n/check-ar-en.php --out-dir=tmp
+          php artisan test --env=testing
+
+      - name: Run Linux Go/No-Go Parity Check
+        run: bash ./scripts/go-no-go.sh --skip-tests --skip-build
+
+      - name: Upload Readiness Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: readiness-reports
+          path: |
+            tmp/docs-code-parity.json
+            tmp/readiness-scorecard.json
+            tmp/risk-register.json
+            tmp/i18n-audit-static-ci.json
+            tmp/i18n-audit-ast-ci.json
+            tmp/i18n-audit-options-ci.json
+            tmp/i18n-audit-merged-ci.json
+            tmp/i18n-check-ar-en-status.json
+          if-no-files-found: warn
+
+      - name: Build Frontend
+        run: npm run build
+
+      - name: Verify Prebuilt Parity After Build
+        run: php scripts/check-prebuilt-parity.php --format=json --strict

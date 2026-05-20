@@ -1,0 +1,72 @@
+<script setup>
+    import { TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle } from '@headlessui/vue';
+    import { useI18n } from 'vue-i18n';
+
+    const { t } = useI18n();
+
+    const props = defineProps({
+        label: String,
+        isOpen: Boolean,
+        closeBtn: Boolean,
+        showHeader: {
+            type: Boolean,
+            default: true
+        }
+    })
+
+    const emit = defineEmits(['close']);
+
+    function closeModal() {
+        emit('close');
+    }
+</script>
+<template>
+    <TransitionRoot appear :show="props.isOpen" as="template">
+        <Dialog as="div" class="relative ui-layer-modal" @close="closeModal">
+            <TransitionChild
+                as="template"
+                enter="duration-300 ease-out"
+                enter-from="opacity-0"
+                enter-to="opacity-100"
+                leave="duration-200 ease-in"
+                leave-from="opacity-100"
+                leave-to="opacity-0"
+            >
+                <div class="fixed inset-0 ui-layer-modal-backdrop" />
+            </TransitionChild>
+
+            <div class="fixed inset-0 overflow-y-auto ui-layer-modal">
+                <div
+                class="flex min-h-full items-center justify-center p-4 text-center"
+                >
+                <TransitionChild
+                    as="template"
+                    enter="duration-300 ease-out"
+                    enter-from="opacity-0 scale-95"
+                    enter-to="opacity-100 scale-100"
+                    leave="duration-200 ease-in"
+                    leave-from="opacity-100 scale-100"
+                    leave-to="opacity-0 scale-95"
+                >
+                    <DialogPanel
+                    class="w-full max-w-md transform overflow-visible rounded-2xl bg-white/90 text-start align-middle shadow-2xl transition-all border border-slate-200 backdrop-blur-md"
+                    >
+                    <div v-if="props.showHeader != false" class="flex justify-between items-center bg-white/80 px-4 py-3 rounded-t-2xl border-b border-slate-200">
+                        <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900">
+                            {{ props.label ? t(props.label) : '' }}
+                        </DialogTitle>
+
+                        <span @click="closeModal" v-if="closeBtn === true" class="bg-slate-100 rounded-full p-1 hover:shadow cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="black" stroke-linecap="round" stroke-linejoin="round" d="M17 7L7 17M7 7l10 10"/></svg>
+                        </span>
+                    </div>
+                    <div class="px-4 pb-4 overflow-visible rounded-b-2xl" :class="props.showHeader == false ? 'rounded-t-2xl' : ''">
+                        <slot />
+                    </div>
+                    </DialogPanel>
+                </TransitionChild>
+                </div>
+            </div>
+        </Dialog>
+    </TransitionRoot>
+</template>

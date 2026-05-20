@@ -1,0 +1,15 @@
+* text=auto
+
+.gitattributes text eol=lf
+*.php text eol=lf
+
+*.sh text eol=lf
+*.bash text eol=lf
+
+public/prebuilt-build/**/*.css text eol=lf
+public/prebuilt-build/**/*.js text eol=lf
+public/prebuilt-build/manifest.json text eol=lf
+
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
