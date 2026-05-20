@@ -1745,5 +1745,4 @@ project-current
 │     └─ WhatsappTokenVaultTest.php
 └─ vite.config.js
 
-```#   b o t z o  
- 
+```#
