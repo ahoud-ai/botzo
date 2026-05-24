@@ -1,0 +1,64 @@
+name: Deploy to Namecheap
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: bcmath, curl, dom, fileinfo, gd, mbstring, pdo_mysql, tokenizer, xml, zip
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install PHP dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Remove local-only build inputs
+        shell: bash
+        run: |
+          rm -rf node_modules .git .github tests tmp
+          find storage -type f ! -name ".gitignore" -delete
+
+      - name: Upload to Namecheap over FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.NAMECHEAP_FTP_SERVER }}
+          username: ${{ secrets.NAMECHEAP_FTP_USERNAME }}
+          password: ${{ secrets.NAMECHEAP_FTP_PASSWORD }}
+          server-dir: ${{ secrets.NAMECHEAP_FTP_SERVER_DIR }}
+          protocol: ftp
+          log-level: standard
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.env
+            **/.env.*
+            **/storage/app/public/**
+            **/storage/framework/cache/data/**
+            **/storage/framework/sessions/**
+            **/storage/framework/views/**
+            **/storage/logs/**
