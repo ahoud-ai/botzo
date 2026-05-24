@@ -10,6 +10,8 @@ Route::middleware(['guest', 'redirectIfAuthenticated:user,admin'])->group(functi
     Route::get('/facebook/callback', [App\Http\Controllers\AuthController::class, 'handleFacebookCallback']);
     Route::get('/signup', [App\Http\Controllers\AuthController::class, 'showRegistrationForm']);
     Route::post('/signup', [App\Http\Controllers\AuthController::class, 'handleRegistration']);
+    Route::get('/register', [App\Http\Controllers\AuthController::class, 'showRegistrationForm']);
+    Route::post('/register', [App\Http\Controllers\AuthController::class, 'handleRegistration']);
     Route::get('/forgot-password', [App\Http\Controllers\AuthController::class, 'showForgotForm']);
     Route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'createPasswordResetToken']);
     Route::get('/reset-password', [App\Http\Controllers\AuthController::class, 'showResetForm'])->name('password.reset');

@@ -85,6 +85,13 @@ class SignupActivationPlanSelectionFlowTest extends TestCase
         $this->assertSame('active', $subscription->status);
     }
 
+    public function test_register_alias_renders_the_signup_form(): void
+    {
+        $this->get('/register')
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->component('Auth/Register'));
+    }
+
     private function prepareSignupBillingContext(): void
     {
         foreach ([
