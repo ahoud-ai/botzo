@@ -359,7 +359,7 @@ class FrontendController extends BaseController
         return Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
     }
 
-    public function changeLanguage($locale)
+    public function changeLanguage(Request $request, $locale)
     {
         $supportedLocales = array_values(array_unique(array_map(
             static fn ($item) => strtolower((string) $item),
@@ -372,9 +372,11 @@ class FrontendController extends BaseController
         }
 
         app()->setLocale($locale);
+        session()->put('locale', $locale);
 
-        if (! auth()->check()) {
-            session()->put('locale', $locale);
+        $user = $request->user();
+        if ($user && $user->language !== $locale) {
+            $user->forceFill(['language' => $locale])->save();
         }
 
         return redirect()->back();

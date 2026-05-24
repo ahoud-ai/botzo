@@ -37,6 +37,8 @@ Thumbs.db
 /_write_test.txt
 /_root_write_test.txt
 /tmp/
+/test-artifacts/
+/serve.log
 /bootstrap/cache/*.tmp
 /storage/app/probe_*.php
 
