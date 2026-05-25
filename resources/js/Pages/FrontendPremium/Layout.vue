@@ -17,7 +17,12 @@
         <section id="section1" class="pt-4 md:pt-10 px-5 md:px-10 lg:px-20 2xl:px-60 relative">
             <div class="flex justify-between items-center">
                 <div>
-                    <img class="max-w-[150px]" v-if="props.companyConfig.logo" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
+                    <div class="premium-brand-lockup" v-if="props.companyConfig.logo">
+                        <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
+                        <span class="premium-brand-lockup__text">
+                            <span class="premium-brand-lockup__name"><span>botz</span><span class="premium-brand-lockup__accent">o</span></span>
+                        </span>
+                    </div>
                     <h1 v-else class="text-2xl">{{ props.companyConfig.company_name }}</h1>
                 </div>
                 <div class="hidden lg:flex justify-center items-center text-md gap-x-8">
@@ -42,7 +47,12 @@
             <div class="md:flex">
                 <div class="md:w-1/4 lg:w-1/2">
                     <div>
-                        <img class="max-w-[150px]" v-if="props.companyConfig.logo" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
+                        <div class="premium-brand-lockup premium-brand-lockup--footer" v-if="props.companyConfig.logo">
+                            <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
+                            <span class="premium-brand-lockup__text">
+                                <span class="premium-brand-lockup__name"><span>botz</span><span class="premium-brand-lockup__accent">o</span></span>
+                            </span>
+                        </div>
                         <h4 v-else class="text-2xl mb-2">{{ props.companyConfig.company_name }}</h4>
                     </div>
                 </div>

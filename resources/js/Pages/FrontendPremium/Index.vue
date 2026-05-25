@@ -2,185 +2,152 @@
   <FrontendLayout :companyConfig="props.companyConfig" :pages="props.pages">
     <section
       id="section1"
-      :style="heroSectionStyle"
-      class="premium-home-section premium-home-section--hero pt-0 px-5 md:px-10 lg:px-20 2xl:px-60 relative overflow-hidden pb-0 min-h-[680px] md:min-h-[760px] lg:min-h-[860px] bg-cover bg-center bg-no-repeat"
+      class="premium-home-section premium-home-section--hero premium-home-hero-v2 px-5 md:px-10 lg:px-20 2xl:px-60 relative overflow-hidden"
     >
-      <div
-        class="flex justify-center h-full pt-12 md:pt-16 mt-10 md:mt-14 lg:mt-[70px]"
-      >
-        <div class="relative z-10">
-          <div class="flex justify-center">
-            <h1
-              class="text-center text-3xl md:text-5xl leading-[1.3] w-full md:w-3/4 font-semibold px-4 md:px-0 !text-[#1A1A1A]"
-            >
-              {{ $t("Revolutionise Your Whatsapp Messaging Today") }}
-            </h1>
+      <div class="premium-home-hero-wave" aria-hidden="true"></div>
+      <div class="premium-home-hero-v2-grid">
+        <div class="premium-home-hero-copy premium-home-animate">
+          <div class="premium-home-hero-pill">
+            <span class="premium-home-hero-pill__whatsapp">WhatsApp</span>
+            <span class="premium-home-hero-pill__meta">Meta</span>
+            <span>حلول متكاملة للواتساب وميتا</span>
           </div>
-          <div class="flex justify-center">
-            <p
-              class="text-center text-xl !text-[#1A1A1A] mt-8 w-full md:w-2/3 max-w-2xl px-4 md:px-0"
-            >
-              {{
-                $t(
-                  "Send multiple whatsapp campaigns, immerse in seamless chats & collaborate with your team effortlessly",
-                )
-              }}
-            </p>
-          </div>
-          <div class="flex flex-row justify-center gap-4 mt-10">
+
+          <h1 class="premium-home-hero-title premium-home-hero-title--v2">
+            حلول ذكية للواتساب والميتا <span>تنمي أعمالك</span>
+          </h1>
+
+          <p class="premium-home-hero-subtitle premium-home-hero-subtitle--v2">
+            نوفر لك الأدوات والخبرة لأتمتة محادثات عملائك عبر
+            <span>WhatsApp</span>
+            ومنصات
+            <span>Meta</span>
+            لتحسين تجربة العملاء وزيادة المبيعات.
+          </p>
+
+          <div class="premium-home-hero-actions">
+            <Link href="/signup" class="premium-home-hero-primary-action premium-home-hero-cta">
+              <span>ابدأ الآن</span>
+              <svg class="h-5 w-5 rtl:rotate-180" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </Link>
             <a
               v-if="props.companyConfig && props.companyConfig.book_a_demo_link"
               :href="props.companyConfig.book_a_demo_link"
               target="_blank"
               rel="noopener noreferrer"
-              class="px-5 py-2.5 border border-white/60 hover:border-white text-white hover:text-[#3B5BFF] rounded-lg text-sm font-medium transition-colors shadow-md hover:shadow-lg bg-white/10 hover:bg-white"
+              class="premium-home-hero-secondary-action premium-home-hero-cta premium-home-hero-cta--secondary"
             >
-              {{ $t("Book a demo") }}
+              <span>احجز عرض توضيحي</span>
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M8 2v4m8-4v4M3.5 9.5h17M6 4h12a2.5 2.5 0 0 1 2.5 2.5v11A2.5 2.5 0 0 1 18 20H6a2.5 2.5 0 0 1-2.5-2.5v-11A2.5 2.5 0 0 1 6 4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
             </a>
             <Link
-              href="/signup"
-              class="px-5 py-2.5 bg-white hover:bg-white/90 text-[#3B5BFF] rounded-lg text-sm font-medium transition-colors"
+              v-else
+              href="/contact"
+              class="premium-home-hero-secondary-action premium-home-hero-cta premium-home-hero-cta--secondary"
             >
-              {{ $t("Choose your plan") }}
+              <span>احجز عرض توضيحي</span>
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M8 2v4m8-4v4M3.5 9.5h17M6 4h12a2.5 2.5 0 0 1 2.5 2.5v11A2.5 2.5 0 0 1 18 20H6a2.5 2.5 0 0 1-2.5-2.5v-11A2.5 2.5 0 0 1 6 4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
             </Link>
           </div>
-          <div
-            class="flex flex-wrap justify-center items-center gap-6 mt-6 z-10"
-          >
-            <div
-              class="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-gray-100 rounded-full px-4 py-2 shadow-sm"
-            >
-              <svg
-                class="w-5 h-5 text-green-500 shrink-0"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-              >
-                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path
-                    stroke-linecap="round"
-                    d="M22 12H2M12 2v20m1-10a4 4 0 0 0 4 4m-6-4a4 4 0 0 1-4 4"
-                  />
-                  <path
-                    d="M12 10.035a3.25 3.25 0 0 1 2.46-3.15c1.603-.4 3.056 1.052 2.655 2.656a3.25 3.25 0 0 1-3.15 2.46H12zm0 0a3.25 3.25 0 0 0-2.46-3.15c-1.603-.4-3.056 1.052-2.655 2.656a3.25 3.25 0 0 0 3.15 2.46H12z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464c.974.974 1.3 2.343 1.41 4.536"
-                  />
-                </g>
-              </svg>
-              <p class="text-sm font-medium text-gray-700">
-                {{ $t("Instant activation after payment") }}
-              </p>
+        </div>
+
+        <div class="premium-home-hero-visual premium-home-animate">
+          <div class="premium-home-hero-channel-stack" aria-hidden="true">
+            <span class="premium-home-channel premium-home-channel--whatsapp">WA</span>
+            <span class="premium-home-channel premium-home-channel--meta">Meta</span>
+            <span class="premium-home-channel premium-home-channel--chat">AI</span>
+          </div>
+
+          <div class="premium-home-dashboard-card">
+            <div class="premium-home-dashboard-top">
+              <span>لوحة التحكم</span>
+              <span>Botzo Admin</span>
             </div>
-            <div
-              class="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-gray-100 rounded-full px-4 py-2 shadow-sm"
-            >
-              <svg
-                class="w-5 h-5 text-blue-500 shrink-0"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-width="1.5"
-                  d="M22 12c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12s0 5.657 1.172 6.828S6.229 20 10 20h4c3.771 0 5.657 0 6.828-1.172c.654-.653.943-1.528 1.07-2.828M10 16H6m8 0h-1.5M2 10h5m15 0H11"
-                />
-              </svg>
-              <p class="text-sm font-medium text-gray-700">
-                {{ $t("Secure payment required") }}
-              </p>
+            <div class="premium-home-dashboard-stats">
+              <div>
+                <span>المحادثات</span>
+                <strong>128K</strong>
+                <small>+12.5%</small>
+              </div>
+              <div>
+                <span>العملاء الجدد</span>
+                <strong>24K</strong>
+                <small>+15.3%</small>
+              </div>
+              <div>
+                <span>معدل الاستجابة</span>
+                <strong>98%</strong>
+                <small>+8.6%</small>
+              </div>
+              <div>
+                <span>الرسائل</span>
+                <strong>2.5M</strong>
+                <small>+18.7%</small>
+              </div>
+            </div>
+            <div class="premium-home-dashboard-body">
+              <div class="premium-home-chart-card">
+                <div class="premium-home-chart-head">
+                  <span>أداء المحادثات</span>
+                  <small>آخر 7 أيام</small>
+                </div>
+                <svg viewBox="0 0 420 170" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="heroChartFill" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stop-color="#2f7bff" stop-opacity="0.28" />
+                      <stop offset="100%" stop-color="#2f7bff" stop-opacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M0 136 C40 118 50 95 86 105 C126 120 132 68 172 82 C213 98 218 38 258 56 C302 77 308 28 350 45 C382 58 394 24 420 30 L420 170 L0 170 Z" fill="url(#heroChartFill)" />
+                  <path d="M0 136 C40 118 50 95 86 105 C126 120 132 68 172 82 C213 98 218 38 258 56 C302 77 308 28 350 45 C382 58 394 24 420 30" fill="none" stroke="#2f7bff" stroke-width="4" stroke-linecap="round" />
+                </svg>
+              </div>
+              <div class="premium-home-channel-list">
+                <span>القنوات المتصلة</span>
+                <div>WhatsApp</div>
+                <div>Instagram</div>
+                <div>Messenger</div>
+                <div>Facebook</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="premium-home-phone-card">
+            <div class="premium-home-phone-top">9:41</div>
+            <div class="premium-home-phone-profile">
+              <span></span>
+              <div>
+                <strong>متجر الأناقة</strong>
+                <small>متصل الآن</small>
+              </div>
+            </div>
+            <div class="premium-home-chat-bubble premium-home-chat-bubble--in">السلام عليكم، كيف ممكن أساعدك؟</div>
+            <div class="premium-home-chat-bubble premium-home-chat-bubble--out">أريد الاستفسار عن سعر المنتج</div>
+            <div class="premium-home-product-preview">
+              <div></div>
+              <strong>2999 ر.س</strong>
+              <span>عرض المنتج</span>
             </div>
           </div>
         </div>
       </div>
-      <div class="premium-home-hero-avatar premium-home-hero-avatar--top-right">
-        <img
-          class="premium-home-floating-avatar block max-w-none border-0"
-          :src="user6Image"
-          alt=""
-          loading="lazy"
-          decoding="async"
-          @error="
-            (event) => onManagedImageError(event, '/images/hero/user-6.png')
-          "
-        />
+
+      <div class="premium-home-hero-feature-row">
+        <article v-for="feature in heroFeatureCards" :key="feature.title" class="premium-home-hero-feature-card">
+          <div class="premium-home-hero-feature-icon" v-html="feature.icon"></div>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+        </article>
       </div>
-      <div class="premium-home-hero-avatar premium-home-hero-avatar--top-left">
-        <img
-          class="premium-home-floating-avatar premium-home-floating-avatar--delay-1 block max-w-none"
-          :src="user3Image"
-          alt=""
-          loading="lazy"
-          decoding="async"
-          @error="
-            (event) => onManagedImageError(event, '/images/hero/user-3.png')
-          "
-        />
-      </div>
-      <div
-        class="premium-home-hero-avatar premium-home-hero-avatar--bottom-left"
-      >
-        <img
-          class="premium-home-floating-avatar premium-home-floating-avatar--delay-2 block max-w-none"
-          :src="user4Image"
-          alt=""
-          loading="lazy"
-          decoding="async"
-          @error="
-            (event) => onManagedImageError(event, '/images/hero/user-4.png')
-          "
-        />
-      </div>
-      <div
-        class="premium-home-hero-avatar premium-home-hero-avatar--bottom-right"
-      >
-        <img
-          class="premium-home-floating-avatar premium-home-floating-avatar--delay-3 block max-w-none"
-          :src="user2Image"
-          alt=""
-          loading="lazy"
-          decoding="async"
-          @error="
-            (event) => onManagedImageError(event, '/images/hero/user-2.png')
-          "
-        />
-      </div>
-      <div
-        class="mt-40 pointer-events-none md:pointer-events-auto group max-w-[67rem] w-full mx-auto relative z-40"
-      >
-        <div
-          class="p-1.5 md:p-2.5 rounded-lg md:rounded-2xl bg-white/[.32] backdrop-blur border border-white shadow-md relative"
-        >
-          <div class="relative overflow-hidden rounded-lg md:rounded-xl">
-            <img
-              :src="dashboard2Image"
-              class="inline-block max-h-full h-auto w-full relative"
-              :alt="$t('Dashboard')"
-              loading="eager"
-              fetchpriority="high"
-              decoding="async"
-              @error="
-                (event) =>
-                  onManagedImageError(event, '/images/hero/dashboard2.png')
-              "
-            />
-            <!-- Fade overlay on image - completely white at bottom -->
-            <div
-              class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white via-white/95 to-transparent pointer-events-none z-10"
-            ></div>
-          </div>
-        </div>
-        <!-- White overlay extending beyond to cover all shadow areas (bottom, left, right) -->
-        <div
-          class="absolute -left-4 md:-left-16 -right-4 md:-right-16 -bottom-16 h-20 bg-white pointer-events-none z-0"
-        ></div>
+
+      <div v-if="showHeroPartners" class="premium-home-hero-partners" aria-disabled="true">
+        <p>يثق بنا أكثر من 5,000+ شركة حول العالم</p>
       </div>
     </section>
     <section
@@ -957,6 +924,34 @@ const formattedName = computed(() => {
 });
 
 const selectedFeature = ref(1);
+const showHeroPartners = false;
+const heroFeatureCards = [
+  {
+    title: "أتمتة المحادثات",
+    description: "ردود ذكية على مدار الساعة لتوفير الوقت وتحسين التجربة.",
+    icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 18.5 3.5 21v-4.2A7 7 0 0 1 2 12.5v-1C2 7.36 5.58 4 10 4h4c4.42 0 8 3.36 8 7.5S18.42 19 14 19h-4c-1.83 0-3.52-.58-5-1.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  },
+  {
+    title: "تحليلات متقدمة",
+    description: "تقارير تفصيلية ومؤشرات قرارات أفضل بناء على البيانات.",
+    icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 20V9m7 11V4m7 16v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M3 20h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  },
+  {
+    title: "إدارة العملاء",
+    description: "تنظيم العملاء والتواصل بفعالية من منصة واحدة.",
+    icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 19c0-2.2-1.8-4-4-4H8c-2.2 0-4 1.8-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M10 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm10 8c0-1.9-1.35-3.48-3.14-3.88M15.5 5.25a2.75 2.75 0 0 1 0 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  },
+  {
+    title: "تكامل سهل",
+    description: "ربط مع أدواتك المفضلة وسير العمل بسهولة.",
+    icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v3m0 12v3m9-9h-3M6 12H3m14.36-5.36-2.12 2.12M8.76 15.24l-2.12 2.12m10.72 0-2.12-2.12M8.76 8.76 6.64 6.64" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/></svg>',
+  },
+  {
+    title: "أمان وموثوقية",
+    description: "معايير حماية وخصوصية عالية لبيانات عملائك.",
+    icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 20 6v5c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V6l8-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m8.8 12.1 2.1 2.1 4.6-4.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  },
+];
 
 const defaultReviewAvatar = "/images/defaults/review-avatar.svg";
 

@@ -5,8 +5,13 @@
             <div class="px-5 md:px-10 lg:px-20 2xl:px-60 py-4">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-8">
-                        <Link href="/" class="inline-block">
-                            <img class="max-w-[120px]" v-if="props.companyConfig && props.companyConfig.logo" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
+                        <Link href="/" class="premium-brand-lockup">
+                            <template v-if="props.companyConfig && props.companyConfig.logo">
+                                <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
+                                <span class="premium-brand-lockup__text">
+                                    <span class="premium-brand-lockup__name"><span>botz</span><span class="premium-brand-lockup__accent">o</span></span>
+                                </span>
+                            </template>
                             <h1 v-else class="text-xl">{{ props.companyConfig?.company_name }}</h1>
                         </Link>
                         <div class="hidden lg:flex items-center text-sm gap-x-2">
@@ -245,7 +250,12 @@
                     <!-- Company Info -->
                     <div class="lg:col-span-3">
                         <div class="mb-6" v-if="props.companyConfig">
-                            <img class="max-w-[120px]" v-if="props.companyConfig.logo" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
+                            <div class="premium-brand-lockup premium-brand-lockup--footer" v-if="props.companyConfig.logo">
+                                <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
+                                <span class="premium-brand-lockup__text">
+                                    <span class="premium-brand-lockup__name"><span>botz</span><span class="premium-brand-lockup__accent">o</span></span>
+                                </span>
+                            </div>
                             <h4 v-else-if="props.companyConfig.company_name" class="text-xl mb-2 text-gray-900 font-bold">{{ props.companyConfig.company_name }}</h4>
                         </div>
                         <div v-if="addressLines.length" class="mb-4 space-y-1">
