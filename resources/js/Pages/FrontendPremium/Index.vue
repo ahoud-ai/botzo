@@ -10,24 +10,24 @@
           <div class="premium-home-hero-pill">
             <span class="premium-home-hero-pill__whatsapp">WhatsApp</span>
             <span class="premium-home-hero-pill__meta">Meta</span>
-            <span>حلول متكاملة للواتساب وميتا</span>
+            <span>{{ $t("Integrated WhatsApp and Meta solutions") }}</span>
           </div>
 
           <h1 class="premium-home-hero-title premium-home-hero-title--v2">
-            حلول ذكية للواتساب والميتا <span>تنمي أعمالك</span>
+            {{ $t("Smart WhatsApp and Meta solutions") }} <span>{{ $t("that grow your business") }}</span>
           </h1>
 
           <p class="premium-home-hero-subtitle premium-home-hero-subtitle--v2">
-            نوفر لك الأدوات والخبرة لأتمتة محادثات عملائك عبر
+            {{ $t("We give you the tools and expertise to automate customer conversations across") }}
             <span>WhatsApp</span>
-            ومنصات
+            {{ $t("and") }}
             <span>Meta</span>
-            لتحسين تجربة العملاء وزيادة المبيعات.
+            {{ $t("platforms to improve customer experience and increase sales.") }}
           </p>
 
           <div class="premium-home-hero-actions">
             <Link href="/signup" class="premium-home-hero-primary-action premium-home-hero-cta">
-              <span>ابدأ الآن</span>
+              <span>{{ $t("Start now") }}</span>
               <svg class="h-5 w-5 rtl:rotate-180" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
@@ -39,7 +39,7 @@
               rel="noopener noreferrer"
               class="premium-home-hero-secondary-action premium-home-hero-cta premium-home-hero-cta--secondary"
             >
-              <span>احجز عرض توضيحي</span>
+              <span>{{ $t("Book a demo") }}</span>
               <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M8 2v4m8-4v4M3.5 9.5h17M6 4h12a2.5 2.5 0 0 1 2.5 2.5v11A2.5 2.5 0 0 1 18 20H6a2.5 2.5 0 0 1-2.5-2.5v-11A2.5 2.5 0 0 1 6 4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
@@ -49,7 +49,7 @@
               href="/contact"
               class="premium-home-hero-secondary-action premium-home-hero-cta premium-home-hero-cta--secondary"
             >
-              <span>احجز عرض توضيحي</span>
+              <span>{{ $t("Book a demo") }}</span>
               <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M8 2v4m8-4v4M3.5 9.5h17M6 4h12a2.5 2.5 0 0 1 2.5 2.5v11A2.5 2.5 0 0 1 18 20H6a2.5 2.5 0 0 1-2.5-2.5v-11A2.5 2.5 0 0 1 6 4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
@@ -66,27 +66,27 @@
 
           <div class="premium-home-dashboard-card">
             <div class="premium-home-dashboard-top">
-              <span>لوحة التحكم</span>
+              <span>{{ $t("Dashboard") }}</span>
               <span>Botzo Admin</span>
             </div>
             <div class="premium-home-dashboard-stats">
               <div>
-                <span>المحادثات</span>
+                <span>{{ $t("Conversations") }}</span>
                 <strong>128K</strong>
                 <small>+12.5%</small>
               </div>
               <div>
-                <span>العملاء الجدد</span>
+                <span>{{ $t("New customers") }}</span>
                 <strong>24K</strong>
                 <small>+15.3%</small>
               </div>
               <div>
-                <span>معدل الاستجابة</span>
+                <span>{{ $t("Response rate") }}</span>
                 <strong>98%</strong>
                 <small>+8.6%</small>
               </div>
               <div>
-                <span>الرسائل</span>
+                <span>{{ $t("Messages") }}</span>
                 <strong>2.5M</strong>
                 <small>+18.7%</small>
               </div>
@@ -94,8 +94,8 @@
             <div class="premium-home-dashboard-body">
               <div class="premium-home-chart-card">
                 <div class="premium-home-chart-head">
-                  <span>أداء المحادثات</span>
-                  <small>آخر 7 أيام</small>
+                  <span>{{ $t("Conversation performance") }}</span>
+                  <small>{{ $t("Last 7 days") }}</small>
                 </div>
                 <svg viewBox="0 0 420 170" preserveAspectRatio="none" aria-hidden="true">
                   <defs>
@@ -109,7 +109,7 @@
                 </svg>
               </div>
               <div class="premium-home-channel-list">
-                <span>القنوات المتصلة</span>
+                <span>{{ $t("Connected channels") }}</span>
                 <div>WhatsApp</div>
                 <div>Instagram</div>
                 <div>Messenger</div>
@@ -123,16 +123,16 @@
             <div class="premium-home-phone-profile">
               <span></span>
               <div>
-                <strong>متجر الأناقة</strong>
-                <small>متصل الآن</small>
+                <strong>{{ $t("Elegance Store") }}</strong>
+                <small>{{ $t("Online now") }}</small>
               </div>
             </div>
-            <div class="premium-home-chat-bubble premium-home-chat-bubble--in">السلام عليكم، كيف ممكن أساعدك؟</div>
-            <div class="premium-home-chat-bubble premium-home-chat-bubble--out">أريد الاستفسار عن سعر المنتج</div>
+            <div class="premium-home-chat-bubble premium-home-chat-bubble--in">{{ $t("Hello, how can I help you?") }}</div>
+            <div class="premium-home-chat-bubble premium-home-chat-bubble--out">{{ $t("I want to ask about the product price") }}</div>
             <div class="premium-home-product-preview">
               <div></div>
-              <strong>2999 ر.س</strong>
-              <span>عرض المنتج</span>
+              <strong>{{ $t("SAR 2,999") }}</strong>
+              <span>{{ $t("View product") }}</span>
             </div>
           </div>
         </div>
@@ -141,13 +141,13 @@
       <div class="premium-home-hero-feature-row">
         <article v-for="feature in heroFeatureCards" :key="feature.title" class="premium-home-hero-feature-card">
           <div class="premium-home-hero-feature-icon" v-html="feature.icon"></div>
-          <h3>{{ feature.title }}</h3>
-          <p>{{ feature.description }}</p>
+          <h3>{{ $t(feature.title) }}</h3>
+          <p>{{ $t(feature.description) }}</p>
         </article>
       </div>
 
       <div v-if="showHeroPartners" class="premium-home-hero-partners" aria-disabled="true">
-        <p>يثق بنا أكثر من 5,000+ شركة حول العالم</p>
+        <p>{{ $t("Trusted by more than 5,000 companies around the world") }}</p>
       </div>
     </section>
     <section
@@ -927,28 +927,28 @@ const selectedFeature = ref(1);
 const showHeroPartners = false;
 const heroFeatureCards = [
   {
-    title: "أتمتة المحادثات",
-    description: "ردود ذكية على مدار الساعة لتوفير الوقت وتحسين التجربة.",
+    title: "Conversation automation",
+    description: "Smart replies around the clock to save time and improve the experience.",
     icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 18.5 3.5 21v-4.2A7 7 0 0 1 2 12.5v-1C2 7.36 5.58 4 10 4h4c4.42 0 8 3.36 8 7.5S18.42 19 14 19h-4c-1.83 0-3.52-.58-5-1.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
   },
   {
-    title: "تحليلات متقدمة",
-    description: "تقارير تفصيلية ومؤشرات قرارات أفضل بناء على البيانات.",
+    title: "Advanced analytics",
+    description: "Detailed reports and indicators for better data-driven decisions.",
     icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 20V9m7 11V4m7 16v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M3 20h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   },
   {
-    title: "إدارة العملاء",
-    description: "تنظيم العملاء والتواصل بفعالية من منصة واحدة.",
+    title: "Customer management",
+    description: "Organize customers and communicate effectively from one platform.",
     icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 19c0-2.2-1.8-4-4-4H8c-2.2 0-4 1.8-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M10 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm10 8c0-1.9-1.35-3.48-3.14-3.88M15.5 5.25a2.75 2.75 0 0 1 0 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   },
   {
-    title: "تكامل سهل",
-    description: "ربط مع أدواتك المفضلة وسير العمل بسهولة.",
+    title: "Easy integration",
+    description: "Connect with your favorite tools and workflows with ease.",
     icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v3m0 12v3m9-9h-3M6 12H3m14.36-5.36-2.12 2.12M8.76 15.24l-2.12 2.12m10.72 0-2.12-2.12M8.76 8.76 6.64 6.64" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/></svg>',
   },
   {
-    title: "أمان وموثوقية",
-    description: "معايير حماية وخصوصية عالية لبيانات عملائك.",
+    title: "Security and reliability",
+    description: "High protection and privacy standards for your customer data.",
     icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 20 6v5c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V6l8-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m8.8 12.1 2.1 2.1 4.6-4.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   },
 ];
