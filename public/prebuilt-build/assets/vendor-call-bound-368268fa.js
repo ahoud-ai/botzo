@@ -1,0 +1,1 @@
+import{g as c}from"./vendor-get-intrinsic-28cbac42.js";import{c as a}from"./vendor-call-bind-apply-helpers-2b9254e7.js";var n=c,t=a,e=t([n("%String.prototype.indexOf%")]),f=function(i,o){var r=n(i,!!o);return typeof r=="function"&&e(i,".prototype.")>-1?t([r]):r};export{f as c};
