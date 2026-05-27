@@ -10,7 +10,6 @@ use App\Models\Subscription;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -48,18 +47,11 @@ class SignupActivationPlanSelectionFlowTest extends TestCase
             ->get('/dashboard')
             ->assertRedirect(route('verification.notice'));
 
-        $verificationUrl = URL::temporarySignedRoute(
-            'verification.verify',
-            now()->addMinutes(60),
-            [
-                'id' => $user->id,
-                'hash' => sha1($user->email),
-            ]
-        );
+        $code = app(\App\Services\EmailVerificationCodeService::class)->generate($user);
 
         $this->actingAs($user)
             ->withSession(['current_organization' => $organization->id])
-            ->get($verificationUrl)
+            ->post('/email/verify-code', ['code' => $code])
             ->assertRedirect('/dashboard');
 
         $this->assertNotNull($user->fresh()->email_verified_at);

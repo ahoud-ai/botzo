@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:user'])->group(function () {
     Route::get('/email/verify', [App\Http\Controllers\AuthController::class, 'verifyEmail'])->middleware('auth')->name('verification.notice');
+    Route::post('/email/verify-code', [App\Http\Controllers\AuthController::class, 'verifyEmailCode'])->middleware(['auth', 'throttle:6,1'])->name('verification.code.verify');
 
     Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
         $request->fulfill();

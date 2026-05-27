@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Mail\CustomEmailVerification;
+use App\Services\EmailVerificationCodeService;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -120,7 +121,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function sendEmailVerificationNotification(){
         try {
-            \Mail::to($this->email)->send(new CustomEmailVerification($this));
+            $code = app(EmailVerificationCodeService::class)->generate($this);
+
+            \Mail::to($this->email)->send(new CustomEmailVerification($this, $code));
         } catch (\Exception $e) {
             \Log::error('Failed to send verification email: ' . $e->getMessage());
         }

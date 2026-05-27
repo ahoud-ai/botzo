@@ -44,8 +44,8 @@ class EmailTemplateSeeder extends Seeder
             ],
             [
                 'name' => 'Verify Email',
-                'subject' => 'Please verify your email',
-                'body' => '<p>Hi {{FirstName}},</p><p>Please verify your email by clicking on the link below.</p><p>{{Link}}</p><p><span style="letter-spacing: 0em; text-align: var(--bs-body-text-align);">Best regards,</span></p><p><br></p>',
+                'subject' => 'Verify your email | تفعيل البريد الإلكتروني',
+                'body' => '<p>Verification code: <strong>{{Code}}</strong></p>',
                 'updated_by' => 1,
                 'updated_at' => now()
             ],

@@ -42,7 +42,7 @@ class EmailTemplateCoreFlowsTest extends TestCase
         $this->storeTemplate('Invite', 'Invitation from {{CompanyName}}', '<p>Hello {{FirstName}}</p><p><a href="%7B%7BLink%7D%7D">{{Link}}</a></p><p>{{Email}}</p>');
         $this->storeTemplate('Reset Password', 'Reset for {{FirstName}}', '<p><a href="%7B%7BLink%7D%7D">{{Link}}</a></p>');
         $this->storeTemplate('Password Reset Notification', 'Password updated for {{FirstName}}', '<p>Done</p>');
-        $this->storeTemplate('Verify Email', 'Verify your email {{FirstName}}', '<p>Hello {{FirstName}}</p><p><a href="%7B%7BLink%7D%7D">{{Link}}</a></p>');
+        $this->storeTemplate('Verify Email', 'Verify your email {{FirstName}}', '<p>Hello {{FirstName}}</p><p>{{Code}}</p>');
     }
 
     public function test_registration_template_is_queued_when_user_service_creates_user(): void
@@ -261,13 +261,16 @@ class EmailTemplateCoreFlowsTest extends TestCase
 
         Mail::assertSent(CustomEmailVerification::class);
 
-        $html = (new CustomEmailVerification($user))->render();
+        $record = \App\Models\EmailVerificationCode::query()->where('user_id', $user->id)->firstOrFail();
+        $this->assertNull($record->used_at);
+
+        $mail = Mail::sent(CustomEmailVerification::class)->first();
+        $html = $mail->render();
 
         $this->assertStringContainsString('Hello Verify', $html);
-        $this->assertStringContainsString('href="http', $html);
+        $this->assertMatchesRegularExpression('/\b\d{6}\b/', $html);
         $this->assertStringNotContainsString('{{FirstName}}', $html);
-        $this->assertStringNotContainsString('{verificationLink}', $html);
-        $this->assertStringNotContainsString('%7B%7BLink%7D%7D', $html);
+        $this->assertStringNotContainsString('{{Code}}', $html);
     }
 
     public function test_signup_with_verify_email_enabled_sends_only_verification_email(): void
@@ -317,7 +320,7 @@ class EmailTemplateCoreFlowsTest extends TestCase
     public function test_registration_editor_catalog_hides_link_placeholder(): void
     {
         $this->assertNotContains('{{Link}}', EmailTemplateCatalog::editorPlaceholdersFor('Registration'));
-        $this->assertContains('{{Link}}', EmailTemplateCatalog::editorPlaceholdersFor('Verify Email'));
+        $this->assertContains('{{Code}}', EmailTemplateCatalog::editorPlaceholdersFor('Verify Email'));
     }
 
     public function test_email_template_update_rejects_unsupported_placeholders_for_template(): void

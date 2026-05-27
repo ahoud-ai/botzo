@@ -57,6 +57,7 @@ class EmailTemplateRenderer
             'Email' => $email,
             'FullName' => $fullName,
             'Link' => self::stringValue($context, ['link', 'verification_link', 'verificationLink', 'reset_link', 'resetLink']),
+            'Code' => self::stringValue($context, ['code', 'verification_code', 'verificationCode']),
             'plan' => self::stringValue($context, ['plan', 'plan_name', 'planName']),
             'CompanyName' => $companyName,
             'InvitedByFirstName' => $invitedByFirstName,
@@ -77,6 +78,10 @@ class EmailTemplateRenderer
         if ($token === 'Link') {
             $variants[] = '{verificationLink}';
             $variants[] = '{resetLink}';
+        }
+
+        if ($token === 'Code') {
+            $variants[] = '{verificationCode}';
         }
 
         $encodedVariants = [];

@@ -13,6 +13,7 @@ use App\Http\Requests\StoreUserInvite;
 use App\Http\Requests\PasswordValidateResetRequest;
 use App\Services\AuthService;
 use App\Services\CompanyWorkforceService;
+use App\Services\EmailVerificationCodeService;
 use App\Services\OrganizationSessionService;
 use App\Services\PasswordResetService;
 use App\Services\SocialIdentityResolverService;
@@ -315,7 +316,34 @@ class AuthController extends BaseController
         return back()->with(
             'status', [
                 'type' => 'success', 
-                'message' => __('Verification link sent!')
+                'message' => __('Verification code sent!')
+            ]
+        );
+    }
+
+    public function verifyEmailCode(Request $request, EmailVerificationCodeService $verificationCodeService)
+    {
+        $request->validate([
+            'code' => ['required', 'string', 'regex:/^\d{6}$/'],
+        ]);
+
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return redirect($this->authenticatedHomePath($user));
+        }
+
+        if (! $verificationCodeService->verify($user, (string) $request->input('code'))) {
+            throw ValidationException::withMessages([
+                'code' => __('The verification code is invalid or has expired.'),
+            ]);
+        }
+
+        return redirect($this->authenticatedHomePath($user))->with(
+            'status',
+            [
+                'type' => 'success',
+                'message' => __('Email verified successfully!'),
             ]
         );
     }
