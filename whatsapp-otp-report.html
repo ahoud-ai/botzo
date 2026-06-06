@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقرير OTP عبر WhatsApp — Botzo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:#F8FAFC;color:#0F172A;line-height:1.9;font-size:15px}
+.page{max-width:1000px;margin:0 auto;padding:36px 18px}
+
+/* Cards */
+.card{background:#fff;border:1px solid #E2E8F0;border-radius:18px;overflow:hidden;margin-bottom:28px;box-shadow:0 2px 16px rgba(15,23,42,0.06)}
+.card-header{padding:20px 30px 16px;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:14px}
+.card-body{padding:26px 30px}
+.topbar{height:7px;background:linear-gradient(90deg,#25D366 0%,#00E5FF 30%,#1877F2 65%,#7C3AED 100%);border-radius:18px 18px 0 0}
+
+/* Typography */
+h1{font-size:30px;font-weight:900;color:#0F172A;letter-spacing:-0.5px}
+h2{font-size:18px;font-weight:800;color:#0F172A}
+h3{font-size:15px;font-weight:700;color:#1877F2;margin:22px 0 12px;padding-bottom:6px;border-bottom:2px solid #EFF6FF}
+h4{font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.4px;margin:16px 0 8px}
+p{color:#334155;font-size:14.5px;margin:8px 0;line-height:1.85}
+strong{color:#0F172A}
+
+/* Section icon */
+.ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ic-blue{background:#EFF6FF}
+.ic-green{background:#F0FDF4}
+.ic-red{background:#FFF1F2}
+.ic-orange{background:#FFF7ED}
+.ic-purple{background:#F5F3FF}
+.ic-teal{background:#F0FDFA}
+.ic-gray{background:#F8FAFC}
+.ic-yellow{background:#FEFCE8}
+
+/* Badges */
+.badge{display:inline-block;border-radius:999px;padding:3px 12px;font-size:12px;font-weight:700}
+.b-green{background:#DCFCE7;color:#166534;border:1px solid #BBF7D0}
+.b-blue{background:#DBEAFE;color:#1D4ED8;border:1px solid #BFDBFE}
+.b-red{background:#FEE2E2;color:#991B1B;border:1px solid #FECACA}
+.b-orange{background:#FEF3C7;color:#92400E;border:1px solid #FDE68A}
+.b-purple{background:#EDE9FE;color:#6D28D9;border:1px solid #DDD6FE}
+.b-gray{background:#F1F5F9;color:#475569;border:1px solid #E2E8F0}
+.b-yellow{background:#FEF9C3;color:#713F12;border:1px solid #FEF08A}
+
+/* Alert boxes */
+.alert{border-radius:12px;padding:16px 20px;margin:16px 0;font-size:14px;line-height:1.8}
+.al-green{background:#F0FDF4;border:1.5px solid #86EFAC;color:#14532D}
+.al-blue{background:#EFF6FF;border:1.5px solid #93C5FD;color:#1E3A5F}
+.al-red{background:#FFF1F2;border:1.5px solid #FECACA;color:#7F1D1D}
+.al-orange{background:#FFFBEB;border:1.5px solid #FDE68A;color:#78350F}
+.al-yellow{background:#FEFCE8;border:1.5px solid #FEF08A;color:#713F12}
+.al-purple{background:#F5F3FF;border:1.5px solid #C4B5FD;color:#4C1D95}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:14px 0}
+th{background:#F8FAFC;color:#64748B;font-weight:700;padding:10px 16px;border:1px solid #E2E8F0;text-align:right;font-size:12px;text-transform:uppercase;letter-spacing:0.3px}
+td{padding:11px 16px;border:1px solid #E2E8F0;vertical-align:top;color:#334155}
+tr:nth-child(even) td{background:#FAFBFD}
+.tc{font-family:'Courier New',monospace;font-size:12px;color:#1D4ED8;direction:ltr;unicode-bidi:embed}
+
+/* Code blocks */
+.code{background:#0F172A;color:#E2E8F0;border-radius:12px;padding:18px 20px;font-family:'Courier New',monospace;font-size:12.5px;direction:ltr;unicode-bidi:embed;overflow-x:auto;margin:14px 0;line-height:1.7;border:1px solid #1E293B}
+.code .cm{color:#64748B}
+.code .kw{color:#7DD3FC}
+.code .fn{color:#86EFAC}
+.code .st{color:#FCA5A5}
+.code .va{color:#FCD34D}
+
+/* Two/Three column grids */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:14px 0}
+.box{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:18px}
+.box h4{margin-top:0;font-size:13px}
+
+/* Step list */
+.steps{list-style:none;padding:0}
+.steps li{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #F1F5F9}
+.steps li:last-child{border-bottom:none}
+.sn{min-width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#1877F2,#7C3AED);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:4px}
+.sb{flex:1;color:#334155;font-size:14px}
+.sb strong{color:#0F172A}
+
+/* Rating stars */
+.stars{color:#F59E0B;font-size:16px}
+
+/* Highlight tag */
+.tag{display:inline-block;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:5px;padding:1px 8px;font-family:'Courier New',monospace;font-size:11.5px;color:#1D4ED8;direction:ltr;unicode-bidi:embed}
+
+/* Flow diagram */
+.flow-wrap{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.flow-step{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:13px 18px;font-size:13.5px}
+.flow-step.green{background:#F0FDF4;border-color:#BBF7D0}
+.flow-step.blue{background:#EFF6FF;border-color:#BFDBFE}
+.flow-step.orange{background:#FFFBEB;border-color:#FDE68A}
+.flow-arrow{text-align:center;color:#94A3B8;padding:4px 0;font-size:18px}
+
+/* Risk meter */
+.risk-bar{height:8px;border-radius:999px;margin:6px 0 12px}
+.risk-low{background:linear-gradient(90deg,#22C55E 30%,#E2E8F0 30%)}
+.risk-med{background:linear-gradient(90deg,#F59E0B 60%,#E2E8F0 60%)}
+.risk-high{background:linear-gradient(90deg,#EF4444 85%,#E2E8F0 85%)}
+
+/* Official letter */
+.letter{background:#FFFEF0;border:2px solid #FEF08A;border-radius:14px;padding:32px 36px;margin:16px 0;font-family:'Times New Roman',serif;direction:ltr;unicode-bidi:embed}
+.letter-header{text-align:center;margin-bottom:28px}
+.letter-header h2{font-size:20px;color:#0F172A;font-family:'Segoe UI',sans-serif}
+.letter-header p{color:#64748B;font-size:13px}
+.letter-body p{color:#1E293B;font-size:14.5px;margin:14px 0;text-align:justify}
+.letter-body strong{color:#0F172A}
+.letter-section{margin:20px 0}
+.letter-section h4{font-size:14px;font-weight:700;color:#0F172A;margin-bottom:8px;font-family:'Segoe UI',sans-serif}
+.letter-sig{margin-top:32px;padding-top:20px;border-top:1px solid #E2E8F0}
+
+/* Phase */
+.phase-list{border-right:3px solid #E2E8F0;padding-right:20px;margin:12px 0}
+.phase-item{position:relative;padding-bottom:22px}
+.phase-item:last-child{padding-bottom:0}
+.phase-dot{width:14px;height:14px;border-radius:50%;position:absolute;right:-27px;top:4px;border:2px solid #fff}
+.pd-blue{background:#1877F2}
+.pd-green{background:#25D366}
+.pd-purple{background:#7C3AED}
+.pd-orange{background:#F59E0B}
+.pd-teal{background:#06B6D4}
+.phase-title{font-size:15px;font-weight:700;color:#0F172A;margin-bottom:6px}
+.phase-days{font-size:12px;color:#94A3B8;margin-bottom:8px}
+
+/* Footer */
+.footer{background:#F8FAFC;border-top:1px solid #E2E8F0;padding:20px 30px;text-align:center;color:#94A3B8;font-size:12px}
+.footer-bar{height:3px;width:90px;background:linear-gradient(90deg,#25D366,#00E5FF,#1877F2,#7C3AED);border-radius:999px;margin:0 auto 12px}
+
+/* Print */
+@media print{body{background:#fff}.card{box-shadow:none}.letter{border:2px solid #ccc;background:#fff}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ══════════════════ HEADER ══════════════════ -->
+<div class="card">
+  <div class="topbar"></div>
+  <div class="card-body" style="padding:32px 36px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:13px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">تقرير داخلي — سري</div>
+        <h1>مراجعة OTP عبر WhatsApp</h1>
+        <p style="color:#64748B;margin-top:6px;font-size:15px">تحليل جاهزية النظام + متطلبات Meta + Draft رسمي</p>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <span class="badge b-blue">Botzo SA Client</span>
+          <span class="badge b-green">نظام إنتاج قائم</span>
+          <span class="badge b-purple">WhatsApp Business API</span>
+        </div>
+      </div>
+      <div style="text-align:left;min-width:160px">
+        <div style="font-size:12px;color:#94A3B8">التاريخ</div>
+        <div style="font-size:18px;font-weight:800;color:#0F172A">28 مايو 2026</div>
+        <div style="font-size:12px;color:#94A3B8;margin-top:8px">الإصدار</div>
+        <div style="font-weight:700;color:#1877F2">v1.0 — للمراجعة</div>
+      </div>
+    </div>
+    <div class="alert al-blue" style="margin-top:22px">
+      <strong>السياق:</strong> Botzo منصة SaaS قائمة في الإنتاج تخدم شركات تستخدم WhatsApp للتواصل مع عملائها. النظام يملك تكاملاً مباشراً مع WhatsApp Business API (Meta). هذا التقرير يحلل إضافة ميزة OTP للتحقق من هوية مستخدمي Botzo أنفسهم عند التسجيل وتسجيل الدخول.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 1. READINESS ══════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-green">✅</div>
+    <h2>١ — تحليل جاهزية النظام الحالي</h2>
+  </div>
+  <div class="card-body">
+
+    <div class="alert al-green">
+      <strong>الخلاصة الفورية:</strong> النظام في حالة ممتازة. البنية التحتية الكاملة لإرسال WhatsApp OTP موجودة بالفعل ومستخدمة في الإنتاج. نسبة الجاهزية <strong>~80%</strong> — ما تبقى هو ربط وإعداد، ليس بناء.
+    </div>
+
+    <h3>١.١ — ما يوجد بالفعل ويدعم OTP</h3>
+    <table>
+      <thead><tr><th>المكوّن</th><th>الحالة</th><th>الملاحظة</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>إرسال رسائل WhatsApp</strong></td>
+          <td><span class="badge b-green">✓ يعمل في الإنتاج</span></td>
+          <td>عبر <span class="tag">WhatsappService</span> — مئات الآلاف رسالة يومياً</td>
+        </tr>
+        <tr>
+          <td><strong>إرسال Templates</strong></td>
+          <td><span class="badge b-green">✓ يعمل</span></td>
+          <td><span class="tag">sendTemplateMessage()</span> — نفس الدالة نستخدمها لـ OTP</td>
+        </tr>
+        <tr>
+          <td><strong>Authentication Template Support</strong></td>
+          <td><span class="badge b-green">✓ الكود يدعمه</span></td>
+          <td>الكود يدعم OTP button types (COPY_CODE, ZERO_TAP, AUTOFILL) في السطور 1157-1265</td>
+        </tr>
+        <tr>
+          <td><strong>تشفير بيانات API</strong></td>
+          <td><span class="badge b-green">✓ يعمل</span></td>
+          <td><span class="tag">WhatsappTokenVault</span> — يشفر ويفك تشفير كل credentials</td>
+        </tr>
+        <tr>
+          <td><strong>نظام Queue منفصل</strong></td>
+          <td><span class="badge b-green">✓ معزول</span></td>
+          <td>الحملات على worker منفصل تماماً — لن تؤثر على OTP</td>
+        </tr>
+        <tr>
+          <td><strong>Rate Limiting للرسائل</strong></td>
+          <td><span class="badge b-green">✓ يعمل</span></td>
+          <td>80 رسالة/ثانية — حماية حد Meta مبنية بالفعل</td>
+        </tr>
+        <tr>
+          <td><strong>نظام OTP للإيميل</strong></td>
+          <td><span class="badge b-green">✓ مكتمل</span></td>
+          <td>6 أرقام + bcrypt + 15 دقيقة — يُعاد استخدامه لـ WhatsApp OTP</td>
+        </tr>
+        <tr>
+          <td><strong>Webhook للتحقق من التسليم</strong></td>
+          <td><span class="badge b-green">✓ يعمل</span></td>
+          <td>نستقبل status updates من Meta — delivered, read, failed</td>
+        </tr>
+        <tr>
+          <td><strong>Phone Uniqueness في DB</strong></td>
+          <td><span class="badge b-red">✗ غير موجود</span></td>
+          <td>نحتاج إضافة unique constraint</td>
+        </tr>
+        <tr>
+          <td><strong>OTP Queue مخصصة</strong></td>
+          <td><span class="badge b-orange">⚠ لم تُضف بعد</span></td>
+          <td>البنية جاهزة، نحتاج إضافة queue 'otp' بأعلى أولوية</td>
+        </tr>
+        <tr>
+          <td><strong>Botzo System WhatsApp Account</strong></td>
+          <td><span class="badge b-orange">⚠ لم يُعَد بعد</span></td>
+          <td>نحتاج رقم/حساب مخصص لـ Botzo كمنصة (مستقل عن حسابات العملاء)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>١.٢ — هل طريقة الإرسال الحالية مناسبة لـ OTP؟</h3>
+    <p>نعم، بشرط تعديل واحد مهم: <span class="tag">sendTemplateMessage()</span> تعمل مباشرة وبشكل متزامن (synchronous) في بعض أجزاء النظام — لـ OTP نحتاجها تعمل عبر <strong>Queue أولاً</strong> لضمان السرعة وعدم تأثر تجربة المستخدم.</p>
+
+    <div class="grid2">
+      <div class="box">
+        <h4>الطريقة الحالية للحملات</h4>
+        <p style="font-size:13px">Job → Queue → Worker → إرسال<br>
+        ✅ مناسب للحملات (حجم كبير، وقت مرن)</p>
+      </div>
+      <div class="box">
+        <h4>الطريقة المطلوبة للـ OTP</h4>
+        <p style="font-size:13px">Request → Queue 'otp' (أعلى أولوية) → Worker → إرسال<br>
+        ✅ ضمان وصول &lt;5 ثوانٍ حتى تحت ضغط</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════ 2. GAPS & CHANGES ══════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-orange">🔧</div>
+    <h2>٢ — الفجوات والتعديلات المطلوبة</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>٢.١ — تعديلات Messaging Engine</h3>
+    <table>
+      <thead><tr><th>التعديل</th><th>الحجم</th><th>الوصف</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>BotzoSystemWhatsAppService</strong></td>
+          <td><span class="badge b-blue">صغير</span></td>
+          <td>
+            Service جديدة صغيرة تُغلّف WhatsappService الموجود وتستخدم credentials خاصة بـ Botzo (مخزنة في Settings table). لا يُعدَّل WhatsappService نفسه — فقط نُضيف wrapper.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>إصلاح WhatsappRateLimiter</strong></td>
+          <td><span class="badge b-orange">متوسط</span></td>
+          <td>
+            الكود الحالي يستخدم <span class="tag">usleep(10000)</span> في حلقة انتظار — هذا يحجب Queue Worker بالكامل. يُستبدل بـ <span class="tag">$this->release(1)</span> لإعادة الرسالة للقائمة بعد ثانية بدون حجب.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>SendOtpJob جديد</strong></td>
+          <td><span class="badge b-blue">صغير</span></td>
+          <td>
+            Job مخصص للـ OTP يُوجَّه لـ queue 'otp'. يدعم retry تلقائي بعد 10 ثوانٍ عند الفشل. يحفظ message ID من Meta لتتبع التسليم.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>٢.٢ — تعديلات Queue System</h3>
+    <div class="code">
+// config/queue_profile.php — التعديل المطلوب
+// إضافة 'otp' queue بأعلى أولوية في default-worker
+
+'default-worker' => [
+    'queues' => [
+        'otp',                    // ← أول في القائمة = أعلى أولوية
+        'default',
+        'automation-flow-resume',
+    ],
+],
+'campaign-worker' => [
+    'queues' => ['campaign-messages'],  // لا تعديل — معزول كما هو
+],
+    </div>
+    <p>هذا التعديل وحده يضمن أن رسائل OTP تُعالج فوراً بغض النظر عما يجري في النظام من حملات.</p>
+
+    <h3>٢.٣ — تعديلات Templates System</h3>
+    <ul class="steps">
+      <li>
+        <div class="sn">١</div>
+        <div class="sb"><strong>لا تعديل في كود Templates الحالي</strong> — <span class="tag">createTemplate()</span> و<span class="tag">sendTemplateMessage()</span> يعملان بشكل كافٍ لـ Authentication Templates.</div>
+      </li>
+      <li>
+        <div class="sn">٢</div>
+        <div class="sb"><strong>إنشاء Template جديد</strong> اسمه <span class="tag">botzo_otp_ar</span> من نوع AUTHENTICATION — يُقدَّم لـ Meta للموافقة مرة واحدة.</div>
+      </li>
+      <li>
+        <div class="sn">٣</div>
+        <div class="sb"><strong>Template ثانٍ للإنجليزية</strong> (اختياري) للمستخدمين الأجانب — نفس الخطوة.</div>
+      </li>
+    </ul>
+
+    <h3>٢.٤ — إضافات في قاعدة البيانات</h3>
+    <table>
+      <thead><tr><th>الإضافة</th><th>الجدول</th><th>السبب</th></tr></thead>
+      <tbody>
+        <tr><td>حقل <span class="tag">phone_verified_at</span></td><td>users</td><td>تتبع متى تم التحقق من الرقم</td></tr>
+        <tr><td>Unique constraint على phone</td><td>users</td><td>منع تسجيل نفس الرقم مرتين</td></tr>
+        <tr><td>جدول <span class="tag">verification_codes</span></td><td>جديد</td><td>تخزين أكواد OTP لكل القنوات (Email + WhatsApp)</td></tr>
+        <tr><td>Setting جديد: <span class="tag">botzo_whatsapp_config</span></td><td>settings</td><td>credentials WhatsApp الخاصة بـ Botzo كنظام</td></tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+<!-- ══════════════════ 3. QUEUE ISOLATION ══════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-teal">⚡</div>
+    <h2>٣ — عزل OTP عن باقي النظام</h2>
+  </div>
+  <div class="card-body">
+
+    <div class="alert al-green">
+      <strong>الخبر الممتاز:</strong> الحملات التسويقية معزولة بالفعل في Worker منفصل تماماً. حملة تضم مليون رسالة <strong>لن تلمس</strong> OTP queue أبداً — هما في عمليتين مختلفتين في الـ Server.
+    </div>
+
+    <h3>٣.١ — كيف يعمل النظام الحالي (الفصل القائم)</h3>
+    <div class="grid3">
+      <div class="box" style="border-color:#FDE68A">
+        <h4>📢 Campaign Worker</h4>
+        <p style="font-size:13px">يعالج حملات الملايين. يمكن أن يكون مشغولاً لساعات. <strong>معزول تماماً.</strong></p>
+      </div>
+      <div class="box" style="border-color:#BFDBFE">
+        <h4>⚙️ Default Worker</h4>
+        <p style="font-size:13px">الأعمال العامة والأتمتة. هنا سيعمل OTP بأعلى أولوية.</p>
+      </div>
+      <div class="box" style="border-color:#BBF7D0">
+        <h4>📥 Webhook Worker</h4>
+        <p style="font-size:13px">استقبال الرسائل الواردة وتحديثات الحالة من Meta.</p>
+      </div>
+    </div>
+
+    <h3>٣.٢ — ضمان وصول OTP خلال ثوانٍ</h3>
+    <div class="flow-wrap">
+      <div class="flow-step blue">
+        <strong>① المستخدم يطلب كود التحقق</strong>
+        <br><small style="color:#64748B">HTTP Request → يُولَّد كود 6 أرقام → يُحفظ في DB → يُوضع في queue 'otp'</small>
+      </div>
+      <div class="flow-arrow">↓ فوري (milliseconds)</div>
+      <div class="flow-step green">
+        <strong>② Default Worker يلتقط Job من queue 'otp' أولاً</strong>
+        <br><small style="color:#64748B">لأن 'otp' هو أول queue في قائمة Worker — يُعطى أولوية قصوى</small>
+      </div>
+      <div class="flow-arrow">↓ &lt;2 ثانية</div>
+      <div class="flow-step green">
+        <strong>③ إرسال عبر WhatsApp API</strong>
+        <br><small style="color:#64748B">BotzoSystemWhatsAppService → WhatsappService → Meta Cloud API</small>
+      </div>
+      <div class="flow-arrow">↓ &lt;3 ثوانٍ إضافية</div>
+      <div class="flow-step">
+        <strong>④ الرسالة تصل لهاتف المستخدم</strong>
+        <br><small style="color:#64748B">إجمالي الوقت من الطلب إلى الاستلام: &lt;5 ثوانٍ في الأحوال الطبيعية</small>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════ 4. WHATSAPP INFRA ══════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-green">💬</div>
+    <h2>٤ — استخدام WhatsApp Infrastructure الحالية</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>٤.١ — هل نستخدم حساب العملاء أم حساباً منفصلاً؟</h3>
+    <div class="alert al-orange">
+      <strong>السؤال الجوهري:</strong> Botzo تخدم شركات كل واحدة منها رقم WhatsApp خاص بها مخزن في المنصة. OTP الخاص بـ Botzo (للمستخدمين الجدد المسجلين في المنصة) يجب أن يُرسَل من <strong>رقم Botzo الرسمي كمنصة</strong> — وليس من أرقام العملاء.
+    </div>
+
+    <div class="grid2">
+      <div class="box" style="border-color:#FECACA">
+        <h4 style="color:#991B1B">❌ الخيار الخاطئ: أرقام العملاء</h4>
+        <ul style="padding-right:18px;font-size:13px;color:#475569">
+          <li>مشكلة قانونية وأخلاقية: رقم شركة أخرى</li>
+          <li>إذا عاقب Meta رقم عميل → يتأثر OTP</li>
+          <li>ربك في credentials عملاء</li>
+          <li>مخالف لشروط WhatsApp</li>
+        </ul>
+      </div>
+      <div class="box" style="border-color:#BBF7D0">
+        <h4 style="color:#166534">✅ الخيار الصحيح: رقم Botzo المنفصل</h4>
+        <ul style="padding-right:18px;font-size:13px;color:#475569">
+          <li>رقم هاتف مخصص لـ Botzo كمنصة</li>
+          <li>WABA خاصة بـ Botzo (أو نفس WABA + رقم جديد)</li>
+          <li>Credentials تُخزَّن في Settings table</li>
+          <li>معزول تماماً عن حسابات العملاء</li>
+          <li>إذا حدثت مشكلة → تؤثر على OTP فقط، لا الحملات</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>٤.٢ — كيف يتم الربط تقنياً</h3>
+    <p>النظام الحالي يبني <span class="tag">WhatsappService</span> لكل عميل بـ credentials خاصة به. للـ OTP نضيف <span class="tag">BotzoSystemWhatsAppService</span> — wrapper بسيط يبني نفس الـ Service لكن بـ credentials Botzo المخزنة في Settings table. <strong>لا يُلمس كود الإرسال الأصلي.</strong></p>
+
+    <div class="code">
+// المبدأ البسيط:
+// بدلاً من: Organization credentials → WhatsappService
+// نضيف:    Botzo System credentials → BotzoSystemWhatsAppService → WhatsappService
+//
+// نفس المحرك، credentials مختلفة، نتيجة واحدة: رسالة WhatsApp تصل
+    </div>
+
+    <h3>٤.٣ — ما يحتاجه إعداد Botzo System Account</h3>
+    <ul class="steps">
+      <li><div class="sn">١</div><div class="sb"><strong>رقم هاتف جديد</strong> غير مسجل على WhatsApp — يصبح رقم Botzo الرسمي لإرسال أكواد التحقق.</div></li>
+      <li><div class="sn">٢</div><div class="sb"><strong>WhatsApp Business Account (WABA)</strong> — يمكن أن تكون نفس WABA الموجودة أو WABA جديدة مخصصة للنظام.</div></li>
+      <li><div class="sn">٣</div><div class="sb"><strong>إعداد Credentials في Settings</strong> — نفس طريقة <span class="tag">mail_config</span> الموجودة: access_token, phone_number_id, waba_id تُخزَّن في جدول Settings مشفرة.</div></li>
+      <li><div class="sn">٤</div><div class="sb"><strong>Authentication Template</strong> معتمد من Meta — يُقدَّم مرة واحدة ويُعاد استخدامه لكل عمليات OTP.</div></li>
+    </ul>
+
+  </div>
+</div>
+
+<!-- ══════════════════ 5. META POLICIES ══════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-blue">📋</div>
+    <h2>٥ — التوافق مع سياسات Meta</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>٥.١ — لماذا Authentication Template وليس غيره؟</h3>
+    <p>WhatsApp يقسّم القوالب لثلاثة أنواع. اختيار النوع الخاطئ يعني رفض Template أو تعطيل الخدمة:</p>
+    <table>
+      <thead><tr><th>النوع</th><th>الغرض</th><th>مناسب لـ OTP؟</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>MARKETING</strong> 🔴</td>
+          <td>العروض والإعلانات التجارية</td>
+          <td><span class="badge b-red">✗ غير مسموح لـ OTP</span></td>
+        </tr>
+        <tr>
+          <td><strong>UTILITY</strong> 🟡</td>
+          <td>تحديثات الطلبات، التذكيرات</td>
+          <td><span class="badge b-orange">⚠ مقبول لكن غير مثالي</span></td>
+        </tr>
+        <tr>
+          <td><strong>AUTHENTICATION</strong> 🟢</td>
+          <td>رموز التحقق وتسجيل الدخول</td>
+          <td><span class="badge b-green">✓ الخيار الصح</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="alert al-green">
+      <strong>ميزة AUTHENTICATION الأهم:</strong> رسائل التحقق (Authentication) لا تخضع لـ <strong>قاعدة الـ 24 ساعة</strong> التي تقيّد رسائل MARKETING. يمكن إرسالها في أي وقت لأي مستخدم سواء تواصل معك أم لا — وهذا بالضبط ما نحتاجه لـ OTP.
+    </div>
+
+    <h3>٥.٢ — قواعد Authentication Templates الإلزامية</h3>
+    <ul class="steps">
+      <li>
+        <div class="sn">✓</div>
+        <div class="sb"><strong>محتوى التحقق فقط</strong> — ممنوع أي محتوى تسويقي أو روابط خارجية في رسائل AUTHENTICATION. الرسالة يجب أن تحتوي فقط الكود وتعليمات استخدامه.</div>
+      </li>
+      <li>
+        <div class="sn">✓</div>
+        <div class="sb"><strong>عبارة الأمان إلزامية</strong> — يجب تضمين عبارة <em>"لا تشاركها مع أحد"</em> أو <em>"Do not share this code"</em> — Meta تطلبها صراحةً.</div>
+      </li>
+      <li>
+        <div class="sn">✓</div>
+        <div class="sb"><strong>زر OTP</strong> — يُفضَّل إضافة زر COPY_CODE لتسهيل نسخ الكود للمستخدم. Meta تدعمه وتُشجع عليه.</div>
+      </li>
+      <li>
+        <div class="sn">✓</div>
+        <div class="sb"><strong>انتهاء صلاحية</strong> — يُستحسن ذكر مدة صلاحية الكود (15 دقيقة) — يزيد ثقة المستخدم ومصداقية الرسالة.</div>
+      </li>
+    </ul>
+
+    <h3>٥.٣ — مخاطر سياسات Meta وكيف نتجنبها</h3>
+    <table>
+      <thead><tr><th>الخطر</th><th>الاحتمالية</th><th>الحل</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>رفض Template بسبب محتوى خاطئ</td>
+          <td><span class="badge b-orange">متوسط</span></td>
+          <td>الالتزام الصارم: كود + عبارة الأمان فقط. لا روابط، لا تسويق.</td>
+        </tr>
+        <tr>
+          <td>تعليق Template بسبب تقارير spam</td>
+          <td><span class="badge b-green">منخفض</span></td>
+          <td>Authentication templates نادراً ما تُبلَّغ كـ spam — المستخدمون يتوقعونها.</td>
+        </tr>
+        <tr>
+          <td>خفض جودة رقم الهاتف (Quality Rating)</td>
+          <td><span class="badge b-green">منخفض لـ OTP</span></td>
+          <td>رقم مخصص لـ OTP فقط — لا حملات تسويقية عليه = جودة عالية دائماً.</td>
+        </tr>
+        <tr>
+          <td>تجاوز حد معدل الإرسال</td>
+          <td><span class="badge b-orange">متوسط عند النمو</span></td>
+          <td>WhatsappRateLimiter موجود. المراقبة + الترقية لـ Tier أعلى عند الحاجة.</td>
+        </tr>
+        <tr>
+          <td>انتهاء صلاحية Access Token</td>
+          <td><span class="badge b-green">مُدار</span></td>
+          <td>WhatsappAccessTokenRefreshService موجود ويعمل كل ساعة.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>٥.٤ — ما الذي قد يُعطّل الخدمة مستقبلاً</h3>
+    <div class="grid2">
+      <div class="box">
+        <h4>⚠️ مخاطر تقنية</h4>
+        <ul style="padding-right:18px;font-size:13px;color:#475569">
+          <li>انتهاء Access Token بدون تجديد</li>
+          <li>تغيير API Version من Meta</li>
+          <li>فشل Queue Worker بدون مراقبة</li>
+          <li>امتلاء قاعدة البيانات بأكواد منتهية</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h4>⚠️ مخاطر سياسات</h4>
+        <ul style="padding-right:18px;font-size:13px;color:#475569">
+          <li>إرسال محتوى تسويقي من رقم OTP</li>
+          <li>ارتفاع معدل أخطاء إرسال = تقليل Tier</li>
+          <li>عدم التحقق التجاري من Meta (FBV)</li>
+          <li>استخدام Template بطريقة مختلفة عن الغرض المعتمد</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════ 6. META REQUIREMENTS ══════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-purple">🔑</div>
+    <h2>٦ — متطلبات Meta لاعتماد OTP</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>٦.١ — ما يجب توفيره قبل البدء</h3>
+    <table>
+      <thead><tr><th>المتطلب</th><th>الحالة في Botzo</th><th>الإجراء</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Facebook Business Verification (FBV)</strong></td>
+          <td><span class="badge b-orange">⚠ تحقق</span></td>
+          <td>تأكيد أن Botzo كشركة مُحققة في Meta Business Manager. إذا غير موجود: 3-14 يوم عمل.</td>
+        </tr>
+        <tr>
+          <td><strong>WhatsApp Business Account (WABA)</strong></td>
+          <td><span class="badge b-green">✓ موجود للعملاء</span></td>
+          <td>إضافة WABA خاصة بـ Botzo System أو استخدام WABA حالية + رقم جديد.</td>
+        </tr>
+        <tr>
+          <td><strong>Phone Number (رقم موثق)</strong></td>
+          <td><span class="badge b-red">✗ لازم يُضاف</span></td>
+          <td>رقم هاتف لم يُسجَّل على WhatsApp سابقاً — يُسجَّل عبر Business Manager.</td>
+        </tr>
+        <tr>
+          <td><strong>Business Profile كامل</strong></td>
+          <td><span class="badge b-orange">⚠ للـ Botzo System Account</span></td>
+          <td>اسم العمل، الوصف، صورة الشعار، الموقع الإلكتروني — يظهر للمستخدمين.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>٦.٢ — خطوات تقديم Authentication Template</h3>
+    <div class="phase-list">
+      <div class="phase-item ph1">
+        <div class="phase-dot pd-blue"></div>
+        <div class="phase-title">الخطوة ١: إعداد WABA وPhone Number</div>
+        <div class="phase-days">مدة: 1-3 أيام (إذا FBV موجود)</div>
+        <p style="font-size:13px;color:#475569">في Meta Business Manager: أضف رقم هاتف جديد → أدخل الكود التحقق → انتظر موافقة الاسم المعروض (Display Name).</p>
+      </div>
+      <div class="phase-item ph2">
+        <div class="phase-dot pd-green"></div>
+        <div class="phase-title">الخطوة ٢: إنشاء Template عبر Graph API أو Meta Business Manager</div>
+        <div class="phase-days">مدة: ساعات فقط (Auto-approved في الغالب)</div>
+        <p style="font-size:13px;color:#475569">إرسال Template JSON من النوع AUTHENTICATION. في الغالب يُوافق تلقائياً خلال دقائق إلى ساعات.</p>
+      </div>
+      <div class="phase-item ph3">
+        <div class="phase-dot pd-purple"></div>
+        <div class="phase-title">الخطوة ٣: اختبار Template في Sandbox</div>
+        <div class="phase-days">مدة: نصف يوم</div>
+        <p style="font-size:13px;color:#475569">Meta توفر بيئة اختبار. تأكيد: الرسالة تصل بالشكل الصح، الكود يظهر، زر النسخ يعمل.</p>
+      </div>
+      <div class="phase-item ph4">
+        <div class="phase-dot pd-orange"></div>
+        <div class="phase-title">الخطوة ٤: تفعيل في الإنتاج</div>
+        <div class="phase-days">مدة: فوري بعد الاختبار</div>
+        <p style="font-size:13px;color:#475569">حفظ Template ID في Settings → ربط BotzoSystemWhatsAppService بالـ Template → تشغيل.</p>
+      </div>
+    </div>
+
+    <h3>٦.٣ — مدة الموافقة المتوقعة</h3>
+    <table>
+      <thead><tr><th>نوع Template</th><th>مدة الموافقة</th><th>ملاحظة</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>AUTHENTICATION</strong></td>
+          <td><span class="badge b-green">دقائق إلى ساعات</span></td>
+          <td>Auto-approved في معظم الأحيان لأنها غير ترويجية</td>
+        </tr>
+        <tr>
+          <td>UTILITY</td>
+          <td>ساعات إلى يوم</td>
+          <td>مراجعة بشرية أسرع</td>
+        </tr>
+        <tr>
+          <td>MARKETING</td>
+          <td>1-3 أيام</td>
+          <td>مراجعة دقيقة للمحتوى</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>٦.٤ — الأسباب الشائعة للرفض (ونتجنبها هكذا)</h3>
+    <div class="grid2">
+      <div class="box" style="border-color:#FECACA">
+        <h4 style="color:#991B1B">أسباب الرفض</h4>
+        <ul style="padding-right:16px;font-size:13px;color:#7F1D1D">
+          <li>محتوى تسويقي في AUTHENTICATION template</li>
+          <li>روابط لمواقع خارجية</li>
+          <li>عبارات مبهمة لا تذكر الكود بوضوح</li>
+          <li>Template لا يتطابق مع الفئة المختارة</li>
+          <li>اسم Template مخالف لتسمية Meta</li>
+        </ul>
+      </div>
+      <div class="box" style="border-color:#BBF7D0">
+        <h4 style="color:#166534">كيف نتجنب الرفض</h4>
+        <ul style="padding-right:16px;font-size:13px;color:#14532D">
+          <li>الكود فقط — لا رسائل ترويجية أبداً</li>
+          <li>عبارة "لا تشاركه مع أحد" إلزامية</li>
+          <li>ذكر اسم التطبيق بوضوح: "Botzo"</li>
+          <li>مدة الصلاحية مذكورة</li>
+          <li>اسم Template يعكس الغرض: <span class="tag">botzo_otp_ar</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════ 7. RISKS ══════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-red">⚠️</div>
+    <h2>٧ — المخاطر المحتملة وتقييمها</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>٧.١ — مخاطر استخدام نفس Business Account للحملات وOTP</h3>
+    <div class="risk-bar risk-high"></div>
+    <div class="alert al-red">
+      <strong>خطر عالٍ — يجب تجنبه:</strong> إذا استُخدِم نفس رقم WhatsApp لإرسال حملات تسويقية + أكواد OTP:
+      <ul style="padding-right:20px;margin-top:8px">
+        <li>إذا تلقى الرقم شكاوى spam من حملة → انخفض Quality Rating → قد تُعلَّق رسائل OTP</li>
+        <li>إذا وصل الرقم للـ rate limit بسبب حملة → يتأخر OTP</li>
+        <li>مربك للمستخدم: يرى رسائل تسويقية وأكواد دخول من نفس الرقم</li>
+      </ul>
+      <strong>الحل: رقم هاتف مخصص لـ OTP فقط، لا حملات عليه أبداً.</strong>
+    </div>
+
+    <h3>٧.٢ — مخاطر الضغط العالي على النظام</h3>
+    <div class="risk-bar risk-med"></div>
+    <table>
+      <thead><tr><th>السيناريو</th><th>التأثير</th><th>الحل الموجود</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1000 مستخدم يسجلون في نفس الوقت</td>
+          <td>1000 OTP job في queue</td>
+          <td>Queue 'otp' بأعلى أولوية — يُعالج الـ 1000 خلال &lt;60 ثانية</td>
+        </tr>
+        <tr>
+          <td>حملة مليون رسالة تعمل</td>
+          <td>لا تأثير على OTP</td>
+          <td>Workers منفصلون تماماً — معزولون في الكود</td>
+        </tr>
+        <tr>
+          <td>تجاوز حد 80 رسالة/ثانية</td>
+          <td>Job يُعاد لـ Queue بعد ثانية</td>
+          <td>WhatsappRateLimiter مع إصلاح blocking bug</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>٧.٣ — مخاطر التأخير في التسليم</h3>
+    <div class="risk-bar risk-low"></div>
+    <p>أسرع مخاطر تأخير OTP هي:</p>
+    <ul style="padding-right:24px;color:#334155;font-size:14px">
+      <li style="margin:8px 0"><strong>شبكة المستخدم:</strong> إذا كان في منطقة ضعيفة — خارج تحكمنا</li>
+      <li style="margin:8px 0"><strong>Queue Worker متوقف:</strong> يُحل بـ Supervisor + مراقبة تلقائية</li>
+      <li style="margin:8px 0"><strong>تأخير من Meta:</strong> نادر لـ Authentication templates — عادةً &lt;2 ثانية</li>
+    </ul>
+
+    <h3>٧.٤ — مخاطر سياسات Meta على المدى البعيد</h3>
+    <div class="risk-bar risk-low"></div>
+    <p>Meta تُحدّث سياساتها دورياً. المخاطر بعيدة المدى:</p>
+    <div class="grid2">
+      <div class="box">
+        <h4>مخاطر محتملة</h4>
+        <ul style="padding-right:16px;font-size:13px;color:#475569">
+          <li>تغيير pricing لـ Authentication conversations</li>
+          <li>إضافة متطلبات جديدة للـ FBV</li>
+          <li>تغيير في API versions</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h4>الحماية</h4>
+        <ul style="padding-right:16px;font-size:13px;color:#475569">
+          <li>Email OTP كـ fallback دائم</li>
+          <li>WhatsappAccessTokenRefreshService يتعامل مع التحديثات</li>
+          <li>Architecture مرنة: تبديل provider بدون تغيير كبير</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════ 8. ARCHITECTURE ══════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-blue">🏗️</div>
+    <h2>٨ — أفضل تصميم تقني للـ OTP</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>٨.١ — المبادئ الأساسية للتصميم</h3>
+    <ul class="steps">
+      <li>
+        <div class="sn">١</div>
+        <div class="sb">
+          <strong>لا تكسر ما يعمل</strong><br>
+          WhatsappService، Queue Workers، Rate Limiter — كلها تبقى كما هي. نضيف فوقها، لا نُعيد كتابتها.
+        </div>
+      </li>
+      <li>
+        <div class="sn">٢</div>
+        <div class="sb">
+          <strong>قناة واحدة، محرك واحد</strong><br>
+          سواء أرسلنا OTP عبر WhatsApp أو Email، يمر عبر UnifiedOtpService واحدة تُقرر القناة المناسبة. الكود المطلوب لإضافة SMS مستقبلاً؟ سطر واحد.
+        </div>
+      </li>
+      <li>
+        <div class="sn">٣</div>
+        <div class="sb">
+          <strong>الأولوية في Queue حل معظم المشاكل</strong><br>
+          إضافة 'otp' قبل 'default' في worker config — تعديل من سطر واحد يضمن أن OTP يُعالج دائماً قبل أي شيء آخر.
+        </div>
+      </li>
+      <li>
+        <div class="sn">٤</div>
+        <div class="sb">
+          <strong>العزل الكامل للأرقام</strong><br>
+          رقم Botzo System لـ OTP فقط. رقم العملاء للحملات فقط. لا يختلطان أبداً.
+        </div>
+      </li>
+    </ul>
+
+    <h3>٨.٢ — الـ Service الجديدة مقابل الموجودة</h3>
+    <table>
+      <thead><tr><th>المكوّن</th><th>القرار</th><th>السبب</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>WhatsappService</td>
+          <td><span class="badge b-green">Reuse — لا تعديل</span></td>
+          <td>يعمل، مستقر، مختبر في الإنتاج</td>
+        </tr>
+        <tr>
+          <td>WhatsappTokenVault</td>
+          <td><span class="badge b-green">Reuse — لا تعديل</span></td>
+          <td>نفس التشفير لـ Botzo System credentials</td>
+        </tr>
+        <tr>
+          <td>EmailVerificationCodeService</td>
+          <td><span class="badge b-orange">Extend — تفويض فقط</span></td>
+          <td>يبقى للتوافق، يُفوَّض لـ UnifiedOtpService</td>
+        </tr>
+        <tr>
+          <td>WhatsappRateLimiter</td>
+          <td><span class="badge b-orange">Fix bug — إصلاح صغير</span></td>
+          <td>استبدال usleep بـ release() غير حاجب</td>
+        </tr>
+        <tr>
+          <td>BotzoSystemWhatsAppService</td>
+          <td><span class="badge b-blue">New — صغير جداً</span></td>
+          <td>Wrapper لـ WhatsappService بـ credentials النظام</td>
+        </tr>
+        <tr>
+          <td>UnifiedOtpService</td>
+          <td><span class="badge b-blue">New — متوسط</span></td>
+          <td>يوحّد كل منطق OTP: توليد، إرسال، تحقق، لكل القنوات</td>
+        </tr>
+        <tr>
+          <td>SendOtpJob</td>
+          <td><span class="badge b-blue">New — صغير</span></td>
+          <td>Job مخصص لـ queue 'otp' مع retry logic</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+<!-- ══════════════════ 9. OFFICIAL LETTER ══════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-yellow">✉️</div>
+    <h2>٩ — Draft الرسالة الرسمية لـ Meta</h2>
+  </div>
+  <div class="card-body">
+
+    <div class="alert al-blue" style="margin-bottom:20px">
+      <strong>ملاحظة:</strong> هذا الـ Draft مكتوب بالإنجليزية كما تتطلب Meta. يمكن إرساله عبر <strong>Meta Business Help Center</strong> أو من خلال الـ <strong>WhatsApp Business Support Portal</strong>. يحتوي على كل المعلومات المطلوبة لطلب الموافقة على Authentication Template.
+    </div>
+
+    <div class="letter">
+      <div class="letter-header">
+        <div style="font-size:30px;font-weight:900;color:#25D366;letter-spacing:-1px">botzo</div>
+        <p style="font-size:12px;color:#94A3B8;margin-top:4px">WhatsApp & Meta Business Solutions Platform</p>
+        <div style="margin-top:20px;padding:14px;background:#F8FAFC;border-radius:8px;font-size:13px;color:#475569">
+          <strong>To:</strong> Meta WhatsApp Business Support<br>
+          <strong>Subject:</strong> Request for Authentication Template Approval — OTP Verification for Botzo Platform Users<br>
+          <strong>Date:</strong> May 28, 2026
+        </div>
+      </div>
+
+      <div class="letter-body">
+        <div class="letter-section">
+          <h4>1. Company Overview</h4>
+          <p>We are writing on behalf of <strong>Botzo</strong>, a B2B SaaS platform that enables businesses across Saudi Arabia and the MENA region to manage their customer communications through WhatsApp Business API. Our platform provides WhatsApp inbox management, campaign broadcasting, CRM, automation flows, and AI-powered response tools to our enterprise clients.</p>
+          <p>Botzo is a verified WhatsApp Business Solution Provider (BSP) and currently operates in production, serving multiple organizations through the official WhatsApp Business Platform. We have an established WhatsApp Business Account (WABA) and our system processes hundreds of thousands of WhatsApp messages daily through the official Cloud API.</p>
+        </div>
+
+        <div class="letter-section">
+          <h4>2. Purpose of This Request</h4>
+          <p>We are implementing a new user authentication system for our own SaaS platform — specifically for Botzo's internal users (business owners and team members who sign up and log in to the Botzo platform itself).</p>
+          <p>We are requesting approval for an <strong>AUTHENTICATION category template</strong> to be used exclusively for sending one-time passwords (OTP) during:</p>
+          <ul style="padding-right:24px;margin:12px 0;color:#334155">
+            <li style="margin:6px 0">User registration — verifying a new user's phone number</li>
+            <li style="margin:6px 0">Login verification — confirming identity via phone number</li>
+            <li style="margin:6px 0">Password reset — secure account recovery</li>
+          </ul>
+          <p>This use case is strictly limited to identity verification and account security. No marketing, promotional, or commercial messages will ever be sent using this template or from the designated OTP phone number.</p>
+        </div>
+
+        <div class="letter-section">
+          <h4>3. Proposed Authentication Template</h4>
+          <p>We are submitting the following template for approval:</p>
+
+          <div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:20px;margin:14px 0;font-family:'Courier New',monospace;font-size:13.5px;direction:ltr">
+            <div style="font-size:11px;color:#94A3B8;margin-bottom:10px">— TEMPLATE: botzo_otp_ar (Arabic) —</div>
+            <strong>Template Name:</strong> botzo_otp_ar<br>
+            <strong>Category:</strong> AUTHENTICATION<br>
+            <strong>Language:</strong> Arabic (ar)<br><br>
+            <strong>Body Text:</strong><br>
+            <em>"{{1}} هو رمز التحقق الخاص بك في منصة Botzo. صالح لمدة 15 دقيقة. لا تشاركه مع أي شخص."</em><br><br>
+            <strong>English translation:</strong><br>
+            <em>"{{1}} is your Botzo verification code. Valid for 15 minutes. Do not share this code with anyone."</em><br><br>
+            <strong>Button:</strong> OTP / COPY_CODE type ("Copy Code")<br>
+            <strong>Variable:</strong> {{1}} = 6-digit numeric OTP code<br>
+            <strong>Security Recommendation:</strong> Included (as required by Meta policy)
+          </div>
+
+          <div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:20px;margin:14px 0;font-family:'Courier New',monospace;font-size:13.5px;direction:ltr">
+            <div style="font-size:11px;color:#94A3B8;margin-bottom:10px">— TEMPLATE: botzo_otp_en (English) —</div>
+            <strong>Template Name:</strong> botzo_otp_en<br>
+            <strong>Category:</strong> AUTHENTICATION<br>
+            <strong>Language:</strong> English (en)<br><br>
+            <strong>Body Text:</strong><br>
+            <em>"{{1}} is your Botzo verification code. Valid for 15 minutes. Do not share this code with anyone."</em><br><br>
+            <strong>Button:</strong> OTP / COPY_CODE type ("Copy Code")<br>
+            <strong>Variable:</strong> {{1}} = 6-digit numeric OTP code<br>
+            <strong>Security Recommendation:</strong> Included
+          </div>
+        </div>
+
+        <div class="letter-section">
+          <h4>4. Technical Implementation Details</h4>
+          <p>To ensure full compliance and the best user experience, we have designed the following technical safeguards:</p>
+          <ul style="padding-right:24px;margin:12px 0;color:#334155">
+            <li style="margin:8px 0"><strong>Dedicated phone number:</strong> A dedicated phone number will be used exclusively for OTP delivery — completely separate from any marketing or campaign communications.</li>
+            <li style="margin:8px 0"><strong>Code expiration:</strong> All OTP codes expire after 15 minutes and are invalidated upon use.</li>
+            <li style="margin:8px 0"><strong>Rate limiting:</strong> Maximum 3 OTP requests per phone number per 15 minutes, and 10 per hour per IP address.</li>
+            <li style="margin:8px 0"><strong>Secure storage:</strong> OTP codes are stored as bcrypt hashes — never in plain text.</li>
+            <li style="margin:8px 0"><strong>No marketing use:</strong> This template and its associated phone number will never be used for any marketing, promotional, or non-authentication purpose.</li>
+            <li style="margin:8px 0"><strong>User consent:</strong> Users explicitly provide their phone number during registration and consent to receive authentication messages.</li>
+          </ul>
+        </div>
+
+        <div class="letter-section">
+          <h4>5. Compliance Commitment</h4>
+          <p>Botzo is fully committed to complying with Meta's WhatsApp Business Policies, the WhatsApp Commerce Policy, and all applicable regional regulations. As an established WhatsApp Business Platform partner, we understand the importance of maintaining message quality, respecting user preferences, and using the platform only for its intended purposes.</p>
+          <p>We confirm that:</p>
+          <ul style="padding-right:24px;margin:12px 0;color:#334155">
+            <li style="margin:6px 0">The Authentication Templates will only be used for user identity verification.</li>
+            <li style="margin:6px 0">No promotional content will ever be included in OTP messages.</li>
+            <li style="margin:6px 0">We will provide an opt-out mechanism for users who do not wish to receive WhatsApp verification messages (with email OTP as an alternative).</li>
+            <li style="margin:6px 0">We will immediately report and address any misuse or abuse of this template.</li>
+          </ul>
+        </div>
+
+        <div class="letter-section">
+          <h4>6. Request</h4>
+          <p>We respectfully request:</p>
+          <ol style="padding-right:24px;margin:12px 0;color:#334155">
+            <li style="margin:8px 0">Approval of the <strong>botzo_otp_ar</strong> and <strong>botzo_otp_en</strong> Authentication Templates as described above.</li>
+            <li style="margin:8px 0">Guidance on any additional requirements or documentation needed to complete the approval process.</li>
+            <li style="margin:8px 0">Confirmation of the approved phone number registration process for our dedicated OTP sender number.</li>
+          </ol>
+          <p>We are available to provide any additional information, documentation, or clarification that may be required. We appreciate Meta's continued partnership and look forward to delivering a secure and seamless authentication experience to our users.</p>
+        </div>
+
+        <div class="letter-sig">
+          <p><strong>Sincerely,</strong></p>
+          <p style="margin-top:14px">
+            <strong>[Name]</strong><br>
+            <span style="color:#64748B">Technical Director / CTO</span><br>
+            <strong>Botzo</strong> — WhatsApp & Meta Business Solutions Platform<br>
+            <span style="color:#64748B">Email: [technical@botzo.net]</span><br>
+            <span style="color:#64748B">WhatsApp: [+966XXXXXXXXX]</span><br>
+            <span style="color:#64748B">Website: botzo.net</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert al-blue" style="margin-top:16px">
+      <strong>كيفية الإرسال:</strong> اذهب إلى <strong>business.facebook.com</strong> → Help Center → "Contact Support" → اختر "WhatsApp Business Account" → "Message Templates" → ارفق هذه الرسالة مع الـ Template JSON.<br><br>
+      بديل أسرع: إذا كان لديكم حساب مع BSP (Business Solution Provider) متخصص مثل 360dialog أو Twilio، يمكنهم تقديم الطلب مباشرة من واجهتهم في دقائق.
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════ SUMMARY ══════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-gray">📌</div>
+    <h2>ملخص تنفيذي — أهم 7 نقاط</h2>
+  </div>
+  <div class="card-body">
+    <ul class="steps">
+      <li>
+        <div class="sn" style="background:linear-gradient(135deg,#25D366,#1877F2)">١</div>
+        <div class="sb">
+          <strong>النظام جاهز بنسبة 80%</strong> — البنية التحتية لإرسال WhatsApp OTP موجودة ومجربة في الإنتاج. المطلوب: ربط وإعداد وليس بناء.
+        </div>
+      </li>
+      <li>
+        <div class="sn" style="background:linear-gradient(135deg,#25D366,#1877F2)">٢</div>
+        <div class="sb">
+          <strong>الحملات لن تؤثر على OTP</strong> — queue الحملات معزولة بالفعل في worker منفصل. إضافة سطر واحد في config تجعل OTP بأعلى أولوية.
+        </div>
+      </li>
+      <li>
+        <div class="sn" style="background:linear-gradient(135deg,#25D366,#1877F2)">٣</div>
+        <div class="sb">
+          <strong>رقم مخصص لـ OTP — ليس اختياراً</strong> — استخدام نفس رقم الحملات التسويقية خطر حقيقي. رقم منفصل = حماية الخدمة ومصداقية أعلى.
+        </div>
+      </li>
+      <li>
+        <div class="sn" style="background:linear-gradient(135deg,#25D366,#1877F2)">٤</div>
+        <div class="sb">
+          <strong>Template AUTHENTICATION يُوافَق عليه بسرعة</strong> — ساعات في الغالب لأنه غير ترويجي. شرط واحد: الكود فقط + عبارة الأمان + لا تسويق.
+        </div>
+      </li>
+      <li>
+        <div class="sn" style="background:linear-gradient(135deg,#25D366,#1877F2)">٥</div>
+        <div class="sb">
+          <strong>ابدأ بـ Facebook Business Verification الآن</strong> — إذا لم يتم بعد، يأخذ 3-14 يوم. هو العائق الوحيد الذي لا يمكن تسريعه.
+        </div>
+      </li>
+      <li>
+        <div class="sn" style="background:linear-gradient(135deg,#25D366,#1877F2)">٦</div>
+        <div class="sb">
+          <strong>Email OTP fallback إلزامي</strong> — إذا لم يصل WhatsApp OTP (رقم خاطئ، شبكة ضعيفة)، المستخدم يحتاج بديلاً. Email كـ fallback = تجربة مستخدم سلسة.
+        </div>
+      </li>
+      <li>
+        <div class="sn" style="background:linear-gradient(135deg,#25D366,#1877F2)">٧</div>
+        <div class="sb">
+          <strong>التكلفة منخفضة جداً</strong> — ~$0.015 لكل كود تحقق يُرسل عبر WhatsApp للسعودية. 10,000 مستخدم جديد = ~$150. لا حاجة لمزود خارجي مدفوع — ندفع لـ Meta مباشرة.
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="card">
+  <div class="footer">
+    <div class="footer-bar"></div>
+    <div>Botzo — WhatsApp OTP Report — مراجعة شاملة + Draft رسمي — 28 مايو 2026</div>
+    <div style="margin-top:4px">سري — للاستخدام الداخلي فقط</div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

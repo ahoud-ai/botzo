@@ -61,6 +61,8 @@ return [
 
     'debug' => (bool) env('APP_DEBUG', false),
 
+    'allow_test_payment_mode_on_production' => (bool) env('ALLOW_TEST_PAYMENT_MODE_ON_PRODUCTION', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application URL
