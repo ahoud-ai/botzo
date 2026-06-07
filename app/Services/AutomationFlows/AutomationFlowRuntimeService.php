@@ -95,8 +95,6 @@ class AutomationFlowRuntimeService
                 }
                 $freshRun->update([
                     'status' => 'active',
-                    'waiting_node_id' => null,
-                    'waiting_for' => null,
                     'next_resume_at' => null,
                     'last_activity_at' => now(),
                 ]);
@@ -628,6 +626,12 @@ class AutomationFlowRuntimeService
                     $nextNodeId = $this->resolveNextNodeId($outgoing, 'default');
                     break;
                 case 'delay':
+                    if ($run->waiting_node_id === $currentNodeId && $run->waiting_for === 'delay') {
+                        $this->recordStep($run, $currentNodeId, 'executed', $context, ['reason' => 'delay_completed']);
+                        $run->update(['waiting_node_id' => null, 'waiting_for' => null]);
+                        $nextNodeId = $this->resolveNextNodeId($outgoing, 'default');
+                        break;
+                    }
                     $minutes = max(1, (int) Arr::get($node, 'config.minutes', 1));
                     $resumeAt = now()->addMinutes($minutes);
                     $this->recordStep($run, $currentNodeId, 'waiting', $context, ['resume_at' => $resumeAt->toISOString()]);

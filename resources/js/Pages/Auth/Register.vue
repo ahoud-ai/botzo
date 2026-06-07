@@ -6,7 +6,7 @@
     <div class="min-h-[100svh] bg-white dark:bg-gray-900">
         <div class="flex flex-col justify-between min-h-[100svh] mx-4 sm:mx-8 md:mx-10">
             <!-- Top section with logo -->
-            <div class="flex justify-start md:justify-between items-center mt-8 md:mt-10 mb-4">
+            <div class="flex justify-between items-center mt-8 md:mt-10 mb-4">
                 <!-- Logo -->
                 <div class="flex items-center">
                     <Link href="/" class="inline-block">
@@ -14,6 +14,7 @@
                         <h1 v-else-if="props.companyConfig?.company_name" class="text-2xl md:text-xl text-gray-900 dark:text-white">{{ props.companyConfig.company_name }}</h1>
                     </Link>
                 </div>
+                <LangToggle :languages="languages" :currentLanguage="currentLanguage" class="text-gray-600 dark:text-gray-300" />
             </div>
 
             <!-- Content section -->
@@ -227,12 +228,16 @@
 </template>
 
 <script setup>
-    import { Head, Link, useForm } from "@inertiajs/vue3";
+    import { Head, Link, useForm, usePage } from "@inertiajs/vue3";
     import FormInput from '@/Components/FormInput.vue';
     import FormPhoneInput from '@/Components/FormPhoneInput.vue';
-    import { defineProps, ref } from 'vue';
+    import LangToggle from '@/Components/LangToggle.vue';
+    import { defineProps, ref, computed } from 'vue';
 
     const props = defineProps(['flash', 'config', 'companyConfig', 'signupPhoneCountries']);
+    const page = usePage();
+    const languages = computed(() => page.props.languages);
+    const currentLanguage = computed(() => page.props.currentLanguage);
 
     const isLoading = ref(false);
 

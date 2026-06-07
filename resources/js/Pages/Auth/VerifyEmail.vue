@@ -1,5 +1,8 @@
 <template>
     <div :class="rtlClass">
+        <div class="fixed top-4 end-4 z-10 text-gray-600">
+            <LangToggle :languages="languages" :currentLanguage="currentLanguage" />
+        </div>
         <div class="flex min-h-[100svh] items-start justify-center bg-white px-4 py-16 sm:py-24">
             <div class="w-full max-w-[26rem]">
                 <div class="rounded-xl border border-slate-100 bg-white px-5 py-7 shadow-sm sm:px-7">
@@ -75,6 +78,7 @@
 </template>
 <script setup>
     import { Link, router, useForm, usePage } from "@inertiajs/vue3";
+    import LangToggle from '@/Components/LangToggle.vue';
     import { computed, defineProps, ref } from 'vue';
     import { toast } from 'vue3-toastify';
     import 'vue3-toastify/dist/index.css';
@@ -83,6 +87,9 @@
     const { rtlClass, isRtl } = useRtl();
 
     const props = defineProps(['flash', 'config', 'companyConfig']);
+    const page = usePage();
+    const languages = computed(() => page.props.languages);
+    const currentLanguage = computed(() => page.props.currentLanguage);
     const isSending = ref(false);
     const form = useForm({
         code: '',

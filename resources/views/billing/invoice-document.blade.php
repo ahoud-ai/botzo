@@ -26,10 +26,10 @@
     $vendorAddressLines = array_values(array_filter($vendor['address_lines'] ?? []));
     $customerAddressLines = array_values(array_filter($customer['address_lines'] ?? []));
 
-    $resolvedLogoPath = $vendor['logo_path'] ?? public_path('images/logo.png');
+    $resolvedLogoPath = $vendor['logo_path'] ?? public_path('images/brand/botzo-logo-app.png');
 
     if ($pdfMode) {
-        $pdfPreferredLogoPath = public_path('bimi/botzo-logo.svg');
+        $pdfPreferredLogoPath = public_path('images/brand/botzo-logo-app.png');
 
         if (is_file($pdfPreferredLogoPath)) {
             $resolvedLogoPath = $pdfPreferredLogoPath;
@@ -42,7 +42,7 @@
     if ($logoExists) {
         $logoUrl = $pdfMode
             ? 'file:///' . str_replace('\\', '/', $resolvedLogoPath)
-            : ($vendor['logo_url'] ?? url('/images/logo.png'));
+            : ($vendor['logo_url'] ?? url('/images/brand/botzo-logo-app.png'));
     }
 
     $summaryRows = [
@@ -125,10 +125,10 @@
         .toolbar {
             margin-bottom: 20px;
             padding: 16px 18px;
-            border: 1px solid rgba(191, 219, 254, 0.85);
+            border: 1px solid rgba(187, 247, 208, 0.85);
             border-radius: 24px;
             background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 24px 60px rgba(3, 71, 55, 0.08);
             backdrop-filter: blur(14px);
         }
 
@@ -188,15 +188,15 @@
         }
 
         .btn-primary {
-            border-color: #1d4ed8;
-            background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+            border-color: #034737;
+            background: linear-gradient(135deg, #034737 0%, #008000 100%);
             color: #ffffff;
         }
 
         .btn-soft {
-            border-color: #bfdbfe;
-            background: linear-gradient(135deg, #eff6ff 0%, #f8fbff 100%);
-            color: #1d4ed8;
+            border-color: #bbf7d0;
+            background: linear-gradient(135deg, #f0fdf4 0%, #f8fffa 100%);
+            color: #034737;
         }
 
         .document {
@@ -209,7 +209,7 @@
 
         .document-accent {
             height: 6px;
-            background: linear-gradient(90deg, #2563eb 0%, #38bdf8 55%, #67e8f9 100%);
+            background: linear-gradient(90deg, #034737 0%, #008000 55%, #22c55e 100%);
         }
 
         .section {
@@ -268,12 +268,12 @@
         .brand-logo {
             width: 60px;
             height: 60px;
-            border: 1px solid #d7e7ff;
+            border: 1px solid #bbf7d0;
             text-align: center;
             vertical-align: middle;
             border-radius: 18px;
-            background: linear-gradient(180deg, #ffffff 0%, #f3f8ff 100%);
-            box-shadow: 0 16px 32px rgba(59, 130, 246, 0.12);
+            background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+            box-shadow: 0 16px 32px rgba(3, 71, 55, 0.12);
         }
 
         .brand-logo img {
@@ -308,10 +308,10 @@
             display: inline-block;
             padding: 7px 12px;
             margin-bottom: 10px;
-            border: 1px solid #dbeafe;
+            border: 1px solid #bbf7d0;
             border-radius: 999px;
-            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
-            color: #2563eb;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+            color: #034737;
             font-size: 11px;
             font-weight: 700;
         }
@@ -424,8 +424,8 @@
         }
 
         .items-table th {
-            background: linear-gradient(180deg, #eff6ff 0%, #f7fbff 100%);
-            color: #334155;
+            background: linear-gradient(180deg, #f0fdf4 0%, #f8fffa 100%);
+            color: #034737;
             font-size: 11px;
             font-weight: 700;
         }
@@ -443,7 +443,7 @@
             padding-top: 16px;
             font-size: 16px;
             font-weight: 700;
-            color: #1d4ed8;
+            color: #034737;
         }
 
         .summary-value-cell {

@@ -332,7 +332,7 @@ class ChatService
                     'chatThread' => $initialMessages['messages'],
                     'hasMoreMessages' => $initialMessages['hasMoreMessages'],
                     'nextPage' => $initialMessages['nextPage'],
-                    'contact' => ContactResource::make($contact),
+                    'contact' => ContactResource::make($contact)->resolve(),
                     'fields' => ContactField::where('organization_id', $this->organizationId)->where('deleted_at', null)->get(),
                     'locationSettings' => $this->getLocationSettings(),
                     'ticket' => $ticket,

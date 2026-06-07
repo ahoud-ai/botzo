@@ -1,6 +1,6 @@
 <template>
     <AppLayout v-slot:default="slotProps">
-        <div class="ui-page ui-fade-up ui-page-frame ui-workspace-page--fixed min-h-full">
+        <div class="ui-page ui-fade-up ui-page-frame ui-workspace-page--fixed h-full overflow-hidden">
             <div class="ui-workspace-split ui-workspace-split--chat h-full">
                 <div class="ui-workspace-pane ui-workspace-sidebar" :class="contact ? 'hidden' : ''">
                     <ChatTable :rows="rows" :filters="props.filters" :rowCount="props.rowCount" :ticketingIsEnabled="ticketingIsEnabled" :status="props?.status" :chatSortDirection="props.chat_sort_direction" :agents="props.agents"/>
@@ -308,6 +308,10 @@
         const chatContactId = Number(chatValue?.contact_id);
 
         if (!contact.value || !chatValue || !Number.isFinite(selectedContactId) || selectedContactId !== chatContactId) {
+            return;
+        }
+
+        if (contact.value.last_chat?.id === chatValue.id) {
             return;
         }
 

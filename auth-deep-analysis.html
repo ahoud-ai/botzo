@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Technical Deep Analysis — Auth & OTP — Botzo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:#0F172A;color:#E2E8F0;line-height:1.8;font-size:14px}
+.page{max-width:1080px;margin:0 auto;padding:32px 16px}
+/* Cards */
+.card{background:#1E293B;border:1px solid #334155;border-radius:16px;overflow:hidden;margin-bottom:28px}
+.card-header{padding:18px 28px 14px;border-bottom:1px solid #334155;display:flex;align-items:center;gap:12px}
+.card-body{padding:24px 28px}
+/* Top bar */
+.topbar{height:6px;background:linear-gradient(90deg,#25D366,#00E5FF 34%,#1877F2 68%,#7C3AED 100%);border-radius:16px 16px 0 0}
+/* Typography */
+h1{font-size:28px;font-weight:900;color:#F8FAFC;letter-spacing:-0.5px}
+h2{font-size:17px;font-weight:800;color:#F8FAFC}
+h3{font-size:15px;font-weight:700;color:#7DD3FC;margin:20px 0 10px}
+h4{font-size:13px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px}
+p{color:#CBD5E1;font-size:14px;margin:8px 0}
+/* Code */
+.code{background:#0F172A;border:1px solid #1E3A5F;border-radius:10px;padding:16px 18px;font-family:'Courier New',monospace;font-size:12.5px;direction:ltr;unicode-bidi:embed;overflow-x:auto;margin:12px 0;line-height:1.7}
+.code .cm{color:#475569}
+.code .kw{color:#7DD3FC}
+.code .fn{color:#86EFAC}
+.code .st{color:#FCA5A5}
+.code .va{color:#FCD34D}
+.code .co{color:#C4B5FD}
+.code .nu{color:#F9A8D4}
+.code .op{color:#64748B}
+/* Badges */
+.badge{display:inline-block;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:700;white-space:nowrap}
+.b-green{background:#14532D;color:#86EFAC;border:1px solid #166534}
+.b-blue{background:#1E3A5F;color:#7DD3FC;border:1px solid #1D4ED8}
+.b-red{background:#450A0A;color:#FCA5A5;border:1px solid #991B1B}
+.b-orange{background:#431407;color:#FED7AA;border:1px solid #C2410C}
+.b-purple{background:#2E1065;color:#C4B5FD;border:1px solid #6D28D9}
+.b-gray{background:#1E293B;color:#94A3B8;border:1px solid #334155}
+.b-yellow{background:#451A03;color:#FDE68A;border:1px solid #92400E}
+/* Section icon */
+.ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.ic-blue{background:#1E3A5F}
+.ic-green{background:#14532D}
+.ic-red{background:#450A0A}
+.ic-orange{background:#431407}
+.ic-purple{background:#2E1065}
+.ic-teal{background:#0D3D3A}
+.ic-gray{background:#1E293B}
+/* Alert boxes */
+.alert{border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;line-height:1.7}
+.alert-green{background:#14532D20;border:1px solid #14532D;color:#86EFAC}
+.alert-blue{background:#1E3A5F40;border:1px solid #1D4ED8;color:#93C5FD}
+.alert-red{background:#450A0A40;border:1px solid #991B1B;color:#FCA5A5}
+.alert-orange{background:#43140740;border:1px solid #C2410C;color:#FED7AA}
+.alert-yellow{background:#45260240;border:1px solid #92400E;color:#FDE68A}
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0}
+th{background:#0F172A;color:#64748B;font-weight:700;padding:9px 14px;border:1px solid #334155;text-align:right;text-transform:uppercase;font-size:11px;letter-spacing:0.3px}
+td{padding:9px 14px;border:1px solid #334155;vertical-align:top;color:#CBD5E1}
+tr:nth-child(even) td{background:#182030}
+.tc{font-family:'Courier New',monospace;font-size:11px;color:#7DD3FC;direction:ltr;unicode-bidi:embed}
+/* Two columns */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:12px 0}
+.box{background:#0F172A;border:1px solid #334155;border-radius:10px;padding:16px}
+.box h4{margin-top:0;color:#7DD3FC}
+/* Steps / numbered list */
+.steps{list-style:none;padding:0}
+.steps li{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid #1E293B}
+.steps li:last-child{border-bottom:none}
+.sn{min-width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1877F2,#7C3AED);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:3px}
+.sb{flex:1;color:#CBD5E1}
+.sb strong{color:#F1F5F9}
+/* Highlight tag inline */
+.tag{display:inline-block;background:#1E293B;border:1px solid #334155;border-radius:5px;padding:1px 7px;font-family:'Courier New',monospace;font-size:11px;color:#7DD3FC;direction:ltr;unicode-bidi:embed}
+.tag-fix{background:#14532D30;border-color:#14532D;color:#86EFAC}
+.tag-new{background:#1E3A5F30;border-color:#1D4ED8;color:#93C5FD}
+.tag-warn{background:#43140730;border-color:#C2410C;color:#FED7AA}
+.tag-debt{background:#45260230;border-color:#92400E;color:#FDE68A}
+/* Architecture flow */
+.flow-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+.flow-box{background:#1E293B;border:1px solid #334155;border-radius:8px;padding:8px 14px;font-size:12px;color:#CBD5E1}
+.flow-box.hot{border-color:#1877F2;color:#7DD3FC}
+.flow-box.warn{border-color:#C2410C;color:#FED7AA}
+.flow-box.ok{border-color:#166534;color:#86EFAC}
+.arrow{color:#475569;font-size:16px}
+/* Queue diagram */
+.q-worker{background:#0F172A;border:1px solid #1877F2;border-radius:10px;padding:14px 16px;margin:8px 0}
+.q-worker-name{color:#7DD3FC;font-weight:700;font-size:13px;margin-bottom:8px}
+.q-queue{display:inline-block;background:#1E3A5F40;border:1px solid #1D4ED8;border-radius:5px;padding:3px 9px;font-family:'Courier New',monospace;font-size:11px;color:#93C5FD;margin:3px}
+.q-queue.otp-q{background:#14532D40;border-color:#14532D;color:#86EFAC}
+.q-queue.campaign-q{background:#45260240;border-color:#92400E;color:#FDE68A}
+/* Phase timeline */
+.phase{border-right:3px solid #334155;padding:0 20px 24px 0;margin-bottom:0;position:relative}
+.phase:last-child{padding-bottom:0}
+.phase-dot{width:14px;height:14px;border-radius:50%;position:absolute;right:-8px;top:3px}
+.ph1 .phase-dot{background:#1877F2}
+.ph2 .phase-dot{background:#25D366}
+.ph3 .phase-dot{background:#7C3AED}
+.ph4 .phase-dot{background:#F59E0B}
+.ph5 .phase-dot{background:#06B6D4}
+.phase-title{font-size:15px;font-weight:800;color:#F1F5F9;margin-bottom:8px}
+.phase-days{font-size:11px;color:#475569;margin-bottom:10px}
+.phase ul{padding-right:18px;font-size:13px;color:#94A3B8}
+.phase ul li{margin:4px 0}
+/* Footer */
+.footer{background:#0F172A;border-top:1px solid #334155;padding:18px 28px;text-align:center;color:#475569;font-size:12px}
+.footer-bar{height:3px;width:80px;background:linear-gradient(90deg,#25D366,#00E5FF,#1877F2,#7C3AED);border-radius:999px;margin:0 auto 10px}
+/* Print */
+@media print{body{background:#fff;color:#000}.card{border:1px solid #ccc;background:#fff}.code{background:#f8f8f8;border:1px solid #ddd;color:#000}.card-header,.code .cm{color:#666}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="card">
+  <div class="topbar"></div>
+  <div class="card-body" style="padding:30px 36px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px">
+      <div>
+        <div style="font-size:36px;font-weight:900;color:#F8FAFC;letter-spacing:-1px;margin-bottom:6px">
+          <span style="color:#25D366">b</span>otzo
+          <span style="font-size:16px;color:#475569;font-weight:400;margin-right:12px">SA Client</span>
+        </div>
+        <h1>Technical Deep Analysis</h1>
+        <p style="color:#64748B;margin-top:4px">Authentication & OTP Integration — Senior Architect Review</p>
+      </div>
+      <div style="text-align:left">
+        <div class="badge b-blue" style="margin:3px;display:inline-block">Laravel 12</div>
+        <div class="badge b-purple" style="margin:3px;display:inline-block">Vue 3 + Inertia</div>
+        <div class="badge b-green" style="margin:3px;display:inline-block">WhatsApp Cloud API</div>
+        <div class="badge b-gray" style="margin:3px;display:inline-block">Multi-Tenant SaaS</div>
+        <div style="color:#475569;font-size:11px;margin-top:10px;text-align:right">28 مايو 2026</div>
+      </div>
+    </div>
+    <div class="alert alert-blue" style="margin-top:20px">
+      <strong>المنهجية:</strong> هذا التحليل مبني على قراءة فعلية لـ <span class="tag">PROJECT_DOCUMENTATION_AR.md</span> + <span class="tag">AuthController.php</span> + <span class="tag">WhatsappService.php</span> + <span class="tag">WhatsappRateLimiter.php</span> + <span class="tag">SendCampaignMessageJob.php</span> + <span class="tag">config/queue_profile.php</span>. الهدف: تحليل حقيقي بدون افتراضات.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     1. CURRENT ARCHITECTURE
+══════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-blue">🏗️</div>
+    <h2>١ — تحليل الـ Architecture الحالية</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>١.١ — الطبقات الرئيسية</h3>
+    <div class="grid3">
+      <div class="box">
+        <h4>HTTP Layer</h4>
+        <p>Controllers + Middleware + Requests. <span class="tag">Inertia.js</span> يربط Backend ↔ Vue بدون API layer منفصل لمعظم العمليات.</p>
+      </div>
+      <div class="box">
+        <h4>Service Layer</h4>
+        <p>المنطق في Services مستقلة. <span class="tag">WhatsappService</span> هو القلب النابض — يرسل كل أنواع الرسائل.</p>
+      </div>
+      <div class="box">
+        <h4>Job Layer</h4>
+        <p>4 قوابل منفصلة حسب الأولوية. <span class="tag">campaign-messages</span> مفصول تماماً عن باقي الأعمال.</p>
+      </div>
+    </div>
+
+    <h3>١.٢ — Multi-Tenant Design</h3>
+    <div class="alert alert-blue">
+      كل بيانات العميل مربوطة بـ <span class="tag">organization_id</span>. العزل يتم عبر: <strong>DB-level</strong> (كل query تحتوي organization_id) + <strong>Middleware-level</strong> (CheckOrganizationId + SetOrganizationFromSession) + <strong>Service-level</strong> (WhatsappService يُبنى per-organization بـ credentials مشفرة).
+    </div>
+    <div class="code">
+<span class="cm">// WhatsappService::__construct() — per-organization instance</span>
+<span class="kw">public function</span> <span class="fn">__construct</span>(
+    <span class="va">$accessToken</span>, <span class="va">$apiVersion</span>, <span class="va">$appId</span>,
+    <span class="va">$phoneNumberId</span>, <span class="va">$wabaId</span>, <span class="va">$organizationId</span>  <span class="cm">// 6 positional params — see §3 Technical Debt</span>
+) {}
+    </div>
+
+    <h3>١.٣ — Queue Architecture (الأهم)</h3>
+    <p>هذا هو الأكثر أهمية لفهم دمج OTP. النظام يملك <strong>profile-based queue design</strong>:</p>
+    <div class="q-worker">
+      <div class="q-worker-name">⚙️ default-worker</div>
+      <span class="q-queue">default</span>
+      <span class="q-queue">automation-flow-resume</span>
+      <span class="q-queue otp-q">otp ← نضيفه هنا</span>
+    </div>
+    <div class="q-worker">
+      <div class="q-worker-name">📢 campaign-worker</div>
+      <span class="q-queue campaign-q">campaign-messages</span>
+      <p style="color:#475569;font-size:12px;margin-top:8px">معزول تماماً — الحملات الثقيلة لا تؤثر على باقي Jobs</p>
+    </div>
+    <div class="q-worker">
+      <div class="q-worker-name">📥 webhook-media-worker</div>
+      <span class="q-queue">webhook-media</span>
+    </div>
+    <div class="alert alert-green" style="margin-top:12px">
+      <strong>اكتشاف مهم:</strong> قوائع الحملات <span class="tag campaign-q">campaign-messages</span> معزولة بالفعل في worker منفصل تماماً. OTP jobs على queue <span class="tag otp-q">otp</span> (أو <span class="tag">default</span>) لن تتأثر بحملة تضم مليون رسالة لأن workers مختلفة.
+    </div>
+
+    <h3>١.٤ — فلو استقبال + إرسال رسائل WhatsApp</h3>
+    <div class="flow-row">
+      <div class="flow-box">Meta Webhook POST</div>
+      <span class="arrow">→</span>
+      <div class="flow-box">WebhookController</div>
+      <span class="arrow">→</span>
+      <div class="flow-box hot">ProcessWebhookJob<br><small>queue: webhook-media</small></div>
+      <span class="arrow">→</span>
+      <div class="flow-box">AutoReplyService<br><small>Flows / Basic / AI</small></div>
+    </div>
+    <div class="flow-row">
+      <div class="flow-box">ChatController / API</div>
+      <span class="arrow">→</span>
+      <div class="flow-box">ChatService</div>
+      <span class="arrow">→</span>
+      <div class="flow-box hot">WhatsappService<br><small>per-org instance</small></div>
+      <span class="arrow">→</span>
+      <div class="flow-box ok">Meta Cloud API</div>
+    </div>
+
+    <h3>١.٥ — WhatsappRateLimiter — كيف يعمل</h3>
+    <div class="code">
+<span class="cm">// WhatsappRateLimiter.php — الحد الحالي</span>
+<span class="kw">const</span> <span class="co">MAX_MESSAGES_PER_SECOND</span> = <span class="nu">80</span>; <span class="cm">// per-organization</span>
+
+<span class="cm">// Cache key: 'whatsapp_rate_limit:organization:123:1748394000'</span>
+<span class="cm">// Atomic increment via Cache::increment() — thread-safe with Redis</span>
+
+<span class="cm">// ⚠️ ISSUE: waitUntilCanSend() uses blocking usleep(10000) poll</span>
+<span class="kw">while</span> (!<span class="fn">self</span>::<span class="fn">canSend</span>(<span class="va">$orgId</span>)) {
+    <span class="fn">usleep</span>(<span class="nu">10000</span>); <span class="cm">// 10ms busy-wait — BLOCKS queue worker thread</span>
+}
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     2. CURRENT AUTH DEEP DIVE
+══════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-orange">🔐</div>
+    <h2>٢ — تشريح نظام الـ Authentication الحالي</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>٢.١ — الكود الفعلي لـ login()</h3>
+    <div class="code">
+<span class="cm">// AuthController.php:57-62 — الكود الحالي</span>
+<span class="kw">public function</span> <span class="fn">login</span>(<span class="co">LoginRequest</span> <span class="va">$request</span>)
+{
+    <span class="cm">// ❌ Hardcoded: email فقط، لا phone support</span>
+    <span class="va">$user</span> = <span class="co">User</span>::<span class="fn">where</span>(<span class="st">'email'</span>, <span class="va">$request</span>->email)
+                  -><span class="fn">where</span>(<span class="st">'deleted_at'</span>, <span class="kw">null</span>)
+                  -><span class="fn">first</span>();
+
+    <span class="va">$remember</span> = <span class="va">$request</span>->remember;
+    <span class="kw">return</span> <span class="va">$this</span>-><span class="fn">doLogin</span>(<span class="va">$request</span>, <span class="va">$user</span>, <span class="va">$remember</span>);
+}
+
+<span class="cm">// AuthController.php:64-88 — doLogin()</span>
+<span class="kw">private function</span> <span class="fn">doLogin</span>(<span class="co">Request</span> <span class="va">$request</span>, <span class="va">$user</span>, <span class="va">$remember</span>)
+{
+    <span class="va">$guard</span> = <span class="va">$user</span>->role == <span class="st">'user'</span> ? <span class="st">'user'</span> : <span class="st">'admin'</span>;
+
+    <span class="cm">// ⚠️ LOGIC BUG: OR instead of AND — see §3 Technical Debt</span>
+    <span class="kw">if</span> (<span class="va">$request</span>->email <span class="op">||</span> <span class="va">$request</span>->password) {
+        <span class="co">Auth</span>::<span class="fn">guard</span>(<span class="va">$guard</span>)-><span class="fn">attempt</span>([
+            <span class="st">'email'</span> => <span class="va">$request</span>->email,
+            <span class="st">'password'</span> => <span class="va">$request</span>->password
+        ], <span class="va">$remember</span>);
+    } <span class="kw">else</span> {
+        <span class="co">Auth</span>::<span class="fn">guard</span>(<span class="va">$guard</span>)-><span class="fn">login</span>(<span class="va">$user</span>, <span class="va">$remember</span>); <span class="cm">// social login path</span>
+    }
+    <span class="cm">// ...</span>
+}
+    </div>
+
+    <h3>٢.٢ — Session Guards</h3>
+    <div class="grid2">
+      <div class="box">
+        <h4>guard: user</h4>
+        <p>العملاء وأعضاء الفريق. Session-based. Default guard للـ routes.</p>
+        <p>Middleware: <span class="tag">auth:user</span></p>
+      </div>
+      <div class="box">
+        <h4>guard: admin</h4>
+        <p>مدراء النظام. Session-based منفصل. لا نلمسه في هذا التحليل.</p>
+        <p>Middleware: <span class="tag">auth:admin</span></p>
+      </div>
+    </div>
+
+    <h3>٢.٣ — ما يوجد حالياً في Auth</h3>
+    <table>
+      <thead><tr><th>الميزة</th><th>الحالة</th><th>الملف</th></tr></thead>
+      <tbody>
+        <tr><td>Login بالإيميل</td><td><span class="badge b-green">✓ يعمل</span></td><td class="tc">AuthController::login()</td></tr>
+        <tr><td>Login برقم الهاتف</td><td><span class="badge b-red">✗ غير موجود</span></td><td class="tc">—</td></tr>
+        <tr><td>Email OTP (verify_email)</td><td><span class="badge b-green">✓ يعمل</span></td><td class="tc">EmailVerificationCodeService</td></tr>
+        <tr><td>WhatsApp OTP</td><td><span class="badge b-red">✗ غير موجود</span></td><td class="tc">—</td></tr>
+        <tr><td>Social Login (Google + FB)</td><td><span class="badge b-green">✓ يعمل</span></td><td class="tc">SocialLoginService</td></tr>
+        <tr><td>Password Reset (Email)</td><td><span class="badge b-green">✓ يعمل</span></td><td class="tc">PasswordResetService</td></tr>
+        <tr><td>Password Reset (Phone)</td><td><span class="badge b-red">✗ غير موجود</span></td><td class="tc">—</td></tr>
+        <tr><td>Phone Uniqueness</td><td><span class="badge b-red">✗ لا يوجد constraint</span></td><td class="tc">migrations/users</td></tr>
+        <tr><td>phone_verified_at</td><td><span class="badge b-red">✗ الحقل غير موجود</span></td><td class="tc">users table</td></tr>
+        <tr><td>حد OTP requests</td><td><span class="badge b-yellow">⚠ throttle:6,1 على verify فقط</span></td><td class="tc">routes/web/user.php:8</td></tr>
+        <tr><td>Invite System</td><td><span class="badge b-green">✓ يعمل</span></td><td class="tc">TeamService + CompanyWorkforceService</td></tr>
+      </tbody>
+    </table>
+
+    <h3>٢.٤ — OTP Infrastructure الموجودة</h3>
+    <div class="code">
+<span class="cm">// EmailVerificationCodeService.php — ما يوجد بالفعل</span>
+<span class="kw">class</span> <span class="fn">EmailVerificationCodeService</span>
+{
+    <span class="fn">generate</span>(<span class="co">User</span> <span class="va">$user</span>): <span class="kw">string</span>      <span class="cm">// 6-digit, invalidates old codes, bcrypt hash, 15min expiry</span>
+    <span class="fn">verify</span>(<span class="co">User</span> <span class="va">$user</span>, <span class="kw">string</span> <span class="va">$code</span>): <span class="kw">bool</span>  <span class="cm">// hash check + expiry check + mark used</span>
+}
+
+<span class="cm">// email_verification_codes table schema</span>
+<span class="cm">// user_id | email | code_hash | expires_at | used_at</span>
+<span class="cm">// Index: (user_id, email, used_at)</span>
+    </div>
+    <div class="alert alert-green">
+      <strong>نقطة قوة:</strong> OTP engine مكتوب ومثبت. المطلوب فقط generalize هذه الـ Service لتدعم phone + أغراضاً متعددة (register, login, password_reset).
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     3. TECHNICAL DEBT
+══════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-red">⚠️</div>
+    <h2>٣ — Technical Debt والمشاكل الحالية</h2>
+  </div>
+  <div class="card-body">
+
+    <table>
+      <thead><tr><th>#</th><th>المشكلة</th><th>الملف : السطر</th><th>الخطورة</th><th>الأثر</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>١</td>
+          <td>
+            <strong>WhatsappRateLimiter::waitUntilCanSend() — blocking busy-wait</strong><br>
+            <span class="tag">usleep(10000)</span> داخل <span class="tag">while</span> loop في Job handler. هذا يبلوك Queue Worker thread بالكامل أثناء انتظار rate limit.
+          </td>
+          <td class="tc">WhatsappRateLimiter.php:71-88<br>SendCampaignMessageJob.php</td>
+          <td><span class="badge b-red">عالية</span></td>
+          <td>Job worker يصبح عاطلاً لحظياً، تراكم في queue، تأخير OTP عند heavy load</td>
+        </tr>
+        <tr>
+          <td>٢</td>
+          <td>
+            <strong>WhatsappService 6 positional constructor params</strong><br>
+            <span class="tag">new WhatsappService($token, $ver, $appId, $phoneId, $wabaId, $orgId)</span> — هش للتغيير، صعب injection.
+          </td>
+          <td class="tc">WhatsappService.php:44</td>
+          <td><span class="badge b-orange">متوسطة</span></td>
+          <td>صعوبة إنشاء System Instance لـ OTP بدون Organization context</td>
+        </tr>
+        <tr>
+          <td>٣</td>
+          <td>
+            <strong>doLogin() logic bug: OR بدل AND</strong><br>
+            <span class="tag">if ($request->email || $request->password)</span> — يجب أن تكون AND لضمان الحالتين.
+          </td>
+          <td class="tc">AuthController.php:68</td>
+          <td><span class="badge b-yellow">منخفضة</span></td>
+          <td>في حالة Social Login (email=null, password=null) يسلك صح بسبب الـ else branch، لكن المنطق مضلل</td>
+        </tr>
+        <tr>
+          <td>٤</td>
+          <td>
+            <strong>email_verification_codes — narrow scope</strong><br>
+            الجدول الحالي مخصص للإيميل فقط. لا يدعم phone OTP أو أغراض متعددة.
+          </td>
+          <td class="tc">2026_05_26_210000_create_email_verification_codes_table.php</td>
+          <td><span class="badge b-orange">متوسطة</span></td>
+          <td>عند إضافة Phone OTP ستحتاج جدول ثانٍ أو refactor للجدول الحالي</td>
+        </tr>
+        <tr>
+          <td>٥</td>
+          <td>
+            <strong>AuthController يبني UserService في constructor مباشرة</strong><br>
+            <span class="tag">$this->userService = new UserService($role)</span> — ليس عبر DI container.
+          </td>
+          <td class="tc">AuthController.php:46</td>
+          <td><span class="badge b-yellow">منخفضة</span></td>
+          <td>صعوبة Testing، coupling مباشر</td>
+        </tr>
+        <tr>
+          <td>٦</td>
+          <td>
+            <strong>لا يوجد Rate Limit على إرسال OTP (resend)</strong><br>
+            <span class="tag">throttle:6,1</span> موجود فقط على التحقق، ليس على الإرسال. يمكن flood إرسال أكواد.
+          </td>
+          <td class="tc">routes/web/user.php:8</td>
+          <td><span class="badge b-orange">متوسطة</span></td>
+          <td>Spam OTP إلى WhatsApp = تكلفة + abuse</td>
+        </tr>
+        <tr>
+          <td>٧</td>
+          <td>
+            <strong>WhatsappRateLimiter يعمل بـ global scope بالإضافة لـ per-org</strong><br>
+            OTP system يحتاج يتجاوز per-org limit (أو يكون في org منفصلة).
+          </td>
+          <td class="tc">WhatsappRateLimiter.php:126</td>
+          <td><span class="badge b-orange">متوسطة</span></td>
+          <td>OTP قد يُحجب عند منظمة تُرسل حملة كبيرة في نفس الوقت</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     4. PHONE UNIQUENESS
+══════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-purple">📱</div>
+    <h2>٤ — Phone Number Uniqueness & Normalization</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>٤.١ — الوضع الحالي</h3>
+    <div class="alert alert-orange">
+      حقل <span class="tag">phone</span> موجود في users table كـ nullable بدون أي unique constraint. يمكن لمستخدمين متعددين أن يسجلوا بنفس رقم الهاتف. الـ E.164 normalization موجود في <span class="tag">UserService</span> عبر <span class="tag">phone()</span> helper لكن فقط عند التخزين — لا validation قبله.
+    </div>
+
+    <h3>٤.٢ — Normalization Strategy</h3>
+    <div class="code">
+<span class="cm">// المشكلة: نفس الرقم بصيغ مختلفة</span>
+<span class="st">"0501234567"</span>     <span class="cm">// Saudi local format</span>
+<span class="st">"966501234567"</span>   <span class="cm">// Without + prefix</span>
+<span class="st">"+966501234567"</span>  <span class="cm">// E.164 ✓</span>
+<span class="st">"05-012-34567"</span>  <span class="cm">// With separators</span>
+<span class="st">" +966 501 234 567 "</span>  <span class="cm">// With spaces</span>
+
+<span class="cm">// الحل: Normalize BEFORE storing + BEFORE lookup</span>
+<span class="cm">// UserService already uses phone() helper — extend it:</span>
+<span class="kw">private function</span> <span class="fn">normalizePhone</span>(<span class="kw">string</span> <span class="va">$raw</span>): <span class="kw">string</span>
+{
+    <span class="cm">// Step 1: Strip all non-digit non-plus chars</span>
+    <span class="va">$cleaned</span> = <span class="fn">preg_replace</span>(<span class="st">'/[^\d+]/'</span>, <span class="st">''</span>, <span class="fn">trim</span>(<span class="va">$raw</span>));
+
+    <span class="cm">// Step 2: Use existing phone() helper for E.164</span>
+    <span class="cm">// The phone() helper (likely uses brick/phonenumber) handles:</span>
+    <span class="cm">// - Country code detection</span>
+    <span class="cm">// - Leading zero removal</span>
+    <span class="cm">// - E.164 formatting (+966501234567)</span>
+    <span class="kw">return</span> <span class="fn">phone</span>(<span class="va">$cleaned</span>)-><span class="fn">formatE164</span>();
+}
+    </div>
+
+    <h3>٤.٣ — Database Constraint Strategy</h3>
+    <div class="alert alert-yellow">
+      <strong>تحدي Soft Deletes:</strong> MySQL يعامل NULL كقيمة فريدة في UNIQUE indexes — أي أن (phone='+966x', deleted_at=NULL) يمكن أن يظهر مرة واحدة فقط للمستخدمين النشطين. هذا يتطابق مع النهج الحالي للـ email unique constraint.
+    </div>
+    <div class="code">
+<span class="cm">-- Migration 1: إضافة phone_verified_at + unique constraint</span>
+<span class="co">Schema</span>::<span class="fn">table</span>(<span class="st">'users'</span>, <span class="kw">function</span> (<span class="co">Blueprint</span> <span class="va">$table</span>) {
+
+    <span class="va">$table</span>-><span class="fn">timestamp</span>(<span class="st">'phone_verified_at'</span>)
+           -><span class="fn">nullable</span>()
+           -><span class="fn">after</span>(<span class="st">'email_verified_at'</span>);
+
+    <span class="cm">// Composite unique: allows soft-deleted duplicate phones</span>
+    <span class="cm">// NULL != NULL in MySQL unique index → only one active user per phone</span>
+    <span class="va">$table</span>-><span class="fn">unique</span>(
+        [<span class="st">'phone'</span>, <span class="st">'deleted_at'</span>],
+        <span class="st">'users_phone_active_unique'</span>
+    );
+
+    <span class="cm">// Fast lookup during phone login</span>
+    <span class="va">$table</span>-><span class="fn">index</span>(<span class="st">'phone'</span>, <span class="st">'idx_users_phone'</span>);
+});
+    </div>
+
+    <h3>٤.٤ — Validation Rule الجديدة</h3>
+    <div class="code">
+<span class="cm">// app/Rules/UniqueActivePhone.php</span>
+<span class="kw">class</span> <span class="fn">UniqueActivePhone</span> <span class="kw">implements</span> <span class="co">ValidationRule</span>
+{
+    <span class="kw">public function</span> <span class="fn">validate</span>(<span class="va">$attribute</span>, <span class="va">$value</span>, <span class="va">$fail</span>): <span class="kw">void</span>
+    {
+        <span class="va">$normalized</span> = <span class="fn">phone</span>(<span class="va">$value</span>)-><span class="fn">formatE164</span>();
+
+        <span class="kw">if</span> (<span class="co">User</span>::<span class="fn">where</span>(<span class="st">'phone'</span>, <span class="va">$normalized</span>)
+                 -><span class="fn">whereNull</span>(<span class="st">'deleted_at'</span>)
+                 -><span class="fn">exists</span>()) {
+            <span class="va">$fail</span>(<span class="st">'رقم الهاتف مستخدم بالفعل.'</span>);
+        }
+    }
+}
+
+<span class="cm">// في SignupRequest:</span>
+<span class="st">'phone'</span> => [<span class="st">'sometimes'</span>, <span class="st">'nullable'</span>, <span class="kw">new</span> <span class="fn">AllowedPhoneCountryValidation</span>, <span class="kw">new</span> <span class="fn">UniqueActivePhone</span>],
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     5. OTP INSIDE MESSAGING INFRASTRUCTURE
+══════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-teal">⚡</div>
+    <h2>٥ — دمج OTP داخل Messaging Infrastructure</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>٥.١ — الفرصة الذهبية: Queue Isolation موجودة بالفعل</h3>
+    <div class="alert alert-green">
+      هذا هو الاكتشاف الأهم في هذا التحليل: <span class="tag campaign-q">campaign-messages</span> queue يعمل على <strong>worker مستقل تماماً</strong>. حملة تضم 100,000 رسالة لن تلمس OTP queue أبداً لأنها في worker آخر.
+    </div>
+
+    <div class="grid2">
+      <div class="box">
+        <h4>قبل: بدون isolation (خطأ)</h4>
+        <p style="color:#FCA5A5">إذا أرسلنا OTP على نفس queue الحملات:</p>
+        <div class="q-worker" style="border-color:#991B1B">
+          <span class="q-queue campaign-q">campaign-messages: 100K jobs</span>
+          <span class="q-queue" style="background:#450A0A40;border-color:#991B1B;color:#FCA5A5">otp: 1 job ← ينتظر!</span>
+        </div>
+      </div>
+      <div class="box">
+        <h4>بعد: مع isolation (صح)</h4>
+        <p style="color:#86EFAC">OTP على queue خاصة، worker مستقل:</p>
+        <div class="q-worker">
+          <div class="q-worker-name">default-worker</div>
+          <span class="q-queue otp-q">otp</span>
+          <span class="q-queue">default</span>
+        </div>
+        <div class="q-worker">
+          <div class="q-worker-name">campaign-worker</div>
+          <span class="q-queue campaign-q">campaign-messages</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>٥.٢ — لماذا نحتاج queue خاصة للـ OTP؟</h3>
+    <table>
+      <thead><tr><th>السيناريو</th><th>بدون OTP Queue</th><th>مع OTP Queue مخصصة</th></tr></thead>
+      <tbody>
+        <tr><td>حملة 50K رسالة تعمل</td><td><span class="badge b-red">OTP قد ينتظر في default</span></td><td><span class="badge b-green">OTP يُعالج فوراً</span></td></tr>
+        <tr><td>automation flows تعمل</td><td><span class="badge b-yellow">تنافس على default worker</span></td><td><span class="badge b-green">مفصول تماماً</span></td></tr>
+        <tr><td>SLA للـ OTP</td><td>غير مضمون</td><td>أقل من 5 ثواني</td></tr>
+        <tr><td>Queue Worker إضافي</td><td>—</td><td>لا حاجة — يُضاف لـ default-worker config</td></tr>
+      </tbody>
+    </table>
+
+    <h3>٥.٣ — تعديل queue_profile.php</h3>
+    <div class="code">
+<span class="cm">// config/queue_profile.php — إضافة otp queue بأعلى أولوية</span>
+<span class="st">'default-worker'</span> => [
+    <span class="st">'queues'</span> => [
+        <span class="st">'otp'</span>,              <span class="cm">// ← أعلى أولوية (first in list = highest priority)</span>
+        <span class="st">'default'</span>,
+        <span class="st">'automation-flow-resume'</span>,
+    ],
+    <span class="cm">// ...</span>
+],
+<span class="st">'campaign-worker'</span> => [
+    <span class="st">'queues'</span> => [<span class="st">'campaign-messages'</span>],  <span class="cm">// unchanged</span>
+],
+    </div>
+
+    <h3>٥.٤ — فصل OTP Traffic عن Botzo Organization Context</h3>
+    <div class="alert alert-blue">
+      <strong>المشكلة:</strong> <span class="tag">WhatsappService</span> مبني للعمل ضمن Organization context (credentials مخزنة في <span class="tag">organizations.metadata</span>). OTP لتسجيل المستخدمين الجدد لا ينتمي لأي Organization.<br><br>
+      <strong>الحل:</strong> نخزن credentials خاصة بـ Botzo System في جدول <span class="tag">settings</span> تحت key <span class="tag">botzo_whatsapp_config</span> — نفس pattern الـ <span class="tag">mail_config</span> الموجود بالفعل.
+    </div>
+    <div class="code">
+<span class="cm">// app/Services/Auth/BotzoSystemWhatsAppService.php</span>
+<span class="kw">class</span> <span class="fn">BotzoSystemWhatsAppService</span>
+{
+    <span class="kw">private function</span> <span class="fn">makeSystemWhatsAppService</span>(): <span class="co">WhatsappService</span>
+    {
+        <span class="va">$raw</span>    = <span class="co">Setting</span>::<span class="fn">where</span>(<span class="st">'key'</span>, <span class="st">'botzo_whatsapp_config'</span>)-><span class="fn">value</span>(<span class="st">'value'</span>);
+        <span class="va">$config</span> = <span class="fn">json_decode</span>(<span class="va">$raw</span>, <span class="kw">true</span>);
+
+        <span class="cm">// Reuse existing WhatsappTokenVault for decryption</span>
+        <span class="va">$vault</span>  = <span class="fn">app</span>(<span class="co">WhatsappTokenVault</span>::<span class="kw">class</span>);
+        <span class="va">$token</span>  = <span class="va">$vault</span>-><span class="fn">decryptToken</span>(<span class="va">$config</span>[<span class="st">'access_token_encrypted'</span>]);
+
+        <span class="kw">return new</span> <span class="co">WhatsappService</span>(
+            <span class="va">$token</span>,
+            <span class="fn">config</span>(<span class="st">'graph.api_version'</span>),
+            <span class="va">$config</span>[<span class="st">'app_id'</span>],
+            <span class="va">$config</span>[<span class="st">'phone_number_id'</span>],
+            <span class="va">$config</span>[<span class="st">'waba_id'</span>],
+            <span class="kw">null</span>   <span class="cm">// organizationId = null for system sender</span>
+        );
+    }
+
+    <span class="kw">public function</span> <span class="fn">sendOtp</span>(<span class="kw">string</span> <span class="va">$phone</span>, <span class="kw">string</span> <span class="va">$code</span>): <span class="kw">void</span>
+    {
+        <span class="va">$wa</span> = <span class="va">$this</span>-><span class="fn">makeSystemWhatsAppService</span>();
+        <span class="va">$wa</span>-><span class="fn">sendTemplateMessage</span>(<span class="va">$phone</span>, [
+            <span class="st">'name'</span>     => <span class="st">'botzo_otp_ar'</span>,  <span class="cm">// AUTHENTICATION category template</span>
+            <span class="st">'language'</span> => [<span class="st">'code'</span> => <span class="st">'ar'</span>],
+            <span class="st">'components'</span> => [[
+                <span class="st">'type'</span>       => <span class="st">'body'</span>,
+                <span class="st">'parameters'</span> => [[<span class="st">'type'</span> => <span class="st">'text'</span>, <span class="st">'text'</span> => <span class="va">$code</span>]],
+            ]],
+        ]);
+    }
+}
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     6. WHATSAPP OTP FULL FLOW
+══════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-green">💬</div>
+    <h2>٦ — WhatsApp OTP Flow الكامل</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>٦.١ — Authentication Template</h3>
+    <div class="alert alert-blue">
+      <strong>لماذا AUTHENTICATION category وليس MARKETING؟</strong><br>
+      ١. لا تخضع لـ 24-hour conversation window — يمكن إرسالها في أي وقت<br>
+      ٢. تُوافق عليها Meta بسرعة (ساعات عادةً)<br>
+      ٣. لها OTP button type مدعوم (COPY_CODE، AUTOFILL، ZERO_TAP)<br>
+      ٤. الكود في<span class="tag">WhatsappService.php:1157-1265</span> يدعمها بالفعل
+    </div>
+    <div class="code">
+<span class="cm">// Template JSON لإرساله لـ Meta للموافقة</span>
+{
+  <span class="st">"name"</span>: <span class="st">"botzo_otp_ar"</span>,
+  <span class="st">"language"</span>: <span class="st">"ar"</span>,
+  <span class="st">"category"</span>: <span class="st">"AUTHENTICATION"</span>,
+  <span class="st">"components"</span>: [
+    {
+      <span class="st">"type"</span>: <span class="st">"BODY"</span>,
+      <span class="st">"text"</span>: <span class="st">"{{1}} هو رمز التحقق الخاص بك في Botzo. صالح 15 دقيقة."</span>,
+      <span class="st">"add_security_recommendation"</span>: <span class="kw">true</span>  <span class="cm">// "لا تشارك هذا الرمز"</span>
+    },
+    {
+      <span class="st">"type"</span>: <span class="st">"BUTTONS"</span>,
+      <span class="st">"buttons"</span>: [{
+        <span class="st">"type"</span>: <span class="st">"OTP"</span>,
+        <span class="st">"otp_type"</span>: <span class="st">"COPY_CODE"</span>  <span class="cm">// زر "نسخ الكود" في واجهة WhatsApp</span>
+      }]
+    }
+  ]
+}
+    </div>
+
+    <h3>٦.٢ — Job Flow من الطلب إلى التسليم</h3>
+    <ul class="steps">
+      <li>
+        <div class="sn">١</div>
+        <div class="sb"><strong>HTTP Request → UnifiedOtpService::generate()</strong><br>
+        توليد 6 أرقام عشوائية + bcrypt hash + حفظ في <span class="tag">verification_codes</span> مع expires_at = now()+15min<br>
+        invalidate أي كود قديم لنفس phone+purpose</div>
+      </li>
+      <li>
+        <div class="sn">٢</div>
+        <div class="sb"><strong>Dispatch SendOtpJob على queue 'otp'</strong><br>
+        <span class="tag">SendOtpJob::dispatch($phone, $code)->onQueue('otp')</span><br>
+        يصل لـ default-worker فوراً (أعلى أولوية في worker config)</div>
+      </li>
+      <li>
+        <div class="sn">٣</div>
+        <div class="sb"><strong>SendOtpJob::handle() → BotzoSystemWhatsAppService::sendOtp()</strong><br>
+        يبني WhatsappService بـ credentials Botzo System من Settings<br>
+        يرسل AUTHENTICATION template مع الكود<br>
+        يحفظ <span class="tag">wamid</span> (Meta message ID) في verification_codes للتتبع</div>
+      </li>
+      <li>
+        <div class="sn">٤</div>
+        <div class="sb"><strong>Delivery Tracking عبر Webhook</strong><br>
+        عند وصول status webhook من Meta (sent→delivered→read)<br>
+        <span class="tag">ProcessWebhookJob</span> (موجود) يحدث status في verification_codes<br>
+        لا نحتاج كود جديد — نضيف handling لـ wamid المعروف</div>
+      </li>
+      <li>
+        <div class="sn">٥</div>
+        <div class="sb"><strong>المستخدم يدخل الكود</strong><br>
+        POST /verify-code → UnifiedOtpService::verify()<br>
+        فحص: hash_equals + not expired + attempts &lt; 5<br>
+        على النجاح: phone_verified_at = now() + Auth::login()</div>
+      </li>
+    </ul>
+
+    <h3>٦.٣ — Retry & Expiration Strategy</h3>
+    <div class="grid2">
+      <div class="box">
+        <h4>Job Retry</h4>
+        <p><span class="tag">public $tries = 2</span><br>
+        <span class="tag">public $backoff = [10, 30]</span> — انتظر 10 ثم 30 ثانية<br>
+        عند فشل كل المحاولات: Log::error + mark code as 'failed'</p>
+      </div>
+      <div class="box">
+        <h4>OTP Expiration</h4>
+        <p>15 دقيقة (موجود في EmailVerificationCodeService)<br>
+        Cron: <span class="tag">otp:cleanup-expired</span> يومياً<br>
+        عند انتهاء صلاحية: رسالة "أعد الإرسال" للمستخدم</p>
+      </div>
+    </div>
+
+    <h3>٦.٤ — Rate Limiting & Anti-Spam</h3>
+    <div class="code">
+<span class="cm">// AppServiceProvider::boot() — 3 طبقات حماية</span>
+<span class="co">RateLimiter</span>::<span class="fn">for</span>(<span class="st">'otp-send'</span>, <span class="kw">fn</span>(<span class="va">$req</span>) => [
+    <span class="cm">// Layer 1: Per phone/email — 3 OTPs per 15 minutes</span>
+    <span class="co">Limit</span>::<span class="fn">perMinutes</span>(<span class="nu">15</span>, <span class="nu">3</span>)
+          -><span class="fn">by</span>(<span class="st">'otp:id:'</span>. <span class="fn">hash</span>(<span class="st">'sha256'</span>, <span class="va">$req</span>-><span class="fn">input</span>(<span class="st">'identifier'</span>))),
+
+    <span class="cm">// Layer 2: Per IP — 10 OTP requests per hour</span>
+    <span class="co">Limit</span>::<span class="fn">perHour</span>(<span class="nu">10</span>)
+          -><span class="fn">by</span>(<span class="st">'otp:ip:'</span> . <span class="va">$req</span>-><span class="fn">ip</span>()),
+]);
+
+<span class="co">RateLimiter</span>::<span class="fn">for</span>(<span class="st">'otp-verify'</span>, <span class="kw">fn</span>(<span class="va">$req</span>) =>
+    <span class="cm">// Layer 3: Verify attempts — 5 per 15 minutes per identifier</span>
+    <span class="co">Limit</span>::<span class="fn">perMinutes</span>(<span class="nu">15</span>, <span class="nu">5</span>)
+          -><span class="fn">by</span>(<span class="st">'verify:'</span> . <span class="fn">hash</span>(<span class="st">'sha256'</span>, <span class="va">$req</span>-><span class="fn">input</span>(<span class="st">'identifier'</span>)))
+);
+    </div>
+
+    <h3>٦.٥ — إصلاح WhatsappRateLimiter للـ OTP</h3>
+    <div class="alert alert-red">
+      <strong>المشكلة:</strong> <span class="tag">waitUntilCanSend()</span> يحجب Worker thread بـ busy-wait loop. للـ OTP نحتاج إرسال فوري بدون انتظار.
+    </div>
+    <div class="code">
+<span class="cm">// SendOtpJob — لا نستخدم waitUntilCanSend()</span>
+<span class="cm">// بدلاً من ذلك:</span>
+<span class="kw">public function</span> <span class="fn">handle</span>()
+{
+    <span class="cm">// OTP bypasses per-org rate limit — system sender has its own limit</span>
+    <span class="cm">// We use global rate limit for system (organizationId = null)</span>
+    <span class="kw">if</span> (! <span class="co">WhatsappRateLimiter</span>::<span class="fn">recordSent</span>(<span class="kw">null</span>)) {
+        <span class="cm">// Re-queue with a short delay instead of blocking</span>
+        <span class="va">$this</span>-><span class="fn">release</span>(<span class="nu">1</span>); <span class="cm">// retry after 1 second — non-blocking!</span>
+        <span class="kw">return</span>;
+    }
+    <span class="va">$this</span>->systemWa-><span class="fn">sendOtp</span>(<span class="va">$this</span>->phone, <span class="va">$this</span>->code);
+}
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     7. EMAIL OTP
+══════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-blue">📧</div>
+    <h2>٧ — Email OTP Strategy</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>٧.١ — الوضع الحالي</h3>
+    <p>النظام الحالي يرسل Email OTP synchronously عبر <span class="tag">sendEmailVerificationNotification()</span> على User model. هذا يعني أن HTTP request ينتظر حتى يُرسل الإيميل — يمكن أن يسبب timeout.</p>
+
+    <h3>٧.٢ — التحسين المطلوب</h3>
+    <div class="code">
+<span class="cm">// بدل: $user->sendEmailVerificationNotification() — sync + blocking</span>
+<span class="cm">// نستخدم: Job على queue 'otp'</span>
+
+<span class="kw">class</span> <span class="fn">SendEmailOtpJob</span> <span class="kw">implements</span> <span class="co">ShouldQueue</span>
+{
+    <span class="kw">public</span> <span class="va">$queue</span> = <span class="st">'otp'</span>;
+    <span class="kw">public</span> <span class="va">$tries</span> = <span class="nu">3</span>;
+    <span class="kw">public</span> <span class="va">$backoff</span> = [<span class="nu">5</span>, <span class="nu">15</span>, <span class="nu">60</span>]; <span class="cm">// exponential backoff</span>
+
+    <span class="kw">public function</span> <span class="fn">handle</span>()
+    {
+        <span class="cm">// Use existing CustomEmailVerification Mailable</span>
+        <span class="co">Mail</span>::<span class="fn">to</span>(<span class="va">$this</span>->email)
+             -><span class="fn">send</span>(<span class="kw">new</span> <span class="co">CustomEmailVerification</span>(<span class="va">$this</span>->user, <span class="va">$this</span>->code));
+    }
+}
+    </div>
+
+    <h3>٧.٣ — Email Provider Recommendation</h3>
+    <table>
+      <thead><tr><th>Provider</th><th>Deliverability MENA</th><th>السعر</th><th>Laravel</th><th>التوصية</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Postmark</strong></td><td>⭐⭐⭐⭐⭐ الأفضل</td><td>$15/10K</td><td>Native driver</td><td><span class="badge b-green">الأفضل لـ OTP</span></td></tr>
+        <tr><td><strong>Resend</strong></td><td>⭐⭐⭐⭐</td><td>$20/50K</td><td>Official SDK</td><td><span class="badge b-blue">مقبول</span></td></tr>
+        <tr><td><strong>SendGrid</strong></td><td>⭐⭐⭐⭐ جيد جداً</td><td>$20/50K</td><td>Composer pkg</td><td><span class="badge b-gray">بديل</span></td></tr>
+        <tr><td><strong>SMTP botzo.net</strong></td><td>⭐⭐ محدود</td><td>مجاني</td><td>✓</td><td><span class="badge b-orange">Dev فقط</span></td></tr>
+      </tbody>
+    </table>
+
+    <h3>٧.٤ — Failover Strategy</h3>
+    <div class="code">
+<span class="cm">// MailConfigServiceProvider يدعم هذا بالفعل — يقرأ driver من DB Settings</span>
+<span class="cm">// Failover: إذا فشل Primary provider → Primary SMTP</span>
+
+<span class="kw">public function</span> <span class="fn">handle</span>()
+{
+    <span class="kw">try</span> {
+        <span class="co">Mail</span>::<span class="fn">mailer</span>(<span class="st">'postmark'</span>)-><span class="fn">to</span>(<span class="va">$this</span>->email)-><span class="fn">send</span>(<span class="va">$this</span>->mailable);
+    } <span class="kw">catch</span> (<span class="co">Throwable</span> <span class="va">$e</span>) {
+        <span class="co">Log</span>::<span class="fn">warning</span>(<span class="st">'Postmark failed, falling back to SMTP'</span>, [<span class="st">'error'</span> => <span class="va">$e</span>-><span class="fn">getMessage</span>()]);
+        <span class="co">Mail</span>::<span class="fn">mailer</span>(<span class="st">'smtp'</span>)-><span class="fn">to</span>(<span class="va">$this</span>->email)-><span class="fn">send</span>(<span class="va">$this</span>->mailable);
+    }
+}
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     8. SECURITY
+══════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-red">🛡️</div>
+    <h2>٨ — Security Architecture</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>٨.١ — Session vs JWT — القرار</h3>
+    <div class="alert alert-green">
+      <strong>القرار: ابقَ على Sessions.</strong> النظام الحالي يعتمد على Sessions + Inertia + 2 Guards. إضافة JWT تعني إعادة بناء نصف النظام لأسباب لا حاجة لها في Web SaaS. JWT يُفيد فقط للـ Mobile API أو microservices — وكلاهما غير مخطط حالياً.
+    </div>
+    <div class="grid2">
+      <div class="box">
+        <h4>Session (الحالي) ✓</h4>
+        <ul style="padding-right:16px;font-size:12px;color:#94A3B8">
+          <li>Laravel Sanctum/Guards مدمج</li>
+          <li>CSRF Protection تلقائي</li>
+          <li>No token storage client-side</li>
+          <li>Inertia يعمل بسلاسة معه</li>
+          <li>Revoke فوري (logout = delete session)</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h4>JWT (لا نحتاجه الآن) ✗</h4>
+        <ul style="padding-right:16px;font-size:12px;color:#64748B">
+          <li>يحتاج Refresh Token logic</li>
+          <li>Storage client-side (localStorage risks)</li>
+          <li>Revoke معقد (blacklist/short TTL)</li>
+          <li>تعارض مع Inertia SPA model</li>
+          <li>Over-engineering للـ Web app</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>٨.٢ — Device Tracking</h3>
+    <div class="code">
+<span class="cm">// نضيف إلى verification_codes table</span>
+<span class="va">$table</span>-><span class="fn">string</span>(<span class="st">'ip_address'</span>, <span class="nu">45</span>)-><span class="fn">nullable</span>();
+<span class="va">$table</span>-><span class="fn">string</span>(<span class="st">'user_agent'</span>, <span class="nu">500</span>)-><span class="fn">nullable</span>();
+
+<span class="cm">// عند توليد OTP نحفظ IP + User-Agent</span>
+<span class="cm">// هذا يمكّننا من:</span>
+<span class="cm">// 1. Detect: نفس الـ OTP يُستخدم من IP مختلف → إنذار</span>
+<span class="cm">// 2. Audit log لأي نشاط مشبوه</span>
+<span class="cm">// 3. تعطيل IP تلقائياً عند patterns مشبوهة</span>
+    </div>
+
+    <h3>٨.٣ — Brute Force Prevention — طبقات متعددة</h3>
+    <table>
+      <thead><tr><th>الطبقة</th><th>الحد</th><th>المدة</th><th>الإجراء</th></tr></thead>
+      <tbody>
+        <tr><td>إرسال OTP / Identifier</td><td>3 طلبات</td><td>15 دقيقة</td><td>429 + رسالة انتظار</td></tr>
+        <tr><td>إرسال OTP / IP</td><td>10 طلبات</td><td>ساعة</td><td>429 + Log تحقيق</td></tr>
+        <tr><td>محاولات التحقق / Code</td><td>5 محاولات</td><td>دائم للكود</td><td>إلغاء الكود + 429</td></tr>
+        <tr><td>Login محاولات / IP</td><td>5 محاولات</td><td>دقيقة</td><td>موجود في Laravel throttle</td></tr>
+        <tr><td>DB attempts counter</td><td>5</td><td>حتى انتهاء الكود</td><td>mark code مُقفل بـ DB</td></tr>
+      </tbody>
+    </table>
+
+    <h3>٨.٤ — OTP Code Security</h3>
+    <ul class="steps">
+      <li><div class="sn">✓</div><div class="sb"><strong>bcrypt hash</strong> — لا يُخزن الكود نصاً صريحاً (موجود بالفعل)</div></li>
+      <li><div class="sn">✓</div><div class="sb"><strong>Invalidate على الإرسال الجديد</strong> — الكود القديم يصبح بلا قيمة (موجود)</div></li>
+      <li><div class="sn">✓</div><div class="sb"><strong>hash_equals() للمقارنة</strong> — يمنع timing attacks (موجود)</div></li>
+      <li><div class="sn">+</div><div class="sb"><strong>Constant-time response</strong> — نفس وقت الرد سواء الكود صح أو خطأ</div></li>
+      <li><div class="sn">+</div><div class="sb"><strong>Generic error messages</strong> — لا نكشف هل الرقم/إيميل موجود أم لا</div></li>
+      <li><div class="sn">+</div><div class="sb"><strong>wamid tracking</strong> — نتأكد أن الكود أُرسل فعلاً قبل السماح بالتحقق</div></li>
+    </ul>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     9. DATABASE CHANGES
+══════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-purple">🗄️</div>
+    <h2>٩ — Database & Infrastructure Changes</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>٩.١ — Migration 1: users table</h3>
+    <div class="code">
+<span class="cm">// database/migrations/XXXX_add_phone_auth_to_users_table.php</span>
+<span class="kw">public function</span> <span class="fn">up</span>(): <span class="kw">void</span>
+{
+    <span class="co">Schema</span>::<span class="fn">table</span>(<span class="st">'users'</span>, <span class="kw">function</span> (<span class="co">Blueprint</span> <span class="va">$table</span>) {
+        <span class="va">$table</span>-><span class="fn">timestamp</span>(<span class="st">'phone_verified_at'</span>)-><span class="fn">nullable</span>()-><span class="fn">after</span>(<span class="st">'email_verified_at'</span>);
+        <span class="va">$table</span>-><span class="fn">unique</span>([<span class="st">'phone'</span>, <span class="st">'deleted_at'</span>], <span class="st">'users_phone_active_unique'</span>);
+        <span class="va">$table</span>-><span class="fn">index</span>(<span class="st">'phone'</span>, <span class="st">'idx_users_phone'</span>);
+    });
+}
+    </div>
+
+    <h3>٩.٢ — Migration 2: verification_codes (موحّد)</h3>
+    <div class="code">
+<span class="cm">// database/migrations/XXXX_create_verification_codes_table.php</span>
+<span class="co">Schema</span>::<span class="fn">create</span>(<span class="st">'verification_codes'</span>, <span class="kw">function</span> (<span class="co">Blueprint</span> <span class="va">$table</span>) {
+    <span class="va">$table</span>-><span class="fn">id</span>();
+    <span class="va">$table</span>-><span class="fn">foreignId</span>(<span class="st">'user_id'</span>)-><span class="fn">nullable</span>()-><span class="fn">constrained</span>()-><span class="fn">nullOnDelete</span>();
+
+    <span class="cm">// Identifier: email OR E.164 phone (+966501234567)</span>
+    <span class="va">$table</span>-><span class="fn">string</span>(<span class="st">'identifier'</span>, <span class="nu">255</span>);
+
+    <span class="cm">// Channel: how was this code delivered</span>
+    <span class="va">$table</span>-><span class="fn">enum</span>(<span class="st">'channel'</span>, [<span class="st">'email'</span>, <span class="st">'whatsapp'</span>, <span class="st">'sms'</span>])-><span class="fn">default</span>(<span class="st">'email'</span>);
+
+    <span class="cm">// Purpose: why was this code generated</span>
+    <span class="va">$table</span>-><span class="fn">enum</span>(<span class="st">'purpose'</span>, [
+        <span class="st">'register'</span>, <span class="st">'login'</span>, <span class="st">'password_reset'</span>,
+        <span class="st">'verify_phone'</span>, <span class="st">'verify_email'</span>,
+    ]);
+
+    <span class="va">$table</span>-><span class="fn">string</span>(<span class="st">'code_hash'</span>);
+    <span class="va">$table</span>-><span class="fn">string</span>(<span class="st">'wamid'</span>, <span class="nu">100</span>)-><span class="fn">nullable</span>();  <span class="cm">// WhatsApp Message ID for delivery tracking</span>
+    <span class="va">$table</span>-><span class="fn">timestamp</span>(<span class="st">'expires_at'</span>);
+    <span class="va">$table</span>-><span class="fn">timestamp</span>(<span class="st">'used_at'</span>)-><span class="fn">nullable</span>();
+    <span class="va">$table</span>-><span class="fn">tinyInteger</span>(<span class="st">'attempts'</span>)-><span class="fn">unsigned</span>()-><span class="fn">default</span>(<span class="nu">0</span>);
+    <span class="va">$table</span>-><span class="fn">string</span>(<span class="st">'ip_address'</span>, <span class="nu">45</span>)-><span class="fn">nullable</span>();
+    <span class="va">$table</span>-><span class="fn">timestamps</span>();
+
+    <span class="cm">// Composite index: fast active-code lookup</span>
+    <span class="va">$table</span>-><span class="fn">index</span>([<span class="st">'identifier'</span>, <span class="st">'purpose'</span>, <span class="st">'used_at'</span>, <span class="st">'expires_at'</span>], <span class="st">'idx_code_lookup'</span>);
+});
+    </div>
+
+    <h3>٩.٣ — هل نحتاج Redis إضافي؟</h3>
+    <table>
+      <thead><tr><th>الاستخدام</th><th>Shared Hosting</th><th>Production (VPS)</th></tr></thead>
+      <tbody>
+        <tr><td>Queue connection</td><td>database (موجود)</td><td>Redis (موجود في queue_profile)</td></tr>
+        <tr><td>Rate limiting OTP</td><td>Cache::database ← أضف cache table</td><td>Redis ← moجود</td></tr>
+        <tr><td>WhatsappRateLimiter</td><td>Cache::database (أبطأ، مقبول)</td><td>Redis (atomic, thread-safe)</td></tr>
+        <tr><td>Sessions</td><td>file (موجود)</td><td>Redis (أفضل)</td></tr>
+      </tbody>
+    </table>
+    <div class="alert alert-blue">
+      <strong>Shared Hosting:</strong> أضف <span class="tag">php artisan cache:table</span> + <span class="tag">CACHE_DRIVER=database</span>. كافٍ للـ OTP rate limiting. لا تحتاج Redis على Namecheap.
+    </div>
+
+    <h3>٩.٤ — هل نحتاج Workers إضافيين؟</h3>
+    <p>لا. إضافة <span class="tag">'otp'</span> إلى <span class="tag">default-worker</span> كأعلى أولوية كافية تماماً. OTP jobs صغيرة جداً (&lt;100ms) وستُعالج فوراً قبل أي job آخر في نفس worker.</p>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     10. SCALABILITY
+══════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-teal">📈</div>
+    <h2>١٠ — Scalability Analysis</h2>
+  </div>
+  <div class="card-body">
+
+    <h3>١٠.١ — لماذا OTP سيكون سريعاً دائماً</h3>
+    <div class="grid3">
+      <div class="box" style="text-align:center">
+        <div style="font-size:28px;font-weight:900;color:#7DD3FC">Queue</div>
+        <div style="font-size:11px;color:#64748B;margin-top:4px">Isolation</div>
+        <p style="font-size:12px;color:#94A3B8">Campaigns على worker منفصل تماماً — لا تنافس على OTP queue</p>
+      </div>
+      <div class="box" style="text-align:center">
+        <div style="font-size:28px;font-weight:900;color:#86EFAC">Priority</div>
+        <div style="font-size:11px;color:#64748B;margin-top:4px">Queue Order</div>
+        <p style="font-size:12px;color:#94A3B8">otp أول في queue list → يُعالج قبل أي job آخر في default-worker</p>
+      </div>
+      <div class="box" style="text-align:center">
+        <div style="font-size:28px;font-weight:900;color:#C4B5FD">Non-blocking</div>
+        <div style="font-size:11px;color:#64748B;margin-top:4px">Rate Limit</div>
+        <p style="font-size:12px;color:#94A3B8">بدل usleep polling → release() non-blocking re-queue</p>
+      </div>
+    </div>
+
+    <h3>١٠.٢ — Scaling Path</h3>
+    <table>
+      <thead><tr><th>المرحلة</th><th>Load</th><th>Config</th><th>التغيير المطلوب</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>الآن — Shared Hosting</td>
+          <td>&lt;500 user/day</td>
+          <td>QUEUE=database, CACHE=database</td>
+          <td>صفر — يعمل بالـ config الحالية</td>
+        </tr>
+        <tr>
+          <td>نمو — VPS صغير</td>
+          <td>500-5K user/day</td>
+          <td>QUEUE=redis, CACHE=redis</td>
+          <td>فقط ENV vars تتغير — لا تعديل كود</td>
+        </tr>
+        <tr>
+          <td>Scale — VPS كبير</td>
+          <td>5K-50K user/day</td>
+          <td>3 dedicated workers</td>
+          <td>إضافة dedicated otp-worker process</td>
+        </tr>
+        <tr>
+          <td>Enterprise</td>
+          <td>&gt;50K user/day</td>
+          <td>Horizontal workers + Redis Cluster</td>
+          <td>Supervisor config + load balancer</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>١٠.٣ — Channel Extensibility</h3>
+    <div class="code">
+<span class="cm">// UnifiedOtpService — مبني للتوسع</span>
+<span class="cm">// لإضافة SMS channel في المستقبل:</span>
+<span class="kw">match</span> (<span class="va">$channel</span>) {
+    <span class="st">'email'</span>    => <span class="fn">dispatch</span>(<span class="kw">new</span> <span class="fn">SendEmailOtpJob</span>(<span class="va">$identifier</span>, <span class="va">$code</span>)),
+    <span class="st">'whatsapp'</span> => <span class="fn">dispatch</span>(<span class="kw">new</span> <span class="fn">SendWhatsAppOtpJob</span>(<span class="va">$identifier</span>, <span class="va">$code</span>)),
+    <span class="st">'sms'</span>      => <span class="fn">dispatch</span>(<span class="kw">new</span> <span class="fn">SendSmsOtpJob</span>(<span class="va">$identifier</span>, <span class="va">$code</span>)),  <span class="cm">// future</span>
+};
+<span class="cm">// نفس OTP infrastructure، channel جديد = Job واحد فقط</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     11. INTEGRATION PLAN
+══════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-green">🚀</div>
+    <h2>١١ — خطة التنفيذ Step-by-Step</h2>
+  </div>
+  <div class="card-body">
+
+    <div class="alert alert-orange" style="margin-bottom:20px">
+      <strong>⚠️ ابدأ اليوم بالتوازي:</strong> تقديم Authentication Template لـ Meta للموافقة + إعداد Botzo System WhatsApp credentials. هذه لا تحتاج كود — وتأخذ وقتاً.
+    </div>
+
+    <div style="padding-right:8px">
+
+      <div class="phase ph1" style="margin-bottom:20px">
+        <div class="phase-dot"></div>
+        <div class="phase-title">المرحلة ١: Database + Queue Config</div>
+        <div class="phase-days">اليوم ١ — نصف يوم</div>
+        <ul>
+          <li>Migration: إضافة <span class="tag">phone_verified_at</span> + unique index لـ users</li>
+          <li>Migration: إنشاء <span class="tag">verification_codes</span> table (الموحد)</li>
+          <li>Migration: <span class="tag">php artisan cache:table</span> (للـ Rate Limiting بدون Redis)</li>
+          <li>تعديل <span class="tag">queue_profile.php</span>: إضافة <span class="tag">'otp'</span> queue بأعلى أولوية في default-worker</li>
+          <li>تحديث <span class="tag">.env</span>: <span class="tag">CACHE_DRIVER=database</span></li>
+          <li>اختبار: <span class="tag">php artisan migrate</span> على production بدون downtime</li>
+        </ul>
+      </div>
+
+      <div class="phase ph2" style="margin-bottom:20px">
+        <div class="phase-dot"></div>
+        <div class="phase-title">المرحلة ٢: UnifiedOtpService + Validation</div>
+        <div class="phase-days">اليوم ١-٢ — يوم</div>
+        <ul>
+          <li>بناء <span class="tag">app/Services/Auth/UnifiedOtpService.php</span>: generate, verify, resend لكل القنوات والأغراض</li>
+          <li>بناء <span class="tag">app/Rules/UniqueActivePhone.php</span>: phone uniqueness validation</li>
+          <li>تعديل <span class="tag">SignupRequest</span>: إضافة UniqueActivePhone rule</li>
+          <li>بناء <span class="tag">app/Jobs/SendOtpJob.php</span>: dispatches to 'otp' queue, non-blocking rate limit</li>
+          <li>إضافة Rate Limiter definitions في <span class="tag">AppServiceProvider::boot()</span></li>
+          <li>backward-compatible: <span class="tag">EmailVerificationCodeService</span> يبقى ويُفوّض لـ UnifiedOtpService</li>
+        </ul>
+      </div>
+
+      <div class="phase ph3" style="margin-bottom:20px">
+        <div class="phase-dot"></div>
+        <div class="phase-title">المرحلة ٣: Phone-based Login & Registration</div>
+        <div class="phase-days">اليوم ٢-٤ — يوم ونصف</div>
+        <ul>
+          <li>تعديل <span class="tag">LoginRequest.php</span>: إضافة <span class="tag">identifier</span> field (email أو phone)</li>
+          <li>تعديل <span class="tag">AuthController::login()</span>: auto-detect email vs phone، phone normalization قبل lookup</li>
+          <li>إصلاح <span class="tag">doLogin()</span>: OR → AND logic bug (سطر 68)</li>
+          <li>تعديل <span class="tag">AuthController::handleRegistration()</span>: channel detection (email vs phone) → إرسال OTP الصح</li>
+          <li>تعديل <span class="tag">Login.vue</span>: حقل "email أو رقم هاتف" بدل email فقط</li>
+          <li>تعديل <span class="tag">VerifyEmail.vue</span>: يعرض channel المستخدم ("تم إرسال الكود عبر WhatsApp" أو "البريد")</li>
+        </ul>
+      </div>
+
+      <div class="phase ph4" style="margin-bottom:20px">
+        <div class="phase-dot"></div>
+        <div class="phase-title">المرحلة ٤: WhatsApp OTP Integration</div>
+        <div class="phase-days">اليوم ٤-٧ — يومان (+ انتظار Meta Template approval)</div>
+        <ul>
+          <li>بناء <span class="tag">app/Services/Auth/BotzoSystemWhatsAppService.php</span></li>
+          <li>إضافة <span class="tag">botzo_whatsapp_config</span> في Settings table عبر tinker أو Seeder</li>
+          <li>تقديم <span class="tag">botzo_otp_ar</span> AUTHENTICATION template لـ Meta</li>
+          <li>اختبار إرسال OTP على أرقام حقيقية</li>
+          <li>إضافة webhook handler لتحديث <span class="tag">wamid</span> status في verification_codes</li>
+          <li>Forgot Password: دعم phone number path</li>
+        </ul>
+      </div>
+
+      <div class="phase ph5">
+        <div class="phase-dot"></div>
+        <div class="phase-title">المرحلة ٥: Security + Testing + Deploy</div>
+        <div class="phase-days">اليوم ٧-١٠ — يوم ونصف</div>
+        <ul>
+          <li>اختبار Rate Limiting: تأكيد 429 responses عند التجاوز</li>
+          <li>اختبار Brute Force: 5 محاولات خاطئة → lock code</li>
+          <li>اختبار Queue Isolation: أطلق حملة + أرسل OTP في نفس الوقت → OTP يصل أولاً</li>
+          <li>E2E Test: Register Phone → WhatsApp OTP → Verify → Dashboard</li>
+          <li>E2E Test: Register Email → Email OTP → Verify → Dashboard</li>
+          <li>E2E Test: Forgot Password phone + email</li>
+          <li>Cron: إضافة <span class="tag">otp:cleanup-expired</span> schedule (يومياً)</li>
+          <li>Deploy: git push → migrate → smoke test production</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <h3 style="margin-top:24px">ملخص الملفات المؤثرة</h3>
+    <table>
+      <thead><tr><th>الملف</th><th>النوع</th><th>الوصف</th></tr></thead>
+      <tbody>
+        <tr><td class="tc">app/Http/Controllers/AuthController.php</td><td><span class="badge b-orange">تعديل</span></td><td>login() + register() + forgotPassword() + bug fix</td></tr>
+        <tr><td class="tc">app/Http/Requests/LoginRequest.php</td><td><span class="badge b-orange">تعديل</span></td><td>email → identifier (email|phone)</td></tr>
+        <tr><td class="tc">app/Http/Requests/SignupRequest.php</td><td><span class="badge b-orange">تعديل</span></td><td>UniqueActivePhone rule</td></tr>
+        <tr><td class="tc">app/Services/Auth/UnifiedOtpService.php</td><td><span class="badge b-blue">جديد</span></td><td>unified generate/verify/resend for all channels</td></tr>
+        <tr><td class="tc">app/Services/Auth/BotzoSystemWhatsAppService.php</td><td><span class="badge b-blue">جديد</span></td><td>system WhatsApp sender using existing WhatsappService</td></tr>
+        <tr><td class="tc">app/Jobs/SendOtpJob.php</td><td><span class="badge b-blue">جديد</span></td><td>dispatches to 'otp' queue, non-blocking</td></tr>
+        <tr><td class="tc">app/Rules/UniqueActivePhone.php</td><td><span class="badge b-blue">جديد</span></td><td>validation rule for unique active phone</td></tr>
+        <tr><td class="tc">app/Models/VerificationCode.php</td><td><span class="badge b-blue">جديد</span></td><td>Eloquent model for verification_codes table</td></tr>
+        <tr><td class="tc">database/migrations/*_add_phone_auth_users.php</td><td><span class="badge b-blue">جديد</span></td><td>phone_verified_at + unique index</td></tr>
+        <tr><td class="tc">database/migrations/*_create_verification_codes.php</td><td><span class="badge b-blue">جديد</span></td><td>unified OTP table</td></tr>
+        <tr><td class="tc">config/queue_profile.php</td><td><span class="badge b-orange">تعديل</span></td><td>إضافة 'otp' queue بأعلى أولوية</td></tr>
+        <tr><td class="tc">app/Providers/AppServiceProvider.php</td><td><span class="badge b-orange">تعديل</span></td><td>RateLimiter definitions</td></tr>
+        <tr><td class="tc">resources/js/Pages/Auth/Login.vue</td><td><span class="badge b-orange">تعديل</span></td><td>email → identifier field</td></tr>
+        <tr><td class="tc">resources/js/Pages/Auth/VerifyEmail.vue</td><td><span class="badge b-orange">تعديل</span></td><td>إضافة channel indicator (WhatsApp/Email)</td></tr>
+        <tr><td class="tc">app/Services/EmailVerificationCodeService.php</td><td><span class="badge b-yellow">deprecate</span></td><td>يبقى للتوافق → يُفوّض لـ UnifiedOtpService</td></tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     RECOMMENDATIONS SUMMARY
+══════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <div class="ic ic-gray">📝</div>
+    <h2>ملخص التوصيات — Architecture Decisions</h2>
+  </div>
+  <div class="card-body">
+    <div class="grid2">
+      <div>
+        <h3>القرارات الأساسية</h3>
+        <ul class="steps">
+          <li><div class="sn">✓</div><div class="sb"><strong>ابقَ على Sessions</strong> — لا حاجة لـ JWT في Web SaaS + Inertia</div></li>
+          <li><div class="sn">✓</div><div class="sb"><strong>استخدم WhatsappService الموجود</strong> — لا تكتب HTTP client جديد للـ OTP</div></li>
+          <li><div class="sn">✓</div><div class="sb"><strong>Queue 'otp' على default-worker</strong> — لا تحتاج worker جديد، فقط أعلى أولوية</div></li>
+          <li><div class="sn">✓</div><div class="sb"><strong>Settings table لـ Botzo creds</strong> — نفس pattern mail_config الموجود</div></li>
+          <li><div class="sn">✓</div><div class="sb"><strong>جدول verification_codes موحّد</strong> — بدل جداول متعددة لكل channel</div></li>
+          <li><div class="sn">✓</div><div class="sb"><strong>AUTHENTICATION template category</strong> — يتجاوز 24h window + approval سريع</div></li>
+        </ul>
+      </div>
+      <div>
+        <h3>أشياء يجب إصلاحها فوراً</h3>
+        <ul class="steps">
+          <li><div class="sn" style="background:#991B1B">!</div><div class="sb"><strong>usleep blocking في WhatsappRateLimiter</strong> — استبدل بـ release(1) non-blocking</div></li>
+          <li><div class="sn" style="background:#C2410C">!</div><div class="sb"><strong>OR bug في doLogin()</strong> — غيّر لـ AND أو اعمل refactor صح</div></li>
+          <li><div class="sn" style="background:#C2410C">!</div><div class="sb"><strong>Rate limit على OTP send endpoint</strong> — موجود على verify فقط الآن</div></li>
+          <li><div class="sn" style="background:#92400E">!</div><div class="sb"><strong>Email OTP من sync إلى async</strong> — بدّله لـ Job على 'otp' queue</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="footer">
+    <div class="footer-bar"></div>
+    <div>Botzo SA Client — Technical Deep Analysis — Authentication & OTP — 28 May 2026</div>
+    <div style="margin-top:4px" dir="rtl">Senior Architect Review · Claude Code · للاستخدام الداخلي</div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

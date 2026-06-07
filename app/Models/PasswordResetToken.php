@@ -10,4 +10,8 @@ class PasswordResetToken extends Model {
 
     protected $guarded = [];
     public $timestamps = false;
+
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
 }
