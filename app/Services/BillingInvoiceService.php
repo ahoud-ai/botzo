@@ -639,64 +639,68 @@ class BillingInvoiceService
             'total' => true,
         ];
 
-        $logoPath = public_path('bimi/botzo-logo.svg');
-        $logoSrc = is_file($logoPath) ? 'file:///' . str_replace('\\', '/', $logoPath) : null;
+        $logoPngPath = public_path('bimi/botzo-logo-app.png');
+        $logoSvgPath = public_path('bimi/botzo-logo.svg');
+        $logoSrc = is_file($logoPngPath)
+            ? 'file:///' . str_replace('\\', '/', $logoPngPath)
+            : (is_file($logoSvgPath) ? 'file:///' . str_replace('\\', '/', $logoSvgPath) : null);
         $logoHtml = $logoSrc
-            ? '<img src="' . $this->escapePdfHtml($logoSrc) . '" alt="' . $this->escapePdfHtml($brandName) . '" style="width:52px;height:auto;display:block;">'
-            : '<div style="width:52px;height:52px;border:1px solid #cfe0ff;text-align:center;line-height:52px;font-size:24px;font-weight:bold;color:#2563eb;background:#eff6ff;">' . $this->escapePdfHtml($brandInitial !== '' ? $brandInitial : 'B') . '</div>';
+            ? '<img src="' . $this->escapePdfHtml($logoSrc) . '" alt="' . $this->escapePdfHtml($brandName) . '" style="width:48px;height:48px;display:block;border-radius:10px;object-fit:cover;">'
+            : '<div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#25D366,#00E5FF 45%,#7C3AED);text-align:center;line-height:48px;font-size:22px;font-weight:bold;color:#ffffff;">' . $this->escapePdfHtml($brandInitial !== '' ? $brandInitial : 'B') . '</div>';
 
         $html = '<html lang="' . $this->escapePdfHtml($locale) . '" dir="' . $this->escapePdfHtml($direction) . '"><head><meta charset="utf-8"><title>'
             . $this->escapePdfHtml($title) . ' - ' . $this->escapePdfHtml($documentNumber)
             . '</title><style>'
-            . 'body{font-family:' . $bodyFont . ';font-size:11px;line-height:1.9;color:#0f172a;margin:0;background:#ffffff;}'
-            . '.sheet{border:1px solid #dbe7f3;background:#ffffff;}'
-            . '.top-accent{height:7px;background:#2563eb;}'
-            . '.section{padding:18px 20px;border-top:1px solid #e8eef5;}'
-            . '.section:first-child{border-top:none;background:#f8fbff;}'
+            . 'body{font-family:' . $bodyFont . ';font-size:11px;line-height:1.9;color:#0A0F1C;margin:0;background:#ffffff;}'
+            . '.sheet{border:1px solid #E5EBF3;background:#ffffff;}'
+            . '.top-accent{height:7px;background:linear-gradient(90deg,#25D366 0%,#00E5FF 34%,#1877F2 68%,#7C3AED 100%);}'
+            . '.section{padding:18px 20px;border-top:1px solid #E5EBF3;}'
+            . '.section:first-child{border-top:none;background:#FAFBFD;}'
             . '.hero-table,.facts-table,.dual-table,.items-table,.summary-table,.footer-table,.meta-table,.info-table{width:100%;border-collapse:collapse;table-layout:fixed;}'
             . '.hero-table td,.facts-table td,.dual-table td,.footer-table td{vertical-align:top;}'
             . '.hero-main{width:60%;padding-' . ($direction === 'rtl' ? 'left' : 'right') . ':12px;}'
             . '.hero-side{width:40%;}'
-            . '.logo-wrap{width:70px;}'
-            . '.kicker{display:inline-block;padding:5px 10px;border:1px solid #dbeafe;background:#eff6ff;color:#2563eb;font-size:9.4px;font-weight:bold;}'
-            . '.brand{font-size:10px;color:#64748b;letter-spacing:0.12em;text-transform:uppercase;margin:8px 0 5px;}'
-            . '.title{font-size:28px;font-weight:bold;color:#0f172a;margin:0 0 6px;}'
+            . '.logo-wrap{width:66px;}'
+            . '.kicker{display:inline-block;padding:5px 12px;border:1px solid #DDE6F0;background:#ffffff;color:#334155;font-size:9.4px;font-weight:bold;border-radius:999px;}'
+            . '.brand{font-size:10px;color:#64748B;letter-spacing:0.12em;text-transform:uppercase;margin:8px 0 5px;}'
+            . '.title{font-size:26px;font-weight:bold;color:#0A0F1C;margin:0 0 6px;}'
             . '.note{font-size:10.5px;color:#475569;line-height:1.8;}'
             . '.meta-table tr+tr td{padding-top:8px;}'
-            . '.meta-card{border:1px solid #dbe7f3;background:#ffffff;padding:10px 12px;}'
+            . '.meta-card{border:1px solid #E5EBF3;background:#ffffff;padding:10px 12px;}'
             . '.status-card{border-color:#bbf7d0;background:#ecfdf5;color:#15803d;font-weight:bold;text-align:center;font-size:10px;}'
-            . '.meta-label,.info-label{font-size:9.5px;color:#64748b;}'
-            . '.meta-value{margin-top:4px;font-size:12.6px;font-weight:bold;color:#0f172a;line-height:1.8;}'
+            . '.meta-label,.info-label{font-size:9.5px;color:#64748B;}'
+            . '.meta-value{margin-top:4px;font-size:12.6px;font-weight:bold;color:#0A0F1C;line-height:1.8;}'
             . '.facts-table{margin-top:12px;}'
             . '.facts-table td{width:33.33%;}'
             . '.fact-start{padding-' . ($direction === 'rtl' ? 'left' : 'right') . ':8px;}'
             . '.fact-mid{padding-left:4px;padding-right:4px;}'
             . '.fact-end{padding-' . ($direction === 'rtl' ? 'right' : 'left') . ':8px;}'
-            . '.fact-card{border:1px solid #dbe7f3;background:#ffffff;padding:12px 14px;}'
-            . '.fact-label{font-size:9.5px;color:#64748b;}'
-            . '.fact-value{margin-top:5px;font-size:12.4px;font-weight:bold;color:#0f172a;line-height:1.8;}'
-            . '.section-title{font-size:14px;font-weight:bold;color:#0f172a;margin:0 0 4px;}'
-            . '.section-note{font-size:10px;color:#64748b;margin:0 0 10px;}'
+            . '.fact-card{border:1px solid #E5EBF3;background:#ffffff;padding:12px 14px;}'
+            . '.fact-label{font-size:9.5px;color:#64748B;}'
+            . '.fact-value{margin-top:5px;font-size:12.4px;font-weight:bold;color:#0A0F1C;line-height:1.8;}'
+            . '.section-title{font-size:14px;font-weight:bold;color:#0A0F1C;margin:0 0 4px;}'
+            . '.section-note{font-size:10px;color:#64748B;margin:0 0 10px;}'
             . '.dual-table td{width:50%;}'
             . '.dual-start{padding-' . ($direction === 'rtl' ? 'left' : 'right') . ':8px;}'
             . '.dual-end{padding-' . ($direction === 'rtl' ? 'right' : 'left') . ':8px;}'
-            . '.panel{border:1px solid #dbe7f3;background:#ffffff;padding:14px 16px;}'
-            . '.info-table tr+tr td{border-top:1px solid #edf2f7;}'
+            . '.panel{border:1px solid #E5EBF3;background:#ffffff;padding:14px 16px;}'
+            . '.info-table tr+tr td{border-top:1px solid #EDF2F7;}'
             . '.info-label{width:34%;padding:9px 0;vertical-align:top;}'
-            . '.info-value{padding:9px 0;font-size:11.8px;font-weight:bold;color:#0f172a;line-height:1.9;vertical-align:top;}'
+            . '.info-value{padding:9px 0;font-size:11.8px;font-weight:bold;color:#0A0F1C;line-height:1.9;vertical-align:top;}'
             . '.muted-copy{padding:9px 0;font-size:10.6px;color:#475569;line-height:1.9;vertical-align:top;}'
             . '.items-table{margin-top:8px;}'
-            . '.items-table th,.items-table td{border:1px solid #dbe7f3;padding:11px 12px;vertical-align:top;text-align:' . $textAlign . ';line-height:1.85;}'
-            . '.items-table th{background:#eff6ff;color:#334155;font-size:10px;font-weight:bold;}'
+            . '.items-table th,.items-table td{border:1px solid #E5EBF3;padding:11px 12px;vertical-align:top;text-align:' . $textAlign . ';line-height:1.85;}'
+            . '.items-table th{background:#F5F7FA;color:#334155;font-size:10px;font-weight:bold;}'
             . '.amount-cell{text-align:' . $oppositeAlign . ';white-space:nowrap;font-weight:bold;}'
             . '.ltr{direction:ltr;text-align:left;}'
-            . '.summary-table td{border:1px solid #dbe7f3;padding:10px 12px;line-height:1.8;}'
+            . '.summary-table td{border:1px solid #E5EBF3;padding:10px 12px;line-height:1.8;}'
             . '.summary-label{text-align:' . $textAlign . ';font-size:10.6px;color:#334155;}'
-            . '.summary-value{text-align:' . $oppositeAlign . ';font-size:11.8px;font-weight:bold;color:#0f172a;white-space:nowrap;}'
-            . '.summary-total td{background:#eff6ff;font-weight:bold;}'
-            . '.summary-total .summary-label,.summary-total .summary-value{color:#1d4ed8;font-size:13px;}'
-            . '.footer{padding:14px 20px;border-top:1px solid #e8eef5;font-size:9.7px;color:#64748b;}'
+            . '.summary-value{text-align:' . $oppositeAlign . ';font-size:11.8px;font-weight:bold;color:#0A0F1C;white-space:nowrap;}'
+            . '.summary-total td{background:#F5F7FA;font-weight:bold;}'
+            . '.summary-total .summary-label,.summary-total .summary-value{color:#1877F2;font-size:13px;}'
+            . '.footer{padding:14px 20px;border-top:1px solid #E5EBF3;font-size:9.7px;color:#64748B;}'
             . '.footer-end{text-align:' . $oppositeAlign . ';font-weight:bold;color:#334155;}'
+            . '.footer-gradient{height:3px;background:linear-gradient(90deg,#25D366,#00E5FF,#1877F2,#7C3AED);margin-bottom:12px;}'
             . '</style></head><body><div class="sheet"><div class="top-accent"></div>';
 
         $html .= '<div class="section"><table class="hero-table"><tr>'
@@ -787,7 +791,7 @@ class BillingInvoiceService
         }
 
         $html .= '</table></div></td></tr></table></div>';
-        $html .= '<div class="footer"><table class="footer-table"><tr>'
+        $html .= '<div class="footer"><div class="footer-gradient"></div><table class="footer-table"><tr>'
             . '<td>' . $this->escapePdfHtml(__('Secure document generated from the subscription billing system.')) . '</td>'
             . '<td class="footer-end">' . $this->escapePdfHtml($brandName) . '</td>'
             . '</tr></table></div>';
