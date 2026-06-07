@@ -311,6 +311,10 @@
             return;
         }
 
+        if (contact.value.last_chat?.id === chatValue.id) {
+            return;
+        }
+
         contact.value = {
             ...contact.value,
             last_chat: {

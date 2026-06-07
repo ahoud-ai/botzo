@@ -260,23 +260,58 @@ class AuthController extends BaseController
 
     public function createPasswordResetToken(PasswordResetRequest $request)
     {
-        (new PasswordResetService)->generateResetLink($request->input('email'));
+        $email = $request->input('email');
 
-        return redirect('/forgot-password')->with(
+        (new PasswordResetService)->generateResetCode($email);
+
+        return redirect('/forgot-password/verify?email=' . urlencode($email))->with(
             'status', [
-                'type' => 'success', 
-                'message' => __('We\'ve sent you a password reset link to your email!')
+                'type' => 'success',
+                'message' => __('We\'ve sent you a reset code to your email!'),
             ]
         );
     }
 
-    public function showResetForm(Request $request)
+    public function showVerifyResetCodeForm(Request $request)
     {
         $email = $request->input('email');
-        $token = $request->input('token');
 
-        if(!(new PasswordResetService)->verifyResetCode($email, $token)){
-            return redirect('/login');
+        if (! $email) {
+            return redirect('/forgot-password');
+        }
+
+        $keys = ['logo', 'company_name', 'address', 'email', 'phone', 'socials', 'trial_period'];
+        $data['companyConfig'] = Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
+        $data['email'] = $email;
+
+        return Inertia::render('Auth/ForgotVerify', $data);
+    }
+
+    public function verifyPasswordResetCode(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+            'code'  => ['required', 'string', 'regex:/^\d{6}$/'],
+        ]);
+
+        $email = $request->input('email');
+        $code  = $request->input('code');
+
+        if (! (new PasswordResetService)->verifyCode($email, $code)) {
+            return back()->withErrors(['code' => __('Invalid or expired reset code.')]);
+        }
+
+        session(['password_reset_verified_email' => $email]);
+
+        return redirect('/reset-password');
+    }
+
+    public function showResetForm(Request $request)
+    {
+        $email = session('password_reset_verified_email');
+
+        if (! $email) {
+            return redirect('/forgot-password');
         }
 
         $keys = ['logo', 'company_name', 'address', 'email', 'phone', 'socials', 'trial_period'];
@@ -287,12 +322,20 @@ class AuthController extends BaseController
 
     public function resetPassword(PasswordValidateResetRequest $request)
     {
-        (new PasswordResetService)->resetPassword($request);
+        $email = session('password_reset_verified_email');
+
+        if (! $email) {
+            return redirect('/forgot-password');
+        }
+
+        (new PasswordResetService)->resetPassword($email, $request->input('password'));
+
+        session()->forget('password_reset_verified_email');
 
         return redirect('/login')->with(
             'status', [
-                'type' => 'success', 
-                'message' => __('Password reset successful!')
+                'type' => 'success',
+                'message' => __('Password reset successful!'),
             ]
         );
     }

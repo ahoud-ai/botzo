@@ -1,83 +1,90 @@
 <?php
 
-// app/Services/PasswordResetService.php
-
 namespace App\Services;
 
 use App\Helpers\Email;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
+use App\Mail\PasswordResetCodeMail;
 use App\Models\PasswordResetToken;
+use App\Models\Setting;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class PasswordResetService
 {
-    public function generateResetLink(string $email): string
+    const CODE_EXPIRY_MINUTES = 60;
+
+    public function generateResetCode(string $email): void
     {
-        $token = Str::random(60);
-        $resetLink = URL::route('password.reset', ['token' => $token, 'email' => $email]);
+        $code = (string) random_int(100000, 999999);
 
-        $this->storeTokenInDatabase($email, $token);
-        $this->sendResetEmail($email, $resetLink);
-
-        return $resetLink;
+        $this->storeCodeInDatabase($email, $code);
+        $this->sendCodeEmail($email, $code);
     }
 
-    public function sendResetEmail(string $email, string $resetLink): void
+    public function sendCodeEmail(string $email, string $code): void
     {
+        if ((string) Setting::where('key', 'smtp_email_active')->value('value') !== '1') {
+            return;
+        }
+
         $user = User::where('email', $email)->first();
-        Email::sendPasswordReset('Reset Password', $user, $resetLink);
-    }
 
-    public function resetPassword($request)
-    {
-        $email = $request->input('email');
-        $token = $request->input('token');
+        if (! $user) {
+            return;
+        }
 
-        if($this->verifyResetCode($email, $token)){
-            $user = User::where('email', $email)->first();
-
-            if (! $user) {
-                return null;
-            }
-
-            $updated = $user->forceFill([
-                'password' => Hash::make($request->input('password')),
-            ])->save();
-
-            $this->clearResetCode($email);
-
-            Email::send('Password Reset Notification', $user->refresh());
-
-            return $updated;
+        try {
+            Mail::to($email)->queue(new PasswordResetCodeMail($user, $code));
+        } catch (\Exception $e) {
+            Log::error('Password reset code mail failed: ' . $e->getMessage());
         }
     }
 
-    public function verifyResetCode(string $email, string $token): bool
+    public function verifyCode(string $email, string $code): bool
     {
-        $storedToken = $this->getStoredCode($email);
+        $record = PasswordResetToken::where('email', $email)->first();
 
-        return isset($storedToken) && Hash::check($token, $storedToken);
+        if (! $record) {
+            return false;
+        }
+
+        if ($record->created_at->addMinutes(self::CODE_EXPIRY_MINUTES)->isPast()) {
+            return false;
+        }
+
+        return Hash::check($code, $record->token);
     }
 
-    private function getStoredCode(string $email): ?string
+    public function resetPassword(string $email, string $password): bool
     {
-        $passwordReset = PasswordResetToken::where('email', $email)->first();
+        $user = User::where('email', $email)->first();
 
-        return $passwordReset ? $passwordReset->token : null;
+        if (! $user) {
+            return false;
+        }
+
+        $user->forceFill([
+            'password' => Hash::make($password),
+        ])->save();
+
+        $this->clearCode($email);
+
+        Email::send('Password Reset Notification', $user->refresh());
+
+        return true;
     }
 
-    private function storeTokenInDatabase(string $email, string $token): void
+    private function storeCodeInDatabase(string $email, string $code): void
     {
         PasswordResetToken::updateOrInsert(
             ['email' => $email],
-            ['token' => Hash::make($token), 'created_at' => now()]
+            ['token' => Hash::make($code), 'created_at' => now()]
         );
     }
 
-    private function clearResetCode(string $email): void
+    private function clearCode(string $email): void
     {
         PasswordResetToken::where('email', $email)->delete();
     }

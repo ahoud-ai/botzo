@@ -123,7 +123,7 @@ class User extends Authenticatable implements MustVerifyEmail
         try {
             $code = app(EmailVerificationCodeService::class)->generate($this);
 
-            \Mail::to($this->email)->send(new CustomEmailVerification($this, $code));
+            \Mail::to($this->email)->queue(new CustomEmailVerification($this, $code));
         } catch (\Exception $e) {
             \Log::error('Failed to send verification email: ' . $e->getMessage());
         }

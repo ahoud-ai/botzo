@@ -110,6 +110,10 @@
         </span>
     </div>
     
+    <div v-if="!menuIconsOnly" class="mx-3 mb-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 transition-colors text-slate-600">
+        <LangToggle :languages="languages" :currentLanguage="currentLanguage" />
+    </div>
+
     <div class="creative-profile-card flex items-center m-3 p-2 rounded-xl h-14 py-1 md:py-1 mt-2 gap-x-4 bg-slate-50" :class="!menuIconsOnly ? 'justify-between' : 'justify-center'">
         <div v-if="!menuIconsOnly" class="flex gap-x-2">
             <div class="rounded-xl p-1 bg-slate-200">
@@ -207,6 +211,7 @@
     import Modal from '@/Components/Modal.vue';
     import ProfileModal from '@/Components/ProfileModal.vue';
     import OrganizationModal from '@/Components/OrganizationModal.vue';
+    import LangToggle from '@/Components/LangToggle.vue';
     import { useWorkspaceAccess } from '@/Composables/useWorkspaceAccess';
 
     const props = defineProps(['config', 'user', 'organization', 'organizations', 'isSidebarOpen', 'unreadMessages']);

@@ -1,18 +1,37 @@
 @php
     $companyName = $companyName ?? config('app.name', 'Botzo');
     $isVerificationEmail = isset($verificationCode) && $verificationCode !== '';
+    $isPasswordReset = $isPasswordReset ?? false;
     $brandGreen = '#25D366';
     $brandCyan = '#00E5FF';
     $brandBlue = '#1877F2';
     $brandPurple = '#7C3AED';
     $brandInk = '#0A0F1C';
     $brandSoft = '#F5F7FA';
-    $arabicTitle = "\u{062A}\u{0641}\u{0639}\u{064A}\u{0644} \u{062D}\u{0633}\u{0627}\u{0628}\u{0643} \u{0641}\u{064A}";
     $arabicGreeting = "\u{0645}\u{0631}\u{062D}\u{0628}\u{0627}";
-    $arabicBody = "\u{0627}\u{0633}\u{062A}\u{062E}\u{062F}\u{0645} \u{0631}\u{0645}\u{0632} \u{0627}\u{0644}\u{062A}\u{0641}\u{0639}\u{064A}\u{0644} \u{0627}\u{0644}\u{062A}\u{0627}\u{0644}\u{064A} \u{0644}\u{0625}\u{0643}\u{0645}\u{0627}\u{0644} \u{0625}\u{0646}\u{0634}\u{0627}\u{0621} \u{062D}\u{0633}\u{0627}\u{0628}\u{0643}. \u{0644}\u{0627} \u{062A}\u{0634}\u{0627}\u{0631}\u{0643} \u{0647}\u{0630}\u{0627} \u{0627}\u{0644}\u{0631}\u{0645}\u{0632} \u{0645}\u{0639} \u{0623}\u{064A} \u{0634}\u{062E}\u{0635}.";
-    $arabicCodeLabel = "\u{0631}\u{0645}\u{0632} \u{0627}\u{0644}\u{062A}\u{0641}\u{0639}\u{064A}\u{0644}";
-    $arabicExpires = "\u{064A}\u{0646}\u{062A}\u{0647}\u{064A} \u{062E}\u{0644}\u{0627}\u{0644} 15 \u{062F}\u{0642}\u{064A}\u{0642}\u{0629}";
     $arabicFooter = "\u{062A}\u{0645} \u{0625}\u{0631}\u{0633}\u{0627}\u{0644} \u{0647}\u{0630}\u{0647} \u{0627}\u{0644}\u{0631}\u{0633}\u{0627}\u{0644}\u{0629} \u{0628}\u{0648}\u{0627}\u{0633}\u{0637}\u{0629}";
+
+    if ($isPasswordReset) {
+        $badge = 'Password Reset';
+        $arabicTitle = "\u{0625}\u{0639}\u{0627}\u{062F}\u{0629} \u{062A}\u{0639}\u{064A}\u{064A}\u{0646} \u{0643}\u{0644}\u{0645}\u{0629} \u{0645}\u{0631}\u{0648}\u{0631}\u{0643} \u{0641}\u{064A}";
+        $arabicBody = "\u{0627}\u{0633}\u{062A}\u{062E}\u{062F}\u{0645} \u{0631}\u{0645}\u{0632} \u{0625}\u{0639}\u{0627}\u{062F}\u{0629} \u{0627}\u{0644}\u{062A}\u{0639}\u{064A}\u{064A}\u{0646} \u{0627}\u{0644}\u{062A}\u{0627}\u{0644}\u{064A} \u{0644}\u{062A}\u{0639}\u{064A}\u{064A}\u{0646} \u{0643}\u{0644}\u{0645}\u{0629} \u{0645}\u{0631}\u{0648}\u{0631} \u{062C}\u{062F}\u{064A}\u{062F}\u{0629}. \u{0644}\u{0627} \u{062A}\u{0634}\u{0627}\u{0631}\u{0643} \u{0647}\u{0630}\u{0627} \u{0627}\u{0644}\u{0631}\u{0645}\u{0632} \u{0645}\u{0639} \u{0623}\u{064A} \u{0634}\u{062E}\u{0635}.";
+        $arabicCodeLabel = "\u{0631}\u{0645}\u{0632} \u{0625}\u{0639}\u{0627}\u{062F}\u{0629} \u{0627}\u{0644}\u{062A}\u{0639}\u{064A}\u{064A}\u{0646}";
+        $arabicExpires = "\u{064A}\u{0646}\u{062A}\u{0647}\u{064A} \u{062E}\u{0644}\u{0627}\u{0644} 60 \u{062F}\u{0642}\u{064A}\u{0642}\u{0629}";
+        $englishTitle = 'Reset your ' . $companyName . ' password';
+        $englishBody = 'Hi ' . ($firstName ?? '') . ', use the reset code below to set a new password. Do not share this code with anyone.';
+        $codeLabel = 'Reset Code / ' . $arabicCodeLabel;
+        $expiryText = 'Expires in 60 minutes / ' . $arabicExpires;
+    } else {
+        $badge = 'Account activation';
+        $arabicTitle = "\u{062A}\u{0641}\u{0639}\u{064A}\u{0644} \u{062D}\u{0633}\u{0627}\u{0628}\u{0643} \u{0641}\u{064A}";
+        $arabicBody = "\u{0627}\u{0633}\u{062A}\u{062E}\u{062F}\u{0645} \u{0631}\u{0645}\u{0632} \u{0627}\u{0644}\u{062A}\u{0641}\u{0639}\u{064A}\u{0644} \u{0627}\u{0644}\u{062A}\u{0627}\u{0644}\u{064A} \u{0644}\u{0625}\u{0643}\u{0645}\u{0627}\u{0644} \u{0625}\u{0646}\u{0634}\u{0627}\u{0621} \u{062D}\u{0633}\u{0627}\u{0628}\u{0643}. \u{0644}\u{0627} \u{062A}\u{0634}\u{0627}\u{0631}\u{0643} \u{0647}\u{0630}\u{0627} \u{0627}\u{0644}\u{0631}\u{0645}\u{0632} \u{0645}\u{0639} \u{0623}\u{064A} \u{0634}\u{062E}\u{0635}.";
+        $arabicCodeLabel = "\u{0631}\u{0645}\u{0632} \u{0627}\u{0644}\u{062A}\u{0641}\u{0639}\u{064A}\u{0644}";
+        $arabicExpires = "\u{064A}\u{0646}\u{062A}\u{0647}\u{064A} \u{062E}\u{0644}\u{0627}\u{0644} 15 \u{062F}\u{0642}\u{064A}\u{0642}\u{0629}";
+        $englishTitle = 'Activate your ' . $companyName . ' account';
+        $englishBody = 'Hi ' . ($firstName ?? '') . ', use the verification code below to finish creating your account. Do not share this code with anyone.';
+        $codeLabel = 'Verification Code / ' . $arabicCodeLabel;
+        $expiryText = 'Expires in 15 minutes / ' . $arabicExpires;
+    }
 @endphp
 <!doctype html>
 <html lang="en" dir="ltr">
@@ -53,7 +72,7 @@
                                         </table>
                                     </td>
                                     <td align="right" style="vertical-align:middle;">
-                                        <div style="display:inline-block;border:1px solid #DDE6F0;border-radius:999px;padding:8px 13px;font-size:12px;color:#334155;background:#ffffff;">Account activation</div>
+                                        <div style="display:inline-block;border:1px solid #DDE6F0;border-radius:999px;padding:8px 13px;font-size:12px;color:#334155;background:#ffffff;">{{ $badge }}</div>
                                     </td>
                                 </tr>
                             </table>
@@ -71,8 +90,8 @@
                                                 <div style="font-size:15px;line-height:1.9;color:#475569;">{{ $arabicGreeting }} {{ $firstName ?? '' }}، {{ $arabicBody }}</div>
                                             </div>
                                             <div dir="ltr" style="text-align:left;">
-                                                <div style="font-size:22px;line-height:1.35;font-weight:800;color:{{ $brandInk }};margin-bottom:8px;">Activate your {{ $companyName }} account</div>
-                                                <div style="font-size:15px;line-height:1.75;color:#475569;">Hi {{ $firstName ?? '' }}, use the verification code below to finish creating your account. Do not share this code with anyone.</div>
+                                                <div style="font-size:22px;line-height:1.35;font-weight:800;color:{{ $brandInk }};margin-bottom:8px;">{{ $englishTitle }}</div>
+                                                <div style="font-size:15px;line-height:1.75;color:#475569;">{{ $englishBody }}</div>
                                             </div>
                                         </td>
                                     </tr>
@@ -85,11 +104,11 @@
                                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ffffff;border:1px solid #DFE8F3;border-radius:16px;">
                                     <tr>
                                         <td align="center" style="padding:24px 18px 22px;">
-                                            <div style="font-size:12px;line-height:1.5;color:#64748B;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Verification Code / {{ $arabicCodeLabel }}</div>
+                                            <div style="font-size:12px;line-height:1.5;color:#64748B;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">{{ $codeLabel }}</div>
                                             <div style="display:inline-block;padding:17px 26px;border-radius:14px;background:#F8FAFC;border:1px solid #E2E8F0;">
                                                 <span style="font-size:40px;line-height:1;font-weight:900;letter-spacing:9px;color:{{ $brandInk }};font-family:Arial,Helvetica,sans-serif;">{{ $verificationCode }}</span>
                                             </div>
-                                            <div style="font-size:13px;line-height:1.8;color:#64748B;margin-top:14px;">Expires in 15 minutes / {{ $arabicExpires }}</div>
+                                            <div style="font-size:13px;line-height:1.8;color:#64748B;margin-top:14px;">{{ $expiryText }}</div>
                                         </td>
                                     </tr>
                                 </table>
