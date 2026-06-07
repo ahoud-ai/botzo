@@ -1,0 +1,1 @@
+const u={uuid:"00000000-0000-4000-8000-000000000000",id:"00000000-0000-4000-8000-000000000000",token:"YOUR_API_TOKEN"};function c(r,n,o={}){if(typeof r!="string"||r.length===0)return"";const t={base_url:String(n||"").replace(/\/$/,""),...u,...o};return r.replace(/\{\{\s*([a-zA-Z_]+)\s*\}\}/g,(s,e)=>Object.prototype.hasOwnProperty.call(t,e)?t[e]:s)}export{c as r};
