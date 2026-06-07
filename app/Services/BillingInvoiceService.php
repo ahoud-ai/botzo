@@ -645,210 +645,157 @@ class BillingInvoiceService
             ? 'file:///' . str_replace('\\', '/', $logoPngPath)
             : (is_file($logoSvgPath) ? 'file:///' . str_replace('\\', '/', $logoSvgPath) : null);
         $logoHtml = $logoSrc
-            ? '<img src="' . $this->escapePdfHtml($logoSrc) . '" alt="' . $this->escapePdfHtml($brandName) . '" style="width:44px;height:44px;display:block;border-radius:10px;object-fit:cover;">'
-            : '<div style="width:44px;height:44px;border-radius:10px;background:#034737;text-align:center;line-height:44px;font-size:20px;font-weight:bold;color:#ffffff;">' . $this->escapePdfHtml($brandInitial !== '' ? $brandInitial : 'B') . '</div>';
-
-        // Colors matching InvoiceDetailsShell.vue (Tailwind slate palette)
-        $c = [
-            'primary'      => '#034737',
-            'primaryLight' => '#EAF2F0',
-            'primaryBorder'=> '#C4D9D5',
-            'ink'          => '#020617',
-            'medium'       => '#475569',
-            'muted'        => '#64748B',
-            'border'       => '#E2E8F0',
-            'softBg'       => '#F8FAFC',
-            'white'        => '#ffffff',
-            'greenBg'      => '#F0FDF4',
-            'greenBorder'  => '#BBF7D0',
-            'greenText'    => '#15803D',
-        ];
-
-        $gap = ($direction === 'rtl' ? 'left' : 'right');
-        $endGap = ($direction === 'rtl' ? 'right' : 'left');
-
-        $label = 'font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:0.12em;color:' . $c['muted'] . ';';
-        $val   = 'font-size:12px;font-weight:bold;color:' . $c['ink'] . ';margin-top:3px;line-height:1.8;';
-
-        // mPDF-safe styles: no border-collapse:collapse on layout tables,
-        // no border on <table> elements, use separate border-spacing:0 instead.
-        $B  = $c['border'];
-        $th = 'background:' . $c['softBg'] . ';font-size:9px;font-weight:bold;text-transform:uppercase;'
-            . 'letter-spacing:0.10em;color:' . $c['muted'] . ';padding:9px 11px;text-align:' . $textAlign . ';'
-            . 'border-top:1px solid ' . $B . ';border-bottom:1px solid ' . $B . ';border-' . $gap . ':1px solid ' . $B . ';';
-        $thLast = $th . 'border-' . $endGap . ':1px solid ' . $B . ';text-align:' . $oppositeAlign . ';';
-        $td = 'font-size:11px;color:' . $c['medium'] . ';padding:10px 11px;text-align:' . $textAlign . ';'
-            . 'border-bottom:1px solid ' . $B . ';border-' . $gap . ':1px solid ' . $B . ';';
-        $tdB = 'font-size:11px;font-weight:bold;color:' . $c['ink'] . ';padding:10px 11px;text-align:' . $textAlign . ';'
-            . 'border-bottom:1px solid ' . $B . ';border-' . $gap . ':1px solid ' . $B . ';';
-        $tdLast = $td . 'border-' . $endGap . ':1px solid ' . $B . ';text-align:' . $oppositeAlign . ';';
-        $tdBLast = $tdB . 'border-' . $endGap . ':1px solid ' . $B . ';text-align:' . $oppositeAlign . ';';
-
-        // Layout table style: separate spacing, no border on the table element
-        $lt = 'width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;';
+            ? '<img src="' . $this->escapePdfHtml($logoSrc) . '" alt="' . $this->escapePdfHtml($brandName) . '" style="width:48px;height:48px;display:block;border-radius:10px;object-fit:cover;">'
+            : '<div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#25D366,#00E5FF 45%,#7C3AED);text-align:center;line-height:48px;font-size:22px;font-weight:bold;color:#ffffff;">' . $this->escapePdfHtml($brandInitial !== '' ? $brandInitial : 'B') . '</div>';
 
         $html = '<html lang="' . $this->escapePdfHtml($locale) . '" dir="' . $this->escapePdfHtml($direction) . '"><head><meta charset="utf-8"><title>'
             . $this->escapePdfHtml($title) . ' - ' . $this->escapePdfHtml($documentNumber)
             . '</title><style>'
-            . 'body{font-family:' . $bodyFont . ';font-size:11px;line-height:1.8;color:' . $c['ink'] . ';margin:0;padding:14px;background:' . $c['softBg'] . ';}'
-            . '.card{background:' . $c['white'] . ';border:1px solid ' . $c['border'] . ';margin-bottom:12px;padding:16px 18px;}'
+            . 'body{font-family:' . $bodyFont . ';font-size:11px;line-height:1.9;color:#0A0F1C;margin:0;background:#ffffff;}'
+            . '.sheet{border:1px solid #E5EBF3;background:#ffffff;}'
+            . '.top-accent{height:7px;background:linear-gradient(90deg,#25D366 0%,#00E5FF 34%,#1877F2 68%,#7C3AED 100%);}'
+            . '.section{padding:18px 20px;border-top:1px solid #E5EBF3;}'
+            . '.section:first-child{border-top:none;background:#FAFBFD;}'
+            . '.hero-table,.facts-table,.dual-table,.items-table,.summary-table,.footer-table,.meta-table,.info-table{width:100%;border-collapse:collapse;table-layout:fixed;}'
+            . '.hero-table td,.facts-table td,.dual-table td,.footer-table td{vertical-align:top;}'
+            . '.hero-main{width:60%;padding-' . ($direction === 'rtl' ? 'left' : 'right') . ':12px;}'
+            . '.hero-side{width:40%;}'
+            . '.logo-wrap{width:66px;}'
+            . '.kicker{display:inline-block;padding:5px 12px;border:1px solid #DDE6F0;background:#ffffff;color:#334155;font-size:9.4px;font-weight:bold;border-radius:999px;}'
+            . '.brand{font-size:10px;color:#64748B;letter-spacing:0.12em;text-transform:uppercase;margin:8px 0 5px;}'
+            . '.title{font-size:26px;font-weight:bold;color:#0A0F1C;margin:0 0 6px;}'
+            . '.note{font-size:10.5px;color:#475569;line-height:1.8;}'
+            . '.meta-table tr+tr td{padding-top:8px;}'
+            . '.meta-card{border:1px solid #E5EBF3;background:#ffffff;padding:10px 12px;}'
+            . '.status-card{border-color:#bbf7d0;background:#ecfdf5;color:#15803d;font-weight:bold;text-align:center;font-size:10px;}'
+            . '.meta-label,.info-label{font-size:9.5px;color:#64748B;}'
+            . '.meta-value{margin-top:4px;font-size:12.6px;font-weight:bold;color:#0A0F1C;line-height:1.8;}'
+            . '.facts-table{margin-top:12px;}'
+            . '.facts-table td{width:33.33%;}'
+            . '.fact-start{padding-' . ($direction === 'rtl' ? 'left' : 'right') . ':8px;}'
+            . '.fact-mid{padding-left:4px;padding-right:4px;}'
+            . '.fact-end{padding-' . ($direction === 'rtl' ? 'right' : 'left') . ':8px;}'
+            . '.fact-card{border:1px solid #E5EBF3;background:#ffffff;padding:12px 14px;}'
+            . '.fact-label{font-size:9.5px;color:#64748B;}'
+            . '.fact-value{margin-top:5px;font-size:12.4px;font-weight:bold;color:#0A0F1C;line-height:1.8;}'
+            . '.section-title{font-size:14px;font-weight:bold;color:#0A0F1C;margin:0 0 4px;}'
+            . '.section-note{font-size:10px;color:#64748B;margin:0 0 10px;}'
+            . '.dual-table td{width:50%;}'
+            . '.dual-start{padding-' . ($direction === 'rtl' ? 'left' : 'right') . ':8px;}'
+            . '.dual-end{padding-' . ($direction === 'rtl' ? 'right' : 'left') . ':8px;}'
+            . '.panel{border:1px solid #E5EBF3;background:#ffffff;padding:14px 16px;}'
+            . '.info-table tr+tr td{border-top:1px solid #EDF2F7;}'
+            . '.info-label{width:34%;padding:9px 0;vertical-align:top;}'
+            . '.info-value{padding:9px 0;font-size:11.8px;font-weight:bold;color:#0A0F1C;line-height:1.9;vertical-align:top;}'
+            . '.muted-copy{padding:9px 0;font-size:10.6px;color:#475569;line-height:1.9;vertical-align:top;}'
+            . '.items-table{margin-top:8px;}'
+            . '.items-table th,.items-table td{border:1px solid #E5EBF3;padding:11px 12px;vertical-align:top;text-align:' . $textAlign . ';line-height:1.85;}'
+            . '.items-table th{background:#F5F7FA;color:#334155;font-size:10px;font-weight:bold;}'
+            . '.amount-cell{text-align:' . $oppositeAlign . ';white-space:nowrap;font-weight:bold;}'
             . '.ltr{direction:ltr;text-align:left;}'
-            . '.label{font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:0.10em;color:' . $c['muted'] . ';}'
-            . '.val{font-size:12px;font-weight:bold;color:' . $c['ink'] . ';margin-top:2px;line-height:1.8;}'
-            . '.val-p{font-size:13px;font-weight:bold;color:' . $c['primary'] . ';margin-top:2px;line-height:1.8;}'
-            . '.sec-title{font-size:13px;font-weight:bold;color:' . $c['ink'] . ';margin:0 0 2px;}'
-            . '.sec-sub{font-size:9.5px;color:' . $c['muted'] . ';margin:0 0 10px;}'
-            . '.footer-bar{height:3px;background:linear-gradient(90deg,#25D366,#00E5FF,#1877F2,#7C3AED);margin-bottom:8px;}'
-            . '</style></head><body>';
+            . '.summary-table td{border:1px solid #E5EBF3;padding:10px 12px;line-height:1.8;}'
+            . '.summary-label{text-align:' . $textAlign . ';font-size:10.6px;color:#334155;}'
+            . '.summary-value{text-align:' . $oppositeAlign . ';font-size:11.8px;font-weight:bold;color:#0A0F1C;white-space:nowrap;}'
+            . '.summary-total td{background:#F5F7FA;font-weight:bold;}'
+            . '.summary-total .summary-label,.summary-total .summary-value{color:#1877F2;font-size:13px;}'
+            . '.footer{padding:14px 20px;border-top:1px solid #E5EBF3;font-size:9.7px;color:#64748B;}'
+            . '.footer-end{text-align:' . $oppositeAlign . ';font-weight:bold;color:#334155;}'
+            . '.footer-gradient{height:3px;background:linear-gradient(90deg,#25D366,#00E5FF,#1877F2,#7C3AED);margin-bottom:12px;}'
+            . '</style></head><body><div class="sheet"><div class="top-accent"></div>';
 
-        // ── Header card ──────────────────────────────────────────
-        $html .= '<div class="card">';
-        $html .= '<table style="' . $lt . '"><tr>'
-            . '<td style="width:56px;vertical-align:middle;padding-' . $gap . ':10px;">' . $logoHtml . '</td>'
-            . '<td style="vertical-align:middle;">'
-            .   '<div style="font-size:10px;font-weight:bold;color:' . $c['ink'] . ';letter-spacing:0.06em;">' . $this->escapePdfHtml(mb_strtoupper($brandName)) . '</div>'
-            .   '<div style="font-size:20px;font-weight:bold;color:' . $c['ink'] . ';line-height:1.3;">' . $this->escapePdfHtml(__('Invoice')) . '</div>'
-            .   '<div style="font-size:10px;color:' . $c['muted'] . ';margin-top:1px;" class="ltr">' . $this->escapePdfHtml($documentNumber) . '</div>'
-            . '</td>'
-            . '<td style="text-align:' . $oppositeAlign . ';vertical-align:top;">'
-            .   '<div style="display:inline-block;background:' . $c['greenBg'] . ';border:1px solid ' . $c['greenBorder'] . ';color:' . $c['greenText'] . ';font-size:9px;font-weight:bold;padding:4px 9px;">' . $this->escapePdfHtml($statusLabel) . '</div>'
-            . '</td>'
-            . '</tr></table>';
+        $html .= '<div class="section"><table class="hero-table"><tr>'
+            . '<td class="hero-main"><table style="width:100%;border-collapse:collapse;table-layout:fixed;"><tr><td class="logo-wrap">' . $logoHtml . '</td><td>'
+            . '<div class="kicker">' . $this->escapePdfHtml(__('Official billing document')) . '</div>'
+            . '<div class="brand">' . $this->escapePdfHtml($brandName) . '</div>'
+            . '<div class="title">' . $this->escapePdfHtml(__('Invoice')) . '</div>'
+            . '<div class="note">' . $this->escapePdfHtml(__('A simplified invoice prepared for accounting review, printing, and PDF download.')) . '</div>'
+            . '</td></tr></table></td>'
+            . '<td class="hero-side"><table class="meta-table">'
+            . '<tr><td class="meta-card status-card">' . $this->escapePdfHtml($statusLabel) . '</td></tr>'
+            . '<tr><td class="meta-card"><div class="meta-label">' . $this->escapePdfHtml(__('Invoice no.')) . '</div><div class="meta-value ltr">' . $this->escapePdfHtml($documentNumber) . '</div></td></tr>'
+            . '<tr><td class="meta-card"><div class="meta-label">' . $this->escapePdfHtml(__('Issued date')) . '</div><div class="meta-value ltr">' . $this->escapePdfHtml($issuedAt) . '</div></td></tr>'
+            . '<tr><td class="meta-card"><div class="meta-label">' . $this->escapePdfHtml(__('Total')) . '</div><div class="meta-value ltr">' . $this->escapePdfHtml((string) ($summary['total'] ?? '0.00')) . '</div></td></tr>'
+            . '</table></td></tr></table>';
 
-        // 4-col key facts
-        $html .= '<table style="' . $lt . 'margin-top:12px;"><tr>'
-            . '<td style="width:25%;padding-' . $gap . ':6px;vertical-align:top;"><div style="background:' . $c['softBg'] . ';border:1px solid ' . $c['border'] . ';padding:10px 12px;"><div class="label">' . $this->escapePdfHtml(__('Invoice no.')) . '</div><div class="val ltr">' . $this->escapePdfHtml($documentNumber) . '</div></div></td>'
-            . '<td style="width:25%;padding-left:6px;padding-right:6px;vertical-align:top;"><div style="background:' . $c['softBg'] . ';border:1px solid ' . $c['border'] . ';padding:10px 12px;"><div class="label">' . $this->escapePdfHtml(__('Issued date')) . '</div><div class="val ltr">' . $this->escapePdfHtml($issuedAt) . '</div></div></td>'
-            . '<td style="width:25%;padding-left:6px;padding-right:6px;vertical-align:top;"><div style="background:' . $c['softBg'] . ';border:1px solid ' . $c['border'] . ';padding:10px 12px;"><div class="label">' . $this->escapePdfHtml(__('Plan')) . '</div><div class="val">' . $this->escapePdfHtml($planName) . '</div></div></td>'
-            . '<td style="width:25%;padding-' . $endGap . ':6px;vertical-align:top;"><div style="background:' . $c['softBg'] . ';border:1px solid ' . $c['border'] . ';padding:10px 12px;"><div class="label">' . $this->escapePdfHtml(__('Total')) . '</div><div class="val-p ltr">' . $this->escapePdfHtml((string) ($summary['total'] ?? '0.00')) . '</div></div></td>'
-            . '</tr></table>';
-        $html .= '</div>';
+        $html .= '<table class="facts-table"><tr>'
+            . '<td class="fact-start"><div class="fact-card"><div class="fact-label">' . $this->escapePdfHtml(__('Subscription plan')) . '</div><div class="fact-value">' . $this->escapePdfHtml($planName) . '</div></div></td>'
+            . '<td class="fact-mid"><div class="fact-card"><div class="fact-label">' . $this->escapePdfHtml(__('Billing period')) . '</div><div class="fact-value">' . $this->escapePdfHtml($billingPeriod) . '</div></div></td>'
+            . '<td class="fact-end"><div class="fact-card"><div class="fact-label">' . $this->escapePdfHtml(__('Payment method')) . '</div><div class="fact-value">' . $this->escapePdfHtml($paymentMethodLabel) . '</div></div></td>'
+            . '</tr></table></div>';
 
-        // ── Invoice items card ────────────────────────────────────
-        $html .= '<div class="card">';
-        $html .= '<div class="sec-title">' . $this->escapePdfHtml(__('Invoice items')) . '</div>';
-        $html .= '<div class="sec-sub">' . $this->escapePdfHtml(__('Only the billed lines required for review are listed here.')) . '</div>';
+        $html .= '<div class="section"><div class="section-title">' . $this->escapePdfHtml(__('Billing parties')) . '</div>'
+            . '<div class="section-note">' . $this->escapePdfHtml(__('Essential vendor and customer details required to validate this invoice.')) . '</div>'
+            . '<table class="dual-table"><tr>'
+            . '<td class="dual-start"><div class="panel">'
+            . '<div class="section-title">' . $this->escapePdfHtml(__('Vendor')) . '</div>'
+            . '<table class="info-table">'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Name')) . '</td><td class="info-value">' . $this->escapePdfHtml((string) ($vendor['name'] ?? __('Not set'))) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Tax ID')) . '</td><td class="info-value ltr">' . $this->escapePdfHtml($vendorTaxId) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Contact')) . '</td><td class="info-value ltr">' . $this->escapePdfHtml((string) $vendorPhones) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Address')) . '</td><td class="muted-copy">' . $vendorAddress . '</td></tr>'
+            . '</table>'
+            . '</div></td>'
+            . '<td class="dual-end"><div class="panel">'
+            . '<div class="section-title">' . $this->escapePdfHtml(__('Customer')) . '</div>'
+            . '<table class="info-table">'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Organization')) . '</td><td class="info-value">' . $this->escapePdfHtml((string) ($customer['name'] ?? __('Not set'))) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Owner')) . '</td><td class="info-value">' . $this->escapePdfHtml((string) ($customer['owner_name'] ?? __('Not set'))) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Email')) . '</td><td class="info-value ltr">' . $this->escapePdfHtml($customerEmail) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Address')) . '</td><td class="muted-copy">' . $customerAddress . '</td></tr>'
+            . '</table>'
+            . '</div></td></tr></table></div>';
+
+        $html .= '<div class="section"><div class="section-title">' . $this->escapePdfHtml(__('Invoice items')) . '</div>'
+            . '<div class="section-note">' . $this->escapePdfHtml(__('Only the invoice lines needed for business review and accounting approval are shown below.')) . '</div>'
+            . '<table class="items-table"><tr>'
+            . '<th style="width:24%;">' . $this->escapePdfHtml(__('Item')) . '</th>'
+            . '<th style="width:56%;">' . $this->escapePdfHtml(__('Description')) . '</th>'
+            . '<th style="width:20%;">' . $this->escapePdfHtml(__('Amount')) . '</th>'
+            . '</tr>';
 
         $itemRows = $items === [] ? [[
-            'label'       => __('Not set'),
+            'label' => __('Not set'),
             'description' => __('No invoice items available.'),
-            'amount'      => '0.00',
+            'amount' => '0.00',
         ]] : $items;
 
-        // Items table: border-collapse:collapse is safe here because there is
-        // no border on the <table> element itself — only on individual cells.
-        $html .= '<table style="width:100%;border-collapse:collapse;table-layout:fixed;">'
-            . '<tr>'
-            . '<th style="' . $th . 'width:22%;">' . $this->escapePdfHtml(__('Item')) . '</th>'
-            . '<th style="' . $th . 'width:58%;border-' . $gap . ':none;">' . $this->escapePdfHtml(__('Description')) . '</th>'
-            . '<th style="' . $thLast . 'width:20%;border-' . $gap . ':none;">' . $this->escapePdfHtml(__('Amount')) . '</th>'
-            . '</tr>';
         foreach ($itemRows as $item) {
             $html .= '<tr>'
-                . '<td style="' . $tdB . '">' . $this->escapePdfHtml((string) ($item['label'] ?? '—')) . '</td>'
-                . '<td style="' . $td . 'border-' . $gap . ':none;">' . $this->escapePdfHtml((string) ($item['description'] ?? '—')) . '</td>'
-                . '<td style="' . $tdBLast . 'border-' . $gap . ':none;">' . $this->escapePdfHtml((string) ($item['amount'] ?? '0.00')) . '</td>'
+                . '<td>' . $this->escapePdfHtml((string) ($item['label'] ?? __('Not set'))) . '</td>'
+                . '<td>' . $this->escapePdfHtml((string) ($item['description'] ?? '—')) . '</td>'
+                . '<td class="amount-cell ltr">' . $this->escapePdfHtml((string) ($item['amount'] ?? '0.00')) . '</td>'
                 . '</tr>';
         }
-        $html .= '</table>';
-        $html .= '</div>';
 
-        // ── Payment summary + Invoice totals ──────────────────────
-        $html .= '<table style="' . $lt . 'margin-bottom:12px;"><tr>'
-            . '<td style="width:56%;padding-' . $gap . ':0;vertical-align:top;">'
-            .   '<div class="card" style="margin-bottom:0;">'
-            .   '<div class="sec-title">' . $this->escapePdfHtml(__('Payment summary')) . '</div>'
-            .   '<div class="sec-sub">' . $this->escapePdfHtml(__('Payment and plan information.')) . '</div>';
-
-        $paymentRows = [
-            [__('Payment method'), $paymentMethodLabel, false],
-            [__('Reference'),       $paymentReference,   true],
-            [__('Paid at'),         $paidAt,             true],
-            [__('Billing period'),  $billingPeriod,      false],
-            [__('Plan'),            $planName,           false],
-        ];
-        foreach ($paymentRows as [$lbl, $v, $ltrVal]) {
-            $html .= '<div style="background:' . $c['white'] . ';border:1px solid ' . $c['border'] . ';padding:8px 10px;margin-bottom:5px;">'
-                . '<div class="label">' . $this->escapePdfHtml($lbl) . '</div>'
-                . '<div class="val' . ($ltrVal ? ' ltr' : '') . '">' . $this->escapePdfHtml($v) . '</div></div>';
-        }
-
-        $html .= '</div></td>'
-            . '<td style="width:6%;"></td>'
-            . '<td style="width:38%;padding-' . $endGap . ':0;vertical-align:top;">'
-            .   '<div class="card" style="margin-bottom:0;">'
-            .   '<div class="sec-title">' . $this->escapePdfHtml(__('Invoice totals')) . '</div>'
-            .   '<div class="sec-sub">' . $this->escapePdfHtml(__('Totals for accounting review.')) . '</div>';
+        $html .= '</table></div>';
+        $html .= '<div class="section"><table class="dual-table"><tr>'
+            . '<td class="dual-start"><div class="panel">'
+            . '<div class="section-title">' . $this->escapePdfHtml(__('Payment details')) . '</div>'
+            . '<table class="info-table">'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Payment method')) . '</td><td class="info-value">' . $this->escapePdfHtml($paymentMethodLabel) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Reference')) . '</td><td class="info-value ltr">' . $this->escapePdfHtml($paymentReference) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Paid at')) . '</td><td class="info-value ltr">' . $this->escapePdfHtml($paidAt) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Billing period')) . '</td><td class="info-value">' . $this->escapePdfHtml($billingPeriod) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Subscription plan')) . '</td><td class="info-value">' . $this->escapePdfHtml($planName) . '</td></tr>'
+            . '</table>'
+            . '</div></td>'
+            . '<td class="dual-end"><div class="panel">'
+            . '<div class="section-title">' . $this->escapePdfHtml(__('Invoice summary')) . '</div>'
+            . '<table class="summary-table">';
 
         foreach ($summaryRows as $row) {
-            $isTotal = !empty($row['total']);
-            $bg   = $isTotal ? $c['primaryLight'] : $c['softBg'];
-            $brd  = $isTotal ? $c['primaryBorder'] : $c['border'];
-            $lblC = $isTotal ? $c['primary'] : $c['medium'];
-            $valC = $isTotal ? $c['primary'] : $c['ink'];
-            $fs   = $isTotal ? '13px' : '11px';
-            $html .= '<table style="width:100%;border-collapse:separate;border-spacing:0;background:' . $bg . ';border:1px solid ' . $brd . ';margin-bottom:5px;">'
-                . '<tr>'
-                . '<td style="padding:8px 10px;font-size:11px;font-weight:' . ($isTotal ? 'bold' : 'normal') . ';color:' . $lblC . ';">'
-                .   $this->escapePdfHtml((string) ($row['label'] ?? ''))
-                . '</td>'
-                . '<td style="padding:8px 10px;text-align:' . $oppositeAlign . ';font-size:' . $fs . ';font-weight:bold;color:' . $valC . ';direction:ltr;">'
-                .   $this->escapePdfHtml((string) ($row['value'] ?? '0.00'))
-                . '</td>'
-                . '</tr></table>';
+            $html .= '<tr' . (!empty($row['total']) ? ' class="summary-total"' : '') . '>'
+                . '<td class="summary-label">' . $this->escapePdfHtml((string) ($row['label'] ?? '')) . '</td>'
+                . '<td class="summary-value ltr">' . $this->escapePdfHtml((string) ($row['value'] ?? '0.00')) . '</td>'
+                . '</tr>';
         }
 
-        $html .= '</div></td></tr></table>';
-
-        // ── Billing parties card ──────────────────────────────────
-        $html .= '<div class="card">';
-        $html .= '<div class="sec-title">' . $this->escapePdfHtml(__('Billing parties')) . '</div>';
-        $html .= '<div class="sec-sub">' . $this->escapePdfHtml(__('Vendor and customer details for finance review.')) . '</div>';
-
-        $html .= '<table style="' . $lt . '"><tr>'
-            . '<td style="width:50%;padding-' . $gap . ':0;vertical-align:top;">'
-            .   '<div style="background:' . $c['softBg'] . ';border:1px solid ' . $c['border'] . ';padding:13px 15px;">'
-            .   '<div style="font-size:12px;font-weight:bold;color:' . $c['ink'] . ';margin-bottom:8px;">' . $this->escapePdfHtml(__('Vendor')) . '</div>';
-
-        foreach ([
-            [__('Name'),   $vendor['name'] ?? __('Not set'), false],
-            [__('Tax ID'), $vendorTaxId,                     true],
-            [__('Phone'),  $vendorPhones,                    true],
-            [__('Address'),$vendorAddress,                   false, true],
-        ] as $r) {
-            $html .= '<div style="background:' . $c['white'] . ';border:1px solid ' . $c['border'] . ';padding:7px 9px;margin-bottom:4px;">'
-                . '<div class="label">' . $this->escapePdfHtml($r[0]) . '</div>'
-                . '<div class="val' . (!empty($r[2]) ? ' ltr' : '') . '">' . (!empty($r[3]) ? $r[1] : $this->escapePdfHtml($r[1])) . '</div></div>';
-        }
-        $html .= '</div></td>'
-            . '<td style="width:4%;"></td>'
-            . '<td style="width:46%;vertical-align:top;">'
-            .   '<div style="background:' . $c['softBg'] . ';border:1px solid ' . $c['border'] . ';padding:13px 15px;">'
-            .   '<div style="font-size:12px;font-weight:bold;color:' . $c['ink'] . ';margin-bottom:8px;">' . $this->escapePdfHtml(__('Customer')) . '</div>';
-
-        foreach ([
-            [__('Organization'), $customer['name'] ?? __('Not set'),       false],
-            [__('Owner'),        $customer['owner_name'] ?? __('Not set'), false],
-            [__('Email'),        $customerEmail,                            true],
-            [__('Address'),      $customerAddress,                          false, true],
-        ] as $r) {
-            $html .= '<div style="background:' . $c['white'] . ';border:1px solid ' . $c['border'] . ';padding:7px 9px;margin-bottom:4px;">'
-                . '<div class="label">' . $this->escapePdfHtml($r[0]) . '</div>'
-                . '<div class="val' . (!empty($r[2]) ? ' ltr' : '') . '">' . (!empty($r[3]) ? $r[1] : $this->escapePdfHtml($r[1])) . '</div></div>';
-        }
-        $html .= '</div></td></tr></table>';
-        $html .= '</div>';
-
-        // ── Footer ────────────────────────────────────────────────
-        $html .= '<div style="padding:0 2px;">'
-            . '<div class="footer-bar"></div>'
-            . '<table style="' . $lt . '"><tr>'
-            . '<td style="font-size:9.5px;color:' . $c['muted'] . ';">' . $this->escapePdfHtml(__('Secure document generated from the subscription billing system.')) . '</td>'
-            . '<td style="font-size:9.5px;color:' . $c['medium'] . ';font-weight:bold;text-align:' . $oppositeAlign . ';">' . $this->escapePdfHtml($brandName) . '</td>'
-            . '</tr></table>'
-            . '</div>';
-
-        $html .= '</body></html>';
+        $html .= '</table></div></td></tr></table></div>';
+        $html .= '<div class="footer"><div class="footer-gradient"></div><table class="footer-table"><tr>'
+            . '<td>' . $this->escapePdfHtml(__('Secure document generated from the subscription billing system.')) . '</td>'
+            . '<td class="footer-end">' . $this->escapePdfHtml($brandName) . '</td>'
+            . '</tr></table></div>';
+        $html .= '</div></body></html>';
 
         return $html;
     }
