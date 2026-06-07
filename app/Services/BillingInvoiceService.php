@@ -735,7 +735,7 @@ class BillingInvoiceService
             'amount'      => '0.00',
         ]] : $items;
 
-        $html .= '<table class="t" style="border:1px solid ' . $c['border'] . ';border-radius:10px;overflow:hidden;">'
+        $html .= '<table class="t" style="border:1px solid ' . $c['border'] . ';">'
             . '<tr>'
             . '<th class="items-th" style="width:22%;">' . $this->escapePdfHtml(__('Item')) . '</th>'
             . '<th class="items-th" style="width:58%;">' . $this->escapePdfHtml(__('Description')) . '</th>'
