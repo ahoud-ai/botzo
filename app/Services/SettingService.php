@@ -118,6 +118,17 @@ class SettingService
                     } catch (\Exception $e) {
                         Log::error($e->getMessage());
                     }
+                } else if($key == 'google_login' || $key == 'facebook_login') {
+                    try {
+                        DB::table('settings')
+                            ->updateOrInsert([
+                                'key' => $key
+                            ],[
+                                'value' => json_encode($value),
+                            ]);
+                    } catch (\Exception $e) {
+                        Log::error($e->getMessage());
+                    }
                 } else if($key == 'aws'){
                     Artisan::call('config:clear');
                     Artisan::call('cache:clear');

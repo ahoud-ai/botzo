@@ -74,12 +74,13 @@
     };
 
     const getSocialSettings = (key, value) => {
-        const config = JSON.parse(getValueByKey(key));
-        
-        if (config !== null && typeof config === 'object' && !Array.isArray(config)) {
-            return config[value] ?? null;
-        }
-
+        try {
+            const raw = getValueByKey(key);
+            const config = raw ? JSON.parse(raw) : null;
+            if (config !== null && typeof config === 'object' && !Array.isArray(config)) {
+                return config[value] ?? null;
+            }
+        } catch (e) {}
         return null;
     }
 
