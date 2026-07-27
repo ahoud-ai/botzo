@@ -147,5 +147,14 @@ return [
         ],
     ],
 
-    'attributes' => [],
+    'attributes' => [
+        'email' => 'البريد الإلكتروني',
+        'password' => 'كلمة المرور',
+        'password_confirmation' => 'تأكيد كلمة المرور',
+        'first_name' => 'الاسم الأول',
+        'last_name' => 'اسم العائلة',
+        'organization_name' => 'اسم المؤسسة',
+        'phone' => 'رقم الهاتف',
+        'code' => 'رمز التحقق',
+    ],
 ];

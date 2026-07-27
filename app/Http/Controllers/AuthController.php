@@ -11,6 +11,7 @@ use App\Http\Requests\SignupRequest;
 use App\Http\Requests\StoreUser;
 use App\Http\Requests\StoreUserInvite;
 use App\Http\Requests\PasswordValidateResetRequest;
+use App\Mail\SignupVerificationCodeMail;
 use App\Services\AuthService;
 use App\Services\CompanyWorkforceService;
 use App\Services\EmailVerificationCodeService;
@@ -29,7 +30,9 @@ use App\Services\SocialLoginService;
 use App\Services\TeamService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -183,18 +186,157 @@ class AuthController extends BaseController
         return Inertia::render('Auth/Register', $data);
     }
 
-    public function handleRegistration(SignupRequest $request)
+    /**
+     * Step 1: collect name + organization + email + phone, send a verification
+     * code, stash the pending signup (nothing is persisted to the users table yet).
+     */
+    public function startSignup(SignupRequest $request)
     {
-        $config = Setting::where('key', 'verify_email')->first();
-        $verifyEmailEnabled = isset($config->value) && $config->value == '1';
-        $user = $this->userService->store($request, [
-            'send_registration_email' => ! $verifyEmailEnabled,
-        ]);
-        $authService = (new AuthService($user))->authenticateSession($request);
+        $code = (string) random_int(100000, 999999);
 
-        if ($verifyEmailEnabled) {
-            $user->sendEmailVerificationNotification();
+        session(['signup_pending' => [
+            'first_name' => $request->input('first_name'),
+            'last_name' => $request->input('last_name'),
+            'organization_name' => $request->input('organization_name'),
+            'email' => $request->input('email'),
+            'phone' => $request->input('phone'),
+            'code_hash' => Hash::make($code),
+            'created_at' => now()->toDateTimeString(),
+            'verified' => false,
+        ]]);
+
+        Mail::to($request->input('email'))->queue(new SignupVerificationCodeMail(
+            (object) [
+                'first_name' => $request->input('first_name'),
+                'email' => $request->input('email'),
+            ],
+            $code
+        ));
+
+        return redirect('/signup/verify?email=' . urlencode($request->input('email')))->with(
+            'status', [
+                'type' => 'success',
+                'message' => __('We\'ve sent you a verification code to your email!'),
+            ]
+        );
+    }
+
+    public function showSignupVerifyForm(Request $request)
+    {
+        $pending = session('signup_pending');
+
+        if (! $pending || ($pending['email'] ?? null) !== $request->input('email')) {
+            return redirect('/signup');
         }
+
+        $keys = ['logo', 'company_name', 'address', 'email', 'phone', 'socials', 'trial_period'];
+        $data['companyConfig'] = Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
+        $data['email'] = $pending['email'];
+
+        return Inertia::render('Auth/RegisterVerify', $data);
+    }
+
+    public function verifySignupCode(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+            'code' => ['required', 'string', 'regex:/^\d{6}$/'],
+        ]);
+
+        $pending = session('signup_pending');
+
+        if (! $pending || $pending['email'] !== $request->input('email')) {
+            return redirect('/signup');
+        }
+
+        $expired = now()->diffInMinutes(\Illuminate\Support\Carbon::parse($pending['created_at'])) > 15;
+
+        if ($expired || ! Hash::check($request->input('code'), $pending['code_hash'])) {
+            return back()->withErrors(['code' => __('The verification code is invalid or has expired.')]);
+        }
+
+        $pending['verified'] = true;
+        session(['signup_pending' => $pending]);
+
+        return redirect('/signup/details');
+    }
+
+    public function resendSignupCode(Request $request)
+    {
+        $pending = session('signup_pending');
+
+        if (! $pending) {
+            return redirect('/signup');
+        }
+
+        $code = (string) random_int(100000, 999999);
+
+        $pending['code_hash'] = Hash::make($code);
+        $pending['created_at'] = now()->toDateTimeString();
+        $pending['verified'] = false;
+        session(['signup_pending' => $pending]);
+
+        Mail::to($pending['email'])->queue(new SignupVerificationCodeMail(
+            (object) [
+                'first_name' => $pending['first_name'],
+                'email' => $pending['email'],
+            ],
+            $code
+        ));
+
+        return back();
+    }
+
+    public function showSignupDetailsForm()
+    {
+        $pending = session('signup_pending');
+
+        if (! $pending || empty($pending['verified'])) {
+            return redirect('/signup');
+        }
+
+        $keys = ['logo', 'company_name', 'address', 'email', 'phone', 'socials', 'trial_period', 'allow_facebook_login', 'allow_google_login'];
+        $data['companyConfig'] = Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
+
+        return Inertia::render('Auth/RegisterDetails', $data);
+    }
+
+    /**
+     * Step 3: set the password and actually create the account.
+     * Mirrors the previous single-step handleRegistration exactly, just fed
+     * with the name/organization/email/phone captured (and verified) earlier.
+     */
+    public function completeSignup(Request $request)
+    {
+        $pending = session('signup_pending');
+
+        if (! $pending || empty($pending['verified'])) {
+            return redirect('/signup');
+        }
+
+        $request->validate([
+            'password' => ['required', 'confirmed'],
+        ]);
+
+        $request->merge([
+            'first_name' => $pending['first_name'],
+            'last_name' => $pending['last_name'],
+            'organization_name' => $pending['organization_name'],
+            'email' => $pending['email'],
+            'phone' => $pending['phone'],
+        ]);
+
+        $user = $this->userService->store($request, [
+            'send_registration_email' => true,
+        ]);
+
+        // Email ownership was already proven by the OTP step above, so there's
+        // no need to make the user verify it again post-registration.
+        $user->forceFill(['email_verified_at' => now()])->save();
+
+        (new AuthService($user))->authenticateSession($request);
+
+        session()->forget('signup_pending');
 
         return redirect($this->authenticatedHomePath($user));
     }

@@ -3,6 +3,9 @@ import { createInertiaApp, router } from '@inertiajs/vue3';
 import { createI18n } from 'vue-i18n';
 import axios from 'axios';
 import { resolveMessageByCandidates } from '@/Utils/i18nLookup';
+import { initTheme } from '@/Composables/useTheme';
+
+initTheme();
 
 function applyDocumentLocaleDirection(pageProps = {}) {
   const locale = (pageProps.currentLanguage || 'en').toLowerCase();
