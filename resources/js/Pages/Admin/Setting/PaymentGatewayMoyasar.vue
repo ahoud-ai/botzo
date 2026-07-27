@@ -303,7 +303,7 @@ import { Link, useForm } from '@inertiajs/vue3';
 import AppLayout from './Layout/App.vue';
 import FormInput from '@/Components/FormInput.vue';
 import FormToggleSwitch from '@/Components/FormToggleSwitch.vue';
-import UiPageHeader from '@/Components/Ui/UiPageHeader.vue';
+import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
 
 const props = defineProps({
     gateway: {
