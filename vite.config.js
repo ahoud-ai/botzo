@@ -44,6 +44,11 @@ export default defineConfig({
         },
     },
     build: {
+        // esbuild's CSS minifier mishandles/strips `:is(.dark ...)` selectors
+        // (Tailwind's `darkMode: "class"` output), silently dropping nearly all
+        // dark-mode styling in production builds. Disable CSS minification
+        // until upstream fixes this; JS minification is unaffected.
+        cssMinify: false,
         chunkSizeWarningLimit: 550,
         rollupOptions: {
             output: {
