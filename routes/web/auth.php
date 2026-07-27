@@ -9,9 +9,14 @@ Route::middleware(['guest', 'redirectIfAuthenticated:user,admin'])->group(functi
     Route::get('/google/callback', [App\Http\Controllers\AuthController::class, 'googleCallback'])->name('google.callback');
     Route::get('/facebook/callback', [App\Http\Controllers\AuthController::class, 'handleFacebookCallback']);
     Route::get('/signup', [App\Http\Controllers\AuthController::class, 'showRegistrationForm']);
-    Route::post('/signup', [App\Http\Controllers\AuthController::class, 'handleRegistration']);
+    Route::post('/signup', [App\Http\Controllers\AuthController::class, 'startSignup']);
+    Route::get('/signup/verify', [App\Http\Controllers\AuthController::class, 'showSignupVerifyForm']);
+    Route::post('/signup/verify', [App\Http\Controllers\AuthController::class, 'verifySignupCode']);
+    Route::post('/signup/verify/resend', [App\Http\Controllers\AuthController::class, 'resendSignupCode']);
+    Route::get('/signup/details', [App\Http\Controllers\AuthController::class, 'showSignupDetailsForm']);
+    Route::post('/signup/details', [App\Http\Controllers\AuthController::class, 'completeSignup']);
     Route::get('/register', [App\Http\Controllers\AuthController::class, 'showRegistrationForm']);
-    Route::post('/register', [App\Http\Controllers\AuthController::class, 'handleRegistration']);
+    Route::post('/register', [App\Http\Controllers\AuthController::class, 'startSignup']);
     Route::get('/forgot-password', [App\Http\Controllers\AuthController::class, 'showForgotForm']);
     Route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'createPasswordResetToken']);
     Route::get('/forgot-password/verify', [App\Http\Controllers\AuthController::class, 'showVerifyResetCodeForm']);

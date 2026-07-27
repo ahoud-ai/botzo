@@ -4,8 +4,8 @@
     </Head>
     <AuthLayout>
         <form @submit.prevent="submitCode" class="flex flex-col gap-6">
-            <!-- Back to forgot password -->
-            <Link href="/forgot-password" class="inline-flex w-4 h-4 text-black dark:text-white" :aria-label="$t('Back')">
+            <!-- Back to signup -->
+            <Link href="/signup" class="inline-flex w-4 h-4 text-black dark:text-white" :aria-label="$t('Back')">
                 <ArrowRightIcon v-if="isRtl" class="w-4 h-4" />
                 <ArrowLeftIcon v-else class="w-4 h-4" />
             </Link>
@@ -17,7 +17,7 @@
                         <h1 class="text-2xl font-semibold leading-[29.9px] text-black dark:text-white">{{ $t('Verification Code') }}!</h1>
                         <p class="text-lg leading-9 text-[#8899aa]">{{ $t('Enter the code sent to your email.') }}</p>
                     </div>
-                    <Link href="/forgot-password" class="text-sm font-medium leading-9 text-black dark:text-white">
+                    <Link href="/signup" class="text-sm font-medium leading-9 text-black dark:text-white">
                         {{ $t('Want to change your email?') }}
                     </Link>
                 </div>
@@ -130,7 +130,7 @@
     const submitCode = () => {
         form.code = normalize(form.code);
         if (form.code.length !== 6) return;
-        form.post('/forgot-password/verify');
+        form.post('/signup/verify');
     };
 
     const startResendTimer = () => {
@@ -149,9 +149,8 @@
     const resend = () => {
         if (remainingSeconds.value > 0 || isSending.value) return;
         isSending.value = true;
-        router.visit('/forgot-password', {
-            method: 'post',
-            data: { email: props.email },
+        router.post('/signup/verify/resend', {}, {
+            preserveScroll: true,
             onFinish: () => {
                 isSending.value = false;
                 startResendTimer();
