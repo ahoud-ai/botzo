@@ -362,7 +362,7 @@
             input,
             textarea,
             select {
-                font-family: "Ping AR LT", "Tajawal", Outfit, "Segoe UI", Tahoma, Helvetica, Arial, sans-serif !important;
+                font-family: "IBM Plex Sans Arabic", "Ping AR LT", "Tajawal", Outfit, "Segoe UI", Tahoma, Helvetica, Arial, sans-serif !important;
             }
         </style>
 

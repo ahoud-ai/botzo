@@ -1,121 +1,89 @@
 <template>
-    <div :class="rtlClass">
+    <div :class="[rtlClass, 'font-ibm-plex-arabic']">
         <!-- Sticky Header -->
-        <header :class="['sticky top-0 ui-layer-content transition-all duration-300', isScrolled ? 'bg-white/80 backdrop-blur-md border-b border-gray-200' : 'bg-white border-b border-gray-200']">
-            <div class="px-5 md:px-10 lg:px-20 2xl:px-60 py-4">
+        <header :class="['sticky top-0 ui-layer-content transition-all duration-300 border-b border-[#cfd8e3] dark:border-white/10', isScrolled ? 'bg-white/90 dark:bg-[#0a0f17]/90 backdrop-blur-md' : 'bg-white dark:bg-[#0a0f17]']">
+            <div class="px-4 md:px-10 lg:px-20 py-6 lg:py-8">
                 <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-8">
-                        <Link href="/" class="premium-brand-lockup">
-                            <template v-if="props.companyConfig && props.companyConfig.logo">
-                                <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
-                                <span class="premium-brand-lockup__text">
-                                    <span class="premium-brand-lockup__name"><span>botz</span><span class="premium-brand-lockup__accent">o</span></span>
-                                </span>
-                            </template>
-                            <h1 v-else class="text-xl">{{ props.companyConfig?.company_name }}</h1>
-                        </Link>
-                        <div class="hidden lg:flex items-center text-sm gap-x-2">
-                            <Link href="/product" class="cursor-pointer px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :class="page.url === '/product' ? 'bg-gray-100' : ''">{{ $t('Product') }}</Link>
-                            <Link href="/pricing" class="cursor-pointer px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :class="page.url === '/pricing' ? 'bg-gray-100' : ''">{{ $t('Pricing') }}</Link>
-                            <div class="relative" @mouseenter="showResourcesDropdown = true" @mouseleave="showResourcesDropdown = false">
-                                <button type="button" class="cursor-pointer px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1.5">
-                                    {{ $t('Resources') }}
-                                    <svg class="w-4 h-4 transition-transform duration-200" :class="showResourcesDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                </button>
-                                <transition name="dropdown">
-                                    <div v-if="showResourcesDropdown" class="absolute top-full mt-2 bg-white border border-gray-200 rounded-2xl shadow-2xl py-6 px-6 w-[600px] max-w-[90vw] overflow-hidden ui-dropdown-layer ui-dropdown-start">
-                                        <div class="grid grid-cols-2 gap-8">
-                                            <!-- FAQs Column -->
-                                            <div>
-                                                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">{{ $t('Help & Support') }}</h3>
-                                                <Link href="/faqs" class="group block p-3 rounded-lg hover:bg-gray-50 transition-all duration-150 mb-2">
-                                                    <div class="font-medium text-gray-900 group-hover:text-gray-950">{{ $t('FAQs') }}</div>
-                                                    <div class="text-xs text-gray-500 mt-0.5">{{ $t('Find answers to common questions') }}</div>
-                                                </Link>
-                                                <Link href="/api-documentation" class="group block p-3 rounded-lg hover:bg-gray-50 transition-all duration-150">
-                                                    <div class="font-medium text-gray-900 group-hover:text-gray-950">{{ $t('API Documentation') }}</div>
-                                                    <div class="text-xs text-gray-500 mt-0.5">{{ $t('Integrate with our REST API') }}</div>
-                                                </Link>
-                                            </div>
-                                            
-                                            <!-- Pages Column -->
-                                            <div v-if="props.pages && props.pages.length > 0">
-                                                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">{{ $t('Pages') }}</h3>
-                                                <div class="space-y-1">
-                                                    <Link v-for="page in props.pages" :key="page.id" :href="'/pages/' + (page.slug || formattedName(page.name))" class="group block p-3 rounded-lg hover:bg-gray-50 transition-all duration-150">
-                                                        <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">{{ page.display_name || page.name }}</span>
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </transition>
-                            </div>
-                            <Link href="/contact" class="cursor-pointer px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :class="page.url === '/contact' ? 'bg-gray-100' : ''">{{ $t('Contact Us') }}</Link>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end items-center text-md gap-4">
-                        <!-- Mobile Menu Button -->
-                        <button type="button" @click="showMobileMenu = !showMobileMenu" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                            <svg v-if="!showMobileMenu" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <line x1="3" y1="12" x2="21" y2="12"></line>
-                                <line x1="3" y1="18" x2="21" y2="18"></line>
-                            </svg>
-                            <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </button>
-                        
-                        <!-- Language Selector - Desktop -->
-                        <div v-if="page.props.languages && page.props.languages.length > 1" class="hidden md:block relative" @mouseenter="showLanguageDropdown = true" @mouseleave="showLanguageDropdown = false">
-                            <button type="button" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="2" y1="12" x2="22" y2="12"></line>
-                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                                </svg>
-                                <span class="uppercase">{{ currentLanguageCode }}</span>
-                                <svg class="w-4 h-4 transition-transform duration-200" :class="showLanguageDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
+                    <!-- Group 1: logo -->
+                    <Link href="/" class="premium-brand-lockup shrink-0">
+                        <template v-if="props.companyConfig && props.companyConfig.logo && props.companyConfig.company_name">
+                            <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
+                            <span class="premium-brand-lockup__text">
+                                <span class="premium-brand-lockup__name"><span>botz</span><span class="premium-brand-lockup__accent">o</span></span>
+                            </span>
+                        </template>
+                        <template v-else>
+                            <NavBrandMark class="hidden lg:block" variant="desktop" />
+                            <NavBrandMark class="lg:hidden" variant="mobile" />
+                        </template>
+                    </Link>
+
+                    <!-- Group 2: desktop nav links -->
+                    <nav class="hidden lg:flex items-center gap-8">
+                        <Link href="/#section2" class="text-base leading-6 text-black dark:text-white hover:opacity-70 transition-opacity">{{ $t('Features') }}</Link>
+                        <Link href="/#section3" class="text-base leading-6 text-black dark:text-white hover:opacity-70 transition-opacity">{{ $t('How it works') }}</Link>
+                        <Link href="/pricing" class="text-base leading-6 text-black dark:text-white hover:opacity-70 transition-opacity" :class="page.url === '/pricing' ? 'font-semibold' : ''">{{ $t('Pricing') }}</Link>
+                        <Link href="/faqs" class="text-base leading-6 text-black dark:text-white hover:opacity-70 transition-opacity" :class="page.url === '/faqs' ? 'font-semibold' : ''">{{ $t('FAQs') }}</Link>
+                        <Link href="/contact" class="text-base leading-6 text-black dark:text-white hover:opacity-70 transition-opacity" :class="page.url === '/contact' ? 'font-semibold' : ''">{{ $t('Contact Us') }}</Link>
+                        <div class="relative" @mouseenter="showResourcesDropdown = true" @mouseleave="showResourcesDropdown = false">
+                            <button type="button" class="flex items-center gap-1 text-base leading-6 text-black dark:text-white hover:opacity-70 transition-opacity">
+                                {{ $t('More') }}
+                                <svg class="w-4 h-4 transition-transform duration-200" :class="showResourcesDropdown ? 'rotate-180' : ''" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M12.5 6L8 10.5L3.5 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </button>
                             <transition name="dropdown">
-                                <div v-if="showLanguageDropdown" class="absolute top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[150px] ui-dropdown-layer ui-dropdown-end">
-                                    <a 
-                                        v-for="language in page.props.languages" 
-                                        :key="language.id" 
-                                        :href="'/language/' + language.code"
-                                        class="block px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
-                                        :class="language.code === currentLanguageCode ? 'bg-gray-50 font-semibold text-primary' : 'text-gray-700'"
-                                    >
-                                        <div class="flex items-center justify-between">
-                                            <span>{{ language.name }}</span>
-                                            <span v-if="language.code === currentLanguageCode" class="text-primary">✓</span>
+                                <div v-if="showResourcesDropdown" class="absolute top-full mt-2 bg-white dark:bg-[#0a0f17] border border-[#cfd8e3] dark:border-white/10 rounded-2xl shadow-2xl py-6 px-6 w-[600px] max-w-[90vw] overflow-hidden ui-dropdown-layer ui-dropdown-start">
+                                    <div class="grid grid-cols-2 gap-8">
+                                        <!-- API docs Column -->
+                                        <div>
+                                            <h3 class="text-base leading-5 font-semibold text-gray-500 dark:text-gray-400 mb-4">{{ $t('Help & Support') }}</h3>
+                                            <Link href="/api-documentation" class="group block p-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-150">
+                                                <div class="text-base leading-6 font-normal text-black dark:text-white">{{ $t('API Documentation') }}</div>
+                                                <div class="text-base leading-6 font-normal text-gray-500 dark:text-gray-400 mt-0.5">{{ $t('Integrate with our REST API') }}</div>
+                                            </Link>
                                         </div>
-                                    </a>
+
+                                        <!-- Pages Column -->
+                                        <div v-if="props.pages && props.pages.length > 0">
+                                            <h3 class="text-base leading-5 font-semibold text-gray-500 dark:text-gray-400 mb-4">{{ $t('Pages') }}</h3>
+                                            <div class="space-y-1">
+                                                <Link v-for="page in props.pages" :key="page.id" :href="'/pages/' + (page.slug || formattedName(page.name))" class="group block p-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-150">
+                                                    <span class="text-base leading-6 font-normal text-black dark:text-white">{{ page.display_name || page.name }}</span>
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </transition>
                         </div>
-                        
+                    </nav>
+
+                    <!-- Group 3: actions (theme, language, login/dashboard, mobile menu) -->
+                    <div class="flex items-center gap-0 lg:gap-3">
+                        <ThemeToggle />
+                        <LangToggle v-if="page.props.languages && page.props.languages.length > 1" :languages="page.props.languages" :currentLanguage="currentLanguageCode" />
+
                         <template v-if="!isAuthenticated">
-                            <Link href="/login" class="hidden md:inline-block cursor-pointer hover:text-gray-400 border-black">{{ $t('Login') }}</Link>
-                            <a v-if="props.companyConfig && props.companyConfig.book_a_demo_link" :href="props.companyConfig.book_a_demo_link" target="_blank" rel="noopener noreferrer" class="hidden md:inline-block border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 p-2 rounded-lg text-sm w-fit px-6 transition-colors bg-white shadow-md hover:shadow-lg">{{ $t('Book a demo') }}</a>
-                            <Link href="/signup" class="hidden md:inline-block bg-primary hover:bg-secondary text-white p-2 rounded-lg text-sm w-fit px-8">{{ $t('Sign up') }}</Link>
-                            <div class="lg:hidden flex items-center gap-2">
-                                <Link href="/login" class="bg-primary hover:bg-secondary text-white p-2 rounded-lg text-sm flex w-fit px-8">{{ $t('Login') }}</Link>
-                            </div>
+                            <Link href="/login" class="hidden lg:inline-flex h-11 w-[140px] items-center justify-center rounded-xl bg-[#25d366] text-[#04130a] font-semibold text-base leading-5 hover:brightness-95 transition">
+                                {{ $t('Login') }}
+                            </Link>
                         </template>
                         <template v-else>
-                            <Link href="/dashboard" class="hidden md:inline-block bg-primary hover:bg-secondary text-white p-2 rounded-lg text-sm w-fit px-8">{{ $t('Go to Dashboard') }}</Link>
-                            <div class="lg:hidden flex items-center gap-2">
-                                <Link href="/dashboard" class="bg-primary hover:bg-secondary text-white p-2 rounded-lg text-sm flex w-fit px-8">{{ $t('Go to Dashboard') }}</Link>
-                            </div>
+                            <Link href="/dashboard" class="hidden lg:inline-flex h-11 items-center justify-center rounded-xl bg-[#25d366] text-[#04130a] font-semibold text-base leading-5 px-8 hover:brightness-95 transition">
+                                {{ $t('Go to Dashboard') }}
+                            </Link>
                         </template>
+
+                        <!-- Mobile Menu Button -->
+                        <button type="button" @click="showMobileMenu = !showMobileMenu" class="lg:hidden inline-flex items-center justify-center w-[18px] h-[18px] text-black dark:text-white shrink-0">
+                            <svg v-if="!showMobileMenu" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M1 2.25H17M1 9H17M1 15.75H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <svg v-else width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M14 4L4 14M4 4L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -126,14 +94,14 @@
             <div v-if="showMobileMenu" class="lg:hidden fixed inset-0 ui-layer-drawer">
                 <!-- Backdrop -->
                 <div class="absolute inset-0 bg-black/50" @click="showMobileMenu = false"></div>
-                
+
                 <!-- Menu Panel -->
-                <div :class="['absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl overflow-y-auto mobile-menu-panel', mobileMenuPanelAnimationClass]">
+                <div :class="['absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white dark:bg-[#0a0f17] shadow-xl overflow-y-auto mobile-menu-panel', mobileMenuPanelAnimationClass]">
                     <div class="p-6">
                         <!-- Close Button -->
                         <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-lg font-semibold text-gray-900">{{ $t('Menu') }}</h2>
-                            <button type="button" @click="showMobileMenu = false" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                            <h2 class="text-lg font-semibold text-black dark:text-white">{{ $t('Menu') }}</h2>
+                            <button type="button" @click="showMobileMenu = false" class="p-2 rounded-lg text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -143,70 +111,62 @@
 
                         <!-- Navigation Links -->
                         <nav class="space-y-2">
-                            <Link href="/product" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium" :class="page.url === '/product' ? 'bg-gray-100 text-primary' : 'text-gray-700'">
-                                {{ $t('Product') }}
+                            <Link href="/#section2" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium text-black dark:text-white">
+                                {{ $t('Features') }}
                             </Link>
-                            <Link href="/pricing" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium" :class="page.url === '/pricing' ? 'bg-gray-100 text-primary' : 'text-gray-700'">
+                            <Link href="/#section3" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium text-black dark:text-white">
+                                {{ $t('How it works') }}
+                            </Link>
+                            <Link href="/pricing" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium" :class="page.url === '/pricing' ? 'bg-black/5 dark:bg-white/10 text-[#25d366]' : 'text-black dark:text-white'">
                                 {{ $t('Pricing') }}
                             </Link>
-                            
-                            <Link href="/faqs" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium" :class="page.url === '/faqs' ? 'bg-gray-100 text-primary' : 'text-gray-700'">
+                            <Link href="/faqs" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium" :class="page.url === '/faqs' ? 'bg-black/5 dark:bg-white/10 text-[#25d366]' : 'text-black dark:text-white'">
                                 {{ $t('FAQs') }}
                             </Link>
-                            <Link href="/api-documentation" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium" :class="page.url === '/api-documentation' ? 'bg-gray-100 text-primary' : 'text-gray-700'">
+                            <Link href="/api-documentation" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium" :class="page.url === '/api-documentation' ? 'bg-black/5 dark:bg-white/10 text-[#25d366]' : 'text-black dark:text-white'">
                                 {{ $t('API Documentation') }}
                             </Link>
-                            
+
                             <!-- Dynamic Pages -->
-                            <Link 
-                                v-for="pageItem in props.pages" 
-                                :key="pageItem.id" 
-                                :href="'/pages/' + (pageItem.slug || formattedName(pageItem.name))" 
+                            <Link
+                                v-for="pageItem in props.pages"
+                                :key="pageItem.id"
+                                :href="'/pages/' + (pageItem.slug || formattedName(pageItem.name))"
                                 @click="showMobileMenu = false"
-                                class="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium"
-                                :class="page.url === '/pages/' + (pageItem.slug || formattedName(pageItem.name)) ? 'bg-gray-100 text-primary' : 'text-gray-700'"
+                                class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium"
+                                :class="page.url === '/pages/' + (pageItem.slug || formattedName(pageItem.name)) ? 'bg-black/5 dark:bg-white/10 text-[#25d366]' : 'text-black dark:text-white'"
                             >
                                 {{ pageItem.display_name || pageItem.name }}
                             </Link>
-                            
-                            <Link href="/contact" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium" :class="page.url === '/contact' ? 'bg-gray-100 text-primary' : 'text-gray-700'">
+
+                            <Link href="/contact" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium" :class="page.url === '/contact' ? 'bg-black/5 dark:bg-white/10 text-[#25d366]' : 'text-black dark:text-white'">
                                 {{ $t('Contact Us') }}
                             </Link>
                         </nav>
 
                         <!-- Language Selector (Mobile) -->
-                        <div v-if="page.props.languages && page.props.languages.length > 1" class="mt-6 pt-6 border-t border-gray-200">
+                        <div v-if="page.props.languages && page.props.languages.length > 1" class="mt-6 pt-6 border-t border-[#cfd8e3] dark:border-white/10">
                             <div class="relative">
-                                <button type="button" 
+                                <button type="button"
                                     @click="showMobileLanguageDropdown = !showMobileLanguageDropdown"
-                                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+                                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-[#cfd8e3] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                                 >
-                                    <div class="flex items-center gap-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <line x1="2" y1="12" x2="22" y2="12"></line>
-                                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                                        </svg>
-                                        <span class="font-medium text-gray-900">{{ page.props.languages.find(l => l.code === currentLanguageCode)?.name || currentLanguageCode.toUpperCase() }}</span>
-                                    </div>
-                                    <svg class="w-4 h-4 transition-transform duration-200 text-gray-500" :class="showMobileLanguageDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <span class="font-medium text-black dark:text-white">{{ page.props.languages.find(l => l.code === currentLanguageCode)?.name || currentLanguageCode.toUpperCase() }}</span>
+                                    <svg class="w-4 h-4 transition-transform duration-200 text-gray-500 dark:text-gray-400" :class="showMobileLanguageDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </button>
                                 <transition name="dropdown">
-                                    <div v-if="showMobileLanguageDropdown" class="absolute top-full inset-x-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 max-h-60 overflow-y-auto ui-layer-dropdown">
-                                        <a 
-                                            v-for="language in page.props.languages" 
-                                            :key="language.id" 
+                                    <div v-if="showMobileLanguageDropdown" class="absolute top-full inset-x-0 mt-2 bg-white dark:bg-[#0a0f17] border border-[#cfd8e3] dark:border-white/10 rounded-lg shadow-lg py-2 max-h-60 overflow-y-auto ui-layer-dropdown">
+                                        <a
+                                            v-for="language in page.props.languages"
+                                            :key="language.id"
                                             :href="'/language/' + language.code"
                                             class="block px-4 py-2 text-sm transition-colors"
-                                            :class="language.code === currentLanguageCode ? 'bg-gray-50 font-semibold text-primary' : 'text-gray-700 hover:bg-gray-50'"
+                                            :class="language.code === currentLanguageCode ? 'bg-black/5 dark:bg-white/10 font-semibold text-[#25d366]' : 'text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5'"
                                             @click="showMobileLanguageDropdown = false"
                                         >
-                                            <div class="flex items-center justify-between">
-                                                <span>{{ language.name }}</span>
-                                                <span v-if="language.code === currentLanguageCode" class="text-primary">✓</span>
-                                            </div>
+                                            {{ language.name }}
                                         </a>
                                     </div>
                                 </transition>
@@ -214,20 +174,20 @@
                         </div>
 
                         <!-- Action Buttons (Mobile) -->
-                        <div class="mt-6 pt-6 border-t border-gray-200 space-y-3">
+                        <div class="mt-6 pt-6 border-t border-[#cfd8e3] dark:border-white/10 space-y-3">
                             <template v-if="!isAuthenticated">
-                                <Link href="/login" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 rounded-lg transition-colors font-medium">
+                                <Link href="/login" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 border border-[#cfd8e3] dark:border-white/10 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-colors font-medium">
                                     {{ $t('Login') }}
                                 </Link>
-                                <a v-if="props.companyConfig && props.companyConfig.book_a_demo_link" :href="props.companyConfig.book_a_demo_link" target="_blank" rel="noopener noreferrer" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 rounded-lg transition-colors font-medium bg-white shadow-md">
+                                <a v-if="props.companyConfig && props.companyConfig.book_a_demo_link" :href="props.companyConfig.book_a_demo_link" target="_blank" rel="noopener noreferrer" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 border border-[#cfd8e3] dark:border-white/10 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-colors font-medium">
                                     {{ $t('Book a demo') }}
                                 </a>
-                                <Link href="/signup" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 bg-primary hover:bg-secondary text-white rounded-lg transition-colors font-medium">
+                                <Link href="/signup" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 bg-[#25d366] text-[#04130a] hover:brightness-95 rounded-xl transition font-semibold">
                                     {{ $t('Sign up') }}
                                 </Link>
                             </template>
                             <template v-else>
-                                <Link href="/dashboard" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 bg-primary hover:bg-secondary text-white rounded-lg transition-colors font-medium">
+                                <Link href="/dashboard" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 bg-[#25d366] text-[#04130a] hover:brightness-95 rounded-xl transition font-semibold">
                                     {{ $t('Go to Dashboard') }}
                                 </Link>
                             </template>
@@ -250,7 +210,7 @@
                     <!-- Company Info -->
                     <div class="lg:col-span-3">
                         <div class="mb-6" v-if="props.companyConfig">
-                            <div class="premium-brand-lockup premium-brand-lockup--footer" v-if="props.companyConfig.logo">
+                            <div class="premium-brand-lockup premium-brand-lockup--footer" v-if="props.companyConfig.logo && props.companyConfig.company_name">
                                 <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
                                 <span class="premium-brand-lockup__text">
                                     <span class="premium-brand-lockup__name"><span>botz</span><span class="premium-brand-lockup__accent">o</span></span>
@@ -365,6 +325,9 @@
     import { useRtl } from '@/Composables/useRtl';
     import { useFrontendContactInfo } from '@/Composables/useFrontendContactInfo';
     import CookieConsentBanner from '@/Components/CookieConsentBanner.vue';
+    import NavBrandMark from '@/Components/NavBrandMark.vue';
+    import LangToggle from '@/Components/LangToggle.vue';
+    import ThemeToggle from '@/Components/ThemeToggle.vue';
 
     const props = defineProps(['companyConfig', 'pages']);
 
@@ -389,7 +352,6 @@
     const linkedinUrl = ref(null);
     const isScrolled = ref(false);
     const showResourcesDropdown = ref(false);
-    const showLanguageDropdown = ref(false);
     const showMobileLanguageDropdown = ref(false);
     const showMobileMenu = ref(false);
     const mobileMenuPanelAnimationClass = computed(() => (isRtl.value ? 'mobile-menu-panel-rtl' : 'mobile-menu-panel-ltr'));

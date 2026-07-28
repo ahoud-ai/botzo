@@ -7,14 +7,14 @@ function getStoredTheme() {
     if (stored === 'dark' || stored === 'light') {
         return stored;
     }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return 'dark';
 }
 
 function applyTheme(value) {
     document.documentElement.classList.toggle('dark', value === 'dark');
 }
 
-const theme = ref('light');
+const theme = ref('dark');
 
 export function initTheme() {
     theme.value = getStoredTheme();

@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, onMounted, onUnmounted } from 'vue';
+    import { ref, computed, onMounted, onUnmounted } from 'vue';
 
     const props = defineProps({
         languages: Object,
@@ -7,6 +7,14 @@
     })
 
     const isOpen = ref(false);
+
+    const currentLanguageName = computed(() => {
+        const match = Array.isArray(props.languages)
+            ? props.languages.find((language) => language.code === props.currentLanguage)
+            : null;
+
+        return match?.name || props.currentLanguage;
+    });
 
     const toggleDropdown = () => {
         isOpen.value = !isOpen.value;
@@ -27,19 +35,19 @@
     });
 </script>
 <template>
-    <div class="relative text-sm">
-        <div @click="toggleDropdown()" class="lang-dd flex items-center gap-x-2 rounded-xl cursor-pointer">
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M2 12c0 5.523 4.477 10 10 10s10-4.477 10-10S17.523 2 12 2S2 6.477 2 12"/><path d="M13 2.05S16 6 16 12s-3 9.95-3 9.95m-2 0S8 18 8 12s3-9.95 3-9.95M2.63 15.5h18.74m-18.74-7h18.74"/></g></svg>
-            </div>
-            <div class="uppercase">{{ props.currentLanguage }}</div>
-            <div class="ms-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M4.47 9.4a.75.75 0 0 1 1.06 0l6.364 6.364a.25.25 0 0 0 .354 0L18.612 9.4a.75.75 0 0 1 1.06 1.06l-6.364 6.364a1.75 1.75 0 0 1-2.475 0L4.47 10.46a.75.75 0 0 1 0-1.06" clip-rule="evenodd"/></svg>
-            </div>
+    <div class="relative text-base leading-6">
+        <div
+            @click="toggleDropdown()"
+            class="lang-dd flex items-center justify-center gap-1 w-11 h-11 md:w-auto md:h-auto md:justify-start md:p-2 rounded-lg cursor-pointer text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+        >
+            <span class="hidden md:inline whitespace-nowrap">{{ currentLanguageName }}</span>
+            <svg class="w-[18px] h-[18px] md:w-6 md:h-6 shrink-0" viewBox="0 0 20 20" fill="none">
+                <path d="M8.25 19.25L13.5 7.5L18.75 19.25M9.75 16.25H17.25M10.08 3.61C8.98 3.54 7.87 3.5 6.75 3.5C4.74 3.5 2.74 3.62 0.75 3.87M6.75 3.5V1.25M10.08 3.61C8.93 8.91 5.44 13.33 0.75 15.75M10.08 3.61C10.98 3.68 11.87 3.76 12.75 3.87M8.16 12.37C6.52 10.7 5.22 8.73 4.33 6.56" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
         </div>
-        <div v-if="isOpen" class="ui-dropdown-menu ui-layer-dropdown ui-dropdown-start absolute mt-2 p-1 w-full min-w-[8em] rounded-md text-[var(--ui-text)]">
+        <div v-if="isOpen" class="ui-layer-dropdown ui-dropdown-start absolute mt-2 p-1 w-full min-w-[10em] rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0f17] shadow-lg">
             <div>
-                <a v-for="(item, index) in props.languages" :key="item.code ?? index" :href="'/language/' + item.code" class="ui-dropdown-item block px-2 py-1 cursor-pointer hover:bg-slate-100 rounded-md">
+                <a v-for="(item, index) in props.languages" :key="item.code ?? index" :href="'/language/' + item.code" class="block px-3 py-2 cursor-pointer rounded-md text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
                     {{ item.name }}
                 </a>
             </div>
