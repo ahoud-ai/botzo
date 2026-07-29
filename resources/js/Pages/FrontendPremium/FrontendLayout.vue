@@ -1,11 +1,25 @@
 <template>
-    <div :class="[rtlClass, 'font-ibm-plex-arabic']">
+    <div :class="[rtlClass, 'font-ibm-plex-arabic', 'page-enter-anim']">
         <!-- Sticky Header -->
-        <header :class="['sticky top-0 ui-layer-content transition-all duration-300 border-b border-[#cfd8e3] dark:border-white/10', isScrolled ? 'bg-white/90 dark:bg-[#0a0f17]/90 backdrop-blur-md' : 'bg-white dark:bg-[#0a0f17]']">
-            <div class="px-4 md:px-10 lg:px-20 py-6 lg:py-8">
+        <header
+            :class="[
+                'sticky top-0 ui-layer-content border-b transition-[background-color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]',
+                isScrolled
+                    ? 'bg-white/90 dark:bg-[#0a0f17]/90 backdrop-blur-md border-[#cfd8e3] dark:border-white/10 shadow-[0_8px_24px_-16px_rgba(10,15,23,0.25)]'
+                    : 'bg-white dark:bg-[#0a0f17] border-transparent shadow-none',
+            ]"
+        >
+            <div
+                class="px-4 md:px-10 lg:px-20 transition-[padding] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                :class="isScrolled ? 'py-3 lg:py-4' : 'py-6 lg:py-8'"
+            >
                 <div class="flex justify-between items-center">
                     <!-- Group 1: logo -->
-                    <Link href="/" class="premium-brand-lockup shrink-0">
+                    <Link
+                        href="/"
+                        class="premium-brand-lockup shrink-0 origin-center transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                        :class="isScrolled ? 'scale-[0.92]' : 'scale-100'"
+                    >
                         <template v-if="props.companyConfig && props.companyConfig.logo && props.companyConfig.company_name">
                             <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
                             <span class="premium-brand-lockup__text">
@@ -204,115 +218,76 @@
         <CookieConsentBanner />
 
         <!-- Footer -->
-        <footer id="section7" class="bg-gray-50 border-t border-gray-200 text-gray-700 px-5 md:px-10 lg:px-20 py-16 2xl:px-60">
-            <div class="max-w-7xl mx-auto">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
-                    <!-- Company Info -->
-                    <div class="lg:col-span-3">
-                        <div class="mb-6" v-if="props.companyConfig">
-                            <div class="premium-brand-lockup premium-brand-lockup--footer" v-if="props.companyConfig.logo && props.companyConfig.company_name">
-                                <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
-                                <span class="premium-brand-lockup__text">
-                                    <span class="premium-brand-lockup__name"><span>botz</span><span class="premium-brand-lockup__accent">o</span></span>
-                                </span>
-                            </div>
-                            <h4 v-else-if="props.companyConfig.company_name" class="text-xl mb-2 text-gray-900 font-bold">{{ props.companyConfig.company_name }}</h4>
-                        </div>
-                        <div v-if="addressLines.length" class="mb-4 space-y-1">
-                            <p v-for="(addressLine, index) in addressLines" :key="`footer-company-address-${index}`" class="text-sm text-gray-600">
-                                {{ addressLine }}
+        <footer id="section7" class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
+            <div class="flex flex-col items-center gap-[72px]">
+                <div class="flex w-full flex-col items-center gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-0" dir="ltr">
+                    <!-- More about Botzo -->
+                    <div class="flex w-full flex-col items-end gap-[18px] text-right lg:w-[229.56px]">
+                        <h4 dir="auto" class="w-full text-base font-semibold leading-[20px] text-black dark:text-white">{{ $t('More about Botzo') }}</h4>
+                        <ul class="flex w-full flex-col items-end gap-3">
+                            <li v-for="item in footerMoreLinks" :key="item.href">
+                                <Link :href="item.href" dir="auto" class="text-sm leading-6 text-[#8899aa] transition-colors hover:text-[#25d366]">{{ $t(item.labelKey) }}</Link>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Product -->
+                    <div class="flex w-full flex-col items-end gap-[18px] text-right lg:w-[229.56px]">
+                        <h4 dir="auto" class="w-full text-base font-semibold leading-[20px] text-black dark:text-white">{{ $t('Product') }}</h4>
+                        <ul class="flex w-full flex-col items-end gap-3">
+                            <li v-for="item in footerProductLinks" :key="item.href">
+                                <Link :href="item.href" dir="auto" class="text-sm leading-6 text-[#8899aa] transition-colors hover:text-[#25d366]">{{ $t(item.labelKey) }}</Link>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Logo, tagline, socials -->
+                    <div class="flex w-full flex-col items-end gap-4 lg:w-[367.3px]">
+                        <div class="relative" style="width: 73.44px; height: 67px">
+                            <img src="/images/footer/botzo-icon-dark.svg" alt="" class="absolute hidden dark:block" style="left: 17.49px; top: 0; width: 38.54px; height: 37.591px">
+                            <img src="/images/footer/botzo-icon-light.svg" alt="" class="absolute block dark:hidden" style="left: 17.49px; top: 0; width: 38.54px; height: 37.591px">
+                            <img src="/images/footer/botzo-word-dark.svg" alt="Botzo" class="absolute hidden dark:block" style="left: 0; top: 58.93%; width: 100%; height: 27.78%">
+                            <img src="/images/footer/botzo-word-light.svg" alt="Botzo" class="absolute block dark:hidden" style="left: 0; top: 58.93%; width: 100%; height: 27.78%">
+                            <p
+                                class="absolute whitespace-nowrap font-sans not-italic text-[#25d366]"
+                                style="left: 4.12px; top: 61.35px; font-size: 4.63px; letter-spacing: 0.1852px; line-height: normal"
+                            >
+                                <span>WhatsApp</span><span>{{ ' & ' }}</span><span>Meta</span><span>{{ ' Solutions' }}</span>
                             </p>
                         </div>
-                        <div class="flex gap-x-4">
-                            <a v-if="facebookUrl" :href="facebookUrl" class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-primary hover:border-primary hover:text-white flex items-center justify-center transition-colors text-gray-600">
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95"/></svg>
+                        <p dir="auto" class="w-full text-right text-sm leading-6 text-[#8899aa]">
+                            {{ $t('WhatsApp automation platform powered by AI for the Saudi market. Make WhatsApp sell for you — 24 hours a day.') }}
+                        </p>
+                        <div class="flex items-center justify-end gap-2 pt-1" dir="ltr">
+                            <a
+                                v-if="whatsappSocialLink"
+                                :href="whatsappSocialLink"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="footer-social-icon footer-social-icon--whatsapp"
+                                aria-label="WhatsApp"
+                            >
+                                <img src="/images/footer/whatsapp-glow.svg" class="footer-social-icon__glow" alt="" aria-hidden="true">
+                                <img src="/images/footer/whatsapp-icon.svg" class="footer-social-icon__mark" alt="" aria-hidden="true">
                             </a>
-                            <a v-if="twitterUrl" :href="twitterUrl" class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-primary hover:border-primary hover:text-white flex items-center justify-center transition-colors text-gray-600">
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18.244 2H21.5l-7.2 8.23L22.8 22h-6.65l-5.21-6.82L4.97 22H1.71l7.7-8.8L1.2 2h6.82l4.71 6.23zm-1.16 18h1.8L6.22 3.9H4.29z"/></svg>
+                            <a
+                                :href="linkedinUrl || '#'"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="footer-social-icon footer-social-icon--linkedin"
+                                aria-label="LinkedIn"
+                            >
+                                <img src="/images/footer/linkedin-glow.svg" class="footer-social-icon__glow" alt="" aria-hidden="true">
+                                <img src="/images/footer/linkedin-icon.svg" class="footer-social-icon__mark" alt="" aria-hidden="true">
                             </a>
-                            <a v-if="linkedinUrl" :href="linkedinUrl" class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-primary hover:border-primary hover:text-white flex items-center justify-center transition-colors text-gray-600">
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 16 16"><path fill="currentColor" d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248c-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586c.173-.431.568-.878 1.232-.878c.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252c-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/></svg>
-                            </a>
-                            <a v-if="tiktokUrl" :href="tiktokUrl" class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-primary hover:border-primary hover:text-white flex items-center justify-center transition-colors text-gray-600">
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.35V2h-3.2v13.3a2.89 2.89 0 1 1-2.89-2.89c.31 0 .61.05.89.14V9.27a6.13 6.13 0 0 0-.89-.07A6.09 6.09 0 1 0 15.82 15V8.27a8.16 8.16 0 0 0 4.77 1.53V6.69z"/></svg>
-                            </a>
-                            <a v-if="snapchatUrl" :href="snapchatUrl" class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-primary hover:border-primary hover:text-white flex items-center justify-center transition-colors text-gray-600">
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7v11l2-2l2 2l3-3l3 3l2-2l2 2V9a7 7 0 0 0-7-7m-3 8a1 1 0 1 1 .01 0zm6 0a1 1 0 1 1 .01 0z"/></svg>
-                            </a>
-                        </div>
-
-                        <div class="mt-4 grid grid-cols-1 gap-2 max-w-[300px]">
-                            <div class="rounded-xl border border-gray-200 bg-white p-2.5 min-h-[84px] flex flex-col items-center justify-center text-center">
-                                <img :src="premiumFooterPaymentMethodsUrl" :alt="$t('Payment methods')" class="h-10 w-full max-w-[220px] object-contain mb-1" @error="handleImageError($event, '/images/defaults/payment-methods-default.svg')">
-                                <p class="text-sm font-medium text-gray-700 leading-5">{{ $t('We offer multiple payment methods') }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Links -->
-                    <div>
-                        <h4 class="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wider">{{ $t('Product') }}</h4>
-                        <ul class="space-y-3">
-                            <li>
-                                <Link href="/#section2" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ $t('Features') }}</Link>
-                            </li>
-                            <li>
-                                <Link href="/pricing" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ $t('Pricing') }}</Link>
-                            </li>
-                            <li>
-                                <Link href="/#section6" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ $t('FAQs') }}</Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Company Links -->
-                    <div>
-                        <h4 class="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wider">{{ $t('Company') }}</h4>
-                        <ul class="space-y-3">
-                            <li>
-                                <Link href="/contact" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ $t('Contact Us') }}</Link>
-                            </li>
-                            <li>
-                                <Link href="/signup" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ $t('Sign up') }}</Link>
-                            </li>
-                            <li>
-                                <Link href="/login" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ $t('Login') }}</Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Pages & Contact -->
-                    <div>
-                        <h4 class="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wider">{{ $t('Pages') }}</h4>
-                        <ul class="space-y-3 mb-6" v-if="props.pages && props.pages.length > 0">
-                            <li v-for="page in props.pages" :key="page.id">
-                                <Link :href="'/pages/' + (page.slug || formattedName(page.name))" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ page.display_name || page.name }}</Link>
-                            </li>
-                        </ul>
-                        <div>
-                            <h4 class="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wider">{{ $t('Contact') }}</h4>
-                            <ul class="space-y-2">
-                                <li v-if="props.companyConfig && props.companyConfig.email">
-                                    <a :href="'mailto:' + props.companyConfig.email" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ props.companyConfig.email }}</a>
-                                </li>
-                                <li v-for="phoneNumber in phoneNumbers" :key="`footer-contact-phone-${phoneNumber}`">
-                                    <a :href="'tel:' + phoneNumber" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ phoneNumber }}</a>
-                                </li>
-                            </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- Bottom Bar -->
-                <div class="border-t border-gray-200 pt-8 mt-8">
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p class="text-gray-600 text-sm">
-                            {{ $t('Copyright') }} © {{ currentYear }} {{ props.companyConfig?.company_name || '' }}. {{ $t('All rights reserved') }}.
-                        </p>
-                        <Link href="/cookie-policy" class="text-gray-600 hover:text-primary transition-colors text-sm">
-                            {{ $t('Cookie Policy') }}
-                        </Link>
-                    </div>
+                <div class="w-full border-t-[0.5px] border-[#5a6b7e] pt-[28.5px] text-center dark:border-[#94a3b8]">
+                    <p dir="auto" class="text-sm leading-6 text-[#8899aa]">
+                        {{ $t('© {year} Botzo · All rights reserved · Made with ❤ for the Saudi market', { year: currentYear }) }}
+                    </p>
                 </div>
             </div>
         </footer>
@@ -323,7 +298,6 @@
     import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
     import { Link, usePage } from "@inertiajs/vue3";
     import { useRtl } from '@/Composables/useRtl';
-    import { useFrontendContactInfo } from '@/Composables/useFrontendContactInfo';
     import CookieConsentBanner from '@/Components/CookieConsentBanner.vue';
     import NavBrandMark from '@/Components/NavBrandMark.vue';
     import LangToggle from '@/Components/LangToggle.vue';
@@ -345,10 +319,6 @@
         }
     });
 
-    const facebookUrl = ref(null);
-    const twitterUrl = ref(null);
-    const tiktokUrl = ref(null);
-    const snapchatUrl = ref(null);
     const linkedinUrl = ref(null);
     const isScrolled = ref(false);
     const showResourcesDropdown = ref(false);
@@ -358,20 +328,6 @@
     
     const currentLanguageCode = computed(() => {
         return page.props.currentLanguage || 'en';
-    });
-    const companyConfigRef = computed(() => props.companyConfig || {});
-    const { addressLines, phoneNumbers } = useFrontendContactInfo(companyConfigRef, currentLanguageCode);
-    const resolveManagedImageUrl = (value, fallback) => {
-        if (!value || typeof value !== 'string') {
-            return fallback;
-        }
-
-        return value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/')
-            ? value
-            : `/media/${value}`;
-    };
-    const premiumFooterPaymentMethodsUrl = computed(() => {
-        return resolveManagedImageUrl(props.companyConfig?.premium_home_footer_payment_methods, '/images/defaults/payment-methods-default.svg');
     });
 
     const formattedName = computed(() => {
@@ -384,26 +340,32 @@
         if (!props.companyConfig || !props.companyConfig.socials) return;
         try {
             const socialsArray = JSON.parse(props.companyConfig.socials || '{}');
-            facebookUrl.value = socialsArray['facebook'] || null;
-            twitterUrl.value = socialsArray['twitter'] || null;
-            tiktokUrl.value = socialsArray['tiktok'] || null;
-            snapchatUrl.value = socialsArray['snapchat'] || null;
             linkedinUrl.value = socialsArray['linkedin'] || null;
         } catch (error) {
             console.error('Error parsing socials:', error);
         }
     };
 
+    const whatsappSocialLink = computed(() => props.companyConfig?.book_a_demo_link || null);
+
+    const footerMoreLinks = [
+        { labelKey: 'Privacy Policy', href: '/privacy' },
+        { labelKey: 'WhatsApp Account Verification', href: '/contact' },
+        { labelKey: 'Terms of Use', href: '/terms-of-service' },
+        { labelKey: 'Delete User Data', href: '/contact' },
+        { labelKey: 'API Documentation', href: '/api-documentation' },
+    ];
+
+    const footerProductLinks = [
+        { labelKey: 'Features', href: '/#section2' },
+        { labelKey: 'Pricing', href: '/pricing' },
+        { labelKey: 'How does it work?', href: '/#section3' },
+        { labelKey: 'FAQs', href: '/faqs' },
+        { labelKey: 'Contact Us', href: '/contact' },
+    ];
+
     const handleScroll = () => {
         isScrolled.value = window.scrollY > 10;
-    };
-
-    const handleImageError = (event, fallback) => {
-        if (!event?.target || event.target.src === `${window.location.origin}${fallback}`) {
-            return;
-        }
-
-        event.target.src = fallback;
     };
 
     // Prevent body scroll when mobile menu is open
@@ -428,6 +390,79 @@
 </script>
 
 <style scoped>
+.footer-social-icon {
+    position: relative;
+    display: flex;
+    height: 48px;
+    width: 48px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 0.8px solid rgba(216, 216, 216, 0.05);
+    background-image: linear-gradient(135deg, rgba(248, 251, 255, 0.04) 0%, rgba(255, 255, 255, 0) 100%);
+    backdrop-filter: blur(10px);
+    box-shadow: 8px 4px 16px 0px rgba(0, 0, 0, 0.08);
+    transition: transform 200ms ease;
+}
+
+.footer-social-icon::after {
+    content: "";
+    position: absolute;
+    inset: -0.4px;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.footer-social-icon--whatsapp::after {
+    box-shadow: inset 0px 0px 8px 0px rgba(13, 252, 37, 0.32);
+}
+
+.footer-social-icon--linkedin::after {
+    box-shadow: inset 0px 0px 8px 0px rgba(13, 137, 252, 0.32);
+}
+
+.footer-social-icon:hover {
+    transform: translateY(-2px);
+}
+
+.footer-social-icon__glow {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    mix-blend-mode: plus-lighter;
+    pointer-events: none;
+}
+
+.footer-social-icon__mark {
+    position: relative;
+    width: 32px;
+    height: 32px;
+}
+
+.page-enter-anim {
+    animation: pageEnter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-enter-anim {
+        animation: none;
+    }
+}
+
 .dropdown-enter-active,
 .dropdown-leave-active {
     transition: all 0.2s ease-out;

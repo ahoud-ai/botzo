@@ -225,25 +225,39 @@ h2 {
     font-weight: 500;
 }
 
-/* Track */
+/* Brand-styled scrollbar (Firefox) */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #25d366 rgba(15, 23, 42, 0.04);
+}
+
+.dark * {
+    scrollbar-color: #25d366 rgba(255, 255, 255, 0.06);
+}
+
+/* Brand-styled scrollbar (WebKit: Chrome/Edge/Safari) */
 ::-webkit-scrollbar {
-    width: 9px; /* Width of the scrollbar track */
+    width: 10px;
+    height: 10px;
 }
 
-/* Thumb (the draggable part of the scrollbar) */
-::-webkit-scrollbar-thumb {
-    background-color: #888; /* Color of the thumb */
-    border-radius: 6px; /* Rounded corners of the thumb */
-}
-
-/* Hover effect on the thumb */
-::-webkit-scrollbar-thumb:hover {
-    background-color: #555; /* Color of the thumb on hover */
-}
-
-/* Track when the scrollbar is in an inactive state (not being interacted with) */
 ::-webkit-scrollbar-track {
-    background-color: transparent; /* Color of the track */
+    background-color: rgba(15, 23, 42, 0.04);
+}
+
+.dark ::-webkit-scrollbar-track {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+::-webkit-scrollbar-thumb {
+    background-image: linear-gradient(180deg, #25d366, #1db954);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-image: linear-gradient(180deg, #25d366, #3b82f6);
 }
 
 .vue-tel-input:focus-within {
@@ -631,13 +645,6 @@ h2 {
     animation-duration: 22s;
 }
 
-.premium-home-section--features {
-    background:
-        radial-gradient(980px 340px at -6% -8%, rgba(59, 91, 255, 0.06), transparent 72%),
-        radial-gradient(860px 300px at 104% 4%, rgba(0, 198, 255, 0.05), transparent 74%),
-        linear-gradient(160deg, #f9fcff 0%, #f6faff 48%, #f9fcff 100%);
-}
-
 .premium-home-section--steps {
     background:
         radial-gradient(960px 340px at -4% -6%, rgba(59, 91, 255, 0.055), transparent 72%),
@@ -645,11 +652,25 @@ h2 {
         linear-gradient(165deg, #f9fcff 0%, #f4f9ff 50%, #f9fcff 100%);
 }
 
-.premium-home-section--reviews {
+.dark .premium-home-section--steps {
     background:
-        radial-gradient(920px 320px at -2% -5%, rgba(59, 91, 255, 0.05), transparent 72%),
-        radial-gradient(800px 300px at 102% 8%, rgba(0, 198, 255, 0.045), transparent 74%),
-        linear-gradient(170deg, #f9fbff 0%, #f4f8ff 52%, #f9fbff 100%);
+        radial-gradient(960px 340px at -4% -6%, rgba(37, 211, 102, 0.05), transparent 72%),
+        radial-gradient(840px 300px at 104% 8%, rgba(59, 130, 246, 0.05), transparent 74%),
+        #0a0f17;
+    color: #ffffff;
+}
+
+/* Desktop "How It Works" is a pixel-perfect Figma rebuild with a flat
+   background - the gradient/orbit treatment above stays for the
+   pre-redesign mobile layout only, until its own Figma spec arrives. */
+@media (min-width: 1024px) {
+    .premium-home-section--steps {
+        background: #ffffff;
+    }
+
+    .dark .premium-home-section--steps {
+        background: #0a0f17;
+    }
 }
 
 .premium-brand-lockup {
@@ -831,39 +852,6 @@ h2 {
     animation: premium-home-spin 14s linear infinite;
 }
 
-.premium-home-review-card {
-    border: 1px solid rgba(59, 91, 255, 0.16);
-    border-radius: 16px;
-    background:
-        linear-gradient(165deg, rgba(255, 255, 255, 0.92), rgba(248, 251, 255, 0.84));
-    box-shadow: 0 22px 38px -32px rgba(15, 23, 42, 0.45);
-    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
-}
-
-.premium-home-review-card:hover {
-    transform: translateY(-5px);
-    border-color: rgba(59, 91, 255, 0.32);
-    box-shadow: 0 34px 52px -34px rgba(15, 23, 42, 0.58);
-}
-
-.premium-home-cta-overlay {
-    background: linear-gradient(140deg, rgba(6, 16, 44, 0.52), rgba(18, 44, 116, 0.4) 48%, rgba(7, 21, 56, 0.54));
-}
-
-.premium-home-cta-content {
-    animation: premium-home-fade-up 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.premium-home-cta-primary,
-.premium-home-cta-secondary {
-    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease, background-color 220ms ease;
-}
-
-.premium-home-cta-primary:hover,
-.premium-home-cta-secondary:hover {
-    transform: translateY(-2px);
-}
-
 .premium-home-hero-avatar {
     position: absolute;
     z-index: 10;
@@ -982,7 +970,6 @@ h2 {
 @media (prefers-reduced-motion: reduce) {
     .premium-home-floating-avatar,
     .premium-home-animate,
-    .premium-home-cta-content,
     .premium-home-orbit,
     .premium-home-step-icon::after,
     .premium-home-icon-badge::after {
@@ -991,10 +978,7 @@ h2 {
 
     .premium-home-accordion-card,
     .premium-home-feature-detail,
-    .premium-home-step-card,
-    .premium-home-review-card,
-    .premium-home-cta-primary,
-    .premium-home-cta-secondary {
+    .premium-home-step-card {
         transition: none !important;
     }
 }
@@ -1117,8 +1101,7 @@ h2 {
 
     .premium-home-feature-shell,
     .premium-home-feature-detail,
-    .premium-home-step-card,
-    .premium-home-review-card {
+    .premium-home-step-card {
         border-radius: 16px;
     }
 
@@ -1389,13 +1372,25 @@ h2 {
     --ui-layer-modal: 95;
 }
 
-html,
-body {
+html {
     max-width: 100%;
     overflow-x: hidden;
     min-height: 100%;
+}
+
+/* background-color intentionally does not use --ui-bg here: that variable
+   also feeds the authenticated dashboard shell gradient elsewhere, and its
+   pale-blue value used to flash through on body whenever it peeked through
+   a gap or the page-enter transition's initial translateY offset. */
+body {
+    max-width: 100%;
+    min-height: 100%;
     color: var(--ui-text);
-    background-color: var(--ui-bg);
+    background-color: #ffffff;
+}
+
+.dark body {
+    background-color: #0a0f17;
 }
 
 .ui-shell,
@@ -2772,6 +2767,27 @@ body {
     }
     .ui-fade-up {
         animation: none !important;
+    }
+}
+
+/* Scroll-reveal (v-reveal directive): fade + rise into view, brand easing curve */
+.reveal-init {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+}
+
+.reveal-init.reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal-init {
+        opacity: 1;
+        transform: none;
+        transition: none;
     }
 }
 

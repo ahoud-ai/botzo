@@ -1,0 +1,16 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="whatsapp" style="mix-blend-mode:plus-lighter" opacity="0.5" filter="url(#filter0_f_0_133)">
+<path id="bg" d="M36 24C36 30.6274 30.6274 36 24 36C21.4722 36 19.1269 35.2184 17.1927 33.8837L13.0909 34.9091L14.1658 30.8784C12.8009 28.9307 12 26.5589 12 24C12 17.3726 17.3726 12 24 12C30.6274 12 36 17.3726 36 24Z" fill="url(#paint0_linear_0_133)"/>
+</g>
+<defs>
+<filter id="filter0_f_0_133" x="-4" y="-4" width="56" height="56" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="6" result="effect1_foregroundBlur_0_133"/>
+</filter>
+<linearGradient id="paint0_linear_0_133" x1="34.5" y1="15" x2="12" y2="36" gradientUnits="userSpaceOnUse">
+<stop stop-color="#5BD066"/>
+<stop offset="1" stop-color="#27B43E"/>
+</linearGradient>
+</defs>
+</svg>

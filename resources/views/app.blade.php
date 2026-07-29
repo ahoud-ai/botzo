@@ -7,6 +7,20 @@
             <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
         @endif
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <script>
+            // Applies the saved theme before first paint so the splash screen
+            // below (and the rest of the page) never flashes the wrong theme
+            // while waiting for the Vue bundle to boot and call initTheme().
+            (function () {
+                try {
+                    if (localStorage.getItem('theme') !== 'light') {
+                        document.documentElement.classList.add('dark');
+                    }
+                } catch (e) {
+                    document.documentElement.classList.add('dark');
+                }
+            })();
+        </script>
         @php
             $configData = (isset($page['props']) && isset($page['props']['config'])) ? $page['props']['config'] : [];
             $config = collect(is_array($configData) ? $configData : []);
@@ -393,6 +407,155 @@
         <noscript>
             <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id={{ $metaPixelId }}&ev=PageView&noscript=1"/>
         </noscript>
+        @endif
+
+        @if ($isPublicFrontendPage)
+        <div id="botzo-splash" aria-hidden="true">
+            <div class="botzo-splash__glow"></div>
+            <div class="botzo-splash__mark">
+                <img src="/images/nav/nav-icon-dark.svg" alt="" class="botzo-splash__icon botzo-splash__icon--dark">
+                <img src="/images/nav/nav-icon-light.svg" alt="" class="botzo-splash__icon botzo-splash__icon--light">
+            </div>
+            <img src="/images/nav/nav-wordmark-dark.svg" alt="Botzo" class="botzo-splash__word botzo-splash__word--dark">
+            <img src="/images/nav/nav-wordmark-light.svg" alt="Botzo" class="botzo-splash__word botzo-splash__word--light">
+        </div>
+        <style>
+            #botzo-splash {
+                position: fixed;
+                inset: 0;
+                z-index: 999999;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 18px;
+                background: #ffffff;
+                transition: opacity 420ms cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            html.dark #botzo-splash {
+                background: #0a0f17;
+            }
+
+            #botzo-splash.botzo-splash--hide {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .botzo-splash__glow {
+                position: absolute;
+                width: 220px;
+                height: 220px;
+                border-radius: 999px;
+                background: radial-gradient(circle, rgba(37, 211, 102, 0.22), rgba(59, 130, 246, 0.1) 55%, transparent 72%);
+                animation: botzo-splash-pulse 2.2s ease-in-out infinite;
+            }
+
+            .botzo-splash__mark {
+                position: relative;
+                width: 72px;
+                height: 66px;
+                animation: botzo-splash-icon-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+            }
+
+            .botzo-splash__icon {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+            .botzo-splash__icon--dark { display: none; }
+            html.dark .botzo-splash__icon--dark { display: block; }
+            html.dark .botzo-splash__icon--light { display: none; }
+
+            .botzo-splash__word {
+                position: relative;
+                width: 128px;
+                height: auto;
+                animation: botzo-splash-word-in 700ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+            }
+
+            .botzo-splash__word--dark { display: none; }
+            html.dark .botzo-splash__word--dark { display: block; }
+            html.dark .botzo-splash__word--light { display: none; }
+
+            @keyframes botzo-splash-icon-in {
+                from { opacity: 0; transform: scale(0.82); }
+                to { opacity: 1; transform: scale(1); }
+            }
+
+            @keyframes botzo-splash-word-in {
+                from { opacity: 0; transform: translateY(6px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            @keyframes botzo-splash-pulse {
+                0%, 100% { transform: scale(1); opacity: 0.6; }
+                50% { transform: scale(1.12); opacity: 1; }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .botzo-splash__glow,
+                .botzo-splash__mark,
+                .botzo-splash__word {
+                    animation: none;
+                    opacity: 1;
+                    transform: none;
+                }
+            }
+        </style>
+        <script>
+            (function () {
+                var splash = document.getElementById('botzo-splash');
+                if (!splash) return;
+
+                var SESSION_KEY = 'botzo_splash_shown';
+                var alreadyShown;
+                try {
+                    alreadyShown = sessionStorage.getItem(SESSION_KEY) === '1';
+                } catch (e) {
+                    alreadyShown = false;
+                }
+
+                if (alreadyShown) {
+                    splash.style.display = 'none';
+                    return;
+                }
+
+                try {
+                    sessionStorage.setItem(SESSION_KEY, '1');
+                } catch (e) {
+                    // Private browsing / storage disabled: still show once, just won't persist across tabs.
+                }
+
+                var MIN_VISIBLE_MS = 900;
+                var MAX_VISIBLE_MS = 4000;
+                var start = Date.now();
+                var hidden = false;
+
+                function hide() {
+                    if (hidden) return;
+                    hidden = true;
+                    splash.classList.add('botzo-splash--hide');
+                    window.setTimeout(function () {
+                        splash.style.display = 'none';
+                    }, 450);
+                }
+
+                function attemptHide() {
+                    var elapsed = Date.now() - start;
+                    window.setTimeout(hide, Math.max(0, MIN_VISIBLE_MS - elapsed));
+                }
+
+                if (document.readyState === 'complete') {
+                    attemptHide();
+                } else {
+                    window.addEventListener('load', attemptHide);
+                }
+                window.setTimeout(hide, MAX_VISIBLE_MS);
+            })();
+        </script>
         @endif
 
         @inertia
