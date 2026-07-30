@@ -2,134 +2,86 @@
     <FrontendLayout :companyConfig="props.companyConfig" :pages="props.pages">
 
         <!-- Hero Section -->
-        <section class="premium-page-section premium-page-hero px-5 md:px-10 lg:px-20 pt-32 pb-8 2xl:px-60">
-            <div class="premium-page-hero-grid"></div>
-            <div class="premium-page-content max-w-4xl mx-auto text-center">
-                <div class="inline-flex mb-5 premium-page-badge">{{ $t('Pricing') }}</div>
-                <h1 class="text-3xl md:text-6xl leading-[1.3] font-semibold mb-6 text-gray-900">
-                    {{ $t('Choose the Perfect') }}<br>{{ $t('Plan') }}
-                </h1>
-                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                    {{ $t('Whether you\'re an individual, a small team, or a growing enterprise, we have a plan that aligns perfectly with your goals') }}
-                </p>
-                <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+        <section class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-60 pt-32 pb-8 bg-white dark:bg-[#0a0f17]">
+            <div class="flex flex-col items-center gap-4 lg:gap-6">
+                <SectionBadge :label="$t('Pricing')" />
+
+                <div class="flex w-full flex-col items-center gap-3 text-center lg:w-[1120px] lg:gap-4">
+                    <h1 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
+                        {{ $t('Plans that fit the size of your business') }}
+                    </h1>
+                    <p class="w-full text-base leading-6 text-[#8899aa] lg:text-[24px] lg:leading-9">
+                        {{ $t('Whether you\'re an individual, a small team, or a growing enterprise, we have a plan that aligns perfectly with your goals') }}
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 pt-2">
                     <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-secondary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2l4-4m6 2a9 9 0 11-18 0a9 9 0 0118 0z"/></svg>
-                        <span>{{ $t('Paid plans') }}</span>
+                        <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] bg-[rgba(37,211,102,0.12)]">
+                            <span class="text-[11px] leading-[16.5px] text-[#0e6b35] dark:text-[#00c950]">✓</span>
+                        </span>
+                        <span dir="auto" class="text-sm leading-6 text-[#445566] dark:text-[#94a3b8]">{{ $t('Paid plans') }}</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-secondary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2l4-4m6 2a9 9 0 11-18 0a9 9 0 0118 0z"/></svg>
-                        <span>{{ $t('Secure payment required') }}</span>
+                        <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] bg-[rgba(37,211,102,0.12)]">
+                            <span class="text-[11px] leading-[16.5px] text-[#0e6b35] dark:text-[#00c950]">✓</span>
+                        </span>
+                        <span dir="auto" class="text-sm leading-6 text-[#445566] dark:text-[#94a3b8]">{{ $t('Secure payment required') }}</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-secondary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2l4-4m6 2a9 9 0 11-18 0a9 9 0 0118 0z"/></svg>
-                        <span>{{ $t('Cancel anytime') }}</span>
+                        <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] bg-[rgba(37,211,102,0.12)]">
+                            <span class="text-[11px] leading-[16.5px] text-[#0e6b35] dark:text-[#00c950]">✓</span>
+                        </span>
+                        <span dir="auto" class="text-sm leading-6 text-[#445566] dark:text-[#94a3b8]">{{ $t('Cancel anytime') }}</span>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Pricing Section -->
-        <section class="premium-page-section px-5 md:px-10 lg:px-20 py-20 2xl:px-60">
-            <div class="premium-page-content">
-                <div class="relative">
-                    <div class="text-center">
-                        <!-- Monthly/Yearly Toggle -->
-                        <div class="inline-flex flex-col sm:flex-row justify-center items-center gap-3 mb-8">
-                            <div class="premium-pricing-toggle" role="group" aria-label="Billing period">
-                                <span class="premium-pricing-toggle__thumb" :class="billingPeriod === 'yearly' ? 'premium-pricing-toggle__thumb--yearly' : ''" aria-hidden="true"></span>
-                                <button
-                                    type="button"
-                                    class="premium-pricing-toggle__option"
-                                    :class="{ 'is-active': billingPeriod === 'monthly' }"
-                                    @click="setBillingPeriod('monthly')"
-                                >
-                                    {{ $t('Monthly') }}
-                                </button>
-                                <button
-                                    type="button"
-                                    class="premium-pricing-toggle__option"
-                                    :class="{ 'is-active': billingPeriod === 'yearly' }"
-                                    @click="setBillingPeriod('yearly')"
-                                >
-                                    {{ $t('Yearly') }}
-                                </button>
-                            </div>
-                            <span v-if="billingPeriod === 'yearly'" class="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-                                {{ $t('Save 20%') }}
-                            </span>
-                        </div>
+        <section class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
+            <div class="flex flex-col items-center gap-8 lg:gap-[72px]">
+                <div class="flex w-full flex-col items-center pt-2">
+                    <div class="flex w-[240px] items-start rounded-full bg-[rgba(37,211,102,0.12)] p-1" dir="ltr">
+                        <button
+                            type="button"
+                            class="flex flex-1 items-center justify-center self-stretch overflow-hidden rounded-full py-2 transition-all duration-200"
+                            :class="billingPeriod === 'yearly' ? 'bg-white shadow-[0_2px_4px_-2px_rgba(0,0,0,0.12)] dark:bg-white' : ''"
+                            @click="setBillingPeriod('yearly')"
+                        >
+                            <span
+                                dir="auto"
+                                class="whitespace-nowrap text-base leading-6"
+                                :class="billingPeriod === 'yearly' ? 'text-black' : 'text-black dark:text-white'"
+                            >{{ $t('Yearly') }}</span>
+                        </button>
+                        <button
+                            type="button"
+                            class="flex flex-1 items-center justify-center self-stretch overflow-hidden rounded-full py-2 transition-all duration-200"
+                            :class="billingPeriod === 'monthly' ? 'bg-white shadow-[0_2px_4px_-2px_rgba(0,0,0,0.12)] dark:bg-white' : ''"
+                            @click="setBillingPeriod('monthly')"
+                        >
+                            <span
+                                dir="auto"
+                                class="whitespace-nowrap text-base leading-6"
+                                :class="billingPeriod === 'monthly' ? 'text-black' : 'text-black dark:text-white'"
+                            >{{ $t('Monthly') }}</span>
+                        </button>
                     </div>
+                </div>
 
-                    <div class="grid xl:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 grid-cols-1 gap-6 mt-20">
-                        <div v-for="(item, index) in filteredPlans" :key="index" class="relative">
-                            <div class="transition-all duration-300 h-full flex flex-col">
-                                <!-- Popular Badge -->
-                                <div v-if="index === 1" class="pointer-events-none absolute inset-x-0 -top-4 z-20 flex justify-center sm:-top-5">
-                                    <span class="inline-flex items-center justify-center rounded-full bg-primary px-4 py-1 text-xs font-semibold text-white shadow-[0_8px_16px_rgba(59,91,255,0.28)] ring-1 ring-white/70">
-                                        {{ $t('Most Popular') }}
-                                    </span>
-                                </div>
-                                
-                                <div class="premium-page-panel premium-page-interactive border-2 h-full flex flex-col"
-                                    :class="index === 1 ? 'border-primary md:scale-105 lg:scale-105 origin-top' : 'border-gray-200'">
-                                    <div class="p-8 pb-6">
-                                        <!-- Plan Name -->
-                                        <div class="mb-6">
-                                            <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ getPlanName(item) }}</h2>
-                                            <p class="text-sm text-gray-500">{{ planSubtitle(item) }}</p>
-                                        </div>
-                                        
-                                        <!-- Price -->
-                                        <div class="mb-6">
-                                            <div class="flex items-baseline">
-                                                <span class="text-gray-600 text-lg font-medium">{{ props.currency ?? '$' }}</span>
-                                                <span class="text-5xl font-bold text-gray-900 ms-1">{{ item.price }}</span>
-                                            </div>
-                                            <p class="text-gray-500 text-sm mt-1">
-                                                {{ billingPeriod === 'monthly' ? $t('Per month') : $t('Per year') }}
-                                            </p>
-                                        </div>
-                                        
-                                        <!-- CTA Button -->
-                                        <Link 
-                                            href="/signup" 
-                                            class="block w-full text-center py-3 px-6 rounded-xl font-semibold transition-all duration-300 mb-6"
-                                            :class="index === 1 
-                                                ? 'bg-primary hover:bg-secondary text-white shadow-md hover:shadow-lg transform hover:scale-105' 
-                                                : 'bg-gray-100 hover:bg-gray-200 text-gray-900 border border-gray-300 hover:border-primary'"
-                                        >
-                                            {{ $t('Select Plan') }}
-                                        </Link>
-                                    </div>
-                                    
-                                    <!-- Features List -->
-                                    <div class="px-8 pb-8 pt-0 flex-1">
-                                        <div class="border-t border-gray-200 pt-6">
-                                            <h3 class="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">{{ $t('What\'s included') }}</h3>
-                                            <div class="space-y-3">
-                                                <div
-                                                    v-for="(feature, featureIndex) in planFeatureList(item)"
-                                                    :key="`plan-feature-${item.uuid || index}-${featureIndex}`"
-                                                    class="flex min-h-[2rem] items-start gap-3"
-                                                >
-                                                    <div class="flex-shrink-0 mt-0.5">
-                                                        <svg v-if="feature.available" class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                                        </svg>
-                                                        <svg v-else class="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                        </svg>
-                                                    </div>
-                                                    <span class="text-sm" :class="feature.available ? 'text-gray-700' : 'text-gray-400'">{{ feature.label }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="flex w-full flex-col items-center gap-10 pt-6 lg:flex-row lg:items-end lg:justify-center lg:gap-6">
+                    <PricingCard
+                        v-for="{ plan, featured } in orderedPlans"
+                        :key="plan.id"
+                        :featured="featured"
+                        :top-label="getPlanName(plan)"
+                        :price="formatPrice(plan.price)"
+                        :period-label="billingPeriod === 'monthly' ? $t('/ month') : $t('/ year')"
+                        :description="planSubtitle(plan)"
+                        :features="planFeatureList(plan)"
+                        :button-label="featured ? $t('Subscribe now') : $t('Get Started')"
+                    />
                 </div>
             </div>
         </section>
@@ -198,263 +150,21 @@
 
 <script setup>
     import { ref, computed } from 'vue';
-    import { Link, usePage } from "@inertiajs/vue3";
-    import { useI18n } from 'vue-i18n';
+    import { Link } from "@inertiajs/vue3";
     import FrontendLayout from './FrontendLayout.vue';
+    import SectionBadge from '@/Components/SectionBadge.vue';
+    import PricingCard from '@/Components/PricingCard.vue';
+    import { usePricingPlans } from '@/Composables/usePricingPlans';
 
     const props = defineProps(['addons', 'enable_ai_billing', 'plans', 'companyConfig', 'currency', 'pages', 'faqs']);
-    const { t } = useI18n();
-    const page = usePage();
-    const addonLabelKeyMap = {
-        'Flow builder': 'Flow Builder',
-    };
-    const currentLocale = computed(() => String(page.props.currentLanguage ?? 'en').toLowerCase());
 
-    const parseMetadata = (value) => {
-        if (!value) {
-            return null;
-        }
-
-        if (typeof value === 'object') {
-            return value;
-        }
-
-        if (typeof value === 'string') {
-            try {
-                const parsed = JSON.parse(value);
-                return typeof parsed === 'object' && parsed !== null ? parsed : null;
-            } catch (error) {
-                return null;
-            }
-        }
-
-        return null;
-    };
-
-    const getDetail = (value, key) => {
-        const item = parseMetadata(value);
-        return item?.[key] ?? null;
-    };
-
-    const normalizeAddonFlag = (value) => {
-        if (typeof value === 'boolean') {
-            return value;
-        }
-
-        if (typeof value === 'number') {
-            return value === 1;
-        }
-
-        if (typeof value === 'string') {
-            return ['1', 'true', 'yes', 'on'].includes(value.trim().toLowerCase());
-        }
-
-        return false;
-    };
-
-    const firstFilled = (...values) => {
-        for (const value of values) {
-            if (typeof value === 'string' && value.trim() !== '') {
-                return value.trim();
-            }
-        }
-
-        return '';
-    };
-
-    const getPlanName = (item) => {
-        const useArabic = currentLocale.value.startsWith('ar');
-
-        if (useArabic) {
-            return firstFilled(item?.display_name, item?.name_ar, item?.name, item?.name_en);
-        }
-
-        return firstFilled(item?.display_name, item?.name_en, item?.name, item?.name_ar);
-    };
-
-    const getPlanKey = (item) => {
-        const metadata = parseMetadata(item?.metadata) ?? {};
-        const fromMetadata = typeof metadata?.commercial_plan_key === 'string' ? metadata.commercial_plan_key.trim().toLowerCase() : '';
-        const fromName = firstFilled(item?.name_en, item?.name, item?.name_ar).toLowerCase();
-
-        if (['starter', 'growth', 'business'].includes(fromMetadata)) {
-            return fromMetadata;
-        }
-
-        if (fromName.includes('growth')) {
-            return 'growth';
-        }
-
-        if (fromName.includes('business')) {
-            return 'business';
-        }
-
-        return 'starter';
-    };
-
-    const localizedPlanText = (texts, item) => {
-        const key = getPlanKey(item);
-        const useArabic = currentLocale.value.startsWith('ar');
-
-        return texts?.[key]?.[useArabic ? 'ar' : 'en'] ?? texts?.starter?.[useArabic ? 'ar' : 'en'] ?? '';
-    };
-
-    const planSubtitle = (item) => localizedPlanText({
-        starter: {
-            ar: 'لبداية منظمة على واتساب بشكل منظم',
-            en: 'For launching an organized WhatsApp workspace',
-        },
-        growth: {
-            ar: 'للفرق التي تحتاج أتمتة ونمو أسرع',
-            en: 'For teams that need automation and faster growth',
-        },
-        business: {
-            ar: 'للعمليات متعددة الفرق على واتساب',
-            en: 'For multi-team WhatsApp operations',
-        },
-    }, item);
-
-    const resolveAddonLabelKey = (key) => addonLabelKeyMap[key] ?? key;
-
-    const filteredAddons = (item) => {
-        const metadata = parseMetadata(item?.metadata) ?? {};
-
-        const addons = metadata?.addons;
-
-        if (!addons || typeof addons !== 'object') {
-            return {};
-        }
-        
-        return Object.entries(props.addons ?? {}).reduce((acc, [key, value]) => {
-            if ((Number(value) === 1 || normalizeAddonFlag(value)) && Object.prototype.hasOwnProperty.call(addons, key)) {
-                acc[key] = normalizeAddonFlag(addons[key]);
-            }
-
-            return acc;
-        }, {});
-    };
-
-    const getCustomFeatures = (item) => {
-        const rawFeatures = getDetail(item?.metadata, 'custom_features');
-
-        if (!Array.isArray(rawFeatures)) {
-            return [];
-        }
-
-        const useArabic = currentLocale.value.startsWith('ar');
-
-        return rawFeatures
-            .map((feature) => {
-                const textAr = typeof feature?.text_ar === 'string' ? feature.text_ar.trim() : '';
-                const textEn = typeof feature?.text_en === 'string' ? feature.text_en.trim() : '';
-
-                return useArabic ? firstFilled(textAr, textEn) : firstFilled(textEn, textAr);
-            })
-            .filter((feature) => feature !== '');
-    };
-
-    const formatPlanLimit = (value) => String(value) === '-1' ? t('Unlimited') : value;
-
-    const limitFeature = (metadata, key, labelKey) => {
-        const value = metadata?.[key];
-        const available = value !== null && value !== undefined && value !== '' && Number(value) !== 0;
-
-        return {
-            label: available ? `${formatPlanLimit(value)} ${t(labelKey)}` : t(labelKey),
-            available,
-        };
-    };
-
-    const addonFeature = (item, key) => {
-        const metadata = parseMetadata(item?.metadata) ?? {};
-        const addons = metadata?.addons && typeof metadata.addons === 'object' ? metadata.addons : {};
-        const visibleAddons = filteredAddons(item);
-        const value = Object.prototype.hasOwnProperty.call(visibleAddons, key) ? visibleAddons[key] : addons[key];
-
-        return {
-            label: t(resolveAddonLabelKey(key)),
-            available: normalizeAddonFlag(value),
-        };
-    };
-
-    const advancedFlowBuilderFeature = (metadata) => ({
-        label: t('Advanced Flow Builder'),
-        available: normalizeAddonFlag(metadata?.flow_builder_advanced_enabled),
-    });
-
-    const serviceFeatureText = (item, type) => localizedPlanText({
-        starter: {
-            ar: {
-                training: 'تهيئة وتدريب 30 دقيقة',
-                support: 'دعم فني خلال أوقات العمل',
-                setup: 'ربط WhatsApp Cloud API الأساسي',
-            }[type],
-            en: {
-                training: '30-minute onboarding and training',
-                support: 'Business-hours technical support',
-                setup: 'Basic WhatsApp Cloud API setup',
-            }[type],
-        },
-        growth: {
-            ar: {
-                training: 'إعداد وتدريب 60 دقيقة',
-                support: 'دعم أولوية خلال أوقات العمل',
-                setup: 'مساعدة في الردود الجاهزة والحملات',
-            }[type],
-            en: {
-                training: '60-minute setup and training',
-                support: 'Priority business-hours support',
-                setup: 'Canned replies and campaign assistance',
-            }[type],
-        },
-        business: {
-            ar: {
-                training: 'جلستا تدريب للفريق',
-                support: 'دعم أولوية أعلى',
-                setup: 'مساعدة في الفلوهات وإدارة واتساب',
-            }[type],
-            en: {
-                training: 'Two team training sessions',
-                support: 'Higher-priority support',
-                setup: 'Flows and WhatsApp operations assistance',
-            }[type],
-        },
-    }, item);
-
-    const separateServiceText = (item, type) => localizedPlanText({
-        starter: {
-            ar: {
-                verification: 'توثيق الحساب خدمة منفصلة حسب متطلبات Meta',
-                metaFees: 'رسوم رسائل WhatsApp غير مشمولة',
-            }[type],
-            en: {
-                verification: 'Account verification is a separate service',
-                metaFees: 'WhatsApp messaging fees are not included',
-            }[type],
-        },
-    }, item);
-
-    const planFeatureList = (item) => {
-        const metadata = parseMetadata(item?.metadata) ?? {};
-
-        return [
-            limitFeature(metadata, 'campaign_limit', 'Campaigns'),
-            limitFeature(metadata, 'message_limit', 'Messages'),
-            limitFeature(metadata, 'contacts_limit', 'Contacts'),
-            limitFeature(metadata, 'canned_replies_limit', 'Canned replies'),
-            limitFeature(metadata, 'team_limit', 'Users'),
-            limitFeature(metadata, 'branches_limit', 'Branches'),
-            addonFeature(item, 'Embedded Signup'),
-            addonFeature(item, 'AI Assistant'),
-            addonFeature(item, 'Flow builder'),
-            advancedFlowBuilderFeature(metadata),
-            { label: serviceFeatureText(item, 'training'), available: true },
-            { label: serviceFeatureText(item, 'support'), available: true },
-            { label: serviceFeatureText(item, 'setup'), available: true },
-            { label: separateServiceText(item, 'verification'), available: false },
-            { label: separateServiceText(item, 'metaFees'), available: false },
-        ].filter((feature) => feature.label !== '');
-    };
+    const {
+        getPlanName,
+        planSubtitle,
+        planFeatureList,
+        formatPrice,
+        orderPlansByTier,
+    } = usePricingPlans(computed(() => props.addons));
 
     const billingPeriod = ref('monthly');
     const selectedFaq = ref(null);
@@ -465,9 +175,7 @@
         }
     };
 
-    const filteredPlans = computed(() => {
-        return props.plans.filter(plan => plan.period === billingPeriod.value);
-    });
+    const orderedPlans = computed(() => orderPlansByTier(props.plans, billingPeriod.value));
 </script>
 
 

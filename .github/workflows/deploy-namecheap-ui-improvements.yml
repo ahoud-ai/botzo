@@ -2,8 +2,6 @@ name: Deploy ui-improvements to Namecheap
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ui-improvements]
 
 jobs:
   deploy:

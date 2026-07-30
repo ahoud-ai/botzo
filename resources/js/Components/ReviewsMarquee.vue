@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 const props = defineProps({
     reviews: {
@@ -14,11 +14,48 @@ const initial = (name) => (name || "").trim().charAt(0) || "؟";
 // an exact pixel value (card width + gap) * count, not translateX(-50%) of
 // the doubled track: with a flex `gap`, the gap count doesn't split evenly
 // between "half the track" and "one real set", which leaves a half-gap
-// (8px) seam at the reset point.
-const CARD_WIDTH = 362.667;
-const CARD_GAP = 16;
+// seam at the reset point. The card width also changes across breakpoints
+// (smaller on mobile), so the distance is measured from the live DOM
+// instead of a single hardcoded desktop pixel value — otherwise the loop
+// seam reappears (a visible gap) on any viewport the constant wasn't
+// tuned for.
+const firstCardEl = ref(null);
+const measuredCardWidth = ref(362.667);
+const measuredCardGap = ref(16);
+let resizeObserver = null;
+
+const setFirstCardRef = (el) => {
+    firstCardEl.value = el;
+};
+
+const measure = () => {
+    if (!firstCardEl.value) return;
+    const width = firstCardEl.value.getBoundingClientRect().width;
+    if (width > 0) measuredCardWidth.value = width;
+
+    const track = firstCardEl.value.parentElement;
+    if (track) {
+        const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap);
+        if (!Number.isNaN(gap)) measuredCardGap.value = gap;
+    }
+};
+
+onMounted(() => {
+    measure();
+    if (firstCardEl.value && typeof ResizeObserver !== "undefined") {
+        resizeObserver = new ResizeObserver(() => measure());
+        resizeObserver.observe(firstCardEl.value);
+    }
+});
+
+onBeforeUnmount(() => {
+    resizeObserver?.disconnect();
+});
+
 const loopedReviews = computed(() => [...props.reviews, ...props.reviews]);
-const loopDistance = computed(() => `${(CARD_WIDTH + CARD_GAP) * props.reviews.length}px`);
+const loopDistance = computed(
+    () => `${(measuredCardWidth.value + measuredCardGap.value) * props.reviews.length}px`
+);
 </script>
 
 <template>
@@ -30,8 +67,9 @@ const loopDistance = computed(() => `${(CARD_WIDTH + CARD_GAP) * props.reviews.l
             <div
                 v-for="(item, index) in loopedReviews"
                 :key="index"
+                :ref="index === 0 ? setFirstCardRef : undefined"
                 :aria-hidden="index >= reviews.length ? 'true' : null"
-                class="flex w-[362.667px] shrink-0 flex-col items-end gap-4 overflow-hidden rounded-3xl border-[0.7px] border-[#cfd8e3] bg-white px-[24.7px] py-[32.7px] dark:border-[#1e2a3a] dark:bg-[#0a0f17]"
+                class="flex w-[280px] shrink-0 flex-col items-end gap-4 overflow-hidden rounded-3xl border-[0.7px] border-[#cfd8e3] bg-white px-5 py-6 dark:border-[#1e2a3a] dark:bg-[#0a0f17] sm:w-[362.667px] sm:px-[24.7px] sm:py-[32.7px]"
             >
                 <span
                     class="pointer-events-none absolute font-['Georgia',_serif] text-[120px] leading-[120px] text-black opacity-[0.04] dark:text-white"
@@ -80,10 +118,6 @@ const loopDistance = computed(() => `${(CARD_WIDTH + CARD_GAP) * props.reviews.l
     gap: 16px;
     width: max-content;
     animation: reviews-marquee-scroll 90s linear infinite;
-}
-
-.reviews-marquee:hover .reviews-marquee__track {
-    animation-play-state: paused;
 }
 
 @keyframes reviews-marquee-scroll {

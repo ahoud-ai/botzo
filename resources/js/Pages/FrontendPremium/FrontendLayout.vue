@@ -20,16 +20,8 @@
                         class="premium-brand-lockup shrink-0 origin-center transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
                         :class="isScrolled ? 'scale-[0.92]' : 'scale-100'"
                     >
-                        <template v-if="props.companyConfig && props.companyConfig.logo && props.companyConfig.company_name">
-                            <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
-                            <span class="premium-brand-lockup__text">
-                                <span class="premium-brand-lockup__name"><span>botz</span><span class="premium-brand-lockup__accent">o</span></span>
-                            </span>
-                        </template>
-                        <template v-else>
-                            <NavBrandMark class="hidden lg:block" variant="desktop" />
-                            <NavBrandMark class="lg:hidden" variant="mobile" />
-                        </template>
+                        <NavBrandMark class="hidden lg:block" variant="desktop" />
+                        <NavBrandMark class="lg:hidden" variant="mobile" />
                     </Link>
 
                     <!-- Group 2: desktop nav links -->
@@ -47,27 +39,28 @@
                                 </svg>
                             </button>
                             <transition name="dropdown">
-                                <div v-if="showResourcesDropdown" class="absolute top-full mt-2 bg-white dark:bg-[#0a0f17] border border-[#cfd8e3] dark:border-white/10 rounded-2xl shadow-2xl py-6 px-6 w-[600px] max-w-[90vw] overflow-hidden ui-dropdown-layer ui-dropdown-start">
-                                    <div class="grid grid-cols-2 gap-8">
-                                        <!-- API docs Column -->
-                                        <div>
-                                            <h3 class="text-base leading-5 font-semibold text-gray-500 dark:text-gray-400 mb-4">{{ $t('Help & Support') }}</h3>
-                                            <Link href="/api-documentation" class="group block p-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-150">
-                                                <div class="text-base leading-6 font-normal text-black dark:text-white">{{ $t('API Documentation') }}</div>
-                                                <div class="text-base leading-6 font-normal text-gray-500 dark:text-gray-400 mt-0.5">{{ $t('Integrate with our REST API') }}</div>
-                                            </Link>
-                                        </div>
-
-                                        <!-- Pages Column -->
-                                        <div v-if="props.pages && props.pages.length > 0">
-                                            <h3 class="text-base leading-5 font-semibold text-gray-500 dark:text-gray-400 mb-4">{{ $t('Pages') }}</h3>
-                                            <div class="space-y-1">
-                                                <Link v-for="page in props.pages" :key="page.id" :href="'/pages/' + (page.slug || formattedName(page.name))" class="group block p-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-150">
-                                                    <span class="text-base leading-6 font-normal text-black dark:text-white">{{ page.display_name || page.name }}</span>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div
+                                    v-if="showResourcesDropdown"
+                                    class="absolute top-full mt-2 flex w-[275px] flex-col items-end gap-2 rounded-2xl border border-[#cfd8e3] bg-white p-4 shadow-2xl dark:border-[#1a2332] dark:bg-[#0a0f17] ui-dropdown-layer ui-dropdown-start"
+                                >
+                                    <Link
+                                        v-for="item in moreDropdownLinks"
+                                        :key="item.href"
+                                        :href="item.href"
+                                        class="flex w-full items-center justify-center rounded-lg p-2 transition-colors hover:border-r hover:border-[#2bd46a] hover:bg-[rgba(37,211,102,0.12)]"
+                                    >
+                                        <span dir="auto" class="w-full flex-1 text-right text-base leading-6 text-black dark:text-white">{{ $t(item.labelKey) }}</span>
+                                    </Link>
+                                    <Link
+                                        v-if="isAuthenticated"
+                                        href="/logout"
+                                        method="post"
+                                        as="button"
+                                        type="button"
+                                        class="flex w-full items-center justify-center rounded-lg p-2 transition-colors hover:border-r hover:border-[#2bd46a] hover:bg-[rgba(37,211,102,0.12)]"
+                                    >
+                                        <span dir="auto" class="w-full flex-1 text-right text-base leading-6 text-[#f87171]">{{ $t('Logout') }}</span>
+                                    </Link>
                                 </div>
                             </transition>
                         </div>
@@ -84,8 +77,11 @@
                             </Link>
                         </template>
                         <template v-else>
-                            <Link href="/dashboard" class="hidden lg:inline-flex h-11 items-center justify-center rounded-xl bg-[#25d366] text-[#04130a] font-semibold text-base leading-5 px-8 hover:brightness-95 transition">
-                                {{ $t('Go to Dashboard') }}
+                            <Link href="/dashboard" class="hidden shrink-0 overflow-hidden rounded-full lg:inline-flex lg:h-11 lg:w-11">
+                                <img v-if="authUser && authUser.avatar" :src="'/media/' + authUser.avatar" class="h-full w-full object-cover" alt="">
+                                <span v-else class="flex h-full w-full items-center justify-center bg-[#25d366] text-[#04130a]">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="6" r="4"/><path stroke-linecap="round" d="M19.998 18c.002-.164.002-.331.002-.5c0-2.485-3.582-4.5-8-4.5s-8 2.015-8 4.5S4 22 12 22c2.231 0 3.84-.157 5-.437"/></g></svg>
+                                </span>
                             </Link>
                         </template>
 
@@ -319,6 +315,8 @@
         }
     });
 
+    const authUser = computed(() => page.props.auth?.user ?? null);
+
     const linkedinUrl = ref(null);
     const isScrolled = ref(false);
     const showResourcesDropdown = ref(false);
@@ -348,9 +346,17 @@
 
     const whatsappSocialLink = computed(() => props.companyConfig?.book_a_demo_link || null);
 
+    const moreDropdownLinks = [
+        { labelKey: 'WhatsApp Account Verification', href: '/meta-verification' },
+        { labelKey: 'Privacy Policy', href: '/privacy' },
+        { labelKey: 'Terms of Use', href: '/terms-of-service' },
+        { labelKey: 'Delete User Data', href: '/contact' },
+        { labelKey: 'API Documentation', href: '/api-documentation' },
+    ];
+
     const footerMoreLinks = [
         { labelKey: 'Privacy Policy', href: '/privacy' },
-        { labelKey: 'WhatsApp Account Verification', href: '/contact' },
+        { labelKey: 'WhatsApp Account Verification', href: '/meta-verification' },
         { labelKey: 'Terms of Use', href: '/terms-of-service' },
         { labelKey: 'Delete User Data', href: '/contact' },
         { labelKey: 'API Documentation', href: '/api-documentation' },
