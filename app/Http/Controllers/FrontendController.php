@@ -96,6 +96,13 @@ class FrontendController extends BaseController
         ]);
     }
 
+    public function metaVerification(Request $request)
+    {
+        return Inertia::render($this->resolveFrontendComponent('MetaVerification'), [
+            ...$this->basePublicData(),
+        ]);
+    }
+
     public function contact(Request $request)
     {
         if ($request->isMethod('post')) {

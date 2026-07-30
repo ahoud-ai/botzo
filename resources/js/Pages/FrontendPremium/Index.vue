@@ -247,6 +247,35 @@
       </div>
     </section>
 
+    <PricingSection :plans="props.plans" :addons="props.addons" :currency="props.currency" />
+
+    <!-- Meta Business Verification Section -->
+    <section
+      id="meta-verification"
+      v-reveal
+      class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20"
+    >
+      <div class="flex w-full flex-col items-center gap-6 overflow-hidden rounded-3xl bg-[rgba(37,211,102,0.12)] px-6 py-12 text-center md:px-10 lg:px-20 lg:py-20">
+        <div class="flex w-full flex-col items-center gap-4 lg:w-[1120px] lg:gap-4">
+          <SectionBadge :label="$t('Independent Service')" />
+          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
+            {{ $t("Meta business account verification") }}
+          </h2>
+          <p class="w-full text-base leading-6 text-[#8899aa] lg:text-[24px] lg:leading-9">
+            {{ $t("We prepare and follow up your Meta business verification request professionally") }}
+          </p>
+        </div>
+        <Link
+          href="/meta-verification"
+          class="flex h-[54px] w-[185px] shrink-0 items-center justify-center gap-2 rounded-2xl px-8 transition-transform duration-200 hover:scale-[1.03]"
+          style="background-image: linear-gradient(131deg, #25d366 0%, #1db954 100%)"
+        >
+          <span class="whitespace-nowrap text-base font-semibold leading-5 text-[#04130a]">{{ $t('Learn More') }}</span>
+          <img src="/images/hero/arrow.svg" class="h-4 w-4 shrink-0 rotate-180 rtl:rotate-0" alt="" aria-hidden="true" />
+        </Link>
+      </div>
+    </section>
+
     <!-- Contact Us Section -->
     <section
       id="contact-cta"
@@ -286,6 +315,7 @@ import HowItWorksStepLayout from "@/Components/HowItWorksStepLayout.vue";
 import HowItWorksStepLayoutMobile from "@/Components/HowItWorksStepLayoutMobile.vue";
 import SuccessStoryEvidence from "@/Components/SuccessStoryEvidence.vue";
 import ReviewsMarquee from "@/Components/ReviewsMarquee.vue";
+import PricingSection from "@/Components/PricingSection.vue";
 
 const props = defineProps([
   "addons",

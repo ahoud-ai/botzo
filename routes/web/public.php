@@ -75,6 +75,7 @@ Route::get('/translations/{locale}', function ($locale) {
 
 Route::match(['get', 'post'], '/', [App\Http\Controllers\FrontendController::class, 'index']);
 Route::match(['get', 'post'], '/pricing', [App\Http\Controllers\FrontendController::class, 'pricing']);
+Route::match(['get', 'post'], '/meta-verification', [App\Http\Controllers\FrontendController::class, 'metaVerification']);
 Route::match(['get', 'post'], '/contact', [App\Http\Controllers\FrontendController::class, 'contact']);
 Route::match(['get', 'post'], '/product', [App\Http\Controllers\FrontendController::class, 'product']);
 Route::match(['get', 'post'], '/api-documentation', [App\Http\Controllers\FrontendController::class, 'apiDocumentation']);
