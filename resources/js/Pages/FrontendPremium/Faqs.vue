@@ -1,148 +1,85 @@
 <template>
     <FrontendLayout :companyConfig="props.companyConfig" :pages="props.pages">
-        <!-- Hero Section -->
-        <section class="premium-page-section premium-page-hero px-5 md:px-10 lg:px-20 pt-32 pb-10 2xl:px-60">
-            <div class="premium-page-hero-grid"></div>
-            <div class="premium-page-content max-w-4xl mx-auto text-center">
-                <div class="inline-flex mb-5 premium-page-badge">{{ $t('FAQs') }}</div>
-                <h1 class="text-3xl md:text-6xl leading-[1.3] font-semibold mb-6 text-gray-900">
-                    {{ $t('Frequently Asked') }}<br>{{ $t('Questions') }}
-                </h1>
-                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                    {{ $t('Find answers to common questions about our platform, features, and how to get started') }}
-                </p>
+        <!-- Hero -->
+        <section class="px-5 md:px-10 lg:px-20 2xl:px-60 pt-32 pb-8 bg-white dark:bg-[#0a0f17]">
+            <div class="flex flex-col items-center gap-4 lg:gap-6">
+                <PageBreadcrumb :current-label="$t('FAQs')" />
+
+                <div class="flex w-full flex-col items-center gap-3 text-center lg:w-[1120px] lg:gap-4">
+                    <SectionBadge :label="$t('FAQs')" />
+                    <h1 class="w-full text-[28px] font-semibold leading-[1.3] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
+                        {{ $t('Everything you want to know') }}
+                    </h1>
+                    <p dir="auto" class="w-full text-base leading-6 text-[#8899aa] lg:text-[24px] lg:leading-9">
+                        {{ $t('Find answers to common questions about our platform, features, and how to get started') }}
+                    </p>
+                </div>
             </div>
         </section>
 
-        <!-- FAQs Section -->
-        <section class="premium-page-section px-5 md:px-10 lg:px-20 py-20 2xl:px-60" v-if="props.faqs && props.faqs.data && props.faqs.data.length > 0">
-            <div class="premium-page-content max-w-4xl mx-auto">
-                <div class="space-y-4">
-                    <div 
-                        v-for="(item, index) in props.faqs.data" 
-                        :key="index" 
-                        class="premium-page-panel overflow-hidden transition-all duration-300"
-                        :class="selectedFaq === index+1 ? 'shadow-lg' : 'hover:shadow-md'"
-                    >
-                        <button type="button" 
-                            @click="selectedFaq = selectedFaq === index+1 ? null : index+1" 
-                            class="w-full inline-flex p-6 md:p-8 items-start justify-between text-start transition-colors hover:bg-gray-50"
-                        >
-                            <div class="flex-1 pe-4">
-                                <h3 class="text-lg font-semibold text-gray-900" v-html="item.question"></h3>
-                            </div>
-                            <div class="flex-shrink-0 ms-4">
-                                <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center transition-transform duration-300"
-                                     :class="selectedFaq === index+1 ? 'bg-primary-opacity-10 rotate-180' : ''">
-                                    <svg class="w-5 h-5 text-gray-600 transition-colors" 
-                                         :class="selectedFaq === index+1 ? 'text-primary' : ''"
-                                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                </div>
-                            </div>
-                        </button>
-                        <div 
-                            class="w-full overflow-hidden transition-all duration-300"
-                            :class="selectedFaq === index+1 ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'"
-                        >
-                            <div class="px-6 md:px-8 pb-6 md:pb-8">
-                                <div class="ui-border-start ui-border-start-2 border-gray-200 ps-6">
-                                    <div class="text-gray-600 leading-relaxed prose prose-sm max-w-none" v-html="item.answer"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <!-- FAQ list -->
+        <section v-if="props.faqs && props.faqs.data && props.faqs.data.length > 0" class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
+            <div class="flex flex-col items-center gap-10 lg:gap-[72px]">
+                <div class="w-full lg:w-[760px]">
+                    <FaqAccordion :items="props.faqs.data" />
                 </div>
 
-                <!-- Contact CTA -->
-                <div class="mt-16 text-center">
-                    <div class="premium-page-panel p-8">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $t('Still have questions?') }}</h3>
-                        <p class="text-gray-600 mb-6">{{ $t('Can\'t find the answer you\'re looking for? Our support team is here to help.') }}</p>
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link 
-                                href="/contact" 
-                                class="px-6 py-3 bg-primary hover:bg-secondary text-white rounded-lg text-sm font-medium transition-colors"
-                            >
-                                {{ $t('Contact Us') }}
-                            </Link>
-                            <a 
-                                :href="'mailto:' + props.companyConfig.email" 
-                                class="px-6 py-3 border border-gray-300 hover:border-primary text-gray-700 hover:text-primary rounded-lg text-sm font-medium transition-colors bg-white"
-                            >
-                                {{ $t('Send Email') }}
-                            </a>
-                        </div>
+                <!-- Still have questions CTA -->
+                <div class="flex w-full flex-col items-center gap-6 overflow-hidden rounded-3xl bg-[rgba(37,211,102,0.12)] px-6 py-12 text-center md:px-10 lg:w-[1120px] lg:py-16">
+                    <div class="flex w-full flex-col items-center gap-3">
+                        <h2 class="w-full text-xl font-semibold text-black dark:text-white lg:text-[32px]">{{ $t('Still have questions?') }}</h2>
+                        <p dir="auto" class="w-full max-w-[520px] text-sm leading-6 text-[#8899aa] lg:text-base">
+                            {{ $t("Can't find the answer you're looking for? Our support team is here to help.") }}
+                        </p>
+                    </div>
+                    <div class="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row" dir="ltr">
+                        <Link
+                            href="/contact"
+                            class="flex h-[54px] w-full items-center justify-center rounded-2xl px-8 transition-transform duration-200 hover:scale-[1.03] sm:w-[200px]"
+                            style="background-image: linear-gradient(135.79deg, #25d366 0%, #1db954 100%)"
+                        >
+                            <span dir="auto" class="whitespace-nowrap text-base font-semibold leading-5 text-[#04130a]">{{ $t('Contact Us') }}</span>
+                        </Link>
+                        <a
+                            v-if="props.companyConfig && props.companyConfig.email"
+                            :href="'mailto:' + props.companyConfig.email"
+                            class="flex h-[54px] w-full items-center justify-center rounded-2xl border border-[#1a2332] px-8 transition-colors hover:border-[#25d366] dark:border-white sm:w-[200px]"
+                        >
+                            <span dir="auto" class="whitespace-nowrap text-base font-semibold leading-5 text-black dark:text-white">{{ $t('Send Email') }}</span>
+                        </a>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Empty State -->
-        <section class="premium-page-section px-5 md:px-10 lg:px-20 py-20 2xl:px-60" v-else>
-            <div class="premium-page-content max-w-4xl mx-auto text-center">
-                <div class="premium-page-panel p-12">
-                    <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                    </svg>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ $t('No FAQs Available') }}</h3>
-                    <p class="text-gray-600 mb-6">{{ $t('We\'re currently updating our FAQ section. Please contact us if you have any questions.') }}</p>
-                    <Link href="/contact" class="inline-block px-6 py-3 bg-primary hover:bg-secondary text-white rounded-lg text-sm font-medium transition-colors">
-                        {{ $t('Contact Us') }}
-                    </Link>
-                </div>
+        <!-- Empty state -->
+        <section v-else class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
+            <div class="mx-auto flex w-full flex-col items-center gap-4 rounded-3xl border border-[#cfd8e3] bg-white p-12 text-center dark:border-[#1e2a3a] dark:bg-[#0a0f17] lg:w-[760px]">
+                <svg class="h-12 w-12 text-[#8899aa]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <h3 dir="auto" class="text-xl font-semibold text-black dark:text-white">{{ $t('No FAQs Available') }}</h3>
+                <p dir="auto" class="text-sm leading-6 text-[#8899aa]">{{ $t("We're currently updating our FAQ section. Please contact us if you have any questions.") }}</p>
+                <Link
+                    href="/contact"
+                    class="flex h-12 items-center justify-center rounded-2xl px-8 transition-transform duration-200 hover:scale-[1.03]"
+                    style="background-image: linear-gradient(135.79deg, #25d366 0%, #1db954 100%)"
+                >
+                    <span dir="auto" class="whitespace-nowrap text-sm font-semibold text-[#04130a]">{{ $t('Contact Us') }}</span>
+                </Link>
             </div>
         </section>
     </FrontendLayout>
 </template>
 
 <script setup>
-    import { ref } from 'vue';
     import { Link } from '@inertiajs/vue3';
     import FrontendLayout from './FrontendLayout.vue';
+    import SectionBadge from '@/Components/SectionBadge.vue';
+    import PageBreadcrumb from '@/Components/PageBreadcrumb.vue';
+    import FaqAccordion from '@/Components/FaqAccordion.vue';
 
     const props = defineProps(['companyConfig', 'pages', 'faqs']);
-    const selectedFaq = ref(null);
 </script>
-
-<style scoped>
-:deep(.prose) {
-    max-width: none;
-}
-
-:deep(.prose p) {
-    margin-top: 0.75rem;
-    margin-bottom: 0.75rem;
-    line-height: 1.7;
-}
-
-:deep(.prose ul),
-:deep(.prose ol) {
-    margin-top: 0.75rem;
-    margin-bottom: 0.75rem;
-    padding-left: 1.5rem;
-}
-
-:deep(.prose li) {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-:deep(.prose strong) {
-    font-weight: 600;
-    color: var(--ui-text);
-}
-
-:deep(.prose a) {
-    color: var(--ui-primary);
-    text-decoration: underline;
-}
-
-:deep(.prose a:hover) {
-    color: var(--ui-secondary);
-}
-</style>
-

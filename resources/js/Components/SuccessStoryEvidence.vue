@@ -1,6 +1,9 @@
 <script setup>
 const statBoxBase =
     "flex flex-col items-center justify-center gap-0 rounded-2xl bg-white p-[17px] text-center dark:bg-[#0a0f17]";
+
+const beforeReplyRate = 13;
+const afterReplyRate = 94;
 </script>
 
 <template>
@@ -20,25 +23,25 @@ const statBoxBase =
                     <p class="text-sm leading-6 text-[#8899aa]">{{ $t('Sales increase') }}</p>
                 </div>
                 <div class="col-start-3 border border-[#e6edf3] dark:border-[#1a2332]" :class="statBoxBase">
-                    <p class="text-2xl font-semibold leading-[1.4] text-[#2bd46a] lg:text-[40px]">{{ $t('94%') }}</p>
+                    <p class="text-2xl font-semibold leading-[1.4] text-[#2bd46a] lg:text-[40px]">{{ afterReplyRate }}%</p>
                     <p class="text-sm leading-6 text-[#8899aa]">{{ $t('Reply rate') }}</p>
                 </div>
             </div>
 
             <div class="flex w-full flex-col gap-4 rounded-2xl border border-[#cfd8e3] bg-white p-[21px] dark:border-[#1e2a3a] dark:bg-[#0a0f17]">
                 <div class="flex w-full items-center gap-3" dir="ltr">
-                    <span class="w-[38px] shrink-0 text-sm leading-6 text-[#8899aa]">{{ $t('13%') }}</span>
-                    <span class="relative h-3 flex-1 overflow-hidden rounded-lg bg-[#25d366]">
-                        <span class="absolute inset-y-0 right-0 rounded-lg bg-[#2bd46a]" style="left: 69%"></span>
+                    <span class="w-[38px] shrink-0 text-sm leading-6 text-[#8899aa]">{{ beforeReplyRate }}%</span>
+                    <span class="relative h-3 flex-1 overflow-hidden rounded-lg bg-[#e6edf3] dark:bg-[#1a2332]">
+                        <span class="absolute inset-y-0 right-0 rounded-lg bg-[#2bd46a]" :style="{ left: (100 - beforeReplyRate) + '%' }"></span>
                     </span>
                     <span class="w-12 shrink-0 text-right text-sm leading-6 text-[#8899aa]">{{ $t('Before') }}</span>
                 </div>
                 <div class="flex w-full items-center gap-3" dir="ltr">
-                    <span class="w-[38px] shrink-0 text-sm leading-6 text-[#8899aa]">{{ $t('94%') }}</span>
-                    <span class="relative h-3 flex-1 overflow-hidden rounded-lg bg-[#25d366]">
+                    <span class="w-[38px] shrink-0 text-sm leading-6 text-[#8899aa]">{{ afterReplyRate }}%</span>
+                    <span class="relative h-3 flex-1 overflow-hidden rounded-lg bg-[#e6edf3] dark:bg-[#1a2332]">
                         <span
                             class="absolute inset-y-0 right-0 rounded-lg bg-[#2bd46a] shadow-[0px_0px_16px_0px_rgba(37,211,102,0.4)]"
-                            style="left: 6%"
+                            :style="{ left: (100 - afterReplyRate) + '%' }"
                         ></span>
                     </span>
                     <span class="w-12 shrink-0 text-right text-sm leading-6 text-[#8899aa]">{{ $t('After') }}</span>
