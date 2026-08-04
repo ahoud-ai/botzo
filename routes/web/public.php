@@ -77,6 +77,7 @@ Route::match(['get', 'post'], '/', [App\Http\Controllers\FrontendController::cla
 Route::match(['get', 'post'], '/pricing', [App\Http\Controllers\FrontendController::class, 'pricing']);
 Route::match(['get', 'post'], '/meta-verification', [App\Http\Controllers\FrontendController::class, 'metaVerification']);
 Route::match(['get', 'post'], '/contact', [App\Http\Controllers\FrontendController::class, 'contact']);
+Route::post('/demo-requests', [App\Http\Controllers\FrontendController::class, 'storeDemoRequest'])->name('demo-requests.store');
 Route::match(['get', 'post'], '/product', [App\Http\Controllers\FrontendController::class, 'product']);
 Route::match(['get', 'post'], '/api-documentation', [App\Http\Controllers\FrontendController::class, 'apiDocumentation']);
 Route::match(['get', 'post'], '/faqs', [App\Http\Controllers\FrontendController::class, 'faqs']);

@@ -115,6 +115,16 @@ class FrontendController extends BaseController
         return Inertia::render($this->resolveFrontendComponent('Contact'), $this->basePublicData());
     }
 
+    public function storeDemoRequest(\App\Http\Requests\StoreDemoRequest $request)
+    {
+        \App\Models\DemoRequest::create($request->validated());
+
+        return Redirect::back()->with('status', [
+            'type' => 'success',
+            'message' => __('Your request has been received. The team will contact you soon.'),
+        ]);
+    }
+
     public function product(Request $request)
     {
         $component = $this->resolveFrontendComponent('Product');

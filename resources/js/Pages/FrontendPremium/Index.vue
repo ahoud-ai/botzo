@@ -16,32 +16,23 @@
             </p>
           </div>
 
-          <a
-            v-if="props.companyConfig && props.companyConfig.book_a_demo_link"
-            :href="props.companyConfig.book_a_demo_link"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="flex h-[54px] w-[246px] shrink-0 items-center justify-center gap-2 rounded-2xl px-8"
+          <button
+            type="button"
+            class="flex h-[54px] w-[246px] shrink-0 items-center justify-center gap-2 rounded-2xl px-8 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.04] hover:shadow-[0_12px_30px_-8px_rgba(37,211,102,0.55)] active:scale-[0.98]"
             style="background-image: linear-gradient(139deg, #25d366 0%, #1db954 100%)"
+            @click="showBookDemoModal = true"
           >
             <span class="whitespace-nowrap text-base font-semibold leading-5 text-[#04130a]">{{ $t("Book a demo") }}</span>
             <img src="/images/hero/arrow.svg" class="h-4 w-4 shrink-0 rotate-180 rtl:rotate-0" alt="" aria-hidden="true" />
-          </a>
-          <Link
-            v-else
-            href="/contact"
-            class="flex h-[54px] w-[246px] shrink-0 items-center justify-center gap-2 rounded-2xl px-8"
-            style="background-image: linear-gradient(139deg, #25d366 0%, #1db954 100%)"
-          >
-            <span class="whitespace-nowrap text-base font-semibold leading-5 text-[#04130a]">{{ $t("Book a demo") }}</span>
-            <img src="/images/hero/arrow.svg" class="h-4 w-4 shrink-0 rotate-180 rtl:rotate-0" alt="" aria-hidden="true" />
-          </Link>
+          </button>
         </div>
 
         <!-- Overview illustration: Figma only designs this for desktop/tablet; the mobile Hero frame is CTA-only -->
         <HeroChatDemo />
       </div>
     </section>
+
+    <BookDemoModal :is-open="showBookDemoModal" @close="showBookDemoModal = false" />
 
     <section
       id="section2"
@@ -276,6 +267,33 @@
       </div>
     </section>
 
+    <!-- FAQs Section -->
+    <section
+      v-if="homeFaqs.length > 0"
+      id="faqs"
+      v-reveal
+      class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20"
+    >
+      <div class="flex flex-col items-center gap-8 lg:gap-[72px]">
+        <div class="flex w-full flex-col items-center gap-3 text-center lg:gap-4">
+          <SectionBadge :label="$t('FAQs')" />
+          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:w-[1120px] lg:text-[46px] lg:leading-[56px]">
+            {{ $t('Everything you want to know') }}
+          </h2>
+        </div>
+        <div class="flex w-full flex-col items-center gap-6 lg:w-[760px]">
+          <FaqAccordion :items="homeFaqs" />
+          <Link
+            v-if="hasMoreFaqs"
+            href="/faqs"
+            class="flex h-12 shrink-0 items-center justify-center rounded-2xl border border-[#1a2332] px-8 transition-colors hover:border-[#25d366] dark:border-white"
+          >
+            <span class="whitespace-nowrap text-sm font-semibold text-black dark:text-white">{{ $t('View all FAQs') }}</span>
+          </Link>
+        </div>
+      </div>
+    </section>
+
     <!-- Contact Us Section -->
     <section
       id="contact-cta"
@@ -316,6 +334,10 @@ import HowItWorksStepLayoutMobile from "@/Components/HowItWorksStepLayoutMobile.
 import SuccessStoryEvidence from "@/Components/SuccessStoryEvidence.vue";
 import ReviewsMarquee from "@/Components/ReviewsMarquee.vue";
 import PricingSection from "@/Components/PricingSection.vue";
+import BookDemoModal from "@/Components/BookDemoModal.vue";
+import FaqAccordion from "@/Components/FaqAccordion.vue";
+
+const showBookDemoModal = ref(false);
 
 const props = defineProps([
   "addons",
@@ -390,6 +412,9 @@ const filteredAddons = (item) => {
     return acc;
   }, {});
 };
+
+const homeFaqs = computed(() => (props.faqs?.data ?? []).slice(0, 6));
+const hasMoreFaqs = computed(() => (props.faqs?.data?.length ?? 0) > 6);
 
 const formattedName = computed(() => {
   return (value) => {

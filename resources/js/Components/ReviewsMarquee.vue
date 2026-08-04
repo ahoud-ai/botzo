@@ -155,10 +155,4 @@ const loopDistance = computed(
 .dark .reviews-marquee__fade--end {
     background: linear-gradient(to left, #0a0f17, transparent);
 }
-
-@media (prefers-reduced-motion: reduce) {
-    .reviews-marquee__track {
-        animation: none;
-    }
-}
 </style>
