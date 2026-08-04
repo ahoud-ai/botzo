@@ -172,9 +172,19 @@ class FrontendController extends BaseController
     {
         return $this->renderLegalPage(
             $request,
-            ['terms-of-service', 'terms', 'terms-and-conditions'],
+            ['terms-of-service', 'terms-of-use', 'terms', 'terms-and-conditions'],
             __('Terms of Service'),
             $this->fallbackTermsOfServiceContent()
+        );
+    }
+
+    public function deleteUserData(Request $request)
+    {
+        return $this->renderLegalPage(
+            $request,
+            ['delete-user-data', 'user-data-deletion', 'delete-account'],
+            __('Delete User Data'),
+            $this->fallbackDeleteUserDataContent()
         );
     }
 
@@ -256,6 +266,27 @@ class FrontendController extends BaseController
             '<p>You must not use the service for spam, abusive messaging, unlawful content, or activity that could harm the platform or users.</p>',
             '<h2>Contact</h2>',
             '<p>If you have questions about these terms, please contact us through the contact page.</p>',
+        ]);
+    }
+
+    private function fallbackDeleteUserDataContent(): string
+    {
+        if (app()->getLocale() === 'ar') {
+            return implode('', [
+                '<p>توضح هذه الصفحة كيفية طلب حذف بياناتك الشخصية من المنصة.</p>',
+                '<h2>كيف تطلب حذف بياناتك</h2>',
+                '<p>يمكنك طلب حذف بياناتك الشخصية في أي وقت من خلال التواصل معنا من صفحة التواصل.</p>',
+                '<h2>مدة تنفيذ الطلب</h2>',
+                '<p>نسعى لمعالجة طلبات حذف البيانات خلال مدة معقولة من تاريخ استلام الطلب المكتمل.</p>',
+            ]);
+        }
+
+        return implode('', [
+            '<p>This page explains how to request deletion of your personal data from the platform.</p>',
+            '<h2>How to request deletion</h2>',
+            '<p>You can request deletion of your personal data at any time by reaching out to us through the contact page.</p>',
+            '<h2>Processing time</h2>',
+            '<p>We aim to process data deletion requests within a reasonable time of receiving a complete request.</p>',
         ]);
     }
 
