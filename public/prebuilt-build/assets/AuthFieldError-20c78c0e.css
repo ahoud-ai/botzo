@@ -1,0 +1,10 @@
+
+.field-error-enter-active[data-v-4cac954f],
+    .field-error-leave-active[data-v-4cac954f] {
+        transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.field-error-enter-from[data-v-4cac954f],
+    .field-error-leave-to[data-v-4cac954f] {
+        opacity: 0;
+        transform: translateY(-4px);
+}
