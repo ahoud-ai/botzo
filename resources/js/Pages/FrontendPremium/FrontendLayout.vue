@@ -354,7 +354,7 @@
     // and linking to /pages/{slug} sidesteps that guessing entirely, and
     // works for pages (like Delete User Data) that have no dedicated route.
     const resolvePageHref = (candidateNames, fallbackHref) => {
-        const pages = props.pages?.data || [];
+        const pages = props.pages || [];
         const match = pages.find((page) => candidateNames.some(
             (candidate) => candidate.toLowerCase() === (page.name || '').toLowerCase()
         ));
