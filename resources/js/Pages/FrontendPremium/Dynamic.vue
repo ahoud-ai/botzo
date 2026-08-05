@@ -6,7 +6,7 @@
                     <PageBreadcrumb :current-label="pageTitle" />
                 </div>
 
-                <div v-if="!hasSections" class="flex w-full flex-col items-center gap-4 text-center lg:w-[1120px]">
+                <div class="flex w-full flex-col items-center gap-4 text-center lg:w-[1120px]">
                     <SectionBadge :label="pageTitle" />
                     <h1 class="w-full text-[28px] font-semibold leading-[1.3] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
                         {{ pageTitle }}
