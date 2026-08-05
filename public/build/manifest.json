@@ -27,11 +27,11 @@
       "_app-core-143f2c53.js"
     ]
   },
-  "_App-d08e08d7.js": {
+  "_App-a87a2f5a.js": {
     "css": [
       "assets/App-25d4210d.css"
     ],
-    "file": "assets/App-d08e08d7.js",
+    "file": "assets/App-a87a2f5a.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
@@ -43,15 +43,15 @@
     ],
     "isDynamicEntry": true
   },
-  "_AuthFieldError-934c2b20.js": {
+  "_AuthFieldError-971279c2.js": {
     "css": [
       "assets/AuthFieldError-20c78c0e.css"
     ],
-    "file": "assets/AuthFieldError-934c2b20.js",
+    "file": "assets/AuthFieldError-971279c2.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "_useRtl-cec3e586.js",
       "__plugin-vue_export-helper-c27b6911.js",
       "_icon-libs-ea6796ad.js"
@@ -65,13 +65,13 @@
       "_app-core-143f2c53.js"
     ]
   },
-  "_CampaignForm-ee783f5d.js": {
-    "file": "assets/CampaignForm-ee783f5d.js",
+  "_CampaignForm-5f3d3a93.js": {
+    "file": "assets/CampaignForm-5f3d3a93.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_vendor-axios-853f16bf.js",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_WhatsappTemplate-2e35511f.js",
       "_ui-vue-libs-d01ab2ad.js"
     ]
@@ -84,15 +84,15 @@
       "_DropdownItem-946e9bc5.js"
     ]
   },
-  "_ContactTable-1abbc163.js": {
-    "file": "assets/ContactTable-1abbc163.js",
+  "_ContactTable-e67c37a5.js": {
+    "file": "assets/ContactTable-e67c37a5.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_utility-libs-5fae0405.js",
       "_Modal-c14e100c.js",
       "_Dropdown-7b025129.js",
       "_DropdownItem-946e9bc5.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_Pagination-e8cbe2d8.js"
     ]
   },
@@ -160,14 +160,14 @@
       "_app-core-143f2c53.js"
     ]
   },
-  "_FormModalModified-7c558e38.js": {
-    "file": "assets/FormModalModified-7c558e38.js",
+  "_FormModalModified-6b26f806.js": {
+    "file": "assets/FormModalModified-6b26f806.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_Modal-c14e100c.js",
       "_FormInput-a34dc57d.js",
       "_FormImage-00ddfc2f.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormTextArea-8894a037.js"
     ]
   },
@@ -208,12 +208,12 @@
       "_app-core-143f2c53.js"
     ]
   },
-  "_Menu-18d6aa36.js": {
-    "file": "assets/Menu-18d6aa36.js",
+  "_Menu-a5cea5c9.js": {
+    "file": "assets/Menu-a5cea5c9.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_Modal-c14e100c.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_OrganizationModal-362c4738.js",
       "_LangToggle-647d18cd.js"
     ],
@@ -264,8 +264,8 @@
       "_app-core-143f2c53.js"
     ]
   },
-  "_ProfileModal-278cb039.js": {
-    "file": "assets/ProfileModal-278cb039.js",
+  "_ProfileModal-75e6515c.js": {
+    "file": "assets/ProfileModal-75e6515c.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_FormInput-a34dc57d.js",
@@ -302,8 +302,8 @@
       "_app-core-143f2c53.js"
     ]
   },
-  "_ThemeToggle-3b7f7afe.js": {
-    "file": "assets/ThemeToggle-3b7f7afe.js",
+  "_ThemeToggle-40fd216b.js": {
+    "file": "assets/ThemeToggle-40fd216b.js",
     "imports": [
       "resources/js/app.js",
       "_app-core-143f2c53.js"
@@ -653,7 +653,7 @@
     "src": "flow-builder-core.css"
   },
   "modules/IntelliReply/Pages/User/Index.vue": {
-    "file": "assets/Index-476ce314.js",
+    "file": "assets/Index-45f6836e.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/User/Automation/Layout.vue",
@@ -666,7 +666,7 @@
       "_Dropdown-7b025129.js",
       "_FormInput-a34dc57d.js",
       "_Modal-c14e100c.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormTextArea-8894a037.js",
       "_FormToggleSwitch-9dfe1ec8.js",
       "_Pagination-e8cbe2d8.js",
@@ -694,9 +694,9 @@
       "_vendor-nprogress-ba723e9f.js",
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_OrganizationModal-362c4738.js",
       "_LangToggle-647d18cd.js",
       "_overlay-libs-c9d83549.js",
@@ -834,14 +834,14 @@
     "src": "resources/images/whatsapp-bg-02.png"
   },
   "resources/js/Pages/Admin/Billing/InvoiceShow.vue": {
-    "file": "assets/InvoiceShow-dbd8b583.js",
+    "file": "assets/InvoiceShow-756fe20d.js",
     "imports": [
       "resources/js/Pages/Admin/Layout/App.vue",
       "_InvoiceDetailsShell-1f94eed4.js",
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -883,7 +883,7 @@
     "src": "resources/js/Pages/Admin/Billing/InvoiceShow.vue"
   },
   "resources/js/Pages/Admin/Customer/Index.vue": {
-    "file": "assets/Index-db148fad.js",
+    "file": "assets/Index-0751d9d4.js",
     "imports": [
       "resources/js/Pages/Admin/Layout/App.vue",
       "_app-core-143f2c53.js",
@@ -891,7 +891,7 @@
       "_useAdminPermission-2d9c5a80.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -941,7 +941,7 @@
     "src": "resources/js/Pages/Admin/Customer/Index.vue"
   },
   "resources/js/Pages/Admin/Customer/Show.vue": {
-    "file": "assets/Show-36da8c78.js",
+    "file": "assets/Show-8a382f63.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
@@ -976,7 +976,7 @@
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "resources/js/app.js",
       "_overlay-libs-c9d83549.js",
       "_icon-libs-ea6796ad.js",
@@ -1009,7 +1009,7 @@
     "css": [
       "assets/Dashboard-17ba1127.css"
     ],
-    "file": "assets/Dashboard-61fdf152.js",
+    "file": "assets/Dashboard-b0e52095.js",
     "imports": [
       "resources/js/Pages/Admin/Layout/App.vue",
       "_app-core-143f2c53.js",
@@ -1017,7 +1017,7 @@
       "_icon-libs-ea6796ad.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -1057,7 +1057,7 @@
     "src": "resources/js/Pages/Admin/Dashboard.vue"
   },
   "resources/js/Pages/Admin/Faq/Index.vue": {
-    "file": "assets/Index-3c8b8df2.js",
+    "file": "assets/Index-ef039cc3.js",
     "imports": [
       "resources/js/Pages/Admin/Layout/App.vue",
       "_app-core-143f2c53.js",
@@ -1072,7 +1072,7 @@
       "_useAdminPermission-2d9c5a80.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -1114,12 +1114,12 @@
     "src": "resources/js/Pages/Admin/Faq/Index.vue"
   },
   "resources/js/Pages/Admin/Faq/Show.vue": {
-    "file": "assets/Show-f3bbebe9.js",
+    "file": "assets/Show-d951a814.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
       "_FormTextArea-8894a037.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
       "_vendor-qs-4471066a.js",
@@ -1163,7 +1163,7 @@
     "src": "resources/js/Pages/Admin/Faq/Show.vue"
   },
   "resources/js/Pages/Admin/Layout/App.vue": {
-    "file": "assets/App-03e6ffe7.js",
+    "file": "assets/App-4979f06d.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
@@ -1195,7 +1195,7 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -1217,10 +1217,10 @@
     "css": [
       "assets/Menu-918125ea.css"
     ],
-    "file": "assets/Menu-d19e4bb2.js",
+    "file": "assets/Menu-601e0d11.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_useAdminPermission-2d9c5a80.js",
       "__plugin-vue_export-helper-c27b6911.js",
       "_icon-libs-ea6796ad.js",
@@ -1258,7 +1258,7 @@
     "src": "resources/js/Pages/Admin/Layout/Menu.vue"
   },
   "resources/js/Pages/Admin/Layout/MobileSidebar.vue": {
-    "file": "assets/MobileSidebar-00603c9b.js",
+    "file": "assets/MobileSidebar-565f2c4d.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_useRtl-cec3e586.js",
@@ -1288,7 +1288,7 @@
       "_vendor-nprogress-ba723e9f.js",
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -1301,11 +1301,11 @@
     "src": "resources/js/Pages/Admin/Layout/MobileSidebar.vue"
   },
   "resources/js/Pages/Admin/Layout/Sidebar.vue": {
-    "file": "assets/Sidebar-443d41db.js",
+    "file": "assets/Sidebar-c08ee5b0.js",
     "imports": [
       "resources/js/Pages/Admin/Layout/Menu.vue",
       "_app-core-143f2c53.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -1343,13 +1343,13 @@
     "src": "resources/js/Pages/Admin/Layout/Sidebar.vue"
   },
   "resources/js/Pages/Admin/Organization/Create.vue": {
-    "file": "assets/Create-caf019a4.js",
+    "file": "assets/Create-2b3fb946.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
       "_vendor-qs-4471066a.js",
@@ -1391,7 +1391,7 @@
     "src": "resources/js/Pages/Admin/Organization/Create.vue"
   },
   "resources/js/Pages/Admin/Organization/Index.vue": {
-    "file": "assets/Index-d95e42a8.js",
+    "file": "assets/Index-3da751b1.js",
     "imports": [
       "resources/js/Pages/Admin/Layout/App.vue",
       "_app-core-143f2c53.js",
@@ -1401,7 +1401,7 @@
       "_useAdminPermission-2d9c5a80.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -1452,13 +1452,13 @@
     "src": "resources/js/Pages/Admin/Organization/Index.vue"
   },
   "resources/js/Pages/Admin/Organization/Show.vue": {
-    "file": "assets/Show-9ecbe944.js",
+    "file": "assets/Show-9de85466.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_BillingInvoiceTable-8e7113d2.js",
       "_Modal-c14e100c.js",
       "_UiEmptyState-449b2420.js",
@@ -1515,7 +1515,7 @@
     "src": "resources/js/Pages/Admin/Organization/Show.vue"
   },
   "resources/js/Pages/Admin/Payment/Index.vue": {
-    "file": "assets/Index-eff8bbfb.js",
+    "file": "assets/Index-a07e3521.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
@@ -1547,7 +1547,7 @@
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -1567,7 +1567,7 @@
     "src": "resources/js/Pages/Admin/Payment/Index.vue"
   },
   "resources/js/Pages/Admin/Role/Index.vue": {
-    "file": "assets/Index-185af343.js",
+    "file": "assets/Index-8d728bc4.js",
     "imports": [
       "resources/js/Pages/Admin/Layout/App.vue",
       "_app-core-143f2c53.js",
@@ -1583,7 +1583,7 @@
       "_useAdminPermission-2d9c5a80.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -1624,7 +1624,7 @@
     "src": "resources/js/Pages/Admin/Role/Index.vue"
   },
   "resources/js/Pages/Admin/Role/Show.vue": {
-    "file": "assets/Show-fb367679.js",
+    "file": "assets/Show-ee3937ee.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
@@ -1655,7 +1655,7 @@
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
       "resources/js/app.js",
@@ -1672,7 +1672,7 @@
     "src": "resources/js/Pages/Admin/Role/Show.vue"
   },
   "resources/js/Pages/Admin/Setting/Billing.vue": {
-    "file": "assets/Billing-1673eeb8.js",
+    "file": "assets/Billing-d25d5a11.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
@@ -1704,7 +1704,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
       "resources/js/app.js",
@@ -1722,12 +1722,12 @@
     "src": "resources/js/Pages/Admin/Setting/Billing.vue"
   },
   "resources/js/Pages/Admin/Setting/Broadcast.vue": {
-    "file": "assets/Broadcast-f0e864c1.js",
+    "file": "assets/Broadcast-0353b1e7.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
       "_vendor-qs-4471066a.js",
@@ -1772,7 +1772,7 @@
     "src": "resources/js/Pages/Admin/Setting/Broadcast.vue"
   },
   "resources/js/Pages/Admin/Setting/Coupon.vue": {
-    "file": "assets/Coupon-2137edc4.js",
+    "file": "assets/Coupon-eee42a02.js",
     "imports": [
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
       "_vendor-axios-853f16bf.js",
@@ -1784,11 +1784,11 @@
       "_TableBodyRowItem-ab5fdb0e.js",
       "_Dropdown-7b025129.js",
       "_DropdownItem-946e9bc5.js",
-      "_FormModalModified-7c558e38.js",
+      "_FormModalModified-6b26f806.js",
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -1834,12 +1834,12 @@
     "src": "resources/js/Pages/Admin/Setting/Coupon.vue"
   },
   "resources/js/Pages/Admin/Setting/Email.vue": {
-    "file": "assets/Email-38cba4f7.js",
+    "file": "assets/Email-a4c87d64.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
       "_vendor-qs-4471066a.js",
@@ -1884,7 +1884,7 @@
     "src": "resources/js/Pages/Admin/Setting/Email.vue"
   },
   "resources/js/Pages/Admin/Setting/EmailTemplate/Index.vue": {
-    "file": "assets/Index-9b15b857.js",
+    "file": "assets/Index-ab5c2781.js",
     "imports": [
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
       "_app-core-143f2c53.js",
@@ -1895,7 +1895,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -1939,7 +1939,7 @@
     "src": "resources/js/Pages/Admin/Setting/EmailTemplate/Index.vue"
   },
   "resources/js/Pages/Admin/Setting/EmailTemplate/Show.vue": {
-    "file": "assets/Show-cc43a2b7.js",
+    "file": "assets/Show-af38ba3e.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
@@ -1972,7 +1972,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
       "resources/js/app.js",
@@ -1991,7 +1991,7 @@
     "src": "resources/js/Pages/Admin/Setting/EmailTemplate/Show.vue"
   },
   "resources/js/Pages/Admin/Setting/EmbeddedSignup.vue": {
-    "file": "assets/EmbeddedSignup-8b9b3e1e.js",
+    "file": "assets/EmbeddedSignup-160de1ad.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_vendor-axios-853f16bf.js",
@@ -2024,7 +2024,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
       "resources/js/app.js",
@@ -2042,12 +2042,12 @@
     "src": "resources/js/Pages/Admin/Setting/EmbeddedSignup.vue"
   },
   "resources/js/Pages/Admin/Setting/Features/AiAssistant.vue": {
-    "file": "assets/AiAssistant-d31d3ab2.js",
+    "file": "assets/AiAssistant-2ce66e69.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormToggleSwitch-9dfe1ec8.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -2093,7 +2093,7 @@
     "src": "resources/js/Pages/Admin/Setting/Features/AiAssistant.vue"
   },
   "resources/js/Pages/Admin/Setting/Features/FlowBuilder.vue": {
-    "file": "assets/FlowBuilder-1ee3fd3d.js",
+    "file": "assets/FlowBuilder-ce230f9a.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
@@ -2125,7 +2125,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -2144,7 +2144,7 @@
     "src": "resources/js/Pages/Admin/Setting/Features/FlowBuilder.vue"
   },
   "resources/js/Pages/Admin/Setting/Frontend/ContactDetails.vue": {
-    "file": "assets/ContactDetails-a2ed7354.js",
+    "file": "assets/ContactDetails-7f1f52fa.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_FormInput-a34dc57d.js",
@@ -2177,7 +2177,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
       "resources/js/app.js",
@@ -2195,7 +2195,7 @@
     "src": "resources/js/Pages/Admin/Setting/Frontend/ContactDetails.vue"
   },
   "resources/js/Pages/Admin/Setting/Frontend/Index.vue": {
-    "file": "assets/Index-d1c53d77.js",
+    "file": "assets/Index-f33a8e1c.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
@@ -2226,7 +2226,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -2245,7 +2245,7 @@
     "src": "resources/js/Pages/Admin/Setting/Frontend/Index.vue"
   },
   "resources/js/Pages/Admin/Setting/Frontend/PremiumHome.vue": {
-    "file": "assets/PremiumHome-26911a2c.js",
+    "file": "assets/PremiumHome-7b666614.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_FormImageAsset-2bd53f7f.js",
@@ -2277,7 +2277,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -2296,12 +2296,12 @@
     "src": "resources/js/Pages/Admin/Setting/Frontend/PremiumHome.vue"
   },
   "resources/js/Pages/Admin/Setting/Frontend/Seo.vue": {
-    "file": "assets/Seo-6ed017ae.js",
+    "file": "assets/Seo-49d00909.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_FormImageAsset-2bd53f7f.js",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormTextArea-8894a037.js",
       "_FormToggleSwitch-9dfe1ec8.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
@@ -2349,13 +2349,13 @@
     "src": "resources/js/Pages/Admin/Setting/Frontend/Seo.vue"
   },
   "resources/js/Pages/Admin/Setting/General.vue": {
-    "file": "assets/General-04a58929.js",
+    "file": "assets/General-ae2c7555.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
       "_FormImageLogo-6b15c2b6.js",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormToggleSwitch-9dfe1ec8.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -2401,7 +2401,7 @@
     "src": "resources/js/Pages/Admin/Setting/General.vue"
   },
   "resources/js/Pages/Admin/Setting/Language/Index.vue": {
-    "file": "assets/Index-ddf268d8.js",
+    "file": "assets/Index-247efa57.js",
     "imports": [
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
       "_vendor-axios-853f16bf.js",
@@ -2413,12 +2413,12 @@
       "_TableBodyRowItem-ab5fdb0e.js",
       "_Dropdown-7b025129.js",
       "_DropdownItem-946e9bc5.js",
-      "_FormModalModified-7c558e38.js",
+      "_FormModalModified-6b26f806.js",
       "_useAdminPermission-2d9c5a80.js",
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -2463,7 +2463,7 @@
     "src": "resources/js/Pages/Admin/Setting/Language/Index.vue"
   },
   "resources/js/Pages/Admin/Setting/Language/Show.vue": {
-    "file": "assets/Show-cfe222c1.js",
+    "file": "assets/Show-eed3067f.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
@@ -2498,7 +2498,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -2517,14 +2517,14 @@
     "src": "resources/js/Pages/Admin/Setting/Language/Show.vue"
   },
   "resources/js/Pages/Admin/Setting/Layout/App.vue": {
-    "file": "assets/App-68503851.js",
+    "file": "assets/App-116064a8.js",
     "imports": [
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Setting/Layout/Sidebar.vue",
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -2600,7 +2600,7 @@
     "src": "resources/js/Pages/Admin/Setting/Layout/Sidebar.vue"
   },
   "resources/js/Pages/Admin/Setting/Page/Index.vue": {
-    "file": "assets/Index-1d03d4f0.js",
+    "file": "assets/Index-82f657a8.js",
     "imports": [
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
       "_app-core-143f2c53.js",
@@ -2608,11 +2608,11 @@
       "_Table-df81fb05.js",
       "_TableHeaderRowItem-af1f143f.js",
       "_TableBodyRowItem-ab5fdb0e.js",
-      "_FormModalModified-7c558e38.js",
+      "_FormModalModified-6b26f806.js",
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -2659,7 +2659,7 @@
     "src": "resources/js/Pages/Admin/Setting/Page/Index.vue"
   },
   "resources/js/Pages/Admin/Setting/Page/Show.vue": {
-    "file": "assets/Show-4c3a2bf5.js",
+    "file": "assets/Show-c10a2ce9.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
@@ -2692,7 +2692,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
       "resources/js/app.js",
@@ -2711,7 +2711,7 @@
     "src": "resources/js/Pages/Admin/Setting/Page/Show.vue"
   },
   "resources/js/Pages/Admin/Setting/PaymentGateway.vue": {
-    "file": "assets/PaymentGateway-9e51ae0f.js",
+    "file": "assets/PaymentGateway-12bde3cf.js",
     "imports": [
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
       "_Table-df81fb05.js",
@@ -2720,7 +2720,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -2764,7 +2764,7 @@
     "src": "resources/js/Pages/Admin/Setting/PaymentGateway.vue"
   },
   "resources/js/Pages/Admin/Setting/PaymentGatewayMoyasar.vue": {
-    "file": "assets/PaymentGatewayMoyasar-0773aa5f.js",
+    "file": "assets/PaymentGatewayMoyasar-441a65ac.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
@@ -2798,7 +2798,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
       "resources/js/app.js",
@@ -2816,7 +2816,7 @@
     "src": "resources/js/Pages/Admin/Setting/PaymentGatewayMoyasar.vue"
   },
   "resources/js/Pages/Admin/Setting/Socials.vue": {
-    "file": "assets/Socials-64119293.js",
+    "file": "assets/Socials-f0c84bb4.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
@@ -2848,7 +2848,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
       "resources/js/app.js",
@@ -2866,12 +2866,12 @@
     "src": "resources/js/Pages/Admin/Setting/Socials.vue"
   },
   "resources/js/Pages/Admin/Setting/Storage.vue": {
-    "file": "assets/Storage-164d27fd.js",
+    "file": "assets/Storage-a3ebbf94.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
       "_vendor-qs-4471066a.js",
@@ -2916,7 +2916,7 @@
     "src": "resources/js/Pages/Admin/Setting/Storage.vue"
   },
   "resources/js/Pages/Admin/Setting/Subscription.vue": {
-    "file": "assets/Subscription-f6357f6c.js",
+    "file": "assets/Subscription-b251f58e.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
@@ -2949,7 +2949,7 @@
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
       "resources/js/app.js",
@@ -2967,7 +2967,7 @@
     "src": "resources/js/Pages/Admin/Setting/Subscription.vue"
   },
   "resources/js/Pages/Admin/Setting/Tax.vue": {
-    "file": "assets/Tax-f9747cb6.js",
+    "file": "assets/Tax-7dd09db9.js",
     "imports": [
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
       "_vendor-axios-853f16bf.js",
@@ -2979,8 +2979,8 @@
       "_TableBodyRowItem-ab5fdb0e.js",
       "_Dropdown-7b025129.js",
       "_DropdownItem-946e9bc5.js",
-      "_FormModalModified-7c558e38.js",
-      "_ProfileModal-278cb039.js",
+      "_FormModalModified-6b26f806.js",
+      "_ProfileModal-75e6515c.js",
       "resources/js/Pages/Admin/Layout/App.vue",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
@@ -3029,11 +3029,11 @@
     "src": "resources/js/Pages/Admin/Setting/Tax.vue"
   },
   "resources/js/Pages/Admin/Setting/Timezone.vue": {
-    "file": "assets/Timezone-44b5e06d.js",
+    "file": "assets/Timezone-4e912baa.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Setting/Layout/App.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -3079,7 +3079,7 @@
     "src": "resources/js/Pages/Admin/Setting/Timezone.vue"
   },
   "resources/js/Pages/Admin/SubscriptionPlan/Index.vue": {
-    "file": "assets/Index-cc471c48.js",
+    "file": "assets/Index-ea8f5f16.js",
     "imports": [
       "resources/js/Pages/Admin/Layout/App.vue",
       "_app-core-143f2c53.js",
@@ -3087,7 +3087,7 @@
       "_AlertModal-cf8c61cf.js",
       "_useAlertModal-31ef4b6c.js",
       "_Modal-c14e100c.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_ui-vue-libs-d01ab2ad.js",
       "_Table-df81fb05.js",
       "_TableHeaderRowItem-af1f143f.js",
@@ -3137,12 +3137,12 @@
     "src": "resources/js/Pages/Admin/SubscriptionPlan/Index.vue"
   },
   "resources/js/Pages/Admin/SubscriptionPlan/Show.vue": {
-    "file": "assets/Show-613f8f9d.js",
+    "file": "assets/Show-3d710a0e.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormToggleSwitch-9dfe1ec8.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -3186,7 +3186,7 @@
     "src": "resources/js/Pages/Admin/SubscriptionPlan/Show.vue"
   },
   "resources/js/Pages/Admin/Team/Index.vue": {
-    "file": "assets/Index-b6e8f689.js",
+    "file": "assets/Index-5edc5337.js",
     "imports": [
       "resources/js/Pages/Admin/Layout/App.vue",
       "_app-core-143f2c53.js",
@@ -3194,7 +3194,7 @@
       "_useAdminPermission-2d9c5a80.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -3244,14 +3244,14 @@
     "src": "resources/js/Pages/Admin/Team/Index.vue"
   },
   "resources/js/Pages/Admin/Team/Show.vue": {
-    "file": "assets/Show-cdf543bd.js",
+    "file": "assets/Show-5e8f24c5.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
       "_FormImage-00ddfc2f.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
       "_vendor-qs-4471066a.js",
@@ -3293,7 +3293,7 @@
     "src": "resources/js/Pages/Admin/Team/Show.vue"
   },
   "resources/js/Pages/Admin/Testimonial/Index.vue": {
-    "file": "assets/Index-a9ab2e29.js",
+    "file": "assets/Index-8150ced5.js",
     "imports": [
       "resources/js/Pages/Admin/Layout/App.vue",
       "_app-core-143f2c53.js",
@@ -3308,7 +3308,7 @@
       "_useAdminPermission-2d9c5a80.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -3350,14 +3350,14 @@
     "src": "resources/js/Pages/Admin/Testimonial/Index.vue"
   },
   "resources/js/Pages/Admin/Testimonial/Show.vue": {
-    "file": "assets/Show-dc4364e7.js",
+    "file": "assets/Show-a3819feb.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
       "_FormInput-a34dc57d.js",
       "_FormImage-00ddfc2f.js",
       "_FormTextArea-8894a037.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
       "_vendor-qs-4471066a.js",
@@ -3400,12 +3400,12 @@
     "src": "resources/js/Pages/Admin/Testimonial/Show.vue"
   },
   "resources/js/Pages/Admin/Ticket/Create.vue": {
-    "file": "assets/Create-f26f20c3.js",
+    "file": "assets/Create-554f86e7.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormTextArea-8894a037.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -3449,7 +3449,7 @@
     "src": "resources/js/Pages/Admin/Ticket/Create.vue"
   },
   "resources/js/Pages/Admin/Ticket/Index.vue": {
-    "file": "assets/Index-3b58c5e6.js",
+    "file": "assets/Index-a9d8325b.js",
     "imports": [
       "resources/js/Pages/Admin/Layout/App.vue",
       "_app-core-143f2c53.js",
@@ -3457,7 +3457,7 @@
       "_useAdminPermission-2d9c5a80.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -3502,12 +3502,12 @@
     "src": "resources/js/Pages/Admin/Ticket/Index.vue"
   },
   "resources/js/Pages/Admin/Ticket/View.vue": {
-    "file": "assets/View-e3b58058.js",
+    "file": "assets/View-db81f75a.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
       "_vendor-axios-853f16bf.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormTextArea-8894a037.js",
       "_vendor-deepmerge-c542d036.js",
       "_vendor-qs-4471066a.js",
@@ -3551,13 +3551,13 @@
     "src": "resources/js/Pages/Admin/Ticket/View.vue"
   },
   "resources/js/Pages/Admin/User/Create.vue": {
-    "file": "assets/Create-353cf8f1.js",
+    "file": "assets/Create-8461db62.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
       "_vendor-qs-4471066a.js",
@@ -3599,7 +3599,7 @@
     "src": "resources/js/Pages/Admin/User/Create.vue"
   },
   "resources/js/Pages/Admin/User/Directory.vue": {
-    "file": "assets/Directory-1e044f95.js",
+    "file": "assets/Directory-b6ff8a5b.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
@@ -3637,7 +3637,7 @@
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -3653,7 +3653,7 @@
     "src": "resources/js/Pages/Admin/User/Directory.vue"
   },
   "resources/js/Pages/Admin/User/ShowDetails.vue": {
-    "file": "assets/ShowDetails-3c78ad89.js",
+    "file": "assets/ShowDetails-7f2d228d.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
@@ -3692,7 +3692,7 @@
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_overlay-libs-c9d83549.js",
       "__plugin-vue_export-helper-c27b6911.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -3705,7 +3705,7 @@
     "src": "resources/js/Pages/Admin/User/ShowDetails.vue"
   },
   "resources/js/Pages/Admin/UserLog/Email.vue": {
-    "file": "assets/Email-70174f53.js",
+    "file": "assets/Email-556cc2fa.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/Admin/Layout/App.vue",
@@ -3736,7 +3736,7 @@
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/Admin/Layout/Sidebar.vue",
       "resources/js/Pages/Admin/Layout/Menu.vue",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -3754,10 +3754,10 @@
     "src": "resources/js/Pages/Admin/UserLog/Email.vue"
   },
   "resources/js/Pages/Auth/Forgot.vue": {
-    "file": "assets/Forgot-66a5885f.js",
+    "file": "assets/Forgot-fcfeb3ae.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_AuthFieldError-934c2b20.js",
+      "_AuthFieldError-971279c2.js",
       "_FormInput-a34dc57d.js",
       "_useRtl-cec3e586.js",
       "_icon-libs-ea6796ad.js",
@@ -3786,7 +3786,7 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
     ],
@@ -3794,10 +3794,10 @@
     "src": "resources/js/Pages/Auth/Forgot.vue"
   },
   "resources/js/Pages/Auth/ForgotVerify.vue": {
-    "file": "assets/ForgotVerify-1ee3ac13.js",
+    "file": "assets/ForgotVerify-224299d3.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_AuthFieldError-934c2b20.js",
+      "_AuthFieldError-971279c2.js",
       "_useRtl-cec3e586.js",
       "_icon-libs-ea6796ad.js",
       "_vendor-axios-853f16bf.js",
@@ -3825,7 +3825,7 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
     ],
@@ -3867,10 +3867,10 @@
     "src": "resources/js/Pages/Auth/Invite.vue"
   },
   "resources/js/Pages/Auth/Login.vue": {
-    "file": "assets/Login-42c29bff.js",
+    "file": "assets/Login-89ce1704.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_AuthFieldError-934c2b20.js",
+      "_AuthFieldError-971279c2.js",
       "_FormInput-a34dc57d.js",
       "_ui-vue-libs-d01ab2ad.js",
       "_icon-libs-ea6796ad.js",
@@ -3899,7 +3899,7 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js",
       "_useRtl-cec3e586.js",
       "__plugin-vue_export-helper-c27b6911.js",
@@ -3909,10 +3909,10 @@
     "src": "resources/js/Pages/Auth/Login.vue"
   },
   "resources/js/Pages/Auth/Register.vue": {
-    "file": "assets/Register-e03aa8e7.js",
+    "file": "assets/Register-a516fd4c.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_AuthFieldError-934c2b20.js",
+      "_AuthFieldError-971279c2.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "_vendor-axios-853f16bf.js",
@@ -3940,7 +3940,7 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js",
       "_useRtl-cec3e586.js",
       "__plugin-vue_export-helper-c27b6911.js",
@@ -3951,10 +3951,10 @@
     "src": "resources/js/Pages/Auth/Register.vue"
   },
   "resources/js/Pages/Auth/RegisterDetails.vue": {
-    "file": "assets/RegisterDetails-28e9282d.js",
+    "file": "assets/RegisterDetails-0a994b50.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_AuthFieldError-934c2b20.js",
+      "_AuthFieldError-971279c2.js",
       "_FormInput-a34dc57d.js",
       "_icon-libs-ea6796ad.js",
       "_vendor-axios-853f16bf.js",
@@ -3982,7 +3982,7 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js",
       "_useRtl-cec3e586.js",
       "__plugin-vue_export-helper-c27b6911.js"
@@ -3991,10 +3991,10 @@
     "src": "resources/js/Pages/Auth/RegisterDetails.vue"
   },
   "resources/js/Pages/Auth/RegisterVerify.vue": {
-    "file": "assets/RegisterVerify-e80a6d5a.js",
+    "file": "assets/RegisterVerify-b9aa2dec.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_AuthFieldError-934c2b20.js",
+      "_AuthFieldError-971279c2.js",
       "_useRtl-cec3e586.js",
       "_icon-libs-ea6796ad.js",
       "_vendor-axios-853f16bf.js",
@@ -4022,7 +4022,7 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
     ],
@@ -4030,10 +4030,10 @@
     "src": "resources/js/Pages/Auth/RegisterVerify.vue"
   },
   "resources/js/Pages/Auth/Reset.vue": {
-    "file": "assets/Reset-7e61fdef.js",
+    "file": "assets/Reset-6cce88b5.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_AuthFieldError-934c2b20.js",
+      "_AuthFieldError-971279c2.js",
       "_FormInput-a34dc57d.js",
       "_useRtl-cec3e586.js",
       "_icon-libs-ea6796ad.js",
@@ -4062,7 +4062,7 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
     ],
@@ -4540,7 +4540,7 @@
     "css": [
       "assets/ApiDocumentation-83c4d99e.css"
     ],
-    "file": "assets/ApiDocumentation-d00e6de6.js",
+    "file": "assets/ApiDocumentation-ad866511.js",
     "imports": [
       "_apiDocumentationExamples-6434da33.js",
       "resources/js/Pages/FrontendPremium/FrontendLayout.vue",
@@ -4551,7 +4551,7 @@
       "_useRtl-cec3e586.js",
       "_CookieConsentBanner-46b2ea32.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -4582,7 +4582,7 @@
     "src": "resources/js/Pages/FrontendPremium/ApiDocumentation.vue"
   },
   "resources/js/Pages/FrontendPremium/Contact.vue": {
-    "file": "assets/Contact-71b8864e.js",
+    "file": "assets/Contact-9a01add3.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/FrontendPremium/FrontendLayout.vue",
@@ -4617,7 +4617,7 @@
       "_CookieConsentBanner-46b2ea32.js",
       "__plugin-vue_export-helper-c27b6911.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js"
     ],
     "isDynamicEntry": true,
@@ -4631,7 +4631,7 @@
     "css": [
       "assets/CookiePolicy-cf5c051d.css"
     ],
-    "file": "assets/CookiePolicy-dc3f66ac.js",
+    "file": "assets/CookiePolicy-05bd88b3.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/FrontendPremium/FrontendLayout.vue",
@@ -4663,7 +4663,7 @@
       "_useRtl-cec3e586.js",
       "_CookieConsentBanner-46b2ea32.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js"
     ],
     "isDynamicEntry": true,
@@ -4677,7 +4677,7 @@
     "css": [
       "assets/Dynamic-2b530a32.css"
     ],
-    "file": "assets/Dynamic-537391d3.js",
+    "file": "assets/Dynamic-b64e033f.js",
     "imports": [
       "resources/js/Pages/FrontendPremium/FrontendLayout.vue",
       "_SectionBadge-83385178.js",
@@ -4687,7 +4687,7 @@
       "_useRtl-cec3e586.js",
       "_CookieConsentBanner-46b2ea32.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -4718,7 +4718,7 @@
     "src": "resources/js/Pages/FrontendPremium/Dynamic.vue"
   },
   "resources/js/Pages/FrontendPremium/Faqs.vue": {
-    "file": "assets/Faqs-bb2b8667.js",
+    "file": "assets/Faqs-56687495.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/FrontendPremium/FrontendLayout.vue",
@@ -4753,7 +4753,7 @@
       "_CookieConsentBanner-46b2ea32.js",
       "__plugin-vue_export-helper-c27b6911.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js"
     ],
     "isDynamicEntry": true,
@@ -4767,13 +4767,13 @@
     "css": [
       "assets/FrontendLayout-5daae19d.css"
     ],
-    "file": "assets/FrontendLayout-f94ead68.js",
+    "file": "assets/FrontendLayout-4333faab.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_useRtl-cec3e586.js",
       "_CookieConsentBanner-46b2ea32.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "__plugin-vue_export-helper-c27b6911.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -4812,7 +4812,7 @@
     "css": [
       "assets/Index-12e4bcf5.css"
     ],
-    "file": "assets/Index-ff4c4c85.js",
+    "file": "assets/Index-d8a84013.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/FrontendPremium/FrontendLayout.vue",
@@ -4848,7 +4848,7 @@
       "_useRtl-cec3e586.js",
       "_CookieConsentBanner-46b2ea32.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js"
     ],
     "isDynamicEntry": true,
@@ -4889,7 +4889,7 @@
     "src": "resources/js/Pages/FrontendPremium/Layout.vue"
   },
   "resources/js/Pages/FrontendPremium/MetaVerification.vue": {
-    "file": "assets/MetaVerification-d11b44d5.js",
+    "file": "assets/MetaVerification-81a9c544.js",
     "imports": [
       "resources/js/Pages/FrontendPremium/FrontendLayout.vue",
       "_app-core-143f2c53.js",
@@ -4899,7 +4899,7 @@
       "_CookieConsentBanner-46b2ea32.js",
       "__plugin-vue_export-helper-c27b6911.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -4930,7 +4930,7 @@
     "src": "resources/js/Pages/FrontendPremium/MetaVerification.vue"
   },
   "resources/js/Pages/FrontendPremium/Pricing.vue": {
-    "file": "assets/Pricing-44aea3f6.js",
+    "file": "assets/Pricing-43cdd4e7.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/FrontendPremium/FrontendLayout.vue",
@@ -4965,14 +4965,14 @@
       "_CookieConsentBanner-46b2ea32.js",
       "__plugin-vue_export-helper-c27b6911.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/FrontendPremium/Pricing.vue"
   },
   "resources/js/Pages/FrontendPremium/Product.vue": {
-    "file": "assets/Product-bda355e5.js",
+    "file": "assets/Product-f32368eb.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/FrontendPremium/FrontendLayout.vue",
@@ -5004,19 +5004,19 @@
       "_CookieConsentBanner-46b2ea32.js",
       "__plugin-vue_export-helper-c27b6911.js",
       "_LangToggle-647d18cd.js",
-      "_ThemeToggle-3b7f7afe.js",
+      "_ThemeToggle-40fd216b.js",
       "resources/js/app.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/Pages/FrontendPremium/Product.vue"
   },
   "resources/js/Pages/User/Automation/Basic/Create.vue": {
-    "file": "assets/Create-69377dc1.js",
+    "file": "assets/Create-2e8218a0.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormTextArea-8894a037.js",
       "_Modal-c14e100c.js",
       "_ui-vue-libs-d01ab2ad.js",
@@ -5045,7 +5045,7 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_OrganizationModal-362c4738.js",
       "_LangToggle-647d18cd.js",
       "resources/js/Pages/User/Layout/MobileSidebar.vue",
@@ -5063,13 +5063,13 @@
     "src": "resources/js/Pages/User/Automation/Basic/Create.vue"
   },
   "resources/js/Pages/User/Automation/Basic/Edit.vue": {
-    "file": "assets/Edit-2112f80f.js",
+    "file": "assets/Edit-795ef23d.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_vendor-axios-853f16bf.js",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormTextArea-8894a037.js",
       "_Modal-c14e100c.js",
       "_ui-vue-libs-d01ab2ad.js",
@@ -5097,7 +5097,7 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_OrganizationModal-362c4738.js",
       "_LangToggle-647d18cd.js",
       "_overlay-libs-c9d83549.js",
@@ -5115,7 +5115,7 @@
     "src": "resources/js/Pages/User/Automation/Basic/Edit.vue"
   },
   "resources/js/Pages/User/Automation/Basic/Index.vue": {
-    "file": "assets/Index-827577f0.js",
+    "file": "assets/Index-8ee304c6.js",
     "imports": [
       "resources/js/Pages/User/Automation/Layout.vue",
       "_app-core-143f2c53.js",
@@ -5128,12 +5128,12 @@
       "_TableBodyRowItem-ab5fdb0e.js",
       "_Dropdown-7b025129.js",
       "_DropdownItem-946e9bc5.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -5182,7 +5182,7 @@
     "css": [
       "assets/Builder-36d14e8f.css"
     ],
-    "file": "assets/Builder-bd19d17c.js",
+    "file": "assets/Builder-d26fb956.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_flow-builder-core-a4bc0606.js",
@@ -5217,10 +5217,10 @@
       "_vendor-nprogress-ba723e9f.js",
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
-      "_ProfileModal-278cb039.js",
+      "_Menu-a5cea5c9.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
       "resources/js/app.js",
@@ -5236,7 +5236,7 @@
     "src": "resources/js/Pages/User/Automation/Flows/Builder.vue"
   },
   "resources/js/Pages/User/Automation/Flows/Index.vue": {
-    "file": "assets/Index-492ba3f3.js",
+    "file": "assets/Index-6ffbc1cc.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_vendor-axios-853f16bf.js",
@@ -5268,10 +5268,10 @@
       "_vendor-nprogress-ba723e9f.js",
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
-      "_ProfileModal-278cb039.js",
+      "_Menu-a5cea5c9.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
       "resources/js/app.js",
@@ -5289,15 +5289,15 @@
     "src": "resources/js/Pages/User/Automation/Flows/Index.vue"
   },
   "resources/js/Pages/User/Automation/Layout.vue": {
-    "file": "assets/Layout-e393f971.js",
+    "file": "assets/Layout-885e6711.js",
     "imports": [
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_app-core-143f2c53.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -5340,10 +5340,10 @@
     "src": "resources/js/Pages/User/Automation/Layout.vue"
   },
   "resources/js/Pages/User/Billing/Index.vue": {
-    "file": "assets/Index-0f6dcb2a.js",
+    "file": "assets/Index-3aa9cb94.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_BillingInvoiceTable-8e7113d2.js",
       "_Modal-c14e100c.js",
       "_FormInput-a34dc57d.js",
@@ -5373,8 +5373,8 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
-      "_ProfileModal-278cb039.js",
+      "_Menu-a5cea5c9.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
       "resources/js/app.js",
@@ -5394,16 +5394,16 @@
     "src": "resources/js/Pages/User/Billing/Index.vue"
   },
   "resources/js/Pages/User/Billing/InvoiceShow.vue": {
-    "file": "assets/InvoiceShow-be27acb2.js",
+    "file": "assets/InvoiceShow-0e70eaa5.js",
     "imports": [
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_InvoiceDetailsShell-1f94eed4.js",
       "_app-core-143f2c53.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -5446,10 +5446,10 @@
     "src": "resources/js/Pages/User/Billing/InvoiceShow.vue"
   },
   "resources/js/Pages/User/Billing/Plan.vue": {
-    "file": "assets/Plan-5e49b76e.js",
+    "file": "assets/Plan-2207b7be.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
       "_vendor-qs-4471066a.js",
@@ -5475,10 +5475,10 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -5497,15 +5497,15 @@
     "src": "resources/js/Pages/User/Billing/Plan.vue"
   },
   "resources/js/Pages/User/Billing/Usage.vue": {
-    "file": "assets/Usage-51d7d28b.js",
+    "file": "assets/Usage-b6240722.js",
     "imports": [
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_app-core-143f2c53.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -5548,17 +5548,17 @@
     "src": "resources/js/Pages/User/Billing/Usage.vue"
   },
   "resources/js/Pages/User/Campaign/Create.vue": {
-    "file": "assets/Create-f9eefadc.js",
+    "file": "assets/Create-6e29eaa2.js",
     "imports": [
-      "_App-d08e08d7.js",
-      "_CampaignForm-ee783f5d.js",
+      "_App-a87a2f5a.js",
+      "_CampaignForm-5f3d3a93.js",
       "_app-core-143f2c53.js",
       "_ui-vue-libs-d01ab2ad.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -5601,9 +5601,9 @@
     "src": "resources/js/Pages/User/Campaign/Create.vue"
   },
   "resources/js/Pages/User/Campaign/Index.vue": {
-    "file": "assets/Index-880c100a.js",
+    "file": "assets/Index-0523187d.js",
     "imports": [
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_app-core-143f2c53.js",
       "resources/js/app.js",
       "_utility-libs-5fae0405.js",
@@ -5615,10 +5615,10 @@
       "_Dropdown-7b025129.js",
       "_DropdownItem-946e9bc5.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -5661,9 +5661,9 @@
     "src": "resources/js/Pages/User/Campaign/Index.vue"
   },
   "resources/js/Pages/User/Campaign/View.vue": {
-    "file": "assets/View-f9751587.js",
+    "file": "assets/View-bbb09537.js",
     "imports": [
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_app-core-143f2c53.js",
       "_ui-vue-libs-d01ab2ad.js",
       "_utility-libs-5fae0405.js",
@@ -5673,8 +5673,8 @@
       "_TableBodyRowItem-ab5fdb0e.js",
       "_WhatsappTemplate-2e35511f.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
-      "_ProfileModal-278cb039.js",
+      "_Menu-a5cea5c9.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -5718,19 +5718,19 @@
     "src": "resources/js/Pages/User/Campaign/View.vue"
   },
   "resources/js/Pages/User/Chat/Index.vue": {
-    "file": "assets/Index-005b7894.js",
+    "file": "assets/Index-7e23beac.js",
     "imports": [
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_vendor-axios-853f16bf.js",
       "_app-core-143f2c53.js",
-      "_CampaignForm-ee783f5d.js",
+      "_CampaignForm-5f3d3a93.js",
       "_ui-vue-libs-d01ab2ad.js",
       "_media-tools-8a703604.js",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_AlertModal-cf8c61cf.js",
       "_Dropdown-7b025129.js",
       "_DropdownItem-946e9bc5.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormTextArea-8894a037.js",
       "_FormToggleSwitch-9dfe1ec8.js",
       "_Modal-c14e100c.js",
@@ -5780,19 +5780,19 @@
     "src": "resources/js/Pages/User/Chat/Index.vue"
   },
   "resources/js/Pages/User/Contact/Group.vue": {
-    "file": "assets/Group-7858aabe.js",
+    "file": "assets/Group-60fb6bea.js",
     "imports": [
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_app-core-143f2c53.js",
       "_vendor-axios-853f16bf.js",
       "_Modal-c14e100c.js",
       "_FormInput-a34dc57d.js",
       "_FormImage-00ddfc2f.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_ui-vue-libs-d01ab2ad.js",
-      "_ContactTable-1abbc163.js",
+      "_ContactTable-e67c37a5.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_OrganizationModal-362c4738.js",
       "_LangToggle-647d18cd.js",
       "_vendor-deepmerge-c542d036.js",
@@ -5837,19 +5837,19 @@
     "src": "resources/js/Pages/User/Contact/Group.vue"
   },
   "resources/js/Pages/User/Contact/Index.vue": {
-    "file": "assets/Index-05d597a5.js",
+    "file": "assets/Index-e89e1efc.js",
     "imports": [
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_app-core-143f2c53.js",
       "_FormCheckbox-b90af706.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormTextArea-8894a037.js",
-      "_ContactTable-1abbc163.js",
+      "_ContactTable-e67c37a5.js",
       "_ContactInfo-ad1cbcc5.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
       "_OrganizationModal-362c4738.js",
@@ -5903,13 +5903,13 @@
     "css": [
       "assets/Dashboard-d10c8fdb.css"
     ],
-    "file": "assets/Dashboard-ba2be68b.js",
+    "file": "assets/Dashboard-5b120d1d.js",
     "imports": [
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_UiSectionCard-2ba7b408.js",
       "_UiStatCard-0b5108ff.js",
       "_app-core-143f2c53.js",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "__plugin-vue_export-helper-c27b6911.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
       "_vendor-axios-853f16bf.js",
@@ -5938,7 +5938,7 @@
       "_vendor-lodash.isequal-706cb250.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -5989,10 +5989,10 @@
     "src": "resources/js/Pages/User/Developer/Documentation.vue"
   },
   "resources/js/Pages/User/Developer/Index.vue": {
-    "file": "assets/Index-8d529d20.js",
+    "file": "assets/Index-4b528697.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Developer/Documentation.vue",
       "resources/js/Pages/User/Developer/Menu.vue",
       "_AlertModal-cf8c61cf.js",
@@ -6023,10 +6023,10 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -6078,11 +6078,11 @@
     "src": "resources/js/Pages/User/Developer/Menu.vue"
   },
   "resources/js/Pages/User/Layout/MobileSidebar.vue": {
-    "file": "assets/MobileSidebar-4eee3841.js",
+    "file": "assets/MobileSidebar-d9445274.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_Menu-18d6aa36.js",
-      "_ProfileModal-278cb039.js",
+      "_Menu-a5cea5c9.js",
+      "_ProfileModal-75e6515c.js",
       "_useRtl-cec3e586.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -6122,10 +6122,10 @@
     "src": "resources/js/Pages/User/Layout/MobileSidebar.vue"
   },
   "resources/js/Pages/User/Layout/Sidebar.vue": {
-    "file": "assets/Sidebar-94bd2331.js",
+    "file": "assets/Sidebar-785f8131.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
       "_vendor-qs-4471066a.js",
@@ -6152,7 +6152,7 @@
       "_vendor-lodash.isequal-706cb250.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -6203,7 +6203,7 @@
     "src": "resources/js/Pages/User/OrganizationSelect.vue"
   },
   "resources/js/Pages/User/Role/Index.vue": {
-    "file": "assets/Index-310ce694.js",
+    "file": "assets/Index-88a33080.js",
     "imports": [
       "resources/js/Pages/User/Settings/Layout.vue",
       "_app-core-143f2c53.js",
@@ -6217,8 +6217,8 @@
       "_Dropdown-7b025129.js",
       "_DropdownItem-946e9bc5.js",
       "_Pagination-e8cbe2d8.js",
-      "_Menu-18d6aa36.js",
-      "_App-d08e08d7.js",
+      "_Menu-a5cea5c9.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -6246,7 +6246,7 @@
       "_vendor-lodash.isequal-706cb250.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -6264,7 +6264,7 @@
     "src": "resources/js/Pages/User/Role/Index.vue"
   },
   "resources/js/Pages/User/Role/Show.vue": {
-    "file": "assets/Show-50c9b630.js",
+    "file": "assets/Show-5e0c5421.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/User/Settings/Layout.vue",
@@ -6294,12 +6294,12 @@
       "_vendor-nprogress-ba723e9f.js",
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
       "_icon-libs-ea6796ad.js",
@@ -6316,17 +6316,17 @@
     "src": "resources/js/Pages/User/Role/Show.vue"
   },
   "resources/js/Pages/User/Settings/Automation.vue": {
-    "file": "assets/Automation-8ae60088.js",
+    "file": "assets/Automation-abaa1b7b.js",
     "imports": [
       "resources/js/Pages/User/Settings/Layout.vue",
       "_app-core-143f2c53.js",
       "_ui-vue-libs-d01ab2ad.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -6368,7 +6368,7 @@
     "src": "resources/js/Pages/User/Settings/Automation.vue"
   },
   "resources/js/Pages/User/Settings/Contact.vue": {
-    "file": "assets/Contact-754ff019.js",
+    "file": "assets/Contact-cfcd323e.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/User/Settings/Layout.vue",
@@ -6376,7 +6376,7 @@
       "_ui-vue-libs-d01ab2ad.js",
       "_Modal-c14e100c.js",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormToggleSwitch-9dfe1ec8.js",
       "_AlertModal-cf8c61cf.js",
       "_useAlertModal-31ef4b6c.js",
@@ -6407,9 +6407,9 @@
       "_vendor-nprogress-ba723e9f.js",
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_OrganizationModal-362c4738.js",
       "_LangToggle-647d18cd.js",
       "_overlay-libs-c9d83549.js",
@@ -6427,15 +6427,15 @@
     "src": "resources/js/Pages/User/Settings/Contact.vue"
   },
   "resources/js/Pages/User/Settings/General.vue": {
-    "file": "assets/General-a923a470.js",
+    "file": "assets/General-30241bda.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/User/Settings/Layout.vue",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_ui-vue-libs-d01ab2ad.js",
       "_FormToggleSwitch-9dfe1ec8.js",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_FormPhoneInput-be45126a.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -6461,7 +6461,7 @@
       "_vendor-nprogress-ba723e9f.js",
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
@@ -6480,11 +6480,11 @@
     "src": "resources/js/Pages/User/Settings/General.vue"
   },
   "resources/js/Pages/User/Settings/Layout.vue": {
-    "file": "assets/Layout-64270766.js",
+    "file": "assets/Layout-700c4c64.js",
     "imports": [
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_app-core-143f2c53.js",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -6512,7 +6512,7 @@
       "_vendor-lodash.isequal-706cb250.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -6531,11 +6531,11 @@
     "src": "resources/js/Pages/User/Settings/Layout.vue"
   },
   "resources/js/Pages/User/Settings/Main.vue": {
-    "file": "assets/Main-814e2d2d.js",
+    "file": "assets/Main-1f5bfd5e.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_Menu-18d6aa36.js",
-      "_App-d08e08d7.js",
+      "_Menu-a5cea5c9.js",
+      "_App-a87a2f5a.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
       "_vendor-qs-4471066a.js",
@@ -6562,7 +6562,7 @@
       "_vendor-lodash.isequal-706cb250.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -6582,17 +6582,17 @@
     "src": "resources/js/Pages/User/Settings/Main.vue"
   },
   "resources/js/Pages/User/Settings/Ticket.vue": {
-    "file": "assets/Ticket-1ce913c1.js",
+    "file": "assets/Ticket-06c4fe4d.js",
     "imports": [
       "resources/js/Pages/User/Settings/Layout.vue",
       "_FormToggleSwitch-9dfe1ec8.js",
       "_app-core-143f2c53.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -6635,13 +6635,13 @@
     "src": "resources/js/Pages/User/Settings/Ticket.vue"
   },
   "resources/js/Pages/User/Settings/Whatsapp.vue": {
-    "file": "assets/Whatsapp-31efaf46.js",
+    "file": "assets/Whatsapp-0333ac13.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/User/Settings/Layout.vue",
       "_Modal-c14e100c.js",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_ui-vue-libs-d01ab2ad.js",
       "_FormImageLogo-6b15c2b6.js",
       "_FormTextArea-8894a037.js",
@@ -6671,9 +6671,9 @@
       "_vendor-nprogress-ba723e9f.js",
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_OrganizationModal-362c4738.js",
       "_LangToggle-647d18cd.js",
       "_overlay-libs-c9d83549.js",
@@ -6690,12 +6690,12 @@
     "src": "resources/js/Pages/User/Settings/Whatsapp.vue"
   },
   "resources/js/Pages/User/Support/Create.vue": {
-    "file": "assets/Create-43745b10.js",
+    "file": "assets/Create-94b6161c.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormTextArea-8894a037.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -6722,7 +6722,7 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
       "_OrganizationModal-362c4738.js",
@@ -6742,16 +6742,16 @@
     "src": "resources/js/Pages/User/Support/Create.vue"
   },
   "resources/js/Pages/User/Support/Index.vue": {
-    "file": "assets/Index-8096495f.js",
+    "file": "assets/Index-091da3ef.js",
     "imports": [
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_app-core-143f2c53.js",
       "_TicketTable-33056847.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -6798,10 +6798,10 @@
     "src": "resources/js/Pages/User/Support/Index.vue"
   },
   "resources/js/Pages/User/Support/View.vue": {
-    "file": "assets/View-a8f48135.js",
+    "file": "assets/View-7294a41c.js",
     "imports": [
       "_app-core-143f2c53.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_FormTextArea-8894a037.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -6828,10 +6828,10 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -6850,7 +6850,7 @@
     "src": "resources/js/Pages/User/Support/View.vue"
   },
   "resources/js/Pages/User/Team/CompanyIndex.vue": {
-    "file": "assets/CompanyIndex-2e8802c8.js",
+    "file": "assets/CompanyIndex-1809902e.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/app.js",
@@ -6858,7 +6858,7 @@
       "_Pagination-e8cbe2d8.js",
       "_Modal-c14e100c.js",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "resources/js/Pages/User/Settings/Layout.vue",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
@@ -6889,9 +6889,9 @@
       "__plugin-vue_export-helper-c27b6911.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_OrganizationModal-362c4738.js",
       "_LangToggle-647d18cd.js",
       "_ui-vue-libs-d01ab2ad.js",
@@ -6904,14 +6904,14 @@
     "src": "resources/js/Pages/User/Team/CompanyIndex.vue"
   },
   "resources/js/Pages/User/Team/Index.vue": {
-    "file": "assets/Index-e7eedeb3.js",
+    "file": "assets/Index-aa042c8f.js",
     "imports": [
       "_app-core-143f2c53.js",
       "resources/js/Pages/User/Settings/Layout.vue",
       "_utility-libs-5fae0405.js",
       "_AlertModal-cf8c61cf.js",
       "_useAlertModal-31ef4b6c.js",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Table-df81fb05.js",
       "_TableHeaderRowItem-af1f143f.js",
       "_TableBodyRowItem-ab5fdb0e.js",
@@ -6919,7 +6919,7 @@
       "_DropdownItem-946e9bc5.js",
       "_Modal-c14e100c.js",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_vendor-axios-853f16bf.js",
       "_vendor-deepmerge-c542d036.js",
       "_vendor-qs-4471066a.js",
@@ -6944,7 +6944,7 @@
       "_vendor-nprogress-ba723e9f.js",
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
       "_overlay-libs-c9d83549.js",
       "_FormPhoneInput-be45126a.js",
@@ -6965,13 +6965,13 @@
     "src": "resources/js/Pages/User/Team/Index.vue"
   },
   "resources/js/Pages/User/Templates/Add.vue": {
-    "file": "assets/Add-35c17aa6.js",
+    "file": "assets/Add-a6c6a553.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_vendor-axios-853f16bf.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormTextArea-8894a037.js",
       "_FormToggleSwitch-9dfe1ec8.js",
       "_HeaderTextArea-e3ca5da8.js",
@@ -7002,7 +7002,7 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_OrganizationModal-362c4738.js",
       "_LangToggle-647d18cd.js",
       "_overlay-libs-c9d83549.js",
@@ -7019,14 +7019,14 @@
     "src": "resources/js/Pages/User/Templates/Add.vue"
   },
   "resources/js/Pages/User/Templates/Edit.vue": {
-    "file": "assets/Edit-c9f42214.js",
+    "file": "assets/Edit-89f93453.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_vendor-axios-853f16bf.js",
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_HeaderTextArea-e3ca5da8.js",
       "_FormInput-a34dc57d.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormTextArea-8894a037.js",
       "_FormToggleSwitch-9dfe1ec8.js",
       "_FormPhoneInput-be45126a.js",
@@ -7056,7 +7056,7 @@
       "_vendor-lodash.clonedeep-e0c1350d.js",
       "_vendor-lodash.isequal-706cb250.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_OrganizationModal-362c4738.js",
       "_LangToggle-647d18cd.js",
       "_overlay-libs-c9d83549.js",
@@ -7073,9 +7073,9 @@
     "src": "resources/js/Pages/User/Templates/Edit.vue"
   },
   "resources/js/Pages/User/Templates/Index.vue": {
-    "file": "assets/Index-4cdfed89.js",
+    "file": "assets/Index-cdfb0c55.js",
     "imports": [
-      "_App-d08e08d7.js",
+      "_App-a87a2f5a.js",
       "_app-core-143f2c53.js",
       "_vendor-axios-853f16bf.js",
       "_AlertModal-cf8c61cf.js",
@@ -7088,10 +7088,10 @@
       "_Dropdown-7b025129.js",
       "_DropdownItem-946e9bc5.js",
       "resources/js/Pages/User/Layout/Sidebar.vue",
-      "_Menu-18d6aa36.js",
+      "_Menu-a5cea5c9.js",
       "_Modal-c14e100c.js",
       "_overlay-libs-c9d83549.js",
-      "_ProfileModal-278cb039.js",
+      "_ProfileModal-75e6515c.js",
       "_FormInput-a34dc57d.js",
       "_FormPhoneInput-be45126a.js",
       "node_modules/vue-tel-input/dist/vue-tel-input.js",
@@ -7242,8 +7242,8 @@
       "resources/js/Pages/User/Developer/Documentation.vue",
       "resources/js/Pages/User/Developer/Index.vue",
       "resources/js/Pages/User/Developer/Menu.vue",
-      "_App-d08e08d7.js",
-      "_Menu-18d6aa36.js",
+      "_App-a87a2f5a.js",
+      "_Menu-a5cea5c9.js",
       "resources/js/Pages/User/Layout/MobileSidebar.vue",
       "resources/js/Pages/User/Layout/Sidebar.vue",
       "resources/js/Pages/User/OrganizationSelect.vue",
@@ -7266,7 +7266,7 @@
       "resources/js/Pages/User/Templates/Index.vue",
       "modules/IntelliReply/Pages/User/Index.vue"
     ],
-    "file": "assets/app-85ba2c96.js",
+    "file": "assets/app-3bfea76c.js",
     "imports": [
       "_app-core-143f2c53.js",
       "_vendor-axios-853f16bf.js",
