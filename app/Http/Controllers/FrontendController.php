@@ -193,6 +193,7 @@ class FrontendController extends BaseController
         $pages = Page::get();
         $page = collect($slugCandidates)
             ->map(static fn (string $slug) => $pages->first(static fn (Page $item) => $item->matchesSlug($slug)))
+            ->filter()
             ->first();
 
         if ($page) {
