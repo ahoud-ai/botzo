@@ -104,7 +104,7 @@
                 <!-- Business hours / address / social -->
                 <div class="grid w-full grid-cols-1 gap-8 rounded-3xl border border-[#cfd8e3] bg-white p-6 dark:border-[#1e2a3a] dark:bg-[#0a0f17] md:grid-cols-3 md:p-10">
                     <div v-if="businessHoursLines.length" class="flex flex-col items-end gap-3 text-right">
-                        <div class="flex w-full items-center justify-end gap-2">
+                        <div class="flex w-full items-center justify-end gap-2" dir="ltr">
                             <h3 dir="auto" class="text-lg font-semibold text-black dark:text-white">{{ $t('Business Hours') }}</h3>
                             <svg class="h-5 w-5 text-[#25d366]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2M12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8m.5-13H11v6l5.25 3.15l.75-1.23l-4.5-2.67z"/></svg>
                         </div>
@@ -114,7 +114,7 @@
                     </div>
 
                     <div v-if="addressLines.length" class="flex flex-col items-end gap-3 text-right">
-                        <div class="flex w-full items-center justify-end gap-2">
+                        <div class="flex w-full items-center justify-end gap-2" dir="ltr">
                             <h3 dir="auto" class="text-lg font-semibold text-black dark:text-white">{{ $t('Address') }}</h3>
                             <svg class="h-5 w-5 text-[#25d366]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7m0 9.5a2.5 2.5 0 0 1 0-5a2.5 2.5 0 0 1 0 5"/></svg>
                         </div>
@@ -124,7 +124,7 @@
                     </div>
 
                     <div v-if="hasSocialMedia" class="flex flex-col items-end gap-3 text-right">
-                        <div class="flex w-full items-center justify-end gap-2">
+                        <div class="flex w-full items-center justify-end gap-2" dir="ltr">
                             <h3 dir="auto" class="text-lg font-semibold text-black dark:text-white">{{ $t('Follow Us') }}</h3>
                             <svg class="h-5 w-5 text-[#25d366]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81c1.66 0 3-1.34 3-3s-1.34-3-3-3s-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65c0 1.61 1.31 2.92 2.92 2.92c1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92"/></svg>
                         </div>
