@@ -346,21 +346,36 @@
 
     const whatsappSocialLink = computed(() => props.companyConfig?.book_a_demo_link || null);
 
-    const moreDropdownLinks = [
-        { labelKey: 'WhatsApp Account Verification', href: '/meta-verification' },
-        { labelKey: 'Privacy Policy', href: '/privacy' },
-        { labelKey: 'Terms of Use', href: '/terms-of-service' },
-        { labelKey: 'Delete User Data', href: '/contact' },
-        { labelKey: 'API Documentation', href: '/api-documentation' },
-    ];
+    // The static /privacy and /terms-of-service routes only work when the
+    // Page record's `name` column happens to match one of a few guessed
+    // slugs (see FrontendController::renderLegalPage) — when it doesn't,
+    // they silently fall back to generic placeholder content instead of the
+    // real page. Resolving directly against the already-loaded `pages` list
+    // and linking to /pages/{slug} sidesteps that guessing entirely, and
+    // works for pages (like Delete User Data) that have no dedicated route.
+    const resolvePageHref = (candidateNames, fallbackHref) => {
+        const pages = props.pages?.data || [];
+        const match = pages.find((page) => candidateNames.some(
+            (candidate) => candidate.toLowerCase() === (page.name || '').toLowerCase()
+        ));
+        return match ? `/pages/${match.slug}` : fallbackHref;
+    };
 
-    const footerMoreLinks = [
-        { labelKey: 'Privacy Policy', href: '/privacy' },
+    const moreDropdownLinks = computed(() => [
         { labelKey: 'WhatsApp Account Verification', href: '/meta-verification' },
-        { labelKey: 'Terms of Use', href: '/terms-of-service' },
-        { labelKey: 'Delete User Data', href: '/contact' },
+        { labelKey: 'Privacy Policy', href: resolvePageHref(['Privacy Policy', 'privacy-policy'], '/privacy') },
+        { labelKey: 'Terms of Use', href: resolvePageHref(['Terms of Use', 'terms-of-service', 'terms-of-use'], '/terms-of-service') },
+        { labelKey: 'Delete User Data', href: resolvePageHref(['User Data Deletion', 'Delete User Data', 'delete-user-data'], '/delete-user-data') },
         { labelKey: 'API Documentation', href: '/api-documentation' },
-    ];
+    ]);
+
+    const footerMoreLinks = computed(() => [
+        { labelKey: 'Privacy Policy', href: resolvePageHref(['Privacy Policy', 'privacy-policy'], '/privacy') },
+        { labelKey: 'WhatsApp Account Verification', href: '/meta-verification' },
+        { labelKey: 'Terms of Use', href: resolvePageHref(['Terms of Use', 'terms-of-service', 'terms-of-use'], '/terms-of-service') },
+        { labelKey: 'Delete User Data', href: resolvePageHref(['User Data Deletion', 'Delete User Data', 'delete-user-data'], '/delete-user-data') },
+        { labelKey: 'API Documentation', href: '/api-documentation' },
+    ]);
 
     const footerProductLinks = [
         { labelKey: 'Features', href: '/#section2' },
