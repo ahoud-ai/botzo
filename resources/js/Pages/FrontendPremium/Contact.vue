@@ -104,7 +104,7 @@
                 <!-- Business hours / address / social -->
                 <div class="grid w-full grid-cols-1 gap-8 rounded-3xl border border-[#cfd8e3] bg-white p-6 dark:border-[#1e2a3a] dark:bg-[#0a0f17] md:grid-cols-3 md:p-10">
                     <div v-if="businessHoursLines.length" class="flex flex-col items-end gap-3 text-right">
-                        <div class="flex items-center gap-2">
+                        <div class="flex w-full items-center justify-end gap-2">
                             <h3 dir="auto" class="text-lg font-semibold text-black dark:text-white">{{ $t('Business Hours') }}</h3>
                             <svg class="h-5 w-5 text-[#25d366]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2M12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8m.5-13H11v6l5.25 3.15l.75-1.23l-4.5-2.67z"/></svg>
                         </div>
@@ -114,7 +114,7 @@
                     </div>
 
                     <div v-if="addressLines.length" class="flex flex-col items-end gap-3 text-right">
-                        <div class="flex items-center gap-2">
+                        <div class="flex w-full items-center justify-end gap-2">
                             <h3 dir="auto" class="text-lg font-semibold text-black dark:text-white">{{ $t('Address') }}</h3>
                             <svg class="h-5 w-5 text-[#25d366]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7m0 9.5a2.5 2.5 0 0 1 0-5a2.5 2.5 0 0 1 0 5"/></svg>
                         </div>
@@ -124,11 +124,11 @@
                     </div>
 
                     <div v-if="hasSocialMedia" class="flex flex-col items-end gap-3 text-right">
-                        <div class="flex items-center gap-2">
+                        <div class="flex w-full items-center justify-end gap-2">
                             <h3 dir="auto" class="text-lg font-semibold text-black dark:text-white">{{ $t('Follow Us') }}</h3>
                             <svg class="h-5 w-5 text-[#25d366]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81c1.66 0 3-1.34 3-3s-1.34-3-3-3s-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65c0 1.61 1.31 2.92 2.92 2.92c1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92"/></svg>
                         </div>
-                        <div class="flex items-center gap-3" dir="ltr">
+                        <div class="flex w-full items-center justify-end gap-3" dir="ltr">
                             <a v-if="whatsappUrl" :href="whatsappUrl" target="_blank" rel="noopener noreferrer" class="flex h-11 w-11 items-center justify-center rounded-xl border border-[#cfd8e3] text-[#445566] transition-colors hover:border-[#25d366] hover:text-[#25d366] dark:border-[#1e2a3a] dark:text-[#94a3b8]">
                                 <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967c-.273-.099-.471-.148-.67.15c-.197.297-.767.966-.94 1.164c-.173.199-.347.223-.644.075c-.297-.15-1.255-.463-2.39-1.475c-.883-.788-1.48-1.761-1.653-2.059c-.173-.297-.018-.458.13-.606c.134-.133.298-.347.446-.52c.149-.174.198-.298.298-.497c.099-.198.05-.371-.025-.52c-.075-.149-.669-1.612-.916-2.207c-.242-.579-.487-.5-.669-.51c-.173-.008-.371-.01-.57-.01c-.198 0-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479c0 1.462 1.065 2.875 1.213 3.074c.149.198 2.096 3.2 5.077 4.487c.709.306 1.262.489 1.694.625c.712.227 1.36.195 1.871.118c.571-.085 1.758-.719 2.006-1.413c.248-.694.248-1.289.173-1.413c-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214l-3.741.982l.998-3.648l-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884c2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
                             </a>
