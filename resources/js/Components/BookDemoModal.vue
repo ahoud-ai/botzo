@@ -112,7 +112,7 @@ watch(() => props.isOpen, (open) => {
 
                                 <div class="grid w-full grid-cols-1 gap-5 sm:grid-cols-2">
                                     <div class="flex flex-col items-end gap-2">
-                                        <label dir="auto" class="text-sm font-medium text-black dark:text-white">{{ $t('Full name') }}</label>
+                                        <label dir="auto" class="w-full text-right text-sm font-medium text-black dark:text-white">{{ $t('Full name') }}</label>
                                         <input
                                             ref="firstFieldRef"
                                             v-model="form.full_name"
@@ -126,7 +126,7 @@ watch(() => props.isOpen, (open) => {
                                     </div>
 
                                     <div class="flex flex-col items-end gap-2">
-                                        <label dir="auto" class="text-sm font-medium text-black dark:text-white">{{ $t('Business activity') }}</label>
+                                        <label dir="auto" class="w-full text-right text-sm font-medium text-black dark:text-white">{{ $t('Business activity') }}</label>
                                         <input
                                             v-model="form.business_activity"
                                             type="text"
@@ -139,7 +139,7 @@ watch(() => props.isOpen, (open) => {
                                     </div>
 
                                     <div class="flex flex-col items-end gap-2">
-                                        <label dir="auto" class="text-sm font-medium text-black dark:text-white">{{ $t('Phone number') }}</label>
+                                        <label dir="auto" class="w-full text-right text-sm font-medium text-black dark:text-white">{{ $t('Phone number') }}</label>
                                         <input
                                             v-model="form.phone"
                                             type="tel"
@@ -152,7 +152,7 @@ watch(() => props.isOpen, (open) => {
                                     </div>
 
                                     <div class="flex flex-col items-end gap-2">
-                                        <label dir="auto" class="text-sm font-medium text-black dark:text-white">{{ $t('Email address') }}</label>
+                                        <label dir="auto" class="w-full text-right text-sm font-medium text-black dark:text-white">{{ $t('Email address') }}</label>
                                         <input
                                             v-model="form.email"
                                             type="email"
@@ -165,7 +165,7 @@ watch(() => props.isOpen, (open) => {
                                     </div>
 
                                     <div class="col-span-1 flex flex-col items-end gap-2 sm:col-span-2">
-                                        <label dir="auto" class="text-sm font-medium text-black dark:text-white">{{ $t('Notes') }}</label>
+                                        <label dir="auto" class="w-full text-right text-sm font-medium text-black dark:text-white">{{ $t('Notes') }}</label>
                                         <textarea
                                             v-model="form.notes"
                                             dir="auto"

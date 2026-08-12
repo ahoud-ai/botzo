@@ -106,7 +106,7 @@
                 <div class="absolute inset-0 bg-black/50" @click="showMobileMenu = false"></div>
 
                 <!-- Menu Panel -->
-                <div :class="['absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white dark:bg-[#0a0f17] shadow-xl overflow-y-auto mobile-menu-panel', mobileMenuPanelAnimationClass]">
+                <div ref="mobileMenuPanel" :class="['absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white dark:bg-[#0a0f17] shadow-xl overflow-y-auto mobile-menu-panel', mobileMenuPanelAnimationClass]">
                     <div class="p-6">
                         <!-- Close Button -->
                         <div class="flex justify-between items-center mb-6">
@@ -239,18 +239,7 @@
 
                     <!-- Logo, tagline, socials -->
                     <div class="flex w-full flex-col items-end gap-4 lg:w-[367.3px]">
-                        <div class="relative" style="width: 73.44px; height: 67px">
-                            <img src="/images/footer/botzo-icon-dark.svg" alt="" class="absolute hidden dark:block" style="left: 17.49px; top: 0; width: 38.54px; height: 37.591px">
-                            <img src="/images/footer/botzo-icon-light.svg" alt="" class="absolute block dark:hidden" style="left: 17.49px; top: 0; width: 38.54px; height: 37.591px">
-                            <img src="/images/footer/botzo-word-dark.svg" alt="Botzo" class="absolute hidden dark:block" style="left: 0; top: 58.93%; width: 100%; height: 27.78%">
-                            <img src="/images/footer/botzo-word-light.svg" alt="Botzo" class="absolute block dark:hidden" style="left: 0; top: 58.93%; width: 100%; height: 27.78%">
-                            <p
-                                class="absolute whitespace-nowrap font-sans not-italic text-[#25d366]"
-                                style="left: 4.12px; top: 61.35px; font-size: 4.63px; letter-spacing: 0.1852px; line-height: normal"
-                            >
-                                <span>WhatsApp</span><span>{{ ' & ' }}</span><span>Meta</span><span>{{ ' Solutions' }}</span>
-                            </p>
-                        </div>
+                        <NavBrandMark variant="desktop" />
                         <p dir="auto" class="w-full text-right text-sm leading-6 text-[#8899aa]">
                             {{ $t('WhatsApp automation platform powered by AI for the Saudi market. Make WhatsApp sell for you — 24 hours a day.') }}
                         </p>
@@ -291,7 +280,7 @@
 </template>
 
 <script setup>
-    import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+    import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
     import { Link, usePage } from "@inertiajs/vue3";
     import { useRtl } from '@/Composables/useRtl';
     import CookieConsentBanner from '@/Components/CookieConsentBanner.vue';
@@ -322,6 +311,7 @@
     const showResourcesDropdown = ref(false);
     const showMobileLanguageDropdown = ref(false);
     const showMobileMenu = ref(false);
+    const mobileMenuPanel = ref(null);
     const mobileMenuPanelAnimationClass = computed(() => (isRtl.value ? 'mobile-menu-panel-rtl' : 'mobile-menu-panel-ltr'));
     
     const currentLanguageCode = computed(() => {
@@ -389,12 +379,30 @@
         isScrolled.value = window.scrollY > 10;
     };
 
-    // Prevent body scroll when mobile menu is open
+    // Prevent body scroll when mobile menu is open. `overflow: hidden` alone
+    // doesn't stop touch-scroll on mobile Safari, so the body is pinned with
+    // `position: fixed` (offset by the current scroll position) instead, and
+    // restored to that same scroll position on close.
+    let mobileMenuScrollY = 0;
     watch(showMobileMenu, (isOpen) => {
         if (isOpen) {
+            mobileMenuScrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${mobileMenuScrollY}px`;
+            document.body.style.left = '0';
+            document.body.style.right = '0';
             document.body.style.overflow = 'hidden';
+            // Always open scrolled to the top, regardless of where it was left last time.
+            nextTick(() => {
+                if (mobileMenuPanel.value) mobileMenuPanel.value.scrollTop = 0;
+            });
         } else {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
             document.body.style.overflow = '';
+            window.scrollTo(0, mobileMenuScrollY);
         }
     });
 
@@ -406,6 +414,10 @@
     onBeforeUnmount(() => {
         window.removeEventListener('scroll', handleScroll);
         // Clean up: ensure body scroll is restored
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
         document.body.style.overflow = '';
     });
 </script>

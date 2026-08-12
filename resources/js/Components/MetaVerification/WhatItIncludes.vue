@@ -23,7 +23,7 @@ const items = [
                 <div
                     v-for="item in items"
                     :key="item"
-                    class="flex min-h-[91px] items-center justify-center rounded-xl bg-[rgba(37,211,102,0.12)] p-4 text-center sm:justify-end sm:text-right"
+                    class="flex min-h-[91px] items-center justify-center rounded-xl bg-[rgba(37,211,102,0.12)] p-4 text-center sm:justify-start sm:text-right"
                 >
                     <p dir="auto" class="text-lg leading-[29.9px] text-black dark:text-white">{{ $t(item) }}</p>
                 </div>

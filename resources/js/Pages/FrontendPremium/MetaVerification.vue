@@ -27,23 +27,28 @@
             </div>
 
             <div class="relative">
-                <VerificationHero request-service-href="/contact" />
+                <VerificationHero @request-service="showRequestModal = true" />
                 <WhatItIncludes />
                 <WhatWeNeed />
                 <TermsAndConditions />
-                <VerificationTimeline />
+                <VerificationTimeline :company-config="props.companyConfig" @request-service="showRequestModal = true" />
             </div>
         </div>
+
+        <RequestVerificationModal :is-open="showRequestModal" @close="showRequestModal = false" />
     </FrontendLayout>
 </template>
 
 <script setup>
+import { ref } from "vue";
 import FrontendLayout from "./FrontendLayout.vue";
 import VerificationHero from "@/Components/MetaVerification/VerificationHero.vue";
 import WhatItIncludes from "@/Components/MetaVerification/WhatItIncludes.vue";
 import WhatWeNeed from "@/Components/MetaVerification/WhatWeNeed.vue";
 import TermsAndConditions from "@/Components/MetaVerification/TermsAndConditions.vue";
 import VerificationTimeline from "@/Components/MetaVerification/VerificationTimeline.vue";
+import RequestVerificationModal from "@/Components/MetaVerification/RequestVerificationModal.vue";
 
 const props = defineProps(["companyConfig", "pages"]);
+const showRequestModal = ref(false);
 </script>

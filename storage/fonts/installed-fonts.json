@@ -1,0 +1,11 @@
+{
+    "ibm plex sans arabic": {
+        "normal": "E:\\Projects\\New folder\\project-current\\storage\\fonts\/ibm_plex_sans_arabic_normal_e2a574a20c945f5d2133643bc21eca43",
+        "bold": "E:\\Projects\\New folder\\project-current\\storage\\fonts\/ibm_plex_sans_arabic_bold_a033695c460e1be5adb9a08324c6395f",
+        "italic": "E:\\Projects\\New folder\\project-current\\storage\\fonts\/ibm_plex_sans_arabic_italic_e2a574a20c945f5d2133643bc21eca43",
+        "bold_italic": "ibm_plex_sans_arabic_bold_italic_a033695c460e1be5adb9a08324c6395f"
+    },
+    "ibm plex sans arabic semibold": {
+        "normal": "ibm_plex_sans_arabic_semibold_normal_6c89367a751a3f24122e411cbecb2375"
+    }
+}
