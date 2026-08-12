@@ -117,7 +117,8 @@ const loopDistance = computed(
     align-items: stretch;
     gap: 16px;
     width: max-content;
-    animation: reviews-marquee-scroll 90s linear infinite;
+    animation: reviews-marquee-scroll 22s linear infinite;
+    will-change: transform;
 }
 
 @keyframes reviews-marquee-scroll {

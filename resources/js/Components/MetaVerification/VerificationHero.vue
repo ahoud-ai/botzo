@@ -3,9 +3,7 @@ import { Link } from "@inertiajs/vue3";
 import SectionBadge from "@/Components/SectionBadge.vue";
 import VerificationBreadcrumb from "@/Components/MetaVerification/VerificationBreadcrumb.vue";
 
-defineProps({
-    requestServiceHref: { type: String, default: "/contact" },
-});
+defineEmits(["request-service"]);
 </script>
 
 <template>
@@ -38,14 +36,15 @@ defineProps({
                 >
                     <span dir="auto" class="whitespace-nowrap text-base font-semibold leading-5 text-black dark:text-white">{{ $t('Contact Us') }}</span>
                 </Link>
-                <a
-                    :href="requestServiceHref"
+                <button
+                    type="button"
+                    @click="$emit('request-service')"
                     class="flex h-[54px] flex-1 items-center justify-center gap-2 rounded-2xl px-8 transition-transform duration-200 hover:scale-[1.02] sm:w-[235px] sm:flex-none"
                     style="background-image: linear-gradient(138deg, #25d366 0%, #1db954 100%)"
                 >
                     <img src="/images/hero/arrow.svg" class="h-4 w-4 shrink-0" alt="" aria-hidden="true" />
                     <span dir="auto" class="whitespace-nowrap text-base font-semibold leading-5 text-[#04130a]">{{ $t('Request the service now') }}</span>
-                </a>
+                </button>
             </div>
         </div>
     </div>

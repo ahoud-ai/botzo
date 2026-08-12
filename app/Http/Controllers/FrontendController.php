@@ -103,6 +103,29 @@ class FrontendController extends BaseController
         ]);
     }
 
+    public function metaVerificationAgreement(Request $request)
+    {
+        return Inertia::render($this->resolveFrontendComponent('MetaVerificationAgreement'), [
+            ...$this->basePublicData(),
+        ]);
+    }
+
+    public function metaVerificationAgreementPdf(Request $request)
+    {
+        $locale = app()->getLocale() === 'ar' ? 'ar' : 'en';
+        $path = public_path("documents/meta-verification-agreement-{$locale}.pdf");
+
+        if (! file_exists($path)) {
+            abort(404);
+        }
+
+        $filename = $locale === 'ar'
+            ? 'اتفاقية-خدمة-التحقق-من-الحساب-التجاري-عبر-Meta.pdf'
+            : 'Botzo-Meta-Verification-Service-Agreement.pdf';
+
+        return response()->download($path, $filename);
+    }
+
     public function contact(Request $request)
     {
         if ($request->isMethod('post')) {
@@ -118,6 +141,16 @@ class FrontendController extends BaseController
     public function storeDemoRequest(\App\Http\Requests\StoreDemoRequest $request)
     {
         \App\Models\DemoRequest::create($request->validated());
+
+        return Redirect::back()->with('status', [
+            'type' => 'success',
+            'message' => __('Your request has been received. The team will contact you soon.'),
+        ]);
+    }
+
+    public function storeMetaVerificationRequest(\App\Http\Requests\StoreMetaVerificationRequest $request)
+    {
+        \App\Models\MetaVerificationRequest::create($request->validated());
 
         return Redirect::back()->with('status', [
             'type' => 'success',

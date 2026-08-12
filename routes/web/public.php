@@ -76,8 +76,11 @@ Route::get('/translations/{locale}', function ($locale) {
 Route::match(['get', 'post'], '/', [App\Http\Controllers\FrontendController::class, 'index']);
 Route::match(['get', 'post'], '/pricing', [App\Http\Controllers\FrontendController::class, 'pricing']);
 Route::match(['get', 'post'], '/meta-verification', [App\Http\Controllers\FrontendController::class, 'metaVerification']);
+Route::match(['get', 'post'], '/meta-verification/agreement', [App\Http\Controllers\FrontendController::class, 'metaVerificationAgreement']);
+Route::get('/meta-verification/agreement/pdf', [App\Http\Controllers\FrontendController::class, 'metaVerificationAgreementPdf']);
 Route::match(['get', 'post'], '/contact', [App\Http\Controllers\FrontendController::class, 'contact']);
 Route::post('/demo-requests', [App\Http\Controllers\FrontendController::class, 'storeDemoRequest'])->name('demo-requests.store');
+Route::post('/meta-verification-requests', [App\Http\Controllers\FrontendController::class, 'storeMetaVerificationRequest'])->name('meta-verification-requests.store');
 Route::match(['get', 'post'], '/product', [App\Http\Controllers\FrontendController::class, 'product']);
 Route::match(['get', 'post'], '/api-documentation', [App\Http\Controllers\FrontendController::class, 'apiDocumentation']);
 Route::match(['get', 'post'], '/faqs', [App\Http\Controllers\FrontendController::class, 'faqs']);

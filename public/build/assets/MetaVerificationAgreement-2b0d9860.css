@@ -1,0 +1,37 @@
+
+.agreement-page[data-v-b03345dd] {
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+.agreement-page + .agreement-page[data-v-b03345dd] {
+    margin-top: 24px;
+}
+@media print {
+.agreement-wrapper[data-v-b03345dd] {
+        background: #fff;
+}
+.agreement-page[data-v-b03345dd] {
+        max-width: none;
+        padding: 12mm;
+        box-shadow: none;
+}
+.agreement-page--break[data-v-b03345dd] {
+        page-break-before: always;
+        margin-top: 0;
+}
+.agreement-article[data-v-b03345dd],
+    .agreement-block[data-v-b03345dd] {
+        -moz-column-break-inside: avoid;
+             break-inside: avoid;
+}
+}
+@media screen {
+.agreement-page[data-v-b03345dd] {
+        box-shadow: 0 8px 24px -16px rgba(10, 15, 23, 0.15);
+        border-radius: 24px;
+        margin-top: 24px;
+}
+}
+@page {
+    size: A4;
+    margin: 0;
+}
