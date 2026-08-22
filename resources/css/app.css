@@ -383,6 +383,16 @@ h2 {
     top: 0;
 }
 
+.dark .speech-bubble-right::before {
+    border-left-color: #005c4b;
+    border-top-color: #005c4b;
+}
+
+.dark .speech-bubble-left::before {
+    border-right-color: #202c33;
+    border-top-color: #202c33;
+}
+
 /* Flow Builder preview-only bubble tuning to avoid clipped tails */
 .flow-preview-phone .flow-preview-bubble {
     overflow: visible;
@@ -1346,12 +1356,12 @@ h2 {
 
 /* Ocean Glass SaaS UI System */
 :root {
-    --ui-bg: #f3f8fc;
-    --ui-bg-soft: #f8fbff;
-    --ui-surface: rgba(255, 255, 255, 0.92);
-    --ui-surface-soft: rgba(255, 255, 255, 0.8);
-    --ui-border: rgba(15, 23, 42, 0.14);
-    --ui-border-strong: rgba(15, 23, 42, 0.26);
+    --ui-bg: #ffffff;
+    --ui-bg-soft: #ffffff;
+    --ui-surface: #ffffff;
+    --ui-surface-soft: #f4f6f8;
+    --ui-border: rgba(15, 23, 42, 0.11);
+    --ui-border-strong: rgba(15, 23, 42, 0.22);
     --ui-text: #0f172a;
     --ui-muted: #475569;
     --ui-primary: var(--color-primary, #0b5fff);
@@ -1360,10 +1370,10 @@ h2 {
     --ui-success: #16a34a;
     --ui-warning: #d97706;
     --ui-danger: #dc2626;
-    --ui-radius-sm: 8px;
-    --ui-radius-md: 12px;
-    --ui-radius-lg: 16px;
-    --ui-radius-xl: 20px;
+    --ui-radius-sm: 10px;
+    --ui-radius-md: 16px;
+    --ui-radius-lg: 20px;
+    --ui-radius-xl: 24px;
     --ui-shadow-1: 0 18px 40px -28px rgba(15, 23, 42, 0.5);
     --ui-shadow-2: 0 28px 64px -38px rgba(15, 23, 42, 0.55);
     --ui-layer-content: 30;
@@ -1372,10 +1382,31 @@ h2 {
     --ui-layer-modal: 95;
 }
 
+.dark {
+    /* Matches the landing page's dark theme (FrontendLayout/Index.vue):
+       flat #0a0f17 background carried through to cards, #1a2332 card
+       borders, pure white text, #94a3b8 muted text. */
+    --ui-bg: #0a0f17;
+    --ui-bg-soft: #0a0f17;
+    --ui-surface: #0a0f17;
+    --ui-surface-soft: #0d1420;
+    --ui-border: #1a2332;
+    --ui-border-strong: #28374a;
+    --ui-text: #ffffff;
+    --ui-muted: #94a3b8;
+    --ui-accent: #fbbf24;
+    --ui-success: #22c55e;
+    --ui-warning: #f59e0b;
+    --ui-danger: #f87171;
+    --ui-shadow-1: 0 18px 40px -28px rgba(0, 0, 0, 0.7);
+    --ui-shadow-2: 0 28px 64px -38px rgba(0, 0, 0, 0.75);
+}
+
 html {
     max-width: 100%;
     overflow-x: hidden;
     min-height: 100%;
+    font-size: 17px;
 }
 
 /* background-color intentionally does not use --ui-bg here: that variable
@@ -1400,41 +1431,7 @@ body {
     overflow: hidden;
     overflow-x: hidden;
     overflow-y: hidden;
-    background:
-        radial-gradient(1320px 460px at -18% -28%, color-mix(in srgb, var(--ui-primary) 16%, transparent), transparent 70%),
-        radial-gradient(920px 400px at 112% -26%, color-mix(in srgb, var(--ui-secondary) 16%, transparent), transparent 64%),
-        linear-gradient(145deg, var(--ui-bg-soft), var(--ui-bg));
-}
-
-.ui-shell::before,
-.ui-shell::after,
-.creative-shell::before,
-.creative-shell::after {
-    content: "";
-    position: absolute;
-    z-index: 0;
-    pointer-events: none;
-    border-radius: 999px;
-    filter: blur(52px);
-    opacity: 0.24;
-}
-
-.ui-shell::before,
-.creative-shell::before {
-    top: -130px;
-    left: -120px;
-    width: 320px;
-    height: 320px;
-    background: color-mix(in srgb, var(--ui-secondary) 58%, white);
-}
-
-.ui-shell::after,
-.creative-shell::after {
-    bottom: -90px;
-    right: -140px;
-    width: 320px;
-    height: 320px;
-    background: color-mix(in srgb, var(--ui-primary) 62%, white);
+    background: var(--ui-bg);
 }
 
 .ui-main,
@@ -1513,33 +1510,25 @@ body {
 .creative-sidebar {
     height: 100%;
     min-height: 0;
-    background:
-        radial-gradient(460px 220px at 102% -14%, color-mix(in srgb, var(--ui-primary) 9%, transparent), transparent 66%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(251, 253, 255, 0.96));
-    border-right: 1px solid color-mix(in srgb, var(--ui-primary) 8%, var(--ui-border));
-    box-shadow: -18px 0 50px -48px rgba(15, 23, 42, 0.35);
-    backdrop-filter: blur(10px);
+    background: var(--ui-surface);
+    border-right: 1px solid var(--ui-border);
 }
 
 .direction-rtl .ui-sidebar,
 .direction-rtl .creative-sidebar {
     border-right: 0;
-    border-left: 1px solid color-mix(in srgb, var(--ui-primary) 8%, var(--ui-border));
+    border-left: 1px solid var(--ui-border);
 }
 
 .ui-mobile-topbar,
 .creative-mobile-topbar {
-    background: rgba(255, 255, 255, 0.88) !important;
+    background: var(--ui-surface) !important;
     border-bottom: 1px solid var(--ui-border) !important;
-    backdrop-filter: blur(12px);
 }
 
 .ui-mobile-drawer,
 .creative-mobile-drawer {
-    background:
-        radial-gradient(720px 320px at 105% -25%, color-mix(in srgb, var(--ui-primary) 18%, transparent), transparent 60%),
-        radial-gradient(520px 260px at -5% 100%, color-mix(in srgb, var(--ui-secondary) 12%, transparent), transparent 64%),
-        linear-gradient(160deg, #f8fbff, #edf5ff);
+    background: var(--ui-surface);
 }
 
 .ui-mobile-drawer-start {
@@ -1572,6 +1561,10 @@ body {
     background: color-mix(in srgb, #fff 80%, var(--ui-secondary) 20%) !important;
 }
 
+.dark .ui-bg-soft {
+    background: #005c4b !important;
+}
+
 .ui-bg-surface {
     background: var(--ui-surface) !important;
 }
@@ -1582,6 +1575,11 @@ body {
 
 .hover-ui-bg-soft:hover {
     background: color-mix(in srgb, #fff 86%, var(--ui-secondary) 14%) !important;
+}
+
+.dark .ui-hover-soft:hover,
+.dark .hover-ui-bg-soft:hover {
+    background: color-mix(in srgb, var(--ui-bg) 80%, var(--ui-secondary) 20%) !important;
 }
 
 .ui-danger-ring {
@@ -1614,6 +1612,36 @@ body {
 .ui-chip-danger {
     background: color-mix(in srgb, #fff 84%, var(--ui-danger) 16%) !important;
     color: color-mix(in srgb, var(--ui-danger) 78%, #0f172a) !important;
+}
+
+.dark .ui-chip-neutral {
+    background: color-mix(in srgb, var(--ui-bg) 78%, var(--ui-primary) 22%) !important;
+    color: var(--ui-text) !important;
+}
+
+.dark .ui-chip-success {
+    background: color-mix(in srgb, var(--ui-bg) 78%, var(--ui-success) 22%) !important;
+    color: color-mix(in srgb, var(--ui-success) 70%, #fff 30%) !important;
+}
+
+.dark .ui-chip-warning {
+    background: color-mix(in srgb, var(--ui-bg) 78%, var(--ui-warning) 22%) !important;
+    color: color-mix(in srgb, var(--ui-warning) 70%, #fff 30%) !important;
+}
+
+.dark .ui-chip-danger {
+    background: color-mix(in srgb, var(--ui-bg) 78%, var(--ui-danger) 22%) !important;
+    color: color-mix(in srgb, var(--ui-danger) 70%, #fff 30%) !important;
+}
+
+.ui-chip-info {
+    background: color-mix(in srgb, #fff 84%, #155dfc 16%) !important;
+    color: color-mix(in srgb, #155dfc 78%, #0f172a) !important;
+}
+
+.dark .ui-chip-info {
+    background: color-mix(in srgb, var(--ui-bg) 78%, #155dfc 22%) !important;
+    color: color-mix(in srgb, #155dfc 70%, #fff 30%) !important;
 }
 
 .ui-scroll-root {
@@ -1661,28 +1689,36 @@ body {
     min-width: 0;
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--ui-primary) 14%, white);
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.97);
-    box-shadow: 0 16px 36px -32px rgba(15, 23, 42, 0.32);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-lg);
+    background: var(--ui-surface);
 }
 
 .ui-workspace-main {
     min-width: 0;
     min-height: 24rem;
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--ui-primary) 10%, white);
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.94);
-    box-shadow: 0 16px 34px -30px rgba(15, 23, 42, 0.24);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-lg);
+    background: var(--ui-surface);
 }
 
+/* WhatsApp-style chat wallpaper: the same doodle pattern asset is reused for
+   both themes. Light mode shows it on WhatsApp's actual chat bg color; dark
+   mode layers a heavy dark overlay over it (no separate dark asset exists)
+   so the doodles read as a faint texture, matching WhatsApp's dark chat bg. */
 .ui-workspace-main--chat {
-    background-color: rgba(255, 255, 255, 0.1);
-    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08)), url('/resources/images/whatsapp-bg-02.png');
+    background-color: #efeae2;
+    background-image: url('/resources/images/whatsapp-bg-02.png');
     background-size: cover;
     background-position: center;
     background-repeat: repeat;
+}
+
+.dark .ui-workspace-main--chat {
+    background-color: #0b141a;
+    background-image: linear-gradient(rgba(11, 20, 26, 0.55), rgba(11, 20, 26, 0.55)), url('/resources/images/whatsapp-bg-02.png');
+    background-blend-mode: multiply, normal;
 }
 
 .ui-workspace-empty {
@@ -1718,9 +1754,8 @@ body {
     height: clamp(12rem, 26vh, 17rem);
     transform: translateX(-50%);
     border-radius: 1rem;
-    border: 1px solid color-mix(in srgb, var(--ui-primary) 10%, white);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.38));
-    backdrop-filter: blur(8px);
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
 }
 
 .ui-workspace-empty--chat {
@@ -1735,8 +1770,8 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--ui-primary) 16%, white);
-    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
     color: var(--ui-primary);
     padding: 0.38rem 0.9rem;
     font-size: 0.82rem;
@@ -1744,7 +1779,7 @@ body {
 }
 
 .ui-workspace-empty-title {
-    color: #5f7293;
+    color: var(--ui-text);
     font-size: clamp(1.7rem, 2.2vw, 2.15rem);
     line-height: 1.2;
     font-weight: 700;
@@ -1752,7 +1787,7 @@ body {
 
 .ui-workspace-empty-description {
     max-width: 40rem;
-    color: #526581;
+    color: var(--ui-muted);
     font-size: 0.98rem;
     line-height: 1.8;
 }
@@ -1786,14 +1821,19 @@ body {
 
 .ui-workspace-empty-primary {
     border: 1px solid transparent;
-    background: var(--ui-primary);
+    background: var(--ui-secondary);
     color: #fff;
 }
 
 .ui-workspace-empty-secondary {
-    border: 1px solid color-mix(in srgb, var(--ui-primary) 15%, white);
-    background: rgba(255, 255, 255, 0.94);
-    color: #1f2e43;
+    border: 1px solid var(--ui-border-strong);
+    background: var(--ui-surface-soft);
+    color: var(--ui-text);
+}
+
+.dark .ui-workspace-empty-secondary {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.16);
 }
 
 .ui-workspace-empty-actions > button:disabled,
@@ -1888,10 +1928,10 @@ body {
 }
 
 .ui-page-title {
-    font-size: 1.5rem;
-    line-height: 1.35;
-    letter-spacing: 0.01em;
-    font-weight: 700;
+    font-size: 1.7rem;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    font-weight: 800;
 }
 
 .ui-page-subtitle {
@@ -1939,7 +1979,7 @@ body {
 .creative-menu ul li {
     border: 1px solid transparent;
     border-radius: 0.78rem !important;
-    color: #17243b;
+    color: var(--ui-text);
     transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 
@@ -1994,23 +2034,6 @@ body {
     color: var(--ui-primary);
 }
 
-.creative-team-switch {
-    border-width: 1px !important;
-    border-radius: 0.9rem !important;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--ui-primary) 6%, white), #fff);
-    border-color: color-mix(in srgb, var(--ui-primary) 14%, var(--ui-border)) !important;
-    box-shadow: 0 14px 30px -28px rgba(15, 23, 42, 0.24);
-}
-
-.creative-profile-card {
-    border: 1px solid color-mix(in srgb, var(--ui-primary) 10%, var(--ui-border));
-    border-radius: 0.9rem !important;
-    background:
-        radial-gradient(circle at top right, color-mix(in srgb, var(--ui-primary) 5%, transparent), transparent 52%),
-        linear-gradient(180deg, #fff, color-mix(in srgb, var(--ui-primary) 4%, #f8fbff));
-    box-shadow: 0 14px 30px -28px rgba(15, 23, 42, 0.24);
-    backdrop-filter: blur(8px);
-}
 
 .ui-kpi,
 .creative-kpi-card {
@@ -2021,28 +2044,16 @@ body {
     overflow: hidden;
     min-height: 8rem;
     padding: 0.95rem 1rem 0.85rem;
-    border: 1px solid color-mix(in srgb, var(--ui-primary) 14%, transparent);
+    border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius-md);
     background: var(--ui-surface) !important;
-    box-shadow: 0 20px 34px -30px rgba(11, 65, 49, 0.8);
-    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-}
-
-.ui-kpi::before,
-.creative-kpi-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(120deg, color-mix(in srgb, var(--ui-primary) 8%, transparent), transparent 46%);
-    opacity: 0.9;
-    pointer-events: none;
+    transition: transform 180ms ease, border-color 180ms ease;
 }
 
 .ui-kpi:hover,
 .creative-kpi-card:hover {
-    transform: translateY(-3px);
-    border-color: color-mix(in srgb, var(--ui-primary) 26%, transparent);
-    box-shadow: 0 26px 44px -34px rgba(8, 64, 46, 0.82);
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--ui-primary) 26%, var(--ui-border));
 }
 
 .ui-kpi-head {
@@ -2143,8 +2154,6 @@ body {
     border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius-md);
     background: var(--ui-surface) !important;
-    box-shadow: 0 16px 34px -28px rgba(11, 65, 49, 0.68);
-    backdrop-filter: blur(6px);
 }
 
 .ui-card:focus-within,
@@ -2157,8 +2166,9 @@ body {
 }
 
 .ui-section-title {
-    font-size: 1.06rem;
+    font-size: 1.1rem;
     font-weight: 700;
+    letter-spacing: -0.01em;
 }
 
 .ui-section-subtitle {
@@ -2184,9 +2194,9 @@ body {
 }
 
 .ui-empty {
-    border: 1px dashed color-mix(in srgb, var(--ui-primary) 24%, transparent);
+    border: 1px dashed var(--ui-border-strong);
     border-radius: var(--ui-radius-md);
-    background: color-mix(in srgb, var(--ui-secondary) 5%, white);
+    background: color-mix(in srgb, var(--ui-secondary) 5%, var(--ui-surface));
     text-align: center;
     padding: 1.6rem 1rem;
 }
@@ -2199,8 +2209,8 @@ body {
     height: 2.8rem;
     border-radius: 999px;
     margin-bottom: 0.7rem;
-    color: var(--ui-primary);
-    background: color-mix(in srgb, var(--ui-primary) 11%, transparent);
+    color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 11%, transparent);
 }
 
 .ui-empty-title {
@@ -2269,11 +2279,26 @@ body {
     transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
 }
 
+.dark .ui-input,
+.dark .ui-select-btn,
+.dark .ui-textarea {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border);
+    box-shadow: none;
+}
+
 .ui-input:focus,
 .ui-select-btn:focus,
 .ui-textarea:focus {
     border-color: color-mix(in srgb, var(--ui-primary) 36%, transparent);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 16%, transparent);
+}
+
+.dark .ui-input:focus,
+.dark .ui-select-btn:focus,
+.dark .ui-textarea:focus {
+    border-color: color-mix(in srgb, var(--ui-secondary) 45%, var(--ui-border));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-secondary) 18%, transparent);
 }
 
 .ui-input-error {
@@ -2290,10 +2315,10 @@ body {
 }
 
 .ui-select-options {
-    border: 1px solid color-mix(in srgb, var(--ui-primary) 18%, transparent);
+    border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius-sm);
-    background: color-mix(in srgb, #fff 92%, var(--ui-primary) 8%);
-    box-shadow: 0 18px 34px -24px rgba(10, 52, 40, 0.7);
+    background: var(--ui-surface);
+    box-shadow: var(--ui-shadow-1);
 }
 
 .ui-select-root {
@@ -2353,10 +2378,10 @@ body {
 
 .ui-phone-wrapper .vti__dropdown-list {
     margin-top: 0.35rem;
-    border: 1px solid color-mix(in srgb, var(--ui-primary) 22%, transparent);
+    border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius-sm);
-    background: color-mix(in srgb, #fff 94%, var(--ui-primary) 6%);
-    box-shadow: 0 18px 30px -24px rgba(8, 55, 41, 0.7);
+    background: var(--ui-surface);
+    box-shadow: var(--ui-shadow-1);
     max-height: 16rem;
     overflow-y: auto;
     z-index: var(--ui-layer-dropdown);
@@ -2426,10 +2451,9 @@ body {
 
 .ui-table-shell {
     border: 1px solid var(--ui-border);
-    border-radius: var(--ui-radius-md);
+    border-radius: var(--ui-radius-lg);
     overflow: visible;
     background: var(--ui-surface);
-    box-shadow: 0 18px 32px -28px rgba(11, 65, 49, 0.74);
 }
 
 .ui-table {
@@ -2437,52 +2461,61 @@ body {
     border-collapse: separate;
     border-spacing: 0;
     color: var(--ui-text);
+    font-size: 1rem;
 }
 
 .ui-table thead tr {
-    background: color-mix(in srgb, var(--ui-primary) 8%, white);
+    background: color-mix(in srgb, var(--ui-secondary) 6%, var(--ui-surface-soft));
 }
 
 .ui-table tbody tr {
     transition: background-color 130ms ease;
 }
 
+.ui-table tbody tr:hover {
+    background: color-mix(in srgb, #fff 88%, var(--ui-secondary) 12%);
+}
+
+.dark .ui-table tbody tr:hover {
+    background: color-mix(in srgb, var(--ui-bg) 82%, var(--ui-secondary) 18%);
+}
+
 .ui-table-th {
-    padding: 0.9rem 0.85rem;
+    padding: 1.2rem 1.1rem;
     text-align: start;
-    font-size: 0.79rem;
-    font-weight: 600;
-    color: color-mix(in srgb, var(--ui-text) 78%, #000 22%);
-    letter-spacing: 0.01em;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--ui-muted);
+    letter-spacing: 0.03em;
     text-transform: uppercase;
 }
 
 .ui-table-th-first {
-    padding-inline-start: 1rem;
+    padding-inline-start: 1.4rem;
 }
 
 .ui-table-th-last {
-    padding-inline-end: 1rem;
+    padding-inline-end: 1.4rem;
     text-align: end;
 }
 
 .ui-table-td {
-    padding: 0.92rem 0.85rem;
-    border-top: 1px solid color-mix(in srgb, var(--ui-primary) 9%, transparent);
+    padding: 1.35rem 1.1rem;
+    border-top: 1px solid var(--ui-border);
 }
 
 .ui-table-td-first {
-    padding-inline-start: 1rem;
+    padding-inline-start: 1.4rem;
 }
 
 .ui-table-td-last {
-    padding-inline-end: 1rem;
+    padding-inline-end: 1.4rem;
 }
 
 .ui-table-cell {
     width: 100%;
     height: 100%;
-    color: color-mix(in srgb, var(--ui-text) 92%, #000);
+    color: var(--ui-text);
     text-align: start;
 }
 
@@ -2498,10 +2531,9 @@ body {
     width: min(100%, 20rem);
     min-height: 2.5rem;
     margin-bottom: 1rem;
-    border: 1px solid color-mix(in srgb, var(--ui-primary) 20%, transparent);
+    border: 1px solid var(--ui-border);
     border-radius: 0.7rem;
-    background: color-mix(in srgb, #fff 92%, var(--ui-primary) 8%);
-    box-shadow: 0 12px 24px -22px rgba(8, 44, 34, 0.7);
+    background: var(--ui-surface);
 }
 
 .ui-table-search-icon {
@@ -2558,16 +2590,16 @@ body {
     width: 2.25rem;
     height: 2.25rem;
     border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--ui-primary) 20%, transparent);
-    background: color-mix(in srgb, #fff 92%, var(--ui-primary) 8%);
-    color: color-mix(in srgb, var(--ui-text) 82%, #000);
-    box-shadow: 0 10px 20px -18px rgba(7, 40, 30, 0.9);
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    color: var(--ui-text);
     transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
 }
 
 .ui-pagination-btn:hover:not(:disabled) {
     transform: translateY(-1px);
-    background: color-mix(in srgb, #fff 84%, var(--ui-primary) 16%);
+    background: color-mix(in srgb, var(--ui-secondary) 14%, var(--ui-surface-soft));
+    border-color: color-mix(in srgb, var(--ui-secondary) 30%, var(--ui-border));
 }
 
 .ui-pagination-btn:disabled {
@@ -2580,7 +2612,7 @@ body {
     align-items: center;
     gap: 0.3rem;
     margin-inline: 0.2rem;
-    color: color-mix(in srgb, var(--ui-text) 72%, #000 28%);
+    color: var(--ui-muted);
     font-size: 0.84rem;
 }
 
@@ -2589,10 +2621,10 @@ body {
 }
 
 .ui-dropdown-menu {
-    border: 1px solid color-mix(in srgb, var(--ui-primary) 18%, transparent);
+    border: 1px solid var(--ui-border);
     border-radius: 0.65rem;
-    background: color-mix(in srgb, #fff 96%, var(--ui-primary) 4%);
-    box-shadow: 0 20px 34px -24px rgba(8, 44, 34, 0.75);
+    background: var(--ui-surface);
+    box-shadow: var(--ui-shadow-1);
 }
 
 .ui-dropdown-layer {
@@ -2648,8 +2680,8 @@ body {
 }
 
 .ui-dropdown-item-active {
-    background: color-mix(in srgb, var(--ui-primary) 14%, #fff);
-    color: color-mix(in srgb, var(--ui-primary) 88%, #052017);
+    background: color-mix(in srgb, var(--ui-secondary) 14%, var(--ui-surface));
+    color: color-mix(in srgb, var(--ui-secondary) 88%, var(--ui-text));
 }
 
 .ui-btn {
@@ -2684,16 +2716,15 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
-    background: color-mix(in srgb, var(--ui-text) 18%, #e2e8f0);
-    border: 1px solid color-mix(in srgb, var(--ui-primary) 20%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 70%, transparent);
+    background: var(--ui-border-strong);
+    border: 1px solid var(--ui-border);
     transition: background-color 140ms ease, border-color 140ms ease;
 }
 
 .ui-toggle-track-on {
     justify-content: flex-end;
-    background: linear-gradient(135deg, color-mix(in srgb, var(--ui-primary) 92%, black), var(--ui-primary));
-    border-color: color-mix(in srgb, var(--ui-primary) 48%, transparent);
+    background: var(--ui-secondary);
+    border-color: var(--ui-secondary);
 }
 
 .ui-toggle-track-disabled {

@@ -220,22 +220,22 @@
     }
 </script>
 <template>
-    <div class="h-20 bg-white border-b border-1 flex items-center justify-between px-4 md:px-4">
-        <div class="flex items-center gap-x-4 cursor-pointer w-3/4">
+    <div class="h-20 bg-white dark:bg-[#111b21] border-b border-slate-100 dark:border-white/10 flex items-center justify-between px-4 md:px-5">
+        <div class="flex items-center gap-x-3 cursor-pointer w-3/4">
             <Link :href="getBackUrl()" class="sm:block md:hidden">
                 <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 24 24"><path fill="currentColor" d="M19 11H7.14l3.63-4.36a1 1 0 1 0-1.54-1.28l-5 6a1.19 1.19 0 0 0-.09.15c0 .05 0 .08-.07.13A1 1 0 0 0 4 12a1 1 0 0 0 .07.36c0 .05 0 .08.07.13a1.19 1.19 0 0 0 .09.15l5 6A1 1 0 0 0 10 19a1 1 0 0 0 .64-.23a1 1 0 0 0 .13-1.41L7.14 13H19a1 1 0 0 0 0-2"/></svg>
             </Link>
             <div @click="toggleView">
-                <img v-if="contactAvatar" class="rounded-full w-14 h-14 object-cover" :src="contactAvatar" alt="">
-                <div v-else class="rounded-full w-10 h-10 flex items-center justify-center bg-slate-100">{{ contactInitial }}</div>
+                <img v-if="contactAvatar" class="rounded-full w-12 h-12 object-cover" :src="contactAvatar" alt="">
+                <div v-else class="rounded-full w-11 h-11 flex items-center justify-center bg-slate-100 dark:bg-white/10 font-medium">{{ contactInitial }}</div>
             </div>
             <div class="flex items-center w-full gap-x-8">
-                <div>
+                <div class="min-w-0">
                     <div class="flex items-center gap-2" @click="toggleView">
-                        <span>{{ contactDisplayName }}</span>
-                        <span v-if="showChannelBadge" class="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] text-slate-700">{{ activeChannelLabel }}</span>
+                        <span class="font-bold text-[17px] truncate">{{ contactDisplayName }}</span>
+                        <span v-if="showChannelBadge" class="rounded-md bg-slate-100 dark:bg-white/10 px-2 py-0.5 text-[11px] text-slate-700 dark:text-slate-200">{{ activeChannelLabel }}</span>
                     </div>
-                    <div class="w-full flex items-center text-xs">
+                    <div class="w-full flex items-center text-[13px] font-medium text-slate-500 dark:text-slate-400">
                         <span @click="toggleView">{{ contactSubtitle }}</span>
                     </div>
                 </div>
@@ -243,14 +243,14 @@
             </div>
         </div>
         <div>
-            <div class="flex items-center gap-x-4">
-                <button type="button" v-if="ticketState === 'open' && canChangeStatus" @click="changeTicketStatus('closed')" class="text-sm md:inline-flex hidden justify-center rounded-md border border-transparent bg-red-800 px-4 py-1 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">{{ $t('Mark as closed') }}</button>
-                <button type="button" v-if="ticketState === 'closed' && canChangeStatus" @click="changeTicketStatus('open')" class="text-sm md:inline-flex hidden justify-center rounded-md border border-transparent bg-primary px-4 py-1 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">{{ $t('Mark as open') }}</button>
+            <div class="flex items-center gap-x-3">
+                <button type="button" v-if="ticketState === 'open' && canChangeStatus" @click="changeTicketStatus('closed')" class="text-sm font-medium md:inline-flex hidden justify-center rounded-lg border border-transparent bg-red-600 hover:bg-red-700 transition-colors px-4 py-1.5 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">{{ $t('Mark as closed') }}</button>
+                <button type="button" v-if="ticketState === 'closed' && canChangeStatus" @click="changeTicketStatus('open')" class="text-sm font-medium md:inline-flex hidden justify-center rounded-lg border border-transparent bg-primary hover:opacity-90 transition-opacity px-4 py-1.5 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">{{ $t('Mark as open') }}</button>
 
                 <Dropdown v-if="!displayContact">
-                    <button type="button" class="inline-flex w-full justify-center items-center rounded-md text-sm font-medium text-black hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-                        <span class="bg-slate-200 p-1 rounded-full cursor-pointer flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.75a.75.75 0 1 1 0-1.5a.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5a.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5a.75.75 0 0 1 0 1.5Z"/></svg>
+                    <button type="button" class="inline-flex w-full justify-center items-center rounded-md text-sm font-medium text-black dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+                        <span class="chat-header-icon-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.75a.75.75 0 1 1 0-1.5a.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5a.75.75 0 0 1 0 1.5Zm0 6a.75.75 0 1 1 0-1.5a.75.75 0 0 1 0 1.5Z"/></svg>
                         </span>
                     </button>
                     <template #items>
@@ -262,14 +262,14 @@
                         </DropdownItemGroup>
                     </template>
                 </Dropdown>
-                <div v-else @click="toggleView" class="bg-slate-200 p-2 rounded-lg text-sm cursor-pointer">
+                <div v-else @click="toggleView" class="bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 transition-colors px-3 py-2 rounded-lg text-sm cursor-pointer">
                     <span>{{ $t('Back') }}</span>
                 </div>
             </div>
         </div>
     </div>
-    <div v-if="addon == 1 && canManageAiAssistant" class="flex justify-between items-center bg-white border-b border-1 py-2 px-4 md:px-4">
-        <div class="text-sm py-1 px-3 rounded-md flex items-center gap-x-2 w-[fit-content]" :class="form3.ai_assistant ? 'bg-green-50' : 'bg-red-50'">
+    <div v-if="addon == 1 && canManageAiAssistant" class="flex justify-between items-center bg-white dark:bg-[#111b21] border-b border-1 py-2 px-4 md:px-4">
+        <div class="text-sm py-1 px-3 rounded-md flex items-center gap-x-2 w-[fit-content]" :class="form3.ai_assistant ? 'bg-green-50 dark:bg-green-500/10' : 'bg-red-50 dark:bg-red-500/10'">
             <span :class="form3.ai_assistant ? 'text-green-500' : 'text-red-500'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"/></svg>
             </span>
@@ -286,7 +286,7 @@
             <form @submit.prevent="submitForm()" class="">
                 <FormTextArea v-model="form2.notes" :error="form2.errors.note" :name="''" :class="'col-span-2'"/>
                 <div class="mt-4 flex">
-                    <button type="button" @click="isOpenModal = false" class="inline-flex justify-center rounded-md border border-transparent bg-slate-50 px-4 py-2 text-sm text-slate-500 hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 me-4">{{ $t('Cancel') }}</button>
+                    <button type="button" @click="isOpenModal = false" class="inline-flex justify-center rounded-md border border-transparent bg-slate-50 dark:bg-white/5 px-4 py-2 text-sm text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 me-4">{{ $t('Cancel') }}</button>
                     <button type="submit" 
                         :class="['inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2', { 'opacity-50': form2.processing }]"
                         :disabled="form2.processing"
@@ -299,10 +299,30 @@
         </div>
     </Modal>
 
-    <AlertModal 
-        v-model="showAlert" 
-        :label="$t('Clear chat')" 
-        :description="$t('Are you sure you want to delete this thread? You can\'t undo this action')" 
+    <AlertModal
+        v-model="showAlert"
+        :label="$t('Clear chat')"
+        :description="$t('Are you sure you want to delete this thread? You can\'t undo this action')"
         @confirm="deleteThread" />
 </template>
+
+<style scoped>
+.chat-header-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--ui-muted);
+    background: transparent;
+    transition: background-color 160ms ease, color 160ms ease;
+}
+
+.chat-header-icon-btn:hover {
+    background: var(--ui-surface-soft);
+    color: var(--ui-text);
+}
+</style>
 

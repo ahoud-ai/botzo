@@ -48,6 +48,23 @@ class DashboardController extends BaseController
         $data['contactCount'] = Contact::where('organization_id', $organizationId)->whereNull('deleted_at')->count();
         $data['templateCount'] = Template::where('organization_id', $organizationId)->whereNull('deleted_at')->count();
         $data['teamMemberCount'] = Team::where('organization_id', $organizationId)->whereNull('deleted_at')->count();
+        $data['teamMembers'] = Team::where('organization_id', $organizationId)
+            ->whereNull('deleted_at')
+            ->with('user:id,first_name,last_name,avatar')
+            ->limit(5)
+            ->get()
+            ->filter(fn ($team) => $team->user)
+            ->map(fn ($team) => [
+                'full_name' => trim($team->user->first_name . ' ' . $team->user->last_name),
+                'avatar' => $team->user->avatar,
+            ])
+            ->values();
+        $data['pendingInvitesCount'] = DB::table('organization_employees')
+            ->where('main_organization_id', $organizationId)
+            ->whereNull('accepted_at')
+            ->whereNull('suspended_at')
+            ->whereNull('deleted_at')
+            ->count();
         $data['graphAPIVersion'] = config('graph.api_version');
 
         $organization = Organization::where('id', $organizationId)->first();
@@ -70,15 +87,17 @@ class DashboardController extends BaseController
         );
 
         $data['organization'] = $organization;
-        $data['campaigns'] = Campaign::where('organization_id', $organizationId)
+        $campaignsForQueue = Campaign::where('organization_id', $organizationId)
             ->whereIn('status', ['pending', 'scheduled'])
             ->limit(5)
             ->get();
+        $data['campaigns'] = $this->withRecipientCounts($campaignsForQueue);
         $data['campaignSummary'] = [
             'pending' => Campaign::where('organization_id', $organizationId)->whereNull('deleted_at')->where('status', 'pending')->count(),
             'scheduled' => Campaign::where('organization_id', $organizationId)->whereNull('deleted_at')->where('status', 'scheduled')->count(),
         ];
         $data['ticketSummary'] = $this->ticketSummary((int) $organizationId, $ticketingActive);
+        $data['messageEngagement'] = $this->messageEngagementSummary((int) $organizationId);
         $data['recentConversations'] = collect($recentConversationRows->items())
             ->take(5)
             ->map(function (Contact $contact) {
@@ -119,6 +138,51 @@ class DashboardController extends BaseController
         $data['title'] = __('Dashboard');
 
         return Inertia::render('User/Dashboard', $data);
+    }
+
+    private function withRecipientCounts($campaigns)
+    {
+        $campaignIds = $campaigns->pluck('id');
+
+        if ($campaignIds->isEmpty()) {
+            return $campaigns;
+        }
+
+        $recipientCounts = DB::table('campaign_logs')
+            ->whereIn('campaign_id', $campaignIds)
+            ->select('campaign_id', DB::raw('COUNT(*) as recipients_count'))
+            ->groupBy('campaign_id')
+            ->pluck('recipients_count', 'campaign_id');
+
+        return $campaigns->map(function (Campaign $campaign) use ($recipientCounts) {
+            $campaign->recipients_count = (int) ($recipientCounts[$campaign->id] ?? 0);
+
+            return $campaign;
+        });
+    }
+
+    private function messageEngagementSummary(int $organizationId): array
+    {
+        $since = Carbon::now()->subDays(30);
+
+        $counts = Chat::where('organization_id', $organizationId)
+            ->where('type', 'outbound')
+            ->whereNull('deleted_at')
+            ->where('created_at', '>=', $since)
+            ->selectRaw("COUNT(*) as total")
+            ->selectRaw("SUM(CASE WHEN status IN ('delivered', 'read') THEN 1 ELSE 0 END) as delivered")
+            ->selectRaw("SUM(CASE WHEN status = 'read' THEN 1 ELSE 0 END) as read_count")
+            ->first();
+
+        $total = (int) ($counts->total ?? 0);
+        $delivered = (int) ($counts->delivered ?? 0);
+        $read = (int) ($counts->read_count ?? 0);
+
+        return [
+            'readMessagesCount' => $read,
+            'openRate' => $total > 0 ? round(($read / $total) * 100, 1) : 0,
+            'deliveryRate' => $total > 0 ? round(($delivered / $total) * 100, 1) : 0,
+        ];
     }
 
     private function ticketSummary(int $organizationId, bool $ticketingActive): array
