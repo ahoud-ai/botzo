@@ -1512,6 +1512,7 @@ body {
     min-height: 0;
     background: var(--ui-surface);
     border-right: 1px solid var(--ui-border);
+    transition: width 220ms ease;
 }
 
 .direction-rtl .ui-sidebar,
@@ -2427,6 +2428,33 @@ body {
     text-align: right;
 }
 
+.dark .ui-phone-wrapper {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border);
+    box-shadow: none;
+}
+
+.dark .ui-phone-wrapper:focus-within {
+    border-color: color-mix(in srgb, var(--ui-secondary) 45%, var(--ui-border));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-secondary) 18%, transparent);
+}
+
+.dark .ui-phone-wrapper .vti__search_box {
+    background: var(--ui-surface);
+    border-color: var(--ui-border);
+}
+
+.dark .ui-phone-wrapper .vti__search_box:focus {
+    border-color: color-mix(in srgb, var(--ui-secondary) 45%, var(--ui-border));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-secondary) 18%, transparent);
+}
+
+.dark .ui-phone-wrapper .vti__dropdown-item.highlighted .vti__country,
+.dark .ui-phone-wrapper .vti__dropdown-item:hover .vti__country {
+    background: color-mix(in srgb, var(--ui-secondary) 18%, var(--ui-surface-soft));
+    color: var(--ui-text);
+}
+
 .ui-checkbox-input {
     width: 1rem;
     height: 1rem;
@@ -2820,5 +2848,159 @@ body {
         transform: none;
         transition: none;
     }
+}
+
+/* Onboarding product tour (driver.js) — retokened to match the dashboard design system */
+.driver-popover.botzo-tour-popover {
+    background: var(--ui-surface);
+    color: var(--ui-text);
+    border: 1px solid var(--ui-border-strong);
+    border-top: 3px solid var(--ui-secondary);
+    border-radius: 1rem;
+    box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.4);
+    min-width: 280px;
+    max-width: 340px;
+    padding: 1.2rem 1.2rem 1rem;
+    font-family: inherit;
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ui-text);
+    padding-inline-start: 2.6rem;
+}
+
+.driver-popover.botzo-tour-popover.botzo-tour-popover--welcome {
+    min-width: 340px;
+    max-width: 400px;
+    padding: 2rem 1.6rem 1.3rem;
+}
+
+.driver-popover.botzo-tour-popover.botzo-tour-popover--welcome .driver-popover-title {
+    font-size: 1.2rem;
+    padding-inline-start: 0;
+}
+
+.driver-popover.botzo-tour-popover.botzo-tour-popover--welcome .driver-popover-description {
+    font-size: 0.92rem;
+}
+
+.botzo-tour-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.2rem;
+}
+
+.botzo-tour-logo-icon {
+    height: 2.75rem;
+    width: auto;
+}
+
+.botzo-tour-logo-wordmark {
+    height: 1.3rem;
+    width: auto;
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-description {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--ui-muted);
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-close-btn {
+    position: absolute !important;
+    top: 1.05rem;
+    inset-inline-start: 1.1rem;
+    inset-inline-end: auto;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem !important;
+    height: 2.1rem;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--ui-danger);
+    background: color-mix(in srgb, var(--ui-danger) 20%, transparent);
+    border: none;
+    border-radius: 999px;
+    padding: 0;
+    transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-close-btn:hover,
+.driver-popover.botzo-tour-popover .driver-popover-close-btn:focus {
+    background: color-mix(in srgb, var(--ui-danger) 32%, transparent);
+    transform: scale(1.05);
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-footer {
+    margin-top: 1.35rem;
+    align-items: center;
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-progress-text {
+    color: var(--ui-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-navigation-btns {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-navigation-btns button + button {
+    margin: 0 !important;
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-footer-btn {
+    border-radius: 0.65rem;
+    border: 1px solid var(--ui-border-strong);
+    background: var(--ui-surface-soft);
+    color: var(--ui-text);
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-shadow: none;
+    transition: background-color 150ms ease, filter 150ms ease;
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-footer-btn:hover,
+.driver-popover.botzo-tour-popover .driver-popover-footer-btn:focus {
+    background: var(--ui-border-strong);
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-next-btn {
+    background: var(--ui-secondary);
+    border-color: var(--ui-secondary);
+    color: #fff;
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-next-btn:hover,
+.driver-popover.botzo-tour-popover .driver-popover-next-btn:focus {
+    filter: brightness(1.05);
+    background: var(--ui-secondary);
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-arrow-side-left {
+    border-right-color: var(--ui-surface) !important;
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-arrow-side-right {
+    border-left-color: var(--ui-surface) !important;
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-arrow-side-top {
+    border-bottom-color: var(--ui-surface) !important;
+}
+
+.driver-popover.botzo-tour-popover .driver-popover-arrow-side-bottom {
+    border-top-color: var(--ui-surface) !important;
 }
 

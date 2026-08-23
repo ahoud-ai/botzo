@@ -24,6 +24,7 @@
 
     const canEdit = computed(() => hasPermission('contacts.edit'));
     const canDelete = computed(() => hasPermission('contacts.delete'));
+    const replyWindowOpen = computed(() => contact.value?.reply_context?.reply_window_open === true);
 
     watchEffect(() => {
         contact.value = props.contact;
@@ -67,7 +68,18 @@
             <div>
                 <h1 class="text-3xl font-bold text-[var(--ui-text)]">{{ contact.full_name }}</h1>
                 <div class="text-slate-500 dark:text-slate-400 truncate flex items-center mt-1">
-                    <span class="text-sm">{{ contact.formatted_phone_number }}</span>
+                    <span class="text-sm" dir="ltr" style="unicode-bidi: isolate;">{{ contact.formatted_phone_number }}</span>
+                </div>
+                <div class="flex flex-wrap gap-2 mt-3">
+                    <span class="contact-wa-badge" :class="{ 'contact-wa-badge--open': replyWindowOpen }">
+                        <span class="dot"></span>
+                        {{ replyWindowOpen ? $t('Reply window open') : $t('Reply window closed') }}
+                    </span>
+                    <span
+                        v-for="group in contact.contact_groups"
+                        :key="group.uuid"
+                        class="contact-wa-badge contact-wa-badge--group"
+                    >{{ group.name }}</span>
                 </div>
                 <div class="flex gap-x-2 mt-4">
                     <Link v-if="canEdit" :href="'/contacts/' + contact.uuid + '?edit=true'" class="contact-action-btn contact-action-btn--wide">{{ $t('Edit') }}</Link>
@@ -191,6 +203,35 @@
 .contact-action-btn--favorite {
     background: color-mix(in srgb, #f5b400 14%, var(--ui-surface));
     border-color: color-mix(in srgb, #f5b400 40%, var(--ui-border));
+}
+
+.contact-wa-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+    background: var(--ui-surface-soft);
+    color: var(--ui-muted);
+}
+
+.contact-wa-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.contact-wa-badge--open {
+    background: color-mix(in srgb, var(--ui-success) 14%, transparent);
+    color: var(--ui-success);
+}
+
+.contact-wa-badge--group {
+    background: color-mix(in srgb, var(--ui-secondary) 12%, transparent);
+    color: var(--ui-secondary);
 }
 
 .contact-section-title {

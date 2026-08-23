@@ -1,64 +1,56 @@
 <template>
     <AppLayout>
-        <div class="ui-page ui-fade-up ui-page-frame flex flex-col text-[var(--ui-text)] min-h-full">
-            <div class="flex justify-between md:px-8 border-b pb-4">
-                <div>
-                    <h2 class="text-xl mb-1">{{ $t('New template') }}</h2>
-                    <p class="flex items-center text-sm leading-6 text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                        <span class="ms-1 mt-1">{{ $t('Create template for review') }}</span>
-                    </p>
-                </div>
-                <div class="gap-x-2 flex items-center">
-                    <Link href="/templates" class="rounded-md bg-black px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $t('Back') }}</Link>
-                    <button @click="submitForm()" type="button" class="capitalize rounded-md px-3 py-2 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" :class="isFormValid === true ? 'bg-indigo-600 hover:bg-indigo-500 shadow-sm' : 'bg-gray-200'" :disabled="!isFormValid || isLoading">
+        <div class="ui-page ui-fade-up ui-page-frame ui-text-main min-h-full">
+            <UiPageHeader :title="$t('New template')" :subtitle="$t('Create template for review')">
+                <template #actions>
+                    <Link href="/templates" class="wizard-btn wizard-btn--ghost">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M5.841 5.28a.75.75 0 0 0-1.06-1.06L1.53 7.47L1 8l.53.53l3.25 3.25a.75.75 0 0 0 1.061-1.06l-1.97-1.97H14.25a.75.75 0 0 0 0-1.5H3.871l1.97-1.97Z" clip-rule="evenodd"/></svg>
+                        {{ $t('Back') }}
+                    </Link>
+                    <button @click="submitForm()" type="button" class="wizard-btn wizard-btn--solid" :disabled="!isFormValid || isLoading">
                         <span v-if="!isLoading">{{ $t('Create template') }}</span>
-                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z" opacity=".5"/><path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"><animateTransform attributeName="transform" dur="1s" from="0 12 12" repeatCount="indefinite" to="360 12 12" type="rotate"/></path></svg>
+                        <svg v-else class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z" opacity=".3"/><path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"/></svg>
                     </button>
-                </div>
+                </template>
+            </UiPageHeader>
+
+            <div v-if="!settings?.whatsapp" class="wizard-connect-card">
+                <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 48 48"><path fill="currentColor" d="M43.634 4.366a1.25 1.25 0 0 1 0 1.768l-4.913 4.913a9.253 9.253 0 0 1-.744 12.244l-3.343 3.343a1.25 1.25 0 0 1-1.768 0l-11.5-11.5a1.25 1.25 0 0 1 0-1.768l3.343-3.343a9.25 9.25 0 0 1 12.244-.743l4.913-4.914a1.25 1.25 0 0 1 1.768 0m-7.611 7.425a6.75 6.75 0 0 0-9.546 0l-2.46 2.459l9.733 9.732l2.46-2.459a6.75 6.75 0 0 0 0-9.546zM9.28 36.953l-4.914 4.913a1.25 1.25 0 0 0 1.768 1.768l4.913-4.913a9.253 9.253 0 0 0 12.244-.744l3.343-3.343a1.25 1.25 0 0 0 0-1.768L25.268 31.5l3.366-3.366a1.25 1.25 0 0 0-1.768-1.768L23.5 29.732L18.268 24.5l3.366-3.366a1.25 1.25 0 0 0-1.768-1.768L16.5 22.732l-1.366-1.366a1.25 1.25 0 0 0-1.768 0l-3.343 3.343a9.25 9.25 0 0 0-.743 12.244m2.51-10.476l2.46-2.46l9.732 9.733l-2.459 2.46a6.75 6.75 0 0 1-9.546 0l-.186-.187a6.75 6.75 0 0 1 0-9.546"/></svg>
+                <h3>{{ $t('Connect your whatsapp account') }}</h3>
+                <p>{{ $t('You need to connect your WhatsApp account first before you can create a template.') }}</p>
+                <Link href="/settings/whatsapp" class="wizard-btn wizard-btn--solid">{{ $t('Connect Whatsapp account') }}</Link>
             </div>
-            <div class="md:flex md:flex-1 min-h-0 mt-4 md:mt-0">
-                <div class="md:w-[50%] md:p-8 overflow-y-auto min-h-0">
-                    <div v-if="!settings?.whatsapp" class="p-4 md:p-8 overflow-y-auto">
-                        <div class="bg-slate-50 border border-primary shadow rounded-md p-4 py-8">
-                            <div class="flex justify-center mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 48 48"><path fill="black" d="M43.634 4.366a1.25 1.25 0 0 1 0 1.768l-4.913 4.913a9.253 9.253 0 0 1-.744 12.244l-3.343 3.343a1.25 1.25 0 0 1-1.768 0l-11.5-11.5a1.25 1.25 0 0 1 0-1.768l3.343-3.343a9.25 9.25 0 0 1 12.244-.743l4.913-4.914a1.25 1.25 0 0 1 1.768 0m-7.611 7.425a6.75 6.75 0 0 0-9.546 0l-2.46 2.459l9.733 9.732l2.46-2.459a6.75 6.75 0 0 0 0-9.546zM9.28 36.953l-4.914 4.913a1.25 1.25 0 0 0 1.768 1.768l4.913-4.913a9.253 9.253 0 0 0 12.244-.744l3.343-3.343a1.25 1.25 0 0 0 0-1.768L25.268 31.5l3.366-3.366a1.25 1.25 0 0 0-1.768-1.768L23.5 29.732L18.268 24.5l3.366-3.366a1.25 1.25 0 0 0-1.768-1.768L16.5 22.732l-1.366-1.366a1.25 1.25 0 0 0-1.768 0l-3.343 3.343a9.25 9.25 0 0 0-.743 12.244m2.51-10.476l2.46-2.46l9.732 9.733l-2.459 2.46a6.75 6.75 0 0 1-9.546 0l-.186-.187a6.75 6.75 0 0 1 0-9.546"/></svg>
-                            </div>
-                            <h3 class="text-center text-lg font-medium mb-4">{{ $t('Connect your whatsapp account') }}</h3>
-                            <h4 class="text-center mb-4">{{ $t('You need to connect your WhatsApp account first before you can create a template.') }}</h4>
-                            <div class="flex justify-center">
-                                <Link href="/settings/whatsapp" class="rounded-md px-3 py-2 text-sm hover:shadow-md text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-primary" :disabled="isLoading">
-                                    <span v-if="!isLoading">{{ $t('Connect Whatsapp account') }}</span>
-                                </Link>
-                            </div>
-                        </div>
+
+            <div v-else class="wizard-layout">
+                <div class="wizard-main">
+                    <div v-if="templateReadinessWarning" class="tpl-readiness-banner">
+                        <div class="tpl-readiness-title">{{ $t('Template creation readiness') }}</div>
+                        <div class="tpl-readiness-text">{{ templateReadinessWarning }}</div>
+                        <div v-if="templateReadinessSummary" class="tpl-readiness-summary">{{ templateReadinessSummary }}</div>
                     </div>
-                    <div v-else>
-                        <div v-if="templateReadinessWarning" class="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                            <div class="font-semibold">{{ $t('Template creation readiness') }}</div>
-                            <div class="mt-1 whitespace-pre-line">{{ templateReadinessWarning }}</div>
-                            <div v-if="templateReadinessSummary" class="mt-2 text-xs text-amber-800">{{ templateReadinessSummary }}</div>
-                        </div>
-                        <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6 mb-8 capitalize">
+
+                    <UiFormSection :title="$t('Basic information')">
+                        <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6 capitalize">
                             <FormInput v-model="form.name" :name="$t('Name')" :type="'text'" @input="handleNameInput" @keydown.space.prevent="addUnderscore" :class="'sm:col-span-6'"/>
                             <FormSelect v-model="form.category" :options="categoryOptions" :name="$t('Category')" :class="'sm:col-span-3'" :placeholder="$t('Select category')"/>
                             <FormSelect v-model="form.language" :options="langOptions" :name="$t('Language')" :class="'sm:col-span-3'" :placeholder="$t('Select language')"/>
                         </div>
-                        <div v-if="form.category === 'UTILITY' || form.category === 'MARKETING'">
-                            <h2 class="text-slate-600">{{ $t('Header') }} <span class="text-xs">({{ $t('Optional') }})</span></h2>
-                            <span class="text-slate-600 text-xs">{{ $t('Add a title or choose which type of media you\'ll use for this header') }}</span>
-                            <div class="grid grid-cols-4 mt-2 ui-bg-soft rounded-lg mb-4">
-                                <button type="button" @click="changeHeaderType('TEXT')" class="text-center py-2 text-sm text-slate-800 m-1" :class="form.header.format === 'TEXT' ? 'bg-white shadow rounded-lg' : ''">{{ $t('Text') }}</button>
-                                <button type="button" @click="changeHeaderType('IMAGE')" class="text-center py-2 text-sm text-slate-800 m-1" :class="form.header.format === 'IMAGE' ? 'bg-white shadow rounded-lg' : ''">{{ $t('Image') }}</button>
-                                <button type="button" @click="changeHeaderType('VIDEO')" class="text-center py-2 text-sm text-slate-800 m-1" :class="form.header.format === 'VIDEO' ? 'bg-white shadow rounded-lg' : ''">{{ $t('Video') }}</button>
-                                <button type="button" @click="changeHeaderType('DOCUMENT')" class="text-center py-2 text-sm text-slate-800 m-1" :class="form.header.format === 'DOCUMENT' ? 'bg-white shadow rounded-lg' : ''">{{ $t('Document') }}</button>
+                    </UiFormSection>
+
+                    <template v-if="form.category === 'UTILITY' || form.category === 'MARKETING'">
+                        <UiFormSection :title="`${$t('Header')} (${$t('Optional')})`" :description="$t('Add a title or choose which type of media you\'ll use for this header')">
+                            <div class="wizard-segmented tpl-segmented-4">
+                                <button type="button" @click="changeHeaderType('TEXT')" :class="{ 'is-active': form.header.format === 'TEXT' }">{{ $t('Text') }}</button>
+                                <button type="button" @click="changeHeaderType('IMAGE')" :class="{ 'is-active': form.header.format === 'IMAGE' }">{{ $t('Image') }}</button>
+                                <button type="button" @click="changeHeaderType('VIDEO')" :class="{ 'is-active': form.header.format === 'VIDEO' }">{{ $t('Video') }}</button>
+                                <button type="button" @click="changeHeaderType('DOCUMENT')" :class="{ 'is-active': form.header.format === 'DOCUMENT' }">{{ $t('Document') }}</button>
                             </div>
-                            <div class="mb-8">
-                                <div :class="form.header.format === 'TEXT' ? '' : 'hidden'">
+                            <div class="mt-4">
+                                <div v-show="form.header.format === 'TEXT'">
                                     <HeaderTextArea v-model="form.header.text" :customValues="form.header.example" @updateExamples="updateHeaderExamples"/>
                                 </div>
                                 <div v-if="form.header.format === 'IMAGE'">
-                                    <div class="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                    <div class="tpl-dropzone">
                                         <input
                                             type="file"
                                             class="sr-only"
@@ -70,33 +62,33 @@
                                         <div class="text-center">
                                             <div>
                                                 <div v-if="form.header.format === 'IMAGE' && form.header.example" class="flex justify-center items-center">
-                                                    <div class="flex justify-center items-center gap-x-3 py-1 border bg-slate-100 rounded-lg mb-2 w-fit px-2">
+                                                    <div class="tpl-file-chip">
                                                         <div>
-                                                            <svg class="mx-auto h-6 w-6 text-gray-400 cursor-pointer" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M14 9a1.5 1.5 0 1 1 3 0a1.5 1.5 0 0 1-3 0Z"/><path fill="currentColor" fill-rule="evenodd" d="M7.268 4.658a54.647 54.647 0 0 1 9.465 0l1.51.132a3.138 3.138 0 0 1 2.831 2.66a30.604 30.604 0 0 1 0 9.1a3.138 3.138 0 0 1-2.831 2.66l-1.51.131c-3.15.274-6.316.274-9.465 0l-1.51-.131a3.138 3.138 0 0 1-2.832-2.66a30.601 30.601 0 0 1 0-9.1a3.138 3.138 0 0 1 2.831-2.66l1.51-.132Zm9.335 1.495a53.147 53.147 0 0 0-9.206 0l-1.51.131A1.638 1.638 0 0 0 4.41 7.672a29.101 29.101 0 0 0-.311 5.17L7.97 8.97a.75.75 0 0 1 1.09.032l3.672 4.13l2.53-.844a.75.75 0 0 1 .796.21l3.519 3.91a29.101 29.101 0 0 0 .014-8.736a1.638 1.638 0 0 0-1.478-1.388l-1.51-.131Zm2.017 11.435l-3.349-3.721l-2.534.844a.75.75 0 0 1-.798-.213l-3.471-3.905l-4.244 4.243c.049.498.11.996.185 1.491a1.638 1.638 0 0 0 1.478 1.389l1.51.131c3.063.266 6.143.266 9.206 0l1.51-.131c.178-.016.35-.06.507-.128Z" clip-rule="evenodd"/></svg>
+                                                            <svg class="tpl-file-icon mx-auto h-6 w-6 cursor-pointer" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M14 9a1.5 1.5 0 1 1 3 0a1.5 1.5 0 0 1-3 0Z"/><path fill="currentColor" fill-rule="evenodd" d="M7.268 4.658a54.647 54.647 0 0 1 9.465 0l1.51.132a3.138 3.138 0 0 1 2.831 2.66a30.604 30.604 0 0 1 0 9.1a3.138 3.138 0 0 1-2.831 2.66l-1.51.131c-3.15.274-6.316.274-9.465 0l-1.51-.131a3.138 3.138 0 0 1-2.832-2.66a30.601 30.601 0 0 1 0-9.1a3.138 3.138 0 0 1 2.831-2.66l1.51-.132Zm9.335 1.495a53.147 53.147 0 0 0-9.206 0l-1.51.131A1.638 1.638 0 0 0 4.41 7.672a29.101 29.101 0 0 0-.311 5.17L7.97 8.97a.75.75 0 0 1 1.09.032l3.672 4.13l2.53-.844a.75.75 0 0 1 .796.21l3.519 3.91a29.101 29.101 0 0 0 .014-8.736a1.638 1.638 0 0 0-1.478-1.388l-1.51-.131Zm2.017 11.435l-3.349-3.721l-2.534.844a.75.75 0 0 1-.798-.213l-3.471-3.905l-4.244 4.243c.049.498.11.996.185 1.491a1.638 1.638 0 0 0 1.478 1.389l1.51.131c3.063.266 6.143.266 9.206 0l1.51-.131c.178-.016.35-.06.507-.128Z" clip-rule="evenodd"/></svg>
                                                         </div>
                                                         <div class="flex items-center gap-x-2">
                                                             <span class="text-sm">{{ form.header.example.name }}</span>
-                                                            <button type="button" @click="removeFile()">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M17.707 7.707a1 1 0 0 0-1.414-1.414L12 10.586L7.707 6.293a1 1 0 0 0-1.414 1.414L10.586 12l-4.293 4.293a1 1 0 1 0 1.414 1.414L12 13.414l4.293 4.293a1 1 0 1 0 1.414-1.414L13.414 12l4.293-4.293Z" clip-rule="evenodd"/></svg>
+                                                            <button type="button" @click="removeFile()" class="tpl-icon-btn">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M17.707 7.707a1 1 0 0 0-1.414-1.414L12 10.586L7.707 6.293a1 1 0 0 0-1.414 1.414L10.586 12l-4.293 4.293a1 1 0 1 0 1.414 1.414L12 13.414l4.293 4.293a1 1 0 1 0 1.414-1.414L13.414 12l4.293-4.293Z" clip-rule="evenodd"/></svg>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <label v-else for="file-upload">
-                                                    <svg class="mx-auto h-12 w-12 text-gray-400 cursor-pointer" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M14 9a1.5 1.5 0 1 1 3 0a1.5 1.5 0 0 1-3 0Z"/><path fill="currentColor" fill-rule="evenodd" d="M7.268 4.658a54.647 54.647 0 0 1 9.465 0l1.51.132a3.138 3.138 0 0 1 2.831 2.66a30.604 30.604 0 0 1 0 9.1a3.138 3.138 0 0 1-2.831 2.66l-1.51.131c-3.15.274-6.316.274-9.465 0l-1.51-.131a3.138 3.138 0 0 1-2.832-2.66a30.601 30.601 0 0 1 0-9.1a3.138 3.138 0 0 1 2.831-2.66l1.51-.132Zm9.335 1.495a53.147 53.147 0 0 0-9.206 0l-1.51.131A1.638 1.638 0 0 0 4.41 7.672a29.101 29.101 0 0 0-.311 5.17L7.97 8.97a.75.75 0 0 1 1.09.032l3.672 4.13l2.53-.844a.75.75 0 0 1 .796.21l3.519 3.91a29.101 29.101 0 0 0 .014-8.736a1.638 1.638 0 0 0-1.478-1.388l-1.51-.131Zm2.017 11.435l-3.349-3.721l-2.534.844a.75.75 0 0 1-.798-.213l-3.471-3.905l-4.244 4.243c.049.498.11.996.185 1.491a1.638 1.638 0 0 0 1.478 1.389l1.51.131c3.063.266 6.143.266 9.206 0l1.51-.131c.178-.016.35-.06.507-.128Z" clip-rule="evenodd"/></svg>
+                                                    <svg class="tpl-dropzone-icon mx-auto h-12 w-12 cursor-pointer" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M14 9a1.5 1.5 0 1 1 3 0a1.5 1.5 0 0 1-3 0Z"/><path fill="currentColor" fill-rule="evenodd" d="M7.268 4.658a54.647 54.647 0 0 1 9.465 0l1.51.132a3.138 3.138 0 0 1 2.831 2.66a30.604 30.604 0 0 1 0 9.1a3.138 3.138 0 0 1-2.831 2.66l-1.51.131c-3.15.274-6.316.274-9.465 0l-1.51-.131a3.138 3.138 0 0 1-2.832-2.66a30.601 30.601 0 0 1 0-9.1a3.138 3.138 0 0 1 2.831-2.66l1.51-.132Zm9.335 1.495a53.147 53.147 0 0 0-9.206 0l-1.51.131A1.638 1.638 0 0 0 4.41 7.672a29.101 29.101 0 0 0-.311 5.17L7.97 8.97a.75.75 0 0 1 1.09.032l3.672 4.13l2.53-.844a.75.75 0 0 1 .796.21l3.519 3.91a29.101 29.101 0 0 0 .014-8.736a1.638 1.638 0 0 0-1.478-1.388l-1.51-.131Zm2.017 11.435l-3.349-3.721l-2.534.844a.75.75 0 0 1-.798-.213l-3.471-3.905l-4.244 4.243c.049.498.11.996.185 1.491a1.638 1.638 0 0 0 1.478 1.389l1.51.131c3.063.266 6.143.266 9.206 0l1.51-.131c.178-.016.35-.06.507-.128Z" clip-rule="evenodd"/></svg>
                                                 </label>
-                                                <div class="flex text-sm text-gray-600">
-                                                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                                <div class="flex text-sm ui-text-muted">
+                                                    <label for="file-upload" class="tpl-dropzone-label">
                                                         <span>{{ $t('Provide examples of the variables or media in the header') }}</span>
                                                     </label>
                                                 </div>
-                                                <p class="text-xs text-gray-500">{{ $t('PNG or JPG files only') }}</p>
+                                                <p class="text-xs ui-text-muted">{{ $t('PNG or JPG files only') }}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div v-if="form.header.format === 'VIDEO'">
-                                    <div class="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                    <div class="tpl-dropzone">
                                         <input
                                             type="file"
                                             class="sr-only"
@@ -108,33 +100,33 @@
                                         <div class="text-center">
                                             <div>
                                                 <div v-if="form.header.format === 'VIDEO' && form.header.example" class="flex justify-center items-center">
-                                                    <div class="flex justify-center items-center gap-x-3 py-1 border bg-slate-100 rounded-lg mb-2 w-fit px-2">
+                                                    <div class="tpl-file-chip">
                                                         <div>
-                                                            <svg class="mx-auto h-6 w-6 text-gray-400 cursor-pointer" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M2 11.5c0-3.287 0-4.931.908-6.038a4 4 0 0 1 .554-.554C4.57 4 6.212 4 9.5 4c3.287 0 4.931 0 6.038.908a4 4 0 0 1 .554.554C17 6.57 17 8.212 17 11.5v1c0 3.287 0 4.931-.908 6.038a4.001 4.001 0 0 1-.554.554C14.43 20 12.788 20 9.5 20c-3.287 0-4.931 0-6.038-.908a4 4 0 0 1-.554-.554C2 17.43 2 15.788 2 12.5v-1Zm15-2l.658-.329c1.946-.973 2.92-1.46 3.63-1.02c.712.44.712 1.528.712 3.703v.292c0 2.176 0 3.263-.711 3.703c-.712.44-1.685-.047-3.63-1.02L17 14.5v-5Z"/></svg>
+                                                            <svg class="tpl-file-icon mx-auto h-6 w-6 cursor-pointer" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M2 11.5c0-3.287 0-4.931.908-6.038a4 4 0 0 1 .554-.554C4.57 4 6.212 4 9.5 4c3.287 0 4.931 0 6.038.908a4 4 0 0 1 .554.554C17 6.57 17 8.212 17 11.5v1c0 3.287 0 4.931-.908 6.038a4.001 4.001 0 0 1-.554.554C14.43 20 12.788 20 9.5 20c-3.287 0-4.931 0-6.038-.908a4 4 0 0 1-.554-.554C2 17.43 2 15.788 2 12.5v-1Zm15-2l.658-.329c1.946-.973 2.92-1.46 3.63-1.02c.712.44.712 1.528.712 3.703v.292c0 2.176 0 3.263-.711 3.703c-.712.44-1.685-.047-3.63-1.02L17 14.5v-5Z"/></svg>
                                                         </div>
                                                         <div class="flex items-center gap-x-2">
                                                             <span class="text-sm">{{ form.header.example.name }}</span>
-                                                            <button type="button" @click="removeFile()">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M17.707 7.707a1 1 0 0 0-1.414-1.414L12 10.586L7.707 6.293a1 1 0 0 0-1.414 1.414L10.586 12l-4.293 4.293a1 1 0 1 0 1.414 1.414L12 13.414l4.293 4.293a1 1 0 1 0 1.414-1.414L13.414 12l4.293-4.293Z" clip-rule="evenodd"/></svg>
+                                                            <button type="button" @click="removeFile()" class="tpl-icon-btn">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M17.707 7.707a1 1 0 0 0-1.414-1.414L12 10.586L7.707 6.293a1 1 0 0 0-1.414 1.414L10.586 12l-4.293 4.293a1 1 0 1 0 1.414 1.414L12 13.414l4.293 4.293a1 1 0 1 0 1.414-1.414L13.414 12l4.293-4.293Z" clip-rule="evenodd"/></svg>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <label v-else for="file-upload2">
-                                                    <svg class="mx-auto h-12 w-12 text-gray-400 cursor-pointer" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M2 11.5c0-3.287 0-4.931.908-6.038a4 4 0 0 1 .554-.554C4.57 4 6.212 4 9.5 4c3.287 0 4.931 0 6.038.908a4 4 0 0 1 .554.554C17 6.57 17 8.212 17 11.5v1c0 3.287 0 4.931-.908 6.038a4.001 4.001 0 0 1-.554.554C14.43 20 12.788 20 9.5 20c-3.287 0-4.931 0-6.038-.908a4 4 0 0 1-.554-.554C2 17.43 2 15.788 2 12.5v-1Zm15-2l.658-.329c1.946-.973 2.92-1.46 3.63-1.02c.712.44.712 1.528.712 3.703v.292c0 2.176 0 3.263-.711 3.703c-.712.44-1.685-.047-3.63-1.02L17 14.5v-5Z"/></svg>
+                                                    <svg class="tpl-dropzone-icon mx-auto h-12 w-12 cursor-pointer" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M2 11.5c0-3.287 0-4.931.908-6.038a4 4 0 0 1 .554-.554C4.57 4 6.212 4 9.5 4c3.287 0 4.931 0 6.038.908a4 4 0 0 1 .554.554C17 6.57 17 8.212 17 11.5v1c0 3.287 0 4.931-.908 6.038a4.001 4.001 0 0 1-.554.554C14.43 20 12.788 20 9.5 20c-3.287 0-4.931 0-6.038-.908a4 4 0 0 1-.554-.554C2 17.43 2 15.788 2 12.5v-1Zm15-2l.658-.329c1.946-.973 2.92-1.46 3.63-1.02c.712.44.712 1.528.712 3.703v.292c0 2.176 0 3.263-.711 3.703c-.712.44-1.685-.047-3.63-1.02L17 14.5v-5Z"/></svg>
                                                 </label>
-                                                <div class="flex text-sm text-gray-600">
-                                                    <label for="file-upload2" class="relative cursor-pointer bg-white rounded-md font-medium hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                                <div class="flex text-sm ui-text-muted">
+                                                    <label for="file-upload2" class="tpl-dropzone-label">
                                                         <span>{{ $t('Provide examples of the variables or media in the header') }}</span>
                                                     </label>
                                                 </div>
-                                                <p class="text-xs text-gray-500">{{ $t('MP4 files only') }}</p>
+                                                <p class="text-xs ui-text-muted">{{ $t('MP4 files only') }}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div v-if="form.header.format === 'DOCUMENT'">
-                                    <div class="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                    <div class="tpl-dropzone">
                                         <input
                                             type="file"
                                             class="sr-only"
@@ -146,77 +138,61 @@
                                         <div class="text-center">
                                             <div>
                                                 <div v-if="form.header.format === 'DOCUMENT' && form.header.example" class="flex justify-center items-center">
-                                                    <div class="flex justify-center items-center gap-x-3 py-1 border bg-slate-100 rounded-lg mb-2 w-fit px-2">
+                                                    <div class="tpl-file-chip">
                                                         <div>
-                                                            <svg class="mx-auto h-6 w-6 text-gray-400 cursor-pointer" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18.53 9L13 3.47a.75.75 0 0 0-.53-.22H8A2.75 2.75 0 0 0 5.25 6v12A2.75 2.75 0 0 0 8 20.75h8A2.75 2.75 0 0 0 18.75 18V9.5a.75.75 0 0 0-.22-.5Zm-5.28-3.19l2.94 2.94h-2.94ZM16 19.25H8A1.25 1.25 0 0 1 6.75 18V6A1.25 1.25 0 0 1 8 4.75h3.75V9.5a.76.76 0 0 0 .75.75h4.75V18A1.25 1.25 0 0 1 16 19.25Z"/><path fill="currentColor" d="M13.49 14.85a3.15 3.15 0 0 1-1.31-1.66a4.44 4.44 0 0 0 .19-2a.8.8 0 0 0-1.52-.19a5 5 0 0 0 .25 2.4A29 29 0 0 1 9.83 16c-.71.4-1.68 1-1.83 1.69c-.12.56.93 2 2.72-1.12a18.58 18.58 0 0 1 2.44-.72a4.72 4.72 0 0 0 2 .61a.82.82 0 0 0 .62-1.38c-.42-.43-1.67-.31-2.29-.23Zm-4.78 3a4.32 4.32 0 0 1 1.09-1.24c-.68 1.08-1.09 1.27-1.09 1.25Zm2.92-6.81c.26 0 .24 1.15.06 1.46a3.07 3.07 0 0 1-.06-1.45Zm-.87 4.88a14.76 14.76 0 0 0 .88-1.92a3.88 3.88 0 0 0 1.08 1.26a12.35 12.35 0 0 0-1.96.67Zm4.7-.18s-.18.22-1.33-.28c1.25-.08 1.46.21 1.33.29Z"/></svg>
+                                                            <svg class="tpl-file-icon mx-auto h-6 w-6 cursor-pointer" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18.53 9L13 3.47a.75.75 0 0 0-.53-.22H8A2.75 2.75 0 0 0 5.25 6v12A2.75 2.75 0 0 0 8 20.75h8A2.75 2.75 0 0 0 18.75 18V9.5a.75.75 0 0 0-.22-.5Zm-5.28-3.19l2.94 2.94h-2.94ZM16 19.25H8A1.25 1.25 0 0 1 6.75 18V6A1.25 1.25 0 0 1 8 4.75h3.75V9.5a.76.76 0 0 0 .75.75h4.75V18A1.25 1.25 0 0 1 16 19.25Z"/><path fill="currentColor" d="M13.49 14.85a3.15 3.15 0 0 1-1.31-1.66a4.44 4.44 0 0 0 .19-2a.8.8 0 0 0-1.52-.19a5 5 0 0 0 .25 2.4A29 29 0 0 1 9.83 16c-.71.4-1.68 1-1.83 1.69c-.12.56.93 2 2.72-1.12a18.58 18.58 0 0 1 2.44-.72a4.72 4.72 0 0 0 2 .61a.82.82 0 0 0 .62-1.38c-.42-.43-1.67-.31-2.29-.23Zm-4.78 3a4.32 4.32 0 0 1 1.09-1.24c-.68 1.08-1.09 1.27-1.09 1.25Zm2.92-6.81c.26 0 .24 1.15.06 1.46a3.07 3.07 0 0 1-.06-1.45Zm-.87 4.88a14.76 14.76 0 0 0 .88-1.92a3.88 3.88 0 0 0 1.08 1.26a12.35 12.35 0 0 0-1.96.67Zm4.7-.18s-.18.22-1.33-.28c1.25-.08 1.46.21 1.33.29Z"/></svg>
                                                         </div>
                                                         <div class="flex items-center gap-x-2">
                                                             <span class="text-sm">{{ form.header.example.name }}</span>
-                                                            <button type="button" @click="removeFile()">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M17.707 7.707a1 1 0 0 0-1.414-1.414L12 10.586L7.707 6.293a1 1 0 0 0-1.414 1.414L10.586 12l-4.293 4.293a1 1 0 1 0 1.414 1.414L12 13.414l4.293 4.293a1 1 0 1 0 1.414-1.414L13.414 12l4.293-4.293Z" clip-rule="evenodd"/></svg>
+                                                            <button type="button" @click="removeFile()" class="tpl-icon-btn">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M17.707 7.707a1 1 0 0 0-1.414-1.414L12 10.586L7.707 6.293a1 1 0 0 0-1.414 1.414L10.586 12l-4.293 4.293a1 1 0 1 0 1.414 1.414L12 13.414l4.293 4.293a1 1 0 1 0 1.414-1.414L13.414 12l4.293-4.293Z" clip-rule="evenodd"/></svg>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <label v-else for="file-upload3">
-                                                    <svg class="mx-auto h-12 w-12 text-gray-400 cursor-pointer" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18.53 9L13 3.47a.75.75 0 0 0-.53-.22H8A2.75 2.75 0 0 0 5.25 6v12A2.75 2.75 0 0 0 8 20.75h8A2.75 2.75 0 0 0 18.75 18V9.5a.75.75 0 0 0-.22-.5Zm-5.28-3.19l2.94 2.94h-2.94ZM16 19.25H8A1.25 1.25 0 0 1 6.75 18V6A1.25 1.25 0 0 1 8 4.75h3.75V9.5a.76.76 0 0 0 .75.75h4.75V18A1.25 1.25 0 0 1 16 19.25Z"/><path fill="currentColor" d="M13.49 14.85a3.15 3.15 0 0 1-1.31-1.66a4.44 4.44 0 0 0 .19-2a.8.8 0 0 0-1.52-.19a5 5 0 0 0 .25 2.4A29 29 0 0 1 9.83 16c-.71.4-1.68 1-1.83 1.69c-.12.56.93 2 2.72-1.12a18.58 18.58 0 0 1 2.44-.72a4.72 4.72 0 0 0 2 .61a.82.82 0 0 0 .62-1.38c-.42-.43-1.67-.31-2.29-.23Zm-4.78 3a4.32 4.32 0 0 1 1.09-1.24c-.68 1.08-1.09 1.27-1.09 1.25Zm2.92-6.81c.26 0 .24 1.15.06 1.46a3.07 3.07 0 0 1-.06-1.45Zm-.87 4.88a14.76 14.76 0 0 0 .88-1.92a3.88 3.88 0 0 0 1.08 1.26a12.35 12.35 0 0 0-1.96.67Zm4.7-.18s-.18.22-1.33-.28c1.25-.08 1.46.21 1.33.29Z"/></svg>
+                                                    <svg class="tpl-dropzone-icon mx-auto h-12 w-12 cursor-pointer" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18.53 9L13 3.47a.75.75 0 0 0-.53-.22H8A2.75 2.75 0 0 0 5.25 6v12A2.75 2.75 0 0 0 8 20.75h8A2.75 2.75 0 0 0 18.75 18V9.5a.75.75 0 0 0-.22-.5Zm-5.28-3.19l2.94 2.94h-2.94ZM16 19.25H8A1.25 1.25 0 0 1 6.75 18V6A1.25 1.25 0 0 1 8 4.75h3.75V9.5a.76.76 0 0 0 .75.75h4.75V18A1.25 1.25 0 0 1 16 19.25Z"/><path fill="currentColor" d="M13.49 14.85a3.15 3.15 0 0 1-1.31-1.66a4.44 4.44 0 0 0 .19-2a.8.8 0 0 0-1.52-.19a5 5 0 0 0 .25 2.4A29 29 0 0 1 9.83 16c-.71.4-1.68 1-1.83 1.69c-.12.56.93 2 2.72-1.12a18.58 18.58 0 0 1 2.44-.72a4.72 4.72 0 0 0 2 .61a.82.82 0 0 0 .62-1.38c-.42-.43-1.67-.31-2.29-.23Zm-4.78 3a4.32 4.32 0 0 1 1.09-1.24c-.68 1.08-1.09 1.27-1.09 1.25Zm2.92-6.81c.26 0 .24 1.15.06 1.46a3.07 3.07 0 0 1-.06-1.45Zm-.87 4.88a14.76 14.76 0 0 0 .88-1.92a3.88 3.88 0 0 0 1.08 1.26a12.35 12.35 0 0 0-1.96.67Zm4.7-.18s-.18.22-1.33-.28c1.25-.08 1.46.21 1.33.29Z"/></svg>
                                                 </label>
-                                                <div class="flex text-sm text-gray-600">
-                                                    <label for="file-upload3" class="relative cursor-pointer bg-white rounded-md font-medium hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                                <div class="flex text-sm ui-text-muted">
+                                                    <label for="file-upload3" class="tpl-dropzone-label">
                                                         <span>{{ $t('Provide examples of the variables or media in the header') }}</span>
                                                     </label>
                                                 </div>
-                                                <p class="text-xs text-gray-500">{{ $t('PDF files only') }}</p>
+                                                <p class="text-xs ui-text-muted">{{ $t('PDF files only') }}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </UiFormSection>
 
-                            <h2 class="text-slate-600">{{ $t('Body') }} <span class="text-xs">({{ $t('Required') }})</span></h2>
-                            <span class="text-slate-600 text-xs">{{ $t('Enter the text for your message in the language that you\'ve selected') }}</span>
-                            <div class="mb-8">
-                                <div>
-                                    <BodyTextArea v-model="form.body.text" @updateExamples="updateBodyExamples"/>
-                                </div>
-                            </div>
+                        <UiFormSection :title="`${$t('Body')} (${$t('Required')})`" :description="$t('Enter the text for your message in the language that you\'ve selected')">
+                            <BodyTextArea v-model="form.body.text" @updateExamples="updateBodyExamples"/>
+                        </UiFormSection>
 
-                            <h2 class="text-slate-600">{{ $t('Footer description') }} <span class="text-xs">({{ $t('Optional') }})</span></h2>
-                            <span class="text-slate-600 text-xs">{{ $t('Add a short line of text to the bottom of your message template') }}</span>
-                            <div class="mb-8">
-                                <div>
-                                    <FormTextArea v-model="form.footer.text" @input="characterCount('footer')" :name="$t('Footer text')" :showLabel="false" :type="'text'" :textAreaRows="2" :class="'sm:col-span-6'"/>
-                                    <span class="text-xs">{{ $t('Characters') }}: {{ footerCharacterCount }}/{{ footerCharacterLimit }}</span>
-                                </div>
-                            </div>
+                        <UiFormSection :title="`${$t('Footer description')} (${$t('Optional')})`" :description="$t('Add a short line of text to the bottom of your message template')">
+                            <FormTextArea v-model="form.footer.text" @input="characterCount('footer')" :name="$t('Footer text')" :showLabel="false" :type="'text'" :textAreaRows="2" :class="'sm:col-span-6'"/>
+                            <span class="text-xs ui-text-muted">{{ $t('Characters') }}: {{ footerCharacterCount }}/{{ footerCharacterLimit }}</span>
+                        </UiFormSection>
 
-                            <h2 class="text-slate-600">{{ $t('Buttons') }} <span class="text-xs">({{ $t('Optional') }})</span></h2>
-                            <span class="text-slate-600 text-xs">{{ $t('Create buttons that let customers respond to your message or take action') }}</span>
-                            <div class="grid grid-cols-2 mt-3 mb-2">
-                                <button type="button" @click="addButton('call')" class="flex items-center justify-center text-slate-700 text-sm bg-slate-100 hover:bg-slate-200 hover:shadow-sm rounded-lg p-2 px-4 me-2">
-                                    <span>{{ $t('Call phone number (1)') }}</span>
-                                </button>
-                                <button type="button" @click="addButton('website')" class="flex items-center justify-center text-slate-700 text-sm bg-slate-100 hover:bg-slate-200 hover:shadow-sm rounded-lg p-2 px-4">
-                                    <span>{{ $t('Visit website (2)') }}</span>
-                                </button>
+                        <UiFormSection :title="`${$t('Buttons')} (${$t('Optional')})`" :description="$t('Create buttons that let customers respond to your message or take action')">
+                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                <button type="button" @click="addButton('call')" class="tpl-add-btn">{{ $t('Call phone number (1)') }}</button>
+                                <button type="button" @click="addButton('website')" class="tpl-add-btn">{{ $t('Visit website (2)') }}</button>
                             </div>
-                            <div class="grid grid-cols-2 mt-3 mb-2">
-                                <button type="button" @click="addButton('offer')" class="flex items-center justify-center text-slate-700 text-sm bg-slate-100 hover:bg-slate-200 hover:shadow-sm rounded-lg p-2 px-4 me-2">
-                                    <span>{{ $t('Copy offer code (1)') }}</span>
-                                </button>
-                                <button type="button" @click="addButton('custom')" class="flex items-center justify-center text-slate-700 text-sm bg-slate-100 hover:bg-slate-200 hover:shadow-sm rounded-lg p-2 px-4">
-                                    <span>{{ $t('Custom button (6)') }}</span>
-                                </button>
+                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                <button type="button" @click="addButton('offer')" class="tpl-add-btn">{{ $t('Copy offer code (1)') }}</button>
+                                <button type="button" @click="addButton('custom')" class="tpl-add-btn">{{ $t('Custom button (6)') }}</button>
                             </div>
-                            <div v-if="form.buttons.length > 0" class="mt-3 mb-8">
+                            <div v-if="form.buttons.length > 0" class="mt-3">
                                 <div v-for="(button, index) in form.buttons" :key="index" class="ui-bg-soft p-3 rounded-lg mb-3">
                                     <div class="flex items-center justify-between pb-1">
                                         <span class="text-sm">{{ $t(formatText(button.type)) }}</span>
-                                        <button type="button" @click="removeButton(index)" class="bg-slate-200 hover:shadow rounded-full p-1">
+                                        <button type="button" @click="removeButton(index)" class="tpl-icon-btn">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M17.707 7.707a1 1 0 0 0-1.414-1.414L12 10.586L7.707 6.293a1 1 0 0 0-1.414 1.414L10.586 12l-4.293 4.293a1 1 0 1 0 1.414 1.414L12 13.414l4.293 4.293a1 1 0 1 0 1.414-1.414L13.414 12l4.293-4.293Z" clip-rule="evenodd"/></svg>
                                         </button>
                                     </div>
-                                    <div class="flex gap-x-1 border-t pt-2">
+                                    <div class="flex gap-x-1 pt-2 tpl-button-row">
                                         <FormInput v-model="button.text" :name="$t('Button text')" :type="'text'" :class="button.type === 'QUICK_REPLY' ? 'w-full' :'sm:col-span-2'" :labelClass="'mb-0'"/>
                                         <FormInput v-model="button.url" v-if="button.type === 'URL'" :name="$t('Website url')" :type="'url'" :class="'w-full'" :labelClass="'mb-0'"/>
                                         <FormInput v-model="button.country" v-if="button.type === 'PHONE_NUMBER'" :name="$t('Country')" :type="'text'" :class="'sm:col-span-2'" :labelClass="'mb-0'"/>
@@ -225,191 +201,110 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div v-if="form.category === 'AUTHENTICATION'">
-                            <div class="mt-4 bg-gray-50 rounded-md p-3">
-                                <h2 class="text-slate-600">{{ $t('Code delivery setup') }}</h2>
-                                <span class="text-slate-600 text-xs">{{ $t('Choose how customers send the code from WhatsApp to your app.') }}</span>
+                        </UiFormSection>
+                    </template>
 
-                                <div class="mt-4">
-                                    <div v-for="option in codeDeliveryOptions" :key="option.value" class="relative flex mb-2">
-                                    <div class="flex h-6 items-center me-2">
-                                        <label class="flex items-center cursor-pointer">
-                                        <input
-                                            type="radio"
-                                            class="hidden"
-                                            :checked="form.authentication_button.otp_type === option.value"
-                                            @change="form.authentication_button.otp_type = option.value;"
-                                        />
-                                        <!-- Outer Circle -->
-                                        <div
-                                            class="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center transition"
-                                        >
-                                            <!-- Inner Dot -->
-                                            <div
-                                            class="w-2.5 h-2.5 rounded-full bg-primary transition"
-                                            v-if="form.authentication_button.otp_type === option.value"
-                                            ></div>
-                                        </div>
-                                        </label>
-                                    </div>
-                                    <div class="text-sm leading-6 cursor-pointer" @click="form.authentication_button.otp_type = option.value">
-                                        <label class="text-gray-900 cursor-pointer">{{ $t(option.label) }}</label>
-                                        <div class="text-[11px] leading-tight text-gray-500">
-                                        {{ $t(option.description) }}
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div v-if="form.authentication_button.otp_type != 'copy_code'" class="mt-6 bg-gray-50 rounded-md p-3">
-                                <h2 class="text-slate-600">{{ $t('App setup') }}</h2>
-                                <p class="text-slate-600 leading-tight text-xs mb-4">{{ $t('You can add up to 5 apps.') }}</p>
-
-                                <div v-for="(item, index) in form.authentication_button.supported_apps" class="flex gap-x-2 rounded-lg mb-3">
-                                    <FormInput v-model="form.authentication_button.supported_apps[index].package_name" :name="$t('Package name')" :type="'text'" :class="'w-3/5'" :labelClass="'mb-0'"/>
-                                    <FormInput v-model="form.authentication_button.supported_apps[index].signature_hash" :name="$t('App signature hash')" :type="'text'" :class="'w-2/5'" :labelClass="'mb-0'"/>
-                                    <span v-if="form.authentication_button.supported_apps.length > 1" @click="removeSupportedApp(index)" class="mt-7 cursor-pointer bg-slate-100 rounded-full w-6 h-6 flex items-center hover:shadow-md">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M7.404 7.404a.5.5 0 0 1 .707 0L12 11.293l3.89-3.89a.5.5 0 1 1 .706.708L12.707 12l3.89 3.89a.5.5 0 1 1-.708.706L12 12.707l-3.89 3.89a.5.5 0 1 1-.706-.708L11.293 12l-3.89-3.89a.5.5 0 0 1 0-.706"/></svg>
+                    <template v-if="form.category === 'AUTHENTICATION'">
+                        <UiFormSection :title="$t('Code delivery setup')" :description="$t('Choose how customers send the code from WhatsApp to your app.')">
+                            <div class="tpl-option-list">
+                                <button
+                                    type="button"
+                                    v-for="option in codeDeliveryOptions"
+                                    :key="option.value"
+                                    class="tpl-option-card"
+                                    :class="{ 'is-selected': form.authentication_button.otp_type === option.value }"
+                                    @click="form.authentication_button.otp_type = option.value"
+                                >
+                                    <span class="tpl-option-radio">
+                                        <span v-if="form.authentication_button.otp_type === option.value" class="tpl-option-radio-dot"></span>
                                     </span>
-                                </div>
-                                
-                                <div class="bg-slate-200 text-[11px] p-3 rounded-md leading-tight mb-4 text-gray-500">
-                                    {{ $t('It is recommended to only include different builds of the same app (which would not coexist on a production user\'s phone), rather than entirely different apps.') }}
-                                </div>
-
-                                <button v-if="form.authentication_button.supported_apps.length < 5" @click="addSupportedApp()" type="button" class="bg-white text-sm rounded-md shadow-sm border px-3 py-2">{{ $t('Add another app') }}</button>
+                                    <span>
+                                        <span class="tpl-option-title">{{ $t(option.label) }}</span>
+                                        <span class="tpl-option-desc">{{ $t(option.description) }}</span>
+                                    </span>
+                                </button>
                             </div>
-                            <div class="mt-6 bg-gray-50 rounded-md p-3">
-                                <h2 class="text-slate-600">{{ $t('Content') }}</h2>
-                                <p class="text-slate-600 leading-tight text-xs ">{{ $t('Authentication message content follows WhatsApp rules. You can customize the preview text below.') }}</p>
+                        </UiFormSection>
 
-                                <div class="mt-4">
-                                    <div class="grid gap-3 mb-4">
-                                        <FormInput
-                                            v-model="form.body.verification_message_content"
-                                            :name="$t('Verification Message Content')"
-                                            :placeholder="$t('is your verification code')"
-                                            :type="'text'"
-                                            :class="'w-full'"
-                                            :labelClass="'mb-0'"
-                                        />
-                                        <FormInput
-                                            v-model="form.body.security_recommendation_text"
-                                            :name="$t('Security Recommendation Text')"
-                                            :placeholder="$t('For your security, do not share this code')"
-                                            :type="'text'"
-                                            :class="'w-full'"
-                                            :labelClass="'mb-0'"
-                                        />
-                                    </div>
-                                    <div class="relative flex mb-2">
-                                        <div class="flex h-6 items-center me-2">
-                                            <input 
-                                                v-model="form.body.add_security_recommendation"
-                                                type="checkbox" 
-                                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                                            >
-                                        </div>
-                                        <div class="text-sm leading-6 cursor-pointer" @click="form.body.add_security_recommendation = !form.body.add_security_recommendation">
-                                            <label :for="name" class="text-gray-900 cursor-pointer">{{ $t('Add security recommendation') }}</label>
-                                        </div>
-                                    </div>
-                                    <div class="relative flex mb-2">
-                                        <div class="flex h-6 items-center me-2">
-                                            <input 
-                                                v-model="form.code_expiration"
-                                                type="checkbox" 
-                                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                                            >
-                                        </div>
-                                        <div class="text-sm leading-tight cursor-pointer" @click="form.code_expiration = !form.code_expiration">
-                                            <label :for="name" class="text-gray-900 cursor-pointer">{{ $t('Add expiry time for the code') }}</label>
-                                            <div class="text-[11px] text-slate-600">{{ $t('After the code has expired, the auto-fill button will be disabled.') }}</div>
-                                        </div>
-                                    </div>
-                                    <div v-if="form.code_expiration" class="relative flex mb-2">
-                                        <div class="bg-white border rounded-md w-full p-2">
-                                            <h2 class="mb-2">{{ $t('Expires In') }}</h2>
-                                            <div class="w-1/3 flex items-center gap-x-2">
-                                                <input type="number" v-model="form.footer.code_expiration_minutes" step="any"
-                                                class="block w-full rounded-md border-0 py-1.5 px-4 text-gray-900 shadow-sm outline-none ring-1 ring-inset placeholder:text-gray-400 sm:text-sm sm:leading-6"
-                                                :class="error ? 'ui-danger-ring' : 'ring-gray-300'"/>
-                                                <span class="text-sm">{{ $t('Minutes') }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <UiFormSection v-if="form.authentication_button.otp_type != 'copy_code'" :title="$t('App setup')" :description="$t('You can add up to 5 apps.')">
+                            <div v-for="(item, index) in form.authentication_button.supported_apps" :key="index" class="flex gap-x-2 rounded-lg mb-3">
+                                <FormInput v-model="form.authentication_button.supported_apps[index].package_name" :name="$t('Package name')" :type="'text'" :class="'w-3/5'" :labelClass="'mb-0'"/>
+                                <FormInput v-model="form.authentication_button.supported_apps[index].signature_hash" :name="$t('App signature hash')" :type="'text'" :class="'w-2/5'" :labelClass="'mb-0'"/>
+                                <button v-if="form.authentication_button.supported_apps.length > 1" type="button" @click="removeSupportedApp(index)" class="tpl-icon-btn mt-7">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M7.404 7.404a.5.5 0 0 1 .707 0L12 11.293l3.89-3.89a.5.5 0 1 1 .706.708L12.707 12l3.89 3.89a.5.5 0 1 1-.708.706L12 12.707l-3.89 3.89a.5.5 0 1 1-.706-.708L11.293 12l-3.89-3.89a.5.5 0 0 1 0-.706"/></svg>
+                                </button>
                             </div>
 
-                            <div class="mt-6 bg-gray-50 rounded-md p-3">
-                                <h2 class="text-slate-600 mb-1">{{ $t('Buttons') }}</h2>
-                                <p class="text-slate-600 leading-tight text-xs mb-4">{{ $t('You can customise the button text for both auto-fill and copy code. Even when zero-tap is turned on, buttons are still needed for the backup code delivery method.') }}</p>
+                            <div class="tpl-note">
+                                {{ $t('It is recommended to only include different builds of the same app (which would not coexist on a production user\'s phone), rather than entirely different apps.') }}
+                            </div>
 
-                                <div v-if="form.authentication_button.otp_type == 'copy_code'">
-                                    <FormInput v-model="form.authentication_button.text" :name="$t('Copy code')" :type="'text'" :class="''" :labelClass="'mb-0'"/>
-                                </div>
-                                <div v-else class="flex gap-x-2">
-                                    <FormInput v-model="form.authentication_button.autofill_text" :name="$t('Auto-fill')" :type="'text'" :class="'w-1/2'" :labelClass="'mb-0'"/>
-                                    <FormInput v-model="form.authentication_button.text" :name="$t('Copy code')" :type="'text'" :class="'w-1/2'" :labelClass="'mb-0'"/>
+                            <button v-if="form.authentication_button.supported_apps.length < 5" @click="addSupportedApp()" type="button" class="tpl-add-btn w-auto px-4">{{ $t('Add another app') }}</button>
+                        </UiFormSection>
+
+                        <UiFormSection :title="$t('Content')" :description="$t('Authentication message content follows WhatsApp rules. You can customize the preview text below.')">
+                            <div class="grid gap-3 mb-4">
+                                <FormInput
+                                    v-model="form.body.verification_message_content"
+                                    :name="$t('Verification Message Content')"
+                                    :placeholder="$t('is your verification code')"
+                                    :type="'text'"
+                                    :class="'w-full'"
+                                    :labelClass="'mb-0'"
+                                />
+                                <FormInput
+                                    v-model="form.body.security_recommendation_text"
+                                    :name="$t('Security Recommendation Text')"
+                                    :placeholder="$t('For your security, do not share this code')"
+                                    :type="'text'"
+                                    :class="'w-full'"
+                                    :labelClass="'mb-0'"
+                                />
+                            </div>
+                            <FormCheckbox v-model="form.body.add_security_recommendation" :name="'add_security_recommendation'" :label="$t('Add security recommendation')"/>
+                            <FormCheckbox v-model="form.code_expiration" :name="'code_expiration'" :label="$t('Add expiry time for the code')"/>
+                            <p class="text-[11px] ui-text-muted ms-8 -mt-2 mb-2">{{ $t('After the code has expired, the auto-fill button will be disabled.') }}</p>
+                            <div v-if="form.code_expiration" class="tpl-expiry-box">
+                                <h2 class="ui-form-label mb-2">{{ $t('Expires In') }}</h2>
+                                <div class="flex items-center gap-x-2 w-1/2">
+                                    <FormInput v-model="form.footer.code_expiration_minutes" :type="'number'" :hideLabel="true" :class="'w-full'"/>
+                                    <span class="text-sm ui-text-muted">{{ $t('Minutes') }}</span>
                                 </div>
                             </div>
+                        </UiFormSection>
+
+                        <UiFormSection :title="$t('Buttons')" :description="$t('You can customise the button text for both auto-fill and copy code. Even when zero-tap is turned on, buttons are still needed for the backup code delivery method.')">
+                            <FormInput v-if="form.authentication_button.otp_type == 'copy_code'" v-model="form.authentication_button.text" :name="$t('Copy code')" :type="'text'" :labelClass="'mb-0'"/>
+                            <div v-else class="flex gap-x-2">
+                                <FormInput v-model="form.authentication_button.autofill_text" :name="$t('Auto-fill')" :type="'text'" :class="'w-1/2'" :labelClass="'mb-0'"/>
+                                <FormInput v-model="form.authentication_button.text" :name="$t('Copy code')" :type="'text'" :class="'w-1/2'" :labelClass="'mb-0'"/>
+                            </div>
+                        </UiFormSection>
+                    </template>
+
+                    <UiFormSection v-if="form.category == 'UTILITY' || form.category == 'AUTHENTICATION'" :title="$t('Message validity period')" :description="$t('It\'s recommended to set a custom validity period that your authentication message must be delivered by before it expires. If a message is not delivered within this time frame, you will not be charged and your customer will not see the message.')">
+                        <div class="flex items-center justify-between gap-4 mb-3">
+                            <p class="text-[11px] ui-text-muted flex-1">{{ $t('If you don\'t set a custom validity period, the standard 10 minutes WhatsApp message validity period will be applied.') }}</p>
+                            <FormToggleSwitch v-model="form.customize_ttl" />
                         </div>
-
-                        <div v-if="form.category == 'UTILITY' || form.category == 'AUTHENTICATION'" class="mt-6 bg-gray-50 rounded-md p-3">
-                            <h2 class="text-slate-600 mb-1">{{ $t('Message validity period') }}</h2>
-                            <p class="text-slate-600 leading-tight text-xs ">{{ $t('It\'s recommended to set a custom validity period that your authentication message must be delivered by before it expires. If a message is not delivered within this time frame, you will not be charged and your customer will not see the message.') }}</p>
-
-                            <div class="mt-4">
-                                <h2 class="text-slate-600 mb-1">{{ $t('Set custom validity period for your message') }}</h2>
-                                <div class="flex w-full mb-4">
-                                    <p class="w-3/4 text-slate-600 text-[11px]">{{ $t('If you don\'t set a custom validity period, the standard 10 minutes WhatsApp message validity period will be applied.') }}</p>
-                                    <div class="w-1/4">
-                                        <FormToggleSwitch v-model="form.customize_ttl" />
-                                    </div>
-                                </div>
-                                <FormSelect v-if="form.customize_ttl" v-model="form.message_send_ttl_seconds" :options="form.category == 'UTILITY' ? utilityTTLOptions : authTTLOptions" :name="$t('Validity period')" :class="'sm:col-span-3'" :placeholder="$t('Select validity period')"/>
-                            </div>
-                        </div>
-                    </div>
+                        <FormSelect v-if="form.customize_ttl" v-model="form.message_send_ttl_seconds" :options="form.category == 'UTILITY' ? utilityTTLOptions : authTTLOptions" :name="$t('Validity period')" :class="'sm:col-span-3'" :placeholder="$t('Select validity period')"/>
+                    </UiFormSection>
                 </div>
-                <div class="md:w-[50%] py-20 px-4 md:px-20 overflow-y-auto chat-bg bg-cover bg-no-repeat">
-                    <div class="me-auto rounded-lg rounded-tl-none my-1 p-1 text-sm bg-white flex flex-col relative speech-bubble-left w-[25em]">
-                        <div v-if="form.header.format != 'TEXT'" class="mb-4 ui-bg-soft flex justify-center py-8 rounded">
-                            <img v-if="form.header.format === 'IMAGE'" :src="'/images/image-placeholder.png'" alt="">
-                            <img v-if="form.header.format === 'VIDEO'" :src="'/images/video-placeholder.png'" alt="">
-                            <img v-if="form.header.format === 'DOCUMENT'" :src="'/images/document-placeholder.png'" alt="">
+
+                <div class="wizard-preview">
+                    <div class="wizard-preview-frame">
+                        <div class="wizard-preview-topbar">
+                            <span class="wizard-preview-avatar">{{ orgInitial }}</span>
+                            <div>
+                                <div class="wizard-preview-title">{{ orgName }}</div>
+                                <div class="wizard-preview-sub">{{ $t('Live preview') }}</div>
+                            </div>
                         </div>
-                        <h2 v-else class="text-gray-700 text-sm mb-1 px-2 normal-case whitespace-pre-wrap">{{ form.header.text }}</h2>
-                        <p v-if="form.category != 'AUTHENTICATION'" class="px-2 normal-case whitespace-pre-wrap" v-html="formattedMessage"></p>
-                        <p v-else class="px-2 normal-case whitespace-pre-wrap">{{ authenticationPreviewMessage }}</p>
-                        <div class="ui-text-muted mt-1 px-2">
-                            <span v-if="form.category != 'AUTHENTICATION'" class="text-[13px]">{{ form.footer.text }}</span>
-                            <span v-else-if="form.category === 'AUTHENTICATION' && form.code_expiration == true">{{ $t('This code expires in') }} {{ form.footer.code_expiration_minutes }} {{ $t('minutes') }}</span>
-                            <span class="text-end text-xs leading-none ms-auto" :class="form.footer.text ? 'mt-2' : ''">9:15</span>
+                        <div class="ui-workspace-main--chat wizard-preview-body">
+                            <WhatsappTemplate :parameters="previewParameters" :visible="true"/>
                         </div>
                     </div>
-                    <div v-if="form.buttons.length > 0" class="me-auto text-sm ui-text-primary flex flex-col relative max-w-[25em]">
-                        <div v-for="(item, index) in form.buttons" :key="index" class="flex justify-center items-center gap-x-2 rounded-lg bg-white h-10 my-[0.1em]">
-                            <span>
-                                <svg v-if="item.type === 'COPY_CODE' || item.type === 'copy_code'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12V1Z"/></svg>
-                                <svg v-else-if="item.type === 'PHONE_NUMBER'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><g fill="none"><path fill="currentColor" d="M20 16v4c-2.758 0-5.07-.495-7-1.325c-3.841-1.652-6.176-4.63-7.5-7.675C4.4 8.472 4 5.898 4 4h4l1 4l-3.5 3c1.324 3.045 3.659 6.023 7.5 7.675L16 15l4 1z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 18.675c1.93.83 4.242 1.325 7 1.325v-4l-4-1l-3 3.675zm0 0C9.159 17.023 6.824 14.045 5.5 11m0 0C4.4 8.472 4 5.898 4 4h4l1 4l-3.5 3z"/></g></svg>
-                                <img v-else-if="item.type === 'URL'" :src="'/images/icons/link.png'" class="h-4" alt="">
-                                <img v-else :src="'/images/icons/reply.png'" class="h-4" alt="">
-                            </span>
-                            <span>{{ item.text }}</span>
-                        </div>
-                    </div>
-                    <div v-if="form.category == 'AUTHENTICATION' && form.authentication_button.otp_type != 'zero_tap'" class="me-auto text-sm ui-text-primary flex flex-col relative max-w-[25em]">
-                        <div class="flex justify-center items-center gap-x-2 rounded-lg bg-white h-10 my-[0.1em]">
-                            <span v-if="form.authentication_button.otp_type == 'copy_code'" class="flex gap-x-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12V1Z"/></svg>
-                                {{ form.authentication_button.text }}
-                            </span>
-                            <span v-if="form.authentication_button.otp_type == 'one_tap'">{{ form.authentication_button.autofill_text }}</span>
-                        </div>
-                    </div>
+                    <p class="wizard-preview-hint">{{ $t('This preview updates instantly as you edit the template.') }}</p>
                 </div>
             </div>
         </div>
@@ -419,7 +314,7 @@
                     <div v-if="error != null" class="ui-chip-danger ui-danger-text rounded text-sm p-2 mb-4">
                         <div>{{ $t('Error') }}: </div>
                         <div class="whitespace-pre-line">{{ error }}</div>
-                        <button type="button" @click="closeModal" class="mt-4 inline-flex justify-center rounded-md border border-transparent bg-slate-50 px-4 py-2 text-sm text-slate-500 hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 me-4">{{ $t('Close') }}</button>
+                        <button type="button" @click="closeModal" class="mt-4 inline-flex justify-center rounded-md border border-transparent ui-bg-soft ui-text-muted px-4 py-2 text-sm hover:bg-[var(--ui-border)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ui-secondary)] focus-visible:ring-offset-2 me-4">{{ $t('Close') }}</button>
                     </div>
                     <div v-else>
                         <h2 class="text-xl capitalize mt-6">{{ $t('Your template is being uploaded!') }}</h2>
@@ -430,16 +325,11 @@
                 </div>
             </div>
         </Modal>
-
-        
     </AppLayout>
 </template>
 <script setup>
     import axios from "axios";
     import AppLayout from "./../Layout/App.vue";
-    import Dropdown from '@/Components/Dropdown.vue';
-    import DropdownItemGroup from '@/Components/DropdownItemGroup.vue';
-    import DropdownItem from '@/Components/DropdownItem.vue';
     import FormCheckbox from '@/Components/FormCheckbox.vue';
     import FormInput from '@/Components/FormInput.vue';
     import FormSelect from '@/Components/FormSelect.vue';
@@ -447,14 +337,17 @@
     import FormToggleSwitch from '@/Components/FormToggleSwitch.vue';
     import BodyTextArea from '@/Components/Template/BodyTextArea.vue';
     import HeaderTextArea from '@/Components/Template/HeaderTextArea.vue';
-    import { ref, computed, watch } from 'vue';
+    import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
+    import UiFormSection from '@/Components/UI/UiFormSection.vue';
+    import WhatsappTemplate from '@/Components/WhatsappTemplate.vue';
+    import { ref, computed } from 'vue';
     import { localizeTemplateLanguageOptions } from '@/Utils/optionLocalizers';
     import { useI18n } from 'vue-i18n';
     import { Link } from "@inertiajs/vue3";
     import Modal from '@/Components/Modal.vue';
     import { toast } from 'vue3-toastify';
     import 'vue3-toastify/dist/index.css';
-    import { router } from '@inertiajs/vue3';
+    import { router } from '@inertiajs/vue3';
     const { locale, t } = useI18n();
 
     const props = defineProps(['languages', 'settings', 'templateReadiness']);
@@ -514,24 +407,8 @@
     const templateReadinessWarning = computed(() => props.templateReadiness?.hint ?? null);
     const templateReadinessSummary = computed(() => props.templateReadiness?.status_summary ?? null);
 
-    const formattedMessage = ref('');
-
-    const formatContent = (text) => {
-        const boldRegex = /\*(.*?)\*/g;
-        const italicRegex = /_(.*?)_/g;
-        const strikethroughRegex = /~(.*?)~/g;
-        const monospaceRegex = /```(.*?)```/g;
-
-        return text
-            .replace(boldRegex, "<b>$1</b>")
-            .replace(italicRegex, "<i>$1</i>")
-            .replace(strikethroughRegex, "<del>$1</del>")
-            .replace(monospaceRegex, "<code>$1</code>");
-    };
-
-    watch(() => form.value.body.text, (newValue) => {
-        formattedMessage.value = newValue ? formatContent(newValue) : null;
-    });
+    const orgName = props.settings?.name ?? '';
+    const orgInitial = (orgName || '?').trim().charAt(0).toUpperCase();
 
     const authenticationPreviewMessage = computed(() => {
         const verificationMessage = String(form.value.body.verification_message_content ?? '').trim() || t('is your verification code');
@@ -543,6 +420,36 @@
         }
 
         return messageParts.join(' ');
+    });
+
+    const previewParameters = computed(() => {
+        if (form.value.category === 'AUTHENTICATION') {
+            const otpType = form.value.authentication_button.otp_type;
+            const buttons = (otpType && otpType !== 'zero_tap')
+                ? [{
+                    type: otpType === 'copy_code' ? 'COPY_CODE' : 'QUICK_REPLY',
+                    text: otpType === 'copy_code' ? form.value.authentication_button.text : form.value.authentication_button.autofill_text,
+                }]
+                : [];
+
+            return {
+                header: { format: null },
+                body: { text: authenticationPreviewMessage.value },
+                footer: {
+                    text: form.value.code_expiration
+                        ? `${t('This code expires in')} ${form.value.footer.code_expiration_minutes} ${t('minutes')}`
+                        : '',
+                },
+                buttons,
+            };
+        }
+
+        return {
+            header: form.value.header,
+            body: { text: form.value.body.text },
+            footer: { text: form.value.footer.text },
+            buttons: form.value.buttons,
+        };
     });
 
     const headerType = ref('text');
@@ -561,7 +468,7 @@
         const currentType = form.value.header.format;
 
         if (
-            !(currentType in previousExamples.value) || 
+            !(currentType in previousExamples.value) ||
             JSON.stringify(previousExamples.value[currentType]) !== JSON.stringify(form.value.header.example)
         ) {
             // Store the example if it has changed
@@ -569,7 +476,7 @@
         }
 
         form.value.header.format = value;
-    
+
         if (previousExamples.value[value] !== undefined) {
             // Restore the example if switching back
             form.value.header.example = previousExamples.value[value];
@@ -725,8 +632,8 @@
             })
         ) {
             return false;
-        } 
-        
+        }
+
         // Exclude body.text validation if category is 'authentication'
         if (form.value.category !== 'AUTHENTICATION') {
             if (form.value.body.text === null || form.value.body.text.trim() === "") {
@@ -755,7 +662,7 @@
                 return false;
             }
         }
-        
+
         // Additional validation for authentication category
         if (form.value.category === 'AUTHENTICATION') {
             const authButton = form.value.authentication_button;
@@ -939,15 +846,114 @@
     }
 
     const closeModal = () => {
-        isModalOpen.value = false; 
+        isModalOpen.value = false;
 
         setTimeout(() => {
             error.value = null;
         }, 500);
     }
-
-    watch(form, () => {
-        isFormValid.value;
-    });
 </script>
 
+<style scoped>
+.wizard-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.7rem;
+    padding: 0.65rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.wizard-btn--solid {
+    background: var(--ui-secondary);
+    color: #fff;
+    border: none;
+    transition: filter 160ms ease;
+}
+.wizard-btn--solid:hover:not(:disabled) { filter: brightness(1.05); }
+.wizard-btn--solid:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.wizard-btn--ghost {
+    background: var(--ui-surface-soft);
+    color: var(--ui-text);
+    border: 1px solid var(--ui-border);
+}
+.wizard-btn--ghost:hover { background: var(--ui-border); }
+
+.wizard-connect-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+    padding: 3rem 1.5rem;
+    border: 1px solid var(--ui-border);
+    border-radius: 1.1rem;
+    background: var(--ui-surface);
+    color: var(--ui-muted);
+}
+.wizard-connect-card svg { color: var(--ui-secondary); }
+.wizard-connect-card h3 { font-size: 1.1rem; font-weight: 800; color: var(--ui-text); margin: 0; }
+.wizard-connect-card p { max-width: 34rem; margin: 0; font-size: 0.9rem; }
+
+.wizard-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(20rem, 24rem); gap: 1.5rem; align-items: start; }
+.wizard-main { display: flex; flex-direction: column; gap: 1rem; }
+
+.wizard-preview { position: sticky; top: 1.25rem; }
+.wizard-preview-frame { border: 1px solid var(--ui-border); border-radius: 1.25rem; overflow: hidden; box-shadow: 0 22px 48px -20px rgba(15, 23, 42, 0.25); background: var(--ui-surface); }
+.wizard-preview-topbar { display: flex; align-items: center; gap: 0.6rem; padding: 0.9rem 1.1rem; border-bottom: 1px solid var(--ui-border); }
+.wizard-preview-avatar {
+    width: 2.1rem; height: 2.1rem; border-radius: 50%;
+    background: color-mix(in srgb, var(--ui-secondary) 20%, transparent); color: var(--ui-secondary);
+    display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem;
+}
+.wizard-preview-title { font-size: 0.82rem; font-weight: 700; }
+.wizard-preview-sub { font-size: 0.7rem; color: var(--ui-muted); }
+.wizard-preview-body { padding: 2rem 1.1rem; min-height: 22rem; display: flex; align-items: flex-end; }
+.wizard-preview-hint { text-align: center; font-size: 0.76rem; color: var(--ui-muted); margin-top: 0.9rem; line-height: 1.6; }
+
+.wizard-segmented { display: flex; border: 1px solid var(--ui-border); border-radius: 0.7rem; overflow: hidden; width: 100%; }
+.wizard-segmented button {
+    flex: 1;
+    border: none; background: var(--ui-surface-soft); color: var(--ui-muted);
+    font-size: 0.82rem; font-weight: 700; padding: 0.6rem 0.6rem; cursor: pointer;
+}
+.wizard-segmented button.is-active { background: var(--ui-secondary); color: #fff; }
+
+.tpl-readiness-banner { border: 1px solid color-mix(in srgb, var(--ui-warning) 45%, var(--ui-border)); background: color-mix(in srgb, var(--ui-warning) 12%, var(--ui-surface)); border-radius: 1rem; padding: 0.9rem 1.1rem; }
+.tpl-readiness-title { font-weight: 800; font-size: 0.85rem; color: color-mix(in srgb, var(--ui-warning) 70%, var(--ui-text)); }
+.tpl-readiness-text { margin-top: 0.3rem; font-size: 0.82rem; white-space: pre-line; color: var(--ui-text); }
+.tpl-readiness-summary { margin-top: 0.4rem; font-size: 0.74rem; color: var(--ui-muted); }
+
+.tpl-dropzone { display: flex; justify-content: center; padding: 1.6rem 1.2rem; border: 2px dashed var(--ui-border-strong); border-radius: 0.9rem; background: var(--ui-surface-soft); }
+.tpl-dropzone-icon { color: var(--ui-muted); }
+.tpl-dropzone-label { color: var(--ui-secondary); font-weight: 600; cursor: pointer; }
+.tpl-file-chip { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.7rem; border: 1px solid var(--ui-border); background: var(--ui-surface); border-radius: 0.6rem; width: fit-content; }
+.tpl-file-icon { color: var(--ui-muted); }
+.tpl-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 1.7rem; height: 1.7rem; border-radius: 999px; background: var(--ui-surface); border: 1px solid var(--ui-border); color: var(--ui-muted); flex: none; }
+.tpl-icon-btn:hover { background: var(--ui-border); }
+
+.tpl-add-btn { display: flex; align-items: center; justify-content: center; text-align: center; font-size: 0.82rem; font-weight: 600; color: var(--ui-text); background: var(--ui-surface-soft); border: 1px solid var(--ui-border); border-radius: 0.7rem; padding: 0.6rem 1rem; transition: background-color 160ms ease, border-color 160ms ease; }
+.tpl-add-btn:hover { background: var(--ui-border); }
+
+.tpl-button-row { border-top: 1px solid var(--ui-border); }
+
+.tpl-option-list { display: flex; flex-direction: column; gap: 0.6rem; }
+.tpl-option-card { display: flex; align-items: flex-start; gap: 0.75rem; border: 2px solid var(--ui-border); border-radius: 0.9rem; padding: 0.85rem 1rem; background: var(--ui-surface-soft); cursor: pointer; transition: all 180ms ease; text-align: start; width: 100%; }
+.tpl-option-card:hover { border-color: var(--ui-border-strong); }
+.tpl-option-card.is-selected { border-color: var(--ui-secondary); background: color-mix(in srgb, var(--ui-secondary) 8%, var(--ui-surface)); }
+.tpl-option-radio { width: 1.2rem; height: 1.2rem; border-radius: 50%; border: 2px solid var(--ui-border-strong); flex: none; margin-top: 0.1rem; display: inline-flex; align-items: center; justify-content: center; }
+.tpl-option-card.is-selected .tpl-option-radio { border-color: var(--ui-secondary); }
+.tpl-option-radio-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--ui-secondary); }
+.tpl-option-title { display: block; font-size: 0.85rem; font-weight: 700; color: var(--ui-text); }
+.tpl-option-desc { display: block; font-size: 0.74rem; color: var(--ui-muted); line-height: 1.5; margin-top: 0.15rem; }
+
+.tpl-note { font-size: 0.72rem; line-height: 1.5; color: var(--ui-muted); background: var(--ui-surface-soft); border: 1px solid var(--ui-border); border-radius: 0.6rem; padding: 0.7rem 0.8rem; margin-bottom: 1rem; }
+.tpl-expiry-box { border: 1px solid var(--ui-border); border-radius: 0.7rem; padding: 0.8rem; background: var(--ui-surface-soft); margin-top: 0.5rem; }
+
+@media (max-width: 980px) {
+    .wizard-layout { grid-template-columns: 1fr; }
+    .wizard-preview { position: static; }
+}
+</style>

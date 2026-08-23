@@ -18,7 +18,12 @@
             return '';
         }
 
-        return text.replace(/\n/g, '<br>');
+        return text
+            .replace(/\*(.*?)\*/g, '<b>$1</b>')
+            .replace(/_(.*?)_/g, '<i>$1</i>')
+            .replace(/~(.*?)~/g, '<del>$1</del>')
+            .replace(/```(.*?)```/g, '<code>$1</code>')
+            .replace(/\n/g, '<br>');
     };
 
     const getExtension = (fileUrl) => {
@@ -87,7 +92,10 @@
         <p class="px-2 dark:text-slate-100" v-html="formatText(parameters.body.text)"></p>
         <div class="ui-text-muted mt-1 px-2 flex items-start gap-2">
             <span class="text-[13px]">{{ parameters.footer.text }}</span>
-            <span class="text-end text-xs leading-none ms-auto" :class="parameters.footer.text ? 'mt-2' : ''">9:15</span>
+            <span class="text-end text-xs leading-none ms-auto flex items-center gap-1" :class="parameters.footer.text ? 'mt-2' : ''">
+                9:15
+                <svg width="16" height="11" viewBox="0 0 16 11" fill="none" class="shrink-0"><path d="M11.1.7 4.5 7.3 2.9 4.7.5 6.1 4.5 10.1 12.5 2.1z" fill="#53bdeb"/><path d="M15.1.7 8.5 7.3 7.6 6.4 6.2 7.8 8.5 10.1 16.5 2.1z" fill="#53bdeb"/></svg>
+            </span>
         </div>
     </div>
     <div v-if="parameters?.buttons?.length > 0" class="me-auto text-sm ui-text-primary flex flex-col relative max-w-[25em]">

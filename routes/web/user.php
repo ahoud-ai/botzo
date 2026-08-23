@@ -22,6 +22,7 @@ Route::middleware(['auth:user'])->group(function () {
 
         Route::group(['middleware' => ['check.organization']], function () {
             require base_path('routes/web/user/dashboard-billing.php');
+            require base_path('routes/web/user/onboarding-tour.php');
 
             Route::group(['middleware' => 'check.subscription'], function () {
                 require base_path('routes/web/user/chats-contacts.php');

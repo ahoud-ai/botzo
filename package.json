@@ -48,6 +48,7 @@
         "@wdns/vue-code-block": "^2.3.2",
         "apexcharts": "^3.43.0",
         "class-variance-authority": "^0.7.0",
+        "driver.js": "^1.8.0",
         "lamejs": "^1.2.1",
         "laravel-echo": "^1.15.3",
         "laravel-vue-i18n": "^2.7.6",

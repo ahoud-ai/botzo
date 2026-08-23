@@ -9,13 +9,7 @@
     import { buildI18nLookupCandidates } from '@/Utils/i18nLookup';
     import debounce from 'lodash/debounce';
     import 'vue3-toastify/dist/index.css';
-    import Table from '@/Components/Table.vue';
-    import TableHeader from '@/Components/TableHeader.vue';
-    import TableHeaderRow from '@/Components/TableHeaderRow.vue';
-    import TableHeaderRowItem from '@/Components/TableHeaderRowItem.vue';
-    import TableBody from '@/Components/TableBody.vue';
-    import TableBodyRow from '@/Components/TableBodyRow.vue';
-    import TableBodyRowItem from '@/Components/TableBodyRowItem.vue';
+    import Pagination from '@/Components/Pagination.vue';
     import Dropdown from '@/Components/Dropdown.vue';
     import DropdownItemGroup from '@/Components/DropdownItemGroup.vue';
     import DropdownItem from '@/Components/DropdownItem.vue';
@@ -254,63 +248,48 @@
         </div>
     </div>
 
-    <Table :rows="rows">
-        <TableHeader>
-            <TableHeaderRow>
-                <TableHeaderRowItem :position="'first'">{{ $t('Name') }}</TableHeaderRowItem>
-                <TableHeaderRowItem class="hidden md:table-cell">{{ $t('Category') }}</TableHeaderRowItem>
-                <TableHeaderRowItem class="hidden lg:table-cell">{{ $t('Language') }}</TableHeaderRowItem>
-                <TableHeaderRowItem class="hidden xl:table-cell">{{ $t('Preview') }}</TableHeaderRowItem>
-                <TableHeaderRowItem>{{ $t('Status') }}</TableHeaderRowItem>
-                <TableHeaderRowItem class="hidden sm:table-cell">{{ $t('Last updated') }}</TableHeaderRowItem>
-                <TableHeaderRowItem :position="'last'"></TableHeaderRowItem>
-            </TableHeaderRow>
-        </TableHeader>
-        <TableBody>
-            <TableBodyRow v-for="(item, index) in rows.data" :key="index">
-                <TableBodyRowItem :position="'first'">
-                    <span class="font-bold text-[16px] text-[var(--ui-text)]">{{ item.name }}</span>
-                </TableBodyRowItem>
-                <TableBodyRowItem class="hidden md:table-cell">
-                    <span class="template-category-badge" :style="categoryStyle(item.category)">
-                        {{ translateDynamic(item.category?.charAt(0) + item.category?.slice(1).toLowerCase()) }}
-                    </span>
-                </TableBodyRowItem>
-                <TableBodyRowItem class="hidden lg:table-cell">
-                    <span class="text-[var(--ui-muted)]">{{ languageLabel(item.language) }}</span>
-                </TableBodyRowItem>
-                <TableBodyRowItem class="hidden xl:table-cell">
-                    <div class="template-preview-frame">
-                        <WhatsappTemplate :parameters="toPreviewParameters(item.metadata)" :visible="true" :placeholder="true" />
+    <div class="template-grid">
+        <div v-for="(item, index) in rows.data" :key="index" class="template-card">
+            <div class="template-card-top">
+                <div class="min-w-0">
+                    <p class="template-card-name">{{ item.name }}</p>
+                    <div class="template-card-badges">
+                        <span class="template-category-badge" :style="categoryStyle(item.category)">
+                            {{ translateDynamic(item.category?.charAt(0) + item.category?.slice(1).toLowerCase()) }}
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-bold capitalize" :class="statusChipClass(item.status)">
+                            <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+                            {{ translateDynamic(item.status) }}
+                        </span>
                     </div>
-                </TableBodyRowItem>
-                <TableBodyRowItem>
-                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13px] font-bold capitalize" :class="statusChipClass(item.status)">
-                        <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
-                        {{ translateDynamic(item.status) }}
-                    </span>
-                </TableBodyRowItem>
-                <TableBodyRowItem class="hidden sm:table-cell">
-                    <span class="text-[var(--ui-muted)]">{{ item.updated_at }}</span>
-                </TableBodyRowItem>
-                <TableBodyRowItem :position="'last'">
-                    <Dropdown v-if="canEdit || canDelete" :align="'right'">
-                        <button type="submit" class="template-toolbar-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z"/>
-                            </svg>
-                        </button>
-                        <template #items>
-                            <DropdownItemGroup>
-                                <DropdownItem v-if="canEdit && (item.status == 'APPROVED' || item.status == 'REJECTED' || item.status == 'PAUSED')" :href="'/templates/' + item.uuid">{{ $t('edit') }}</DropdownItem>
-                                <DropdownItem v-if="canDelete" as="button" @click="openAlert(item.uuid)">{{ $t('Delete') }}</DropdownItem>
-                            </DropdownItemGroup>
-                        </template>
-                    </Dropdown>
-                </TableBodyRowItem>
-            </TableBodyRow>
-        </TableBody>
-    </Table>
+                </div>
+                <Dropdown v-if="canEdit || canDelete" :align="'right'" class="template-card-kebab-wrap">
+                    <button type="button" class="template-toolbar-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z"/>
+                        </svg>
+                    </button>
+                    <template #items>
+                        <DropdownItemGroup>
+                            <DropdownItem v-if="canEdit && (item.status == 'APPROVED' || item.status == 'REJECTED' || item.status == 'PAUSED')" :href="'/templates/' + item.uuid">{{ $t('edit') }}</DropdownItem>
+                            <DropdownItem v-if="canDelete" as="button" @click="openAlert(item.uuid)">{{ $t('Delete') }}</DropdownItem>
+                        </DropdownItemGroup>
+                    </template>
+                </Dropdown>
+            </div>
+
+            <div class="template-preview-frame ui-workspace-main--chat">
+                <WhatsappTemplate :parameters="toPreviewParameters(item.metadata)" :visible="true" :placeholder="true" />
+            </div>
+
+            <div class="template-card-meta">
+                <span>{{ languageLabel(item.language) }}</span>
+                <span>{{ item.updated_at }}</span>
+            </div>
+        </div>
+    </div>
+
+    <Pagination v-if="rows.meta" class="mt-4" :pagination="rows.meta"/>
 
     <UiEmptyState v-if="rows.data.length == 0" :title="$t('You don\'t have any templates')">
         <template #icon>
@@ -379,10 +358,71 @@
     font-weight: 700;
 }
 
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.template-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid var(--ui-border);
+    border-radius: 1rem;
+    background: var(--ui-surface);
+    transition: box-shadow 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.template-card:hover {
+    border-color: var(--ui-border-strong);
+    box-shadow: 0 16px 32px -20px rgba(15, 23, 42, 0.3);
+    transform: translateY(-2px);
+}
+
+.template-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+
+.template-card-name {
+    margin: 0 0 0.4rem;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--ui-text);
+    word-break: break-word;
+}
+
+.template-card-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.template-card-kebab-wrap {
+    flex: none;
+}
+
+.template-card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.76rem;
+    color: var(--ui-muted);
+}
+
 .template-preview-frame {
-    max-width: 260px;
-    max-height: 190px;
+    border-radius: 0.8rem;
     overflow: hidden;
+    border: 1px solid var(--ui-border);
+    min-height: 9rem;
+    max-height: 13rem;
+    padding: 1rem 0.8rem;
+    display: flex;
+    align-items: flex-end;
 }
 
 .template-preview-frame :deep(p) {

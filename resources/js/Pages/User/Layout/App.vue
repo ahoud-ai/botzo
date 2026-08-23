@@ -8,6 +8,7 @@
                 <slot :user="user" :toggleNavBar="toggleTopBar"></slot>
             </div>
         </div>
+        <ProductTour />
     </div>
 </template>
 <script setup>
@@ -19,6 +20,7 @@
     import 'vue3-toastify/dist/index.css';
     import { getEchoInstance } from '../../../echo';
     import { useRtl } from '@/Composables/useRtl';
+    import ProductTour from '@/Components/ProductTour/ProductTour.vue';
 
     defineProps({
         immersive: {

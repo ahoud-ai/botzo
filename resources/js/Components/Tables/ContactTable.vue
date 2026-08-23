@@ -33,9 +33,27 @@
     const params = ref({
         id: props.filters?.id,
         search: props.filters?.search,
+        group: props.filters?.group ?? null,
         page: props.filters?.page
     });
-    
+
+    const groupPalette = ['#155dfc', 'var(--ui-warning)', '#7c3aed', 'var(--ui-secondary)'];
+    const groupColor = (uuid) => {
+        if (!Array.isArray(props.contactGroups)) {
+            return groupPalette[0];
+        }
+        const index = props.contactGroups.findIndex((group) => group.uuid === uuid);
+        return groupPalette[index >= 0 ? index % groupPalette.length : 0];
+    };
+
+    const applyGroup = (uuid) => {
+        params.value.group = uuid;
+        params.value.page = null;
+        runSearch();
+    };
+
+    const replyWindowOpen = (contact) => contact?.reply_context?.reply_window_open === true;
+
     const isOpenModal = ref(false);
     const isExportModalOpen = ref(false);
     const isAssignGroupModalOpen = ref(false);
@@ -269,6 +287,25 @@
             </span>
         </div>
     </div>
+    <div v-if="type === 'contact' && contactGroups?.length" class="contact-group-filters">
+        <button
+            type="button"
+            class="contact-group-pill"
+            :class="{ 'contact-group-pill--active': !params.group }"
+            @click="applyGroup(null)"
+        >{{ $t('All groups') }}</button>
+        <button
+            v-for="group in contactGroups"
+            :key="group.uuid"
+            type="button"
+            class="contact-group-pill"
+            :class="{ 'contact-group-pill--active': params.group === group.uuid }"
+            :style="{ '--pill-color': groupColor(group.uuid) }"
+            @click="applyGroup(group.uuid)"
+        >
+            <span class="dot"></span>{{ group.name }}
+        </button>
+    </div>
     <div class="flex px-4 border-b border-slate-100 dark:border-white/10">
         <Link href="/contacts" class="contact-tab" :class="{ 'contact-tab--active': $page.url.startsWith('/contacts') }">{{ $t('All contacts') }}</Link>
         <Link href="/contact-groups" class="contact-tab" :class="{ 'contact-tab--active': $page.url.startsWith('/contact-groups') }">{{ $t('Groups') }}</Link>
@@ -306,22 +343,34 @@
     </div>
     <div class="flex-grow min-h-0 overflow-y-auto" ref="scrollContainer">
             <div v-if="type === 'contact'" @click="getRow(contact.uuid)" class="contact-row" :class="{ 'contact-row--checked': contact.isChecked }" v-for="(contact, index) in rows.data" :key="index">
-            <div class="shrink-0 pt-1">
+            <div class="shrink-0">
                 <label @click.stop="toggleCheckbox(contact.uuid)" class="contact-checkbox" :class="{ 'contact-checkbox--checked': contact.isChecked }">
                     <svg v-if="contact.isChecked" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                     </svg>
                 </label>
             </div>
-            <div class="shrink-0">
-                <img v-if="contact.avatar" class="rounded-full h-11 w-11 object-cover" :src="contact.avatar" alt="">
-                <div v-else class="rounded-full bg-secondary/10 text-secondary flex justify-center items-center h-11 w-11 font-semibold">{{ contact.first_name?.substring(0, 1) }}</div>
+            <div class="shrink-0 contact-avatar-wrap">
+                <img v-if="contact.avatar" class="contact-avatar-img rounded-full h-14 w-14 object-cover" :src="contact.avatar" alt="">
+                <div v-else class="contact-avatar-fallback rounded-full flex justify-center items-center h-14 w-14 text-lg font-bold">{{ contact.first_name?.substring(0, 1) }}</div>
+                <span class="contact-wa-dot" :class="{ 'contact-wa-dot--open': replyWindowOpen(contact) }" :title="replyWindowOpen(contact) ? $t('Reply window open') : $t('Reply window closed')">
+                    <span v-if="replyWindowOpen(contact)" class="contact-wa-dot-pulse"></span>
+                </span>
             </div>
             <div class="min-w-0 flex-1">
                 <h3 class="truncate text-[15px] font-semibold text-[var(--ui-text)]">{{ contact?.full_name }}</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-[13px] truncate">{{ contact.formatted_phone_number }}</p>
+                <div class="contact-row-meta">
+                    <span class="contact-row-phone" dir="ltr">{{ contact.formatted_phone_number }}</span>
+                    <span
+                        v-for="group in contact.contact_groups?.slice(0, 1)"
+                        :key="group.uuid"
+                        class="contact-group-chip"
+                        :style="{ '--chip-color': groupColor(group.uuid) }"
+                    >{{ group.name }}</span>
+                    <span v-if="contact.contact_groups?.length > 1" class="contact-group-chip contact-group-chip--muted">+{{ contact.contact_groups.length - 1 }}</span>
+                </div>
             </div>
-            <div class="shrink-0 pt-1">
+            <div class="shrink-0">
                 <svg v-if="contact.is_favorite" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="#f5b400" d="M9.153 5.408C10.42 3.136 11.053 2 12 2c.947 0 1.58 1.136 2.847 3.408l.328.588c.36.646.54.969.82 1.182c.28.213.63.292 1.33.45l.636.144c2.46.557 3.689.835 3.982 1.776c.292.94-.546 1.921-2.223 3.882l-.434.507c-.476.557-.715.836-.822 1.18c-.107.345-.071.717.001 1.46l.066.677c.253 2.617.38 3.925-.386 4.506c-.766.582-1.918.051-4.22-1.009l-.597-.274c-.654-.302-.981-.452-1.328-.452c-.347 0-.674.15-1.328.452l-.596.274c-2.303 1.06-3.455 1.59-4.22 1.01c-.767-.582-.64-1.89-.387-4.507l.066-.676c.072-.744.108-1.116 0-1.46c-.106-.345-.345-.624-.821-1.18l-.434-.508c-1.677-1.96-2.515-2.941-2.223-3.882c.293-.941 1.523-1.22 3.983-1.776l.636-.144c.699-.158 1.048-.237 1.329-.45c.28-.213.46-.536.82-1.182z"/></svg>
             </div>
         </div>
@@ -439,14 +488,15 @@
 }
 
 .contact-row {
+    position: relative;
     display: flex;
     min-width: 0;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.85rem 1rem;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.9rem 1rem;
     cursor: pointer;
     border-bottom: 1px solid var(--ui-border);
-    transition: background-color 120ms ease;
+    transition: background-color 160ms ease;
 }
 
 .contact-row:hover {
@@ -455,6 +505,153 @@
 
 .contact-row--checked {
     background: color-mix(in srgb, var(--ui-secondary) 8%, var(--ui-surface));
+}
+
+.contact-row--checked::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.6rem;
+    bottom: 0.6rem;
+    width: 3px;
+    border-radius: 999px;
+    background: var(--ui-secondary);
+}
+
+.contact-avatar-wrap {
+    position: relative;
+}
+
+.contact-avatar-img {
+    box-shadow: 0 0 0 3px var(--ui-surface-soft), 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.contact-avatar-fallback {
+    color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 16%, var(--ui-surface-soft));
+    box-shadow: 0 0 0 3px var(--ui-surface-soft), 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.contact-wa-dot {
+    position: absolute;
+    bottom: 0;
+    inset-inline-end: 0;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 50%;
+    border: 2.5px solid var(--ui-surface);
+    background: var(--ui-muted);
+    opacity: 0.5;
+}
+
+.contact-wa-dot--open {
+    background: var(--ui-success);
+    opacity: 1;
+}
+
+.contact-wa-dot-pulse {
+    position: absolute;
+    inset: -2.5px;
+    border-radius: inherit;
+    border: 1.5px solid var(--ui-success);
+    opacity: 0;
+    animation: contact-wa-pulse 2.2s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .contact-wa-dot-pulse { animation: none; }
+}
+
+@keyframes contact-wa-pulse {
+    0% { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.7); }
+}
+
+.contact-row-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+    overflow: hidden;
+}
+
+.contact-row-phone {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    color: var(--ui-muted);
+    unicode-bidi: isolate;
+}
+
+.contact-group-chip {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.16rem 0.5rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--chip-color, var(--ui-muted)) 14%, transparent);
+    color: var(--chip-color, var(--ui-muted));
+    max-width: 6rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.contact-group-chip--muted {
+    background: var(--ui-surface-soft);
+    color: var(--ui-muted);
+}
+
+.contact-group-filters {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding: 0.7rem 1rem 0;
+    scrollbar-width: none;
+}
+
+.contact-group-filters::-webkit-scrollbar {
+    display: none;
+}
+
+.contact-group-pill {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+    color: var(--ui-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.contact-group-pill .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--pill-color, var(--ui-muted));
+}
+
+.contact-group-pill:hover {
+    color: var(--ui-text);
+    border-color: var(--ui-border-strong);
+}
+
+.contact-group-pill--active {
+    background: var(--ui-secondary);
+    border-color: var(--ui-secondary);
+    color: #fff;
+}
+
+.contact-group-pill--active .dot {
+    background: #fff;
 }
 
 .contact-modal-btn {

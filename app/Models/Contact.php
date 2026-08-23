@@ -31,18 +31,18 @@ class Contact extends Model {
         return DateTimeHelper::convertToOrganizationTimezone($value)->toDateTimeString();
     }
 
-    public function getAllContacts($organizationId, $searchTerm)
+    public function getAllContacts($organizationId, $searchTerm, $groupUuid = null)
     {
-        $query = $this->with('contactGroups')
+        $query = $this->with(['contactGroups', 'lastInboundChat'])
             ->where('organization_id', $organizationId)
             ->where('deleted_at', null);
-        
+
         // Check if user can only view assigned contacts
         $permissionService = new \App\Services\PermissionService();
         $isOwner = $permissionService->isOwner($organizationId);
         $canViewAll = $permissionService->can('contacts.view_all', $organizationId);
         $canViewAssignedOnly = $permissionService->can('contacts.view_assigned_only', $organizationId);
-        
+
         // Owners always see all contacts, bypass view_assigned_only restriction
         // If user has both view_all AND view_assigned_only (and is not owner), filter by assigned contacts only
         // If user has only view_all (without view_assigned_only), show all contacts
@@ -53,7 +53,13 @@ class Contact extends Model {
                   ->where('chat_tickets.assigned_to', auth()->user()->id)
                   ->groupBy($columns);
         }
-        
+
+        if ($groupUuid) {
+            $query->whereHas('contactGroups', function ($groupQuery) use ($groupUuid) {
+                $groupQuery->where('contact_groups.uuid', $groupUuid);
+            });
+        }
+
         // Apply search filter if search term is provided
         if ($searchTerm) {
             $query->where(function ($query) use ($searchTerm) {

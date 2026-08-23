@@ -8,7 +8,7 @@
     <button
         type="button"
         @click="toggleTheme"
-        class="inline-flex items-center justify-center w-11 h-11 rounded-lg border-[0.5px] border-[#cfd8e3] text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors shrink-0"
+        class="theme-toggle-btn inline-flex items-center justify-center w-11 h-11 rounded-lg border transition-colors shrink-0"
         :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
     >
         <svg v-if="theme === 'dark'" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -19,3 +19,16 @@
         </svg>
     </button>
 </template>
+
+<style scoped>
+.theme-toggle-btn {
+    color: var(--ui-text);
+    border-color: var(--ui-border);
+    background: transparent;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+</style>

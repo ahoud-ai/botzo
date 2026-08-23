@@ -210,7 +210,7 @@
                                     </span>
                                 </div>
 
-                                <div v-if="showWhatsappSetupCard" class="dashboard-status-card dashboard-status-card--success">
+                                <div v-if="showWhatsappSetupCard" data-tour="whatsapp-setup" class="dashboard-status-card dashboard-status-card--success">
                                     <div class="min-w-0">
                                         <h3 class="dashboard-status-card__title">{{ $t('Setup whatsapp') }}</h3>
                                         <p class="dashboard-status-card__desc">{{ $t('Finish setup from WhatsApp settings.') }}</p>
