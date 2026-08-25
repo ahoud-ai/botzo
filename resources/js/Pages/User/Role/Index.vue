@@ -1,36 +1,17 @@
 <template>
-    <SettingLayout :modules="props.modules">
-        <div class="min-h-0">
-            <div class="flex justify-center items-center">
-                <div class="md:w-[60em] mb-20">
-                    <div class="bg-white border border-slate-200 rounded-lg py-2 text-sm mb-4 pb-4 px-4">
-                        <div class="w-full py-2 mb-2 mt-2">
-                            <div class="flex w-full mb-4">
-                                <div class="text-md">
-                                    <h4 class="text-[16px]">{{ $t('Roles & Permissions') }}</h4>
-                                    <span class="flex items-center mt-1 text-slate-500">
-                                        {{ $t('Manage roles and permissions for this workspace only') }}
-                                    </span> 
-                                </div>
-                                <div class="ms-auto">
-                                    <Link href="/settings/team/roles/create" class="rounded-md bg-primary px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $t('Add Role') }}</Link>
-                                </div>
-                            </div>
-                            <div v-if="hasInheritedParentAuthority" class="mb-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
-                                {{ $t('You are managing this branch through the parent organization owner access. Any role you create here applies to this branch workspace only.') }}
-                            </div>
-                            <div class="mb-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                                {{ $t('System ownership is handled automatically. Custom roles here are for workspace members and branch staff only.') }}
-                            </div>
-                            <div class="w-5/5">
-                                <!-- Table Component-->
-                                <RoleTable :rows="props.rows" :filters="props.filters"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <SettingLayout :modules="props.modules" :title="$t('Roles & Permissions')" :subtitle="$t('Manage roles and permissions for this workspace only')">
+        <template #actions>
+            <Link href="/settings/team/roles/create" class="role-index-btn">{{ $t('Add Role') }}</Link>
+        </template>
+
+        <div v-if="hasInheritedParentAuthority" class="role-index-banner role-index-banner--info">
+            {{ $t('You are managing this branch through the parent organization owner access. Any role you create here applies to this branch workspace only.') }}
         </div>
+        <div class="role-index-banner">
+            {{ $t('System ownership is handled automatically. Custom roles here are for workspace members and branch staff only.') }}
+        </div>
+
+        <RoleTable :rows="props.rows" :filters="props.filters"/>
     </SettingLayout>
 </template>
 
@@ -42,9 +23,9 @@
 
     const { hasInheritedParentAuthority } = useWorkspaceAccess();
 
-    const props = defineProps({ 
-        title: String, 
-        rows: Object, 
+    const props = defineProps({
+        title: String,
+        rows: Object,
         filters: Object,
         modules: {
             type: Array,
@@ -53,5 +34,37 @@
     });
 </script>
 
+<style scoped>
+.role-index-btn {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.7rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--ui-secondary);
+    transition: filter 160ms ease;
+}
 
+.role-index-btn:hover {
+    filter: brightness(1.05);
+}
 
+.role-index-banner {
+    margin-bottom: 1rem;
+    padding: 0.85rem 1.1rem;
+    border-radius: var(--ui-radius-md);
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+    color: var(--ui-muted);
+    font-size: 0.86rem;
+    line-height: 1.5;
+}
+
+.role-index-banner--info {
+    background: color-mix(in srgb, var(--ui-secondary) 8%, var(--ui-surface));
+    border-color: color-mix(in srgb, var(--ui-secondary) 20%, var(--ui-border));
+    color: var(--ui-text);
+}
+</style>

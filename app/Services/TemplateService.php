@@ -71,12 +71,26 @@ class TemplateService
             return response()->json([$rows]);
         }
 
+        $search = $request->query('search');
+        $status = $request->query('status');
+        $category = $request->query('category');
+
+        $query = Template::where('organization_id', $this->organizationId)
+            ->where('deleted_at', null)
+            ->when($search, fn ($q) => $q->where('name', 'like', '%' . $search . '%'))
+            ->when($status && $status !== 'all', fn ($q) => $q->where('status', $status))
+            ->when($category && $category !== 'all', fn ($q) => $q->where('category', $category));
+
         return Inertia::render('User/Templates/Index', [
             'title' => __('templates'),
             'allowCreate' => true,
-            'rows' => TemplateResource::collection(
-                Template::where('organization_id', $this->organizationId)->where('deleted_at', null)->latest()->paginate(10)
-            ),
+            'rows' => TemplateResource::collection($query->latest()->paginate(10)->withQueryString()),
+            'filters' => [
+                'search' => $search,
+                'status' => $status,
+                'category' => $category,
+            ],
+            'languages' => config('languages'),
         ]);
     }
 

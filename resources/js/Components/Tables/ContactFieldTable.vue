@@ -73,56 +73,44 @@
 </script>
 <template>
     <div>
-        <div class="bg-slate-100 md:bg-slate-50 rounded-[0.5rem]">
-            <table class="w-full">
+        <div class="ui-table-shell">
+            <table class="ui-table">
                 <TableHeader>
                     <TableHeaderRow>
-                        <TableHeaderRowItem :position="'first'" class="ps-2 py-2 pb-2 ">{{ $t('Input field name') }}</TableHeaderRowItem>
-                        <TableHeaderRowItem class="ps-2 py-2 pb-2">{{ $t('Input type') }}</TableHeaderRowItem>
-                        <TableHeaderRowItem class="ps-2 py-2 pb-2">{{ $t('Is required') }}</TableHeaderRowItem>
-                        <TableHeaderRowItem :position="'last'" class="ps-2 py-2 pb-2"></TableHeaderRowItem>
+                        <TableHeaderRowItem :position="'first'">{{ $t('Input field name') }}</TableHeaderRowItem>
+                        <TableHeaderRowItem>{{ $t('Input type') }}</TableHeaderRowItem>
+                        <TableHeaderRowItem>{{ $t('Is required') }}</TableHeaderRowItem>
+                        <TableHeaderRowItem :position="'last'"></TableHeaderRowItem>
                     </TableHeaderRow>
                 </TableHeader>
-                <draggable 
-                    tag="tbody" 
-                    :list="rows.data" 
-                    handle=".handle" 
+                <draggable
+                    tag="tbody"
+                    :list="rows.data"
+                    handle=".handle"
                     item-key="uuid"
                     @update="onDragEnd"
                 >
                     <template #item="{ element, index }">
-                        <tr class="hover:bg-slate-50 md:border-b-0 md:border-t border-slate-300 text-sm">
-                            <td class="ps-4 py-4">
-                                <div class="flex">
-                                    <div class="handle cursor-pointer me-4">
+                        <tr>
+                            <TableBodyRowItem :position="'first'">
+                                <div class="flex items-center">
+                                    <div class="handle cursor-grab text-[var(--ui-muted)] me-3">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M9 19.23q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m6 0q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m-6-6q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m6 0q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m-6-6q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m6 0q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36"/></svg>
                                     </div>
-                                    <div>{{ element.name }}</div>
+                                    <span class="font-bold text-[16px] text-[var(--ui-text)]">{{ element.name }}</span>
                                 </div>
-                            </td>
-                            <td class="ps-2 py-2 pb-2 capitalize">
-                                <span class="me-2">{{ $t(capitalizeFirstLetter(element.type)) }}</span>
-                                <span v-if="element.type === 'input'" class="bg-slate-200 px-2 py-1 rounded-lg text-xs capitalize">{{ $t(capitalizeFirstLetter(element.value)) }}</span>
-                            </td>
-                            <td class="ps-2 py-2 pb-2 capitalize">{{ element.required === 0 ? $t('No') : $t('Yes') }}</td>
-                            <td class="pe-4 text-end">
-                                <Dropdown :align="'right'" class="mt-2">
-                                <button type="submit"
-                                    class="inline-flex w-full justify-center rounded-md text-sm font-medium text-black hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-                                >
-                                    <span class="hover-ui-bg-soft hover:rounded-full w-[fit-content] p-2">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="20"
-                                        height="20"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                        fill="currentColor"
-                                        d="M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z"
-                                        />
+                            </TableBodyRowItem>
+                            <TableBodyRowItem class="capitalize">
+                                <span class="me-2 text-[var(--ui-muted)]">{{ $t(capitalizeFirstLetter(element.type)) }}</span>
+                                <span v-if="element.type === 'input'" class="ui-chip-neutral px-2 py-1 rounded-lg text-xs font-semibold capitalize">{{ $t(capitalizeFirstLetter(element.value)) }}</span>
+                            </TableBodyRowItem>
+                            <TableBodyRowItem class="capitalize text-[var(--ui-muted)]">{{ element.required === 0 ? $t('No') : $t('Yes') }}</TableBodyRowItem>
+                            <TableBodyRowItem :position="'last'">
+                                <Dropdown :align="'right'">
+                                <button type="submit" class="settings-field-toolbar-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z"/>
                                     </svg>
-                                    </span>
                                 </button>
                                 <template #items>
                                     <DropdownItemGroup>
@@ -131,7 +119,7 @@
                                     </DropdownItemGroup>
                                 </template>
                                 </Dropdown>
-                            </td>
+                            </TableBodyRowItem>
                         </tr>
                     </template>
                 </draggable>
@@ -141,12 +129,32 @@
     </div>
 
     <!-- Alert Modal Component-->
-    <AlertModal 
-        v-model="isOpenAlert" 
+    <AlertModal
+        v-model="isOpenAlert"
         @confirm="() => confirmAlert(deleteAction)"
-        :label = "$t('Delete row')" 
+        :label = "$t('Delete row')"
         :description = "$t('Are you sure you want to delete this row? This action can not be undone')"
     />
 </template>
+
+<style scoped>
+.settings-field-toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 999px;
+    color: var(--ui-muted);
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 160ms ease, color 160ms ease;
+}
+
+.settings-field-toolbar-btn:hover {
+    background: var(--ui-surface-soft);
+    color: var(--ui-text);
+}
+</style>
   
 

@@ -1,37 +1,24 @@
 <template>
     <AppLayout>
         <div class="ui-page ui-fade-up ui-page-frame text-[var(--ui-text)] min-h-full">
-            <div class="flex justify-between mt-8 md:mt-0">
-                <div>
-                    <h2 class="text-xl mb-1">{{ $t('Billing and subscription') }}</h2>
-                    <p class="mb-6 flex items-center text-sm leading-6 text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                        <span class="ms-1 mt-1">{{ $t('Select the plan that you want to subscribe to') }}</span>
-                    </p>
-                </div>
-            </div>
+            <UiPageHeader :title="$t('Billing and subscription')" :subtitle="$t('Select the plan that you want to subscribe to')" />
 
-            <div v-if="subscriptionManagedByParent" class="mb-4 rounded-[0.75rem] border border-sky-100 bg-sky-50 px-4 py-4 text-sm text-sky-900">
-                <h3 class="font-medium">{{ $t('Inherited subscription') }}</h3>
+            <div v-if="subscriptionManagedByParent" class="billing-banner billing-banner--info">
+                <h3 class="font-semibold">{{ $t('Inherited subscription') }}</h3>
                 <p class="mt-1">
                     {{ $t('This branch uses the subscription managed by the parent organization.') }}
                     <span v-if="props.billingOwner?.name">
                         {{ $t('Billing owner') }}: {{ props.billingOwner.name }}.
                     </span>
                 </p>
-                <p class="mt-1 text-sky-800">{{ $t('Upgrade, payment, and coupon management are available from the parent organization only.') }}</p>
+                <p class="mt-1">{{ $t('Upgrade, payment, and coupon management are available from the parent organization only.') }}</p>
             </div>
 
-            <div
-                v-else-if="scheduledPlanChange"
-                class="mb-4 rounded-[0.85rem] border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-950"
-            >
+            <div v-else-if="scheduledPlanChange" class="billing-banner billing-banner--warning">
                 <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
-                        <h3 class="font-medium">{{ $t('Scheduled plan change') }}</h3>
-                        <p class="mt-1">
-                            {{ $t('Selected plan will start automatically on the next renewal date.') }}
-                        </p>
+                        <h3 class="font-semibold">{{ $t('Scheduled plan change') }}</h3>
+                        <p class="mt-1">{{ $t('Selected plan will start automatically on the next renewal date.') }}</p>
                         <p class="mt-1">
                             {{ scheduledPlanChange.plan_name }}
                             <span v-if="scheduledPlanChange.effective_at">
@@ -39,252 +26,205 @@
                             </span>
                         </p>
                     </div>
-                    <button
-                        type="button"
-                        class="rounded-md border border-amber-300 bg-white px-3 py-2 text-sm text-amber-900 transition hover:bg-amber-100"
-                        @click="cancelScheduledChange"
-                    >
+                    <button type="button" class="billing-btn billing-btn--ghost" @click="cancelScheduledChange">
                         {{ $t('Cancel scheduled change') }}
                     </button>
                 </div>
             </div>
 
-            <div v-if="hasPeriodToggle" class="mb-5 flex justify-center md:justify-start">
-                <div class="inline-flex items-center rounded-full border border-slate-200 bg-white p-1 shadow-sm">
-                    <button
-                        v-for="option in periodOptions"
-                        :key="option.value"
-                        type="button"
-                        class="rounded-full px-4 py-2 text-sm font-medium transition"
-                        :class="selectedPeriod === option.value ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'"
-                        @click="changeBillingPeriod(option.value)"
-                    >
-                        {{ option.label }}
-                    </button>
-                </div>
+            <div v-if="hasPeriodToggle" class="wizard-segmented mb-5">
+                <button
+                    v-for="option in periodOptions"
+                    :key="option.value"
+                    type="button"
+                    :class="{ 'is-active': selectedPeriod === option.value }"
+                    @click="changeBillingPeriod(option.value)"
+                >
+                    {{ option.label }}
+                </button>
             </div>
 
-            <div class="xl:grid xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-start xl:gap-4">
+            <div class="sub-layout">
                 <div class="min-w-0">
-                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                        <div
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <SubscriptionPlanCard
                             v-for="item in sortedPlans"
                             :key="item.id"
-                            class="relative rounded-[0.9rem] border p-5 shadow-sm transition-all duration-200"
-                            :class="planCardClasses(item)"
-                            @click="selectPlan(item)"
-                        >
-                            <div class="absolute inset-x-0 -top-3 flex justify-center gap-2">
-                                <span
-                                    v-if="isCurrentPlan(item)"
-                                    class="rounded-full bg-slate-900 px-4 py-1 text-xs font-semibold text-white shadow-lg"
-                                >
-                                    {{ $t('Current plan') }}
-                                </span>
-                                <span
-                                    v-if="isScheduledPlan(item)"
-                                    class="rounded-full bg-amber-500 px-4 py-1 text-xs font-semibold text-white shadow-lg"
-                                >
-                                    {{ $t('Downgrade scheduled') }}
-                                </span>
-                            </div>
-
-                            <div class="flex items-start justify-between gap-4">
-                                <div>
-                                    <h3 class="text-lg font-semibold">{{ planName(item) }}</h3>
-                                    <p class="mt-1 text-sm text-slate-500">{{ planPeriod(item.period) }}</p>
-                                </div>
-                                <div class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
-                                    #{{ item.tier_rank }}
-                                </div>
-                            </div>
-
-                            <div class="mt-6">
-                                <div class="flex items-end gap-2">
-                                    <span class="text-4xl font-semibold tracking-tight">{{ item.price }}</span>
-                                    <span class="pb-1 text-sm text-slate-500">{{ $t('SAR') }}</span>
-                                </div>
-                                <p class="mt-2 text-sm text-slate-500">{{ planPriceCaption(item.period) }}</p>
-                            </div>
-
-                            <div class="mt-6 space-y-3">
-                                <div
-                                    v-for="feature in planFeatureList(item)"
-                                    :key="`${item.id}-${feature.label}`"
-                                    class="flex items-start gap-2 text-sm"
-                                >
-                                    <span class="mt-0.5 text-emerald-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M14.25 8.75c-.5 2.5-2.385 4.854-5.03 5.38A6.25 6.25 0 0 1 3.373 3.798C5.187 1.8 8.25 1.25 10.75 2.25"/><path d="m5.75 7.75l2.5 2.5l6-6.5"/></g></svg>
-                                    </span>
-                                    <span>{{ feature.label }}</span>
-                                </div>
-                            </div>
-                        </div>
+                            :plan-name="planName(item)"
+                            :period-label="planPeriod(item.period)"
+                            :price="item.price"
+                            :currency-label="$t('SAR')"
+                            :price-caption="planPriceCaption(item.period)"
+                            :rank-label="item.tier_rank ? `#${item.tier_rank}` : null"
+                            :features="planFeatureList(item)"
+                            :cta-label="planCtaLabel(item)"
+                            :current="isCurrentPlan(item)"
+                            :scheduled="isScheduledPlan(item)"
+                            :selected="isSelectedPlan(item)"
+                            :disabled="subscriptionManagedByParent"
+                            @select="selectPlan(item)"
+                        />
                     </div>
                 </div>
 
-                <div class="mt-4 xl:sticky xl:top-6 xl:mt-0">
-                    <div class="rounded-[0.9rem] bg-white p-5 shadow-md">
-                        <h3 class="text-xl mb-4">{{ $t('Summary') }}</h3>
+                <div class="summary-card">
+                    <h3 class="summary-title">{{ $t('Summary') }}</h3>
 
-                        <div v-if="subscriptionManagedByParent" class="rounded-[0.8rem] border border-dashed border-sky-200 bg-sky-50 p-5 text-sm text-sky-900">
-                            <h3 class="font-medium">{{ selectedPlanName || $t('Inherited subscription') }}</h3>
-                            <p class="mt-2">{{ $t('This branch uses the subscription managed by the parent organization.') }}</p>
-                            <p v-if="props.billingOwner?.name" class="mt-1">{{ $t('Billing owner') }}: {{ props.billingOwner.name }}</p>
-                            <p class="mt-3 text-sky-800">{{ $t('Upgrade, payment, and coupon management are available from the parent organization only.') }}</p>
+                    <div v-if="subscriptionManagedByParent" class="summary-info-box summary-info-box--secondary">
+                        <h4 class="summary-info-title">{{ selectedPlanName || $t('Inherited subscription') }}</h4>
+                        <p class="mt-1">{{ $t('This branch uses the subscription managed by the parent organization.') }}</p>
+                        <p v-if="props.billingOwner?.name" class="mt-1">{{ $t('Billing owner') }}: {{ props.billingOwner.name }}</p>
+                        <p class="mt-2">{{ $t('Upgrade, payment, and coupon management are available from the parent organization only.') }}</p>
+                    </div>
+
+                    <div v-else-if="!form.plan" class="summary-info-box summary-info-box--muted text-center">
+                        {{ $t('Select plan to continue') }}
+                    </div>
+
+                    <div v-else-if="selectedChangeAction === 'current_plan'" class="summary-info-box summary-info-box--secondary">
+                        <h4 class="summary-info-title">{{ selectedPlanName }}</h4>
+                        <p class="mt-1">{{ $t('You are already subscribed to this plan.') }}</p>
+                        <p class="mt-1 text-[var(--ui-muted)]">{{ $t('Current plan stays active until the next renewal date.') }}</p>
+                    </div>
+
+                    <div
+                        v-else-if="['downgrade_at_renewal', 'scheduled_downgrade'].includes(selectedChangeAction)"
+                        class="summary-info-box summary-info-box--warning"
+                    >
+                        <h4 class="summary-info-title">{{ selectedPlanName }}</h4>
+                        <p class="mt-1">{{ $t('Selected plan will start automatically on the next renewal date.') }}</p>
+
+                        <div class="billing-detail-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+                            <div>
+                                <span class="billing-detail-label">{{ $t('Current plan') }}</span>
+                                <span class="billing-detail-value">{{ currentPlanName }}</span>
+                            </div>
+                            <div>
+                                <span class="billing-detail-label">{{ $t('Scheduled plan change') }}</span>
+                                <span class="billing-detail-value">{{ selectedPlanName }}</span>
+                            </div>
+                            <div>
+                                <span class="billing-detail-label">{{ $t('Next renewal date') }}</span>
+                                <span class="billing-detail-value">{{ effectiveAt || '-' }}</span>
+                            </div>
+                            <div>
+                                <span class="billing-detail-label">{{ $t('Estimated next renewal total') }}</span>
+                                <span class="billing-detail-value">{{ renewalAmount }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-else>
+                        <div class="summary-row" style="align-items: flex-start;">
+                            <div>
+                                <div class="font-semibold">{{ selectedPlanName }}</div>
+                                <span class="summary-plan-chip">{{ selectedPlanPeriodLabel }}</span>
+                            </div>
+                            <span class="font-semibold">{{ basePrice }}</span>
                         </div>
 
-                        <div v-else-if="!form.plan" class="rounded-[0.8rem] border border-dashed border-slate-200 p-10 text-center text-sm text-slate-500">
-                            {{ $t('Select plan to continue') }}
+                        <div class="summary-row" style="border-top: 1px solid var(--ui-border); margin-top: 0.6rem; padding-top: 0.8rem;">
+                            <span>{{ $t('Gross total') }}</span>
+                            <span>{{ grossAmount }}</span>
                         </div>
 
-                        <div v-else-if="selectedChangeAction === 'current_plan'" class="rounded-[0.8rem] border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">
-                            <h3 class="text-base font-semibold text-slate-900">{{ selectedPlanName }}</h3>
-                            <p class="mt-2">{{ $t('You are already subscribed to this plan.') }}</p>
-                            <p class="mt-1 text-slate-500">{{ $t('Current plan stays active until the next renewal date.') }}</p>
+                        <div v-if="taxRates.length > 0" class="summary-box">
+                            <div class="summary-box-label">{{ $t('Tax') }}</div>
+                            <div v-for="(item, index) in taxRates" :key="index" class="flex justify-between">
+                                <span>{{ item.name }} ({{ item.percentage }}%)</span>
+                                <span>{{ item.amount }}</span>
+                            </div>
                         </div>
 
-                        <div
-                            v-else-if="['downgrade_at_renewal', 'scheduled_downgrade'].includes(selectedChangeAction)"
-                            class="rounded-[0.8rem] border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950"
+                        <div v-if="toFloat(credit.total) > 0" class="summary-box">
+                            <div class="flex justify-between">
+                                <div>
+                                    {{ $t('Available credits') }}
+                                    <div class="text-xs text-[var(--ui-muted)]">({{ $t('Applicable credits for this invoice') }})</div>
+                                </div>
+                                <span class="text-[var(--ui-danger)] font-semibold">
+                                    {{ toFloat(-credit.total) <= toFloat(netAmount) ? credit.total : `(${netAmount})` }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div v-if="toFloat(debit.total) > 0" class="summary-box">
+                            <div class="flex justify-between">
+                                <div>
+                                    {{ $t('Available debits') }}
+                                    <div class="text-xs text-[var(--ui-muted)]">({{ $t('Applicable debits due') }})</div>
+                                </div>
+                                <span class="font-semibold">{{ debit.total }}</span>
+                            </div>
+                        </div>
+
+                        <div v-if="toFloat(amountDue) > 0" class="summary-box">
+                            <div class="summary-box-label">{{ $t('Coupon code') }}</div>
+                            <form v-if="coupon.length === 0" class="flex items-center gap-2" @submit.prevent="applyCoupon">
+                                <input v-model="form1.coupon" class="ui-input" style="height: 2.3rem; font-size: 0.82rem;">
+                                <button type="submit" class="billing-btn billing-btn--solid" style="padding: 0.5rem 0.9rem; font-size: 0.78rem;" :disabled="form1.processing">
+                                    <svg v-if="form1.processing" class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z" opacity=".5"/><path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"/></svg>
+                                    <span v-else>{{ $t('Apply') }}</span>
+                                </button>
+                            </form>
+                            <span v-if="form1.errors.coupon" class="mt-1 block text-xs text-[var(--ui-danger)]">{{ form1.errors.coupon }}</span>
+
+                            <div v-else class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold">{{ coupon?.code }}</span>
+                                    <span v-if="coupon?.type === 'percentage'" class="text-xs text-[var(--ui-muted)]">({{ coupon?.amount }}% {{ $t('OFF') }})</span>
+                                    <button type="button" class="text-[var(--ui-danger)]" @click="removeCoupon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 20a8 8 0 1 1 0-16a8 8 0 0 1 0 16M9.707 8.293a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586z"/></svg>
+                                    </button>
+                                </div>
+                                <span class="font-semibold text-[var(--ui-danger)]">{{ coupon?.discount }}</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-row total">
+                            <span>{{ $t('Total due') }}</span>
+                            <span>{{ amountDue }}</span>
+                        </div>
+
+                        <template v-if="requiresPaymentMethod">
+                            <div class="mb-2 mt-3 text-sm font-semibold">{{ $t('Pay via') }}</div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div
+                                    v-for="(item, index) in props.methods"
+                                    :key="index"
+                                    class="billing-method-option"
+                                    :class="{ 'border-[var(--ui-secondary)]': form.method === item.name }"
+                                    @click="selectPayment(item.name)"
+                                >
+                                    <span class="billing-method-radio" :class="{ 'billing-method-radio--checked': form.method === item.name }">
+                                        <svg v-if="form.method === item.name" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+                                    </span>
+                                    <span class="text-sm">{{ item.name }}</span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="mt-6">
+                        <button
+                            v-if="canSubmit"
+                            type="button"
+                            class="billing-btn billing-btn--solid w-full"
+                            @click="submitForm"
                         >
-                            <div class="space-y-3">
-                                <div>
-                                    <h3 class="text-base font-semibold">{{ selectedPlanName }}</h3>
-                                    <p class="mt-1 text-amber-800">{{ $t('Selected plan will start automatically on the next renewal date.') }}</p>
-                                </div>
-
-                                <div class="grid gap-3 rounded-[0.75rem] bg-white/70 p-4 text-sm md:grid-cols-2">
-                                    <div>
-                                        <div class="text-xs uppercase tracking-wide text-amber-700">{{ $t('Current plan') }}</div>
-                                        <div class="mt-1 font-medium text-slate-900">{{ currentPlanName }}</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs uppercase tracking-wide text-amber-700">{{ $t('Scheduled plan change') }}</div>
-                                        <div class="mt-1 font-medium text-slate-900">{{ selectedPlanName }}</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs uppercase tracking-wide text-amber-700">{{ $t('Next renewal date') }}</div>
-                                        <div class="mt-1 font-medium text-slate-900">{{ effectiveAt || '-' }}</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs uppercase tracking-wide text-amber-700">{{ $t('Estimated next renewal total') }}</div>
-                                        <div class="mt-1 font-medium text-slate-900">{{ renewalAmount }}</div>
-                                    </div>
-                                </div>
-                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 13a1.49 1.49 0 0 0-1 2.61V17a1 1 0 0 0 2 0v-1.39A1.49 1.49 0 0 0 12 13m5-4V7A5 5 0 0 0 7 7v2a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3M9 7a3 3 0 0 1 6 0v2H9Zm9 12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1Z"/></svg>
+                            <span>{{ submitButtonLabel }}</span>
+                        </button>
+                        <div v-else class="billing-btn w-full" style="background: var(--ui-surface-soft); color: var(--ui-muted); cursor: not-allowed;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 13a1.49 1.49 0 0 0-1 2.61V17a1 1 0 0 0 2 0v-1.39A1.49 1.49 0 0 0 12 13m5-4V7A5 5 0 0 0 7 7v2a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3M9 7a3 3 0 0 1 6 0v2H9Zm9 12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1Z"/></svg>
+                            <span>{{ submitButtonLabel }}</span>
                         </div>
-
-                        <div v-else>
-                            <div class="flex justify-between mb-4 text-sm">
-                                <div>
-                                    <h3>{{ selectedPlanName }}</h3>
-                                    <h3 class="mt-1 w-fit rounded-md bg-slate-100 px-2 py-1 text-xs capitalize">{{ selectedPlanPeriodLabel }}</h3>
-                                </div>
-                                <h3>{{ basePrice }}</h3>
-                            </div>
-                            <hr>
-                            <div class="mt-4 flex justify-between text-sm">
-                                <h3>{{ $t('Gross total') }}</h3>
-                                <h3>{{ grossAmount }}</h3>
-                            </div>
-                            <div v-if="taxRates.length > 0" class="mt-2 mb-2 space-y-2 rounded-md bg-slate-100 px-2 py-2">
-                                <h3 class="border-b border-dashed text-sm">{{ $t('Tax') }}</h3>
-                                <div v-for="(item, index) in taxRates" :key="index" class="flex justify-between text-sm">
-                                    <h3>{{ item.name }} <span>({{ item.percentage }}%)</span></h3>
-                                    <h3>{{ item.amount }}</h3>
-                                </div>
-                            </div>
-                            <div v-if="toFloat(credit.total) > 0" class="mt-2 mb-2 space-y-2 rounded-md bg-slate-100 px-2 py-2">
-                                <div class="flex justify-between text-sm">
-                                    <div>{{ $t('Available credits') }} <br><span class="text-xs">({{ $t('Applicable credits for this invoice') }})</span></div>
-                                    <h3 class="text-red-500">
-                                        {{ toFloat(-credit.total) <= toFloat(netAmount) ? credit.total : `(${netAmount})` }}
-                                    </h3>
-                                </div>
-                            </div>
-                            <div v-if="toFloat(debit.total) > 0" class="mt-2 mb-2 space-y-2 rounded-md bg-slate-100 px-2 py-2">
-                                <div class="flex justify-between text-sm">
-                                    <div>{{ $t('Available debits') }} <br><span class="text-xs">({{ $t('Applicable debits due') }})</span></div>
-                                    <h3>{{ debit.total }}</h3>
-                                </div>
-                            </div>
-                            <div v-if="toFloat(amountDue) > 0" class="mt-2 mb-2 space-y-2 rounded-md bg-slate-100 px-2 py-2">
-                                <div class="text-sm">
-                                    <div class="border-b border-dashed text-sm">{{ $t('Coupon code') }}</div>
-                                    <form
-                                        v-if="coupon.length === 0"
-                                        class="mt-2 w-full rounded-md border-0 bg-white py-1 ps-2 pe-1 text-gray-900 shadow-sm outline-none ring-1 ring-inset placeholder:text-gray-400 sm:text-sm sm:leading-6"
-                                        @submit.prevent="applyCoupon"
-                                    >
-                                        <div class="flex items-center justify-between">
-                                            <input v-model="form1.coupon" class="h-full w-3/4 outline-none">
-                                            <button type="submit" :class="['flex h-full w-fit items-center justify-center rounded-md bg-primary py-0.5 px-2 text-[12px] text-white', { 'opacity-50': form1.processing }]" :disabled="form1.processing">
-                                                <svg v-if="form1.processing" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z" opacity=".5"/><path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"><animateTransform attributeName="transform" dur="1s" from="0 12 12" repeatCount="indefinite" to="360 12 12" type="rotate"/></path></svg>
-                                                <span v-else>{{ $t('Apply') }}</span>
-                                            </button>
-                                        </div>
-                                        <span v-if="form1.errors.coupon" class="text-xs text-red-500">{{ form1.errors.coupon }}</span>
-                                    </form>
-
-                                    <div v-else class="mt-2 flex justify-between text-sm">
-                                        <div class="flex items-center">
-                                            <h3>{{ coupon?.code }}</h3>
-                                            <span v-if="coupon?.type === 'percentage'">({{ coupon?.amount }}% {{ $t('OFF') }})</span>
-                                            <button type="button" class="text-red-500" @click="removeCoupon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 20a8 8 0 1 1 0-16a8 8 0 0 1 0 16M9.707 8.293a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586z"/></svg>
-                                            </button>
-                                        </div>
-                                        <h3 class="text-red-500">{{ coupon?.discount }}</h3>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-4 mb-4 flex justify-between text-xl">
-                                <h3>{{ $t('Total due') }}</h3>
-                                <h3>{{ amountDue }}</h3>
-                            </div>
-                            <hr>
-                            <h2 v-if="requiresPaymentMethod" class="mt-3 mb-2 text-[14px]">{{ $t('Pay via') }}</h2>
-                            <div v-if="requiresPaymentMethod" class="grid grid-cols-2 gap-2">
-                                <div v-for="(item, index) in props.methods" :key="index">
-                                    <div class="flex items-center">
-                                        <label class="cursor-pointer" @click="selectPayment(item.name)">
-                                            <div class="flex h-5 w-5 items-center justify-center rounded-md border border-gray-400" :class="form.method === item.name ? 'bg-[color:var(--ui-text)]' : ''">
-                                                <svg v-if="form.method === item.name" class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            </div>
-                                        </label>
-                                        <span class="ms-2 cursor-pointer text-sm" @click="selectPayment(item.name)">{{ item.name }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-8">
-                            <button
-                                v-if="canSubmit"
-                                type="button"
-                                class="flex w-full items-center justify-center gap-x-1 rounded-md bg-primary px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                @click="submitForm"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 13a1.49 1.49 0 0 0-1 2.61V17a1 1 0 0 0 2 0v-1.39A1.49 1.49 0 0 0 12 13m5-4V7A5 5 0 0 0 7 7v2a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3M9 7a3 3 0 0 1 6 0v2H9Zm9 12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1Z"/></svg>
-                                <span>{{ submitButtonLabel }}</span>
-                            </button>
-                            <div
-                                v-else
-                                class="flex w-full items-center justify-center gap-x-1 rounded-md bg-gray-300 px-3 py-2 text-sm text-gray-400 shadow-sm"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 13a1.49 1.49 0 0 0-1 2.61V17a1 1 0 0 0 2 0v-1.39A1.49 1.49 0 0 0 12 13m5-4V7A5 5 0 0 0 7 7v2a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3M9 7a3 3 0 0 1 6 0v2H9Zm9 12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1Z"/></svg>
-                                <span>{{ submitButtonLabel }}</span>
-                            </div>
-                            <p v-if="requiresPaymentMethod && !form.method" class="mt-2 text-xs text-slate-500">
-                                {{ $t('Select a payment method to continue.') }}
-                            </p>
-                            <p v-if="requiresPaymentMethod && !hasPaymentMethods" class="mt-2 text-xs text-rose-600">
-                                {{ $t('No payment methods are available right now. Please contact support.') }}
-                            </p>
-                        </div>
+                        <p v-if="requiresPaymentMethod && !form.method" class="mt-2 text-xs text-[var(--ui-muted)]">
+                            {{ $t('Select a payment method to continue.') }}
+                        </p>
+                        <p v-if="requiresPaymentMethod && !hasPaymentMethods" class="mt-2 text-xs text-[var(--ui-danger)]">
+                            {{ $t('No payment methods are available right now. Please contact support.') }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -294,6 +234,8 @@
 
 <script setup>
 import AppLayout from './../Layout/App.vue';
+import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
+import SubscriptionPlanCard from '@/Components/SubscriptionPlanCard.vue';
 import { router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -311,10 +253,6 @@ const props = defineProps([
     'selectedPeriod',
     'periodCounts',
 ]);
-
-const addonLabelKeyMap = {
-    'Flow builder': 'Flow Builder',
-};
 
 const { t, locale } = useI18n();
 const subscriptionManagedByParent = computed(() => Boolean(props.subscriptionManagedByParent));
@@ -468,8 +406,6 @@ const planPeriod = (period) => (period === 'yearly' ? t('Per year') : t('Per mon
 
 const planPriceCaption = (period) => (period === 'yearly' ? t('Billed yearly') : t('Billed monthly'));
 
-const resolveAddonLabelKey = (addon) => addonLabelKeyMap[addon] ?? addon;
-
 const normalizeAddonFlag = (value) => {
     if (typeof value === 'boolean') {
         return value;
@@ -493,10 +429,8 @@ const filteredAddons = (item) => {
         return {};
     }
 
-    return Object.entries(props.addons ?? {}).reduce((accumulator, [key, value]) => {
-        if (Number(value) === 1 && Object.prototype.hasOwnProperty.call(addons, key)) {
-            accumulator[key] = normalizeAddonFlag(addons[key]);
-        }
+    return Object.entries(addons).reduce((accumulator, [key, value]) => {
+        accumulator[key] = normalizeAddonFlag(value);
 
         return accumulator;
     }, {});
@@ -526,7 +460,7 @@ const planFeatureList = (item) => {
     Object.entries(filteredAddons(item)).forEach(([key, value]) => {
         if (normalizeAddonFlag(value)) {
             features.push({
-                label: t(resolveAddonLabelKey(key)),
+                label: t(key),
             });
         }
     });
@@ -549,24 +483,18 @@ const isCurrentPlan = (item) => Number(currentPlanId.value) === Number(item.id);
 
 const isScheduledPlan = (item) => Number(scheduledPlanChange.value?.plan_id) === Number(item.id);
 
-const planCardClasses = (item) => {
-    if (subscriptionManagedByParent.value) {
-        return 'cursor-not-allowed border-slate-100 bg-slate-50 opacity-70';
-    }
+const isSelectedPlan = (item) => Number(form.plan) === Number(item.id) && !isCurrentPlan(item) && !isScheduledPlan(item);
 
+const planCtaLabel = (item) => {
     if (isCurrentPlan(item)) {
-        return 'cursor-pointer border-slate-900 bg-slate-50';
+        return t('Current plan');
     }
 
     if (isScheduledPlan(item)) {
-        return 'cursor-pointer border-amber-300 bg-amber-50/60';
+        return t('Downgrade scheduled');
     }
 
-    if (Number(form.plan) === Number(item.id)) {
-        return 'cursor-pointer border-primary bg-indigo-50/40';
-    }
-
-    return 'cursor-pointer border-slate-100 bg-white hover:border-slate-300';
+    return t('Select Plan');
 };
 
 const hydratePreview = (response) => {
@@ -670,3 +598,244 @@ const toFloat = (value) => {
     return Number.isNaN(parsed) ? 0 : parsed;
 };
 </script>
+
+<style scoped>
+.billing-banner {
+    margin-bottom: 1rem;
+    padding: 1rem 1.15rem;
+    border-radius: var(--ui-radius-md);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.billing-banner--info {
+    background: color-mix(in srgb, var(--ui-secondary) 8%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-secondary) 20%, var(--ui-border));
+    color: var(--ui-text);
+}
+
+.billing-banner--warning {
+    background: color-mix(in srgb, var(--ui-warning) 12%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-warning) 30%, var(--ui-border));
+    color: color-mix(in srgb, var(--ui-warning) 75%, var(--ui-text));
+}
+
+.billing-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 0.7rem;
+    padding: 0.65rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, filter 160ms ease;
+}
+
+.billing-btn--solid {
+    color: #fff;
+    background: var(--ui-secondary);
+}
+
+.billing-btn--solid:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+
+.billing-btn--solid:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.billing-btn--ghost {
+    color: var(--ui-text);
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+}
+
+.billing-btn--ghost:hover {
+    background: var(--ui-border);
+}
+
+.wizard-segmented {
+    display: flex;
+    border: 1px solid var(--ui-border);
+    border-radius: 0.7rem;
+    overflow: hidden;
+    width: fit-content;
+}
+
+.wizard-segmented button {
+    border: none;
+    background: var(--ui-surface-soft);
+    color: var(--ui-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 0.6rem 1.3rem;
+    cursor: pointer;
+}
+
+.wizard-segmented button.is-active {
+    background: var(--ui-secondary);
+    color: #fff;
+}
+
+.sub-layout {
+    display: grid;
+    gap: 1.25rem;
+    align-items: start;
+}
+
+@media (min-width: 1280px) {
+    .sub-layout {
+        grid-template-columns: minmax(0, 1fr) 22rem;
+    }
+}
+
+.summary-card {
+    position: sticky;
+    top: 1.25rem;
+    border-radius: 1.25rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 1.4rem;
+}
+
+.summary-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin: 0 0 1rem;
+}
+
+.summary-info-box {
+    border-radius: 0.9rem;
+    padding: 1.1rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.summary-info-box--muted {
+    border: 1px dashed var(--ui-border-strong);
+    color: var(--ui-muted);
+    padding: 2.5rem 1.1rem;
+}
+
+.summary-info-box--secondary {
+    background: color-mix(in srgb, var(--ui-secondary) 8%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-secondary) 20%, var(--ui-border));
+}
+
+.summary-info-box--warning {
+    background: color-mix(in srgb, var(--ui-warning) 10%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-warning) 28%, var(--ui-border));
+    color: color-mix(in srgb, var(--ui-warning) 75%, var(--ui-text));
+}
+
+.summary-info-title {
+    font-weight: 700;
+    font-size: 0.92rem;
+    margin: 0 0 0.3rem;
+    color: var(--ui-text);
+}
+
+.summary-plan-chip {
+    display: inline-flex;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+    border-radius: 999px;
+    padding: 0.2rem 0.6rem;
+    margin-top: 0.3rem;
+    text-transform: capitalize;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    padding: 0.4rem 0;
+}
+
+.summary-row.total {
+    font-size: 1.05rem;
+    font-weight: 800;
+    border-top: 1px solid var(--ui-border);
+    margin-top: 0.4rem;
+    padding-top: 0.8rem;
+}
+
+.summary-box {
+    background: var(--ui-surface-soft);
+    border-radius: 0.7rem;
+    padding: 0.7rem 0.85rem;
+    margin: 0.6rem 0;
+    font-size: 0.82rem;
+}
+
+.summary-box-label {
+    font-size: 0.75rem;
+    color: var(--ui-muted);
+    border-bottom: 1px dashed var(--ui-border);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.4rem;
+}
+
+.billing-method-option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.65rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    cursor: pointer;
+    transition: border-color 160ms ease;
+}
+
+.billing-method-option:hover {
+    border-color: var(--ui-secondary);
+}
+
+.billing-method-radio {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 0.35rem;
+    border: 1.5px solid var(--ui-border-strong);
+    color: #fff;
+}
+
+.billing-method-radio--checked {
+    background: var(--ui-secondary);
+    border-color: var(--ui-secondary);
+}
+
+.billing-detail-grid {
+    display: grid;
+    gap: 1.1rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: var(--ui-radius-md);
+    background: var(--ui-surface);
+}
+
+.billing-detail-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ui-muted);
+}
+
+.billing-detail-value {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+</style>

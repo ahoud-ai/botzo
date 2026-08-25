@@ -1,5 +1,5 @@
 <template>
-    <div v-if="props.displayTopBar === true" class="ui-mobile-topbar creative-mobile-topbar sticky top-0 ui-layer-content w-full bg-white border-b px-4 py-4 flex items-center justify-between md:hidden">
+    <div v-if="props.displayTopBar === true" class="ui-mobile-topbar creative-mobile-topbar sticky top-0 ui-layer-content w-full px-4 py-4 flex items-center justify-between md:hidden">
         <div>
             <span @click="isSidebarOpen = true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 17h8m-8-5h14M5 7h8"/></svg>
@@ -16,9 +16,9 @@
         </div>
     </div>
     <aside
-        class="ui-mobile-drawer ui-layer-drawer creative-mobile-drawer transform top-0 w-full bg-white fixed h-full overflow-auto ease-in-out transition-all duration-300"
+        class="ui-mobile-drawer ui-layer-drawer creative-mobile-drawer transform top-0 w-full fixed h-full overflow-auto ease-in-out transition-all duration-300"
         :class="[drawerPlacementClass, isSidebarOpen ? 'translate-x-0' : drawerClosedClass]">
-        <aside class="flex flex-col h-full w-full bg-white">
+        <aside class="flex flex-col h-full w-full">
             <Menu :isSidebarOpen="isSidebarOpen" :config="props.config" :user="props.user" :organization="props.organization" :organizations="props.organizations" @closeSidebar="closeSidebar()"></Menu>
         </aside>
     </aside>

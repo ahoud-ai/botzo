@@ -6,7 +6,8 @@
     import FormPhoneInput from '@/Components/FormPhoneInput.vue';
     import FormSelect from '@/Components/FormSelect.vue';
     import FormTextArea from '@/Components/FormTextArea.vue';
-    import { useI18n } from 'vue-i18n';
+    import UiFormSection from '@/Components/UI/UiFormSection.vue';
+    import { useI18n } from 'vue-i18n';
     const { t } = useI18n();
 
     const props = defineProps(['contactGroups', 'contact', 'fields', 'locationSettings']);
@@ -82,37 +83,47 @@
     };
 </script>
 <template>
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white/90 px-5 py-4 shadow-sm md:mb-8 md:px-8">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200 dark:border-white/10 bg-white/90 dark:bg-white/5 px-5 py-4 shadow-sm md:mb-8 md:px-8">
         <div>
-            <h1 v-if="!props.contact" class="text-xl font-semibold text-slate-900">{{ $t('Add contact') }}</h1>
-            <h1 v-else class="text-xl font-semibold text-slate-900">{{ $t('Edit contact') }}</h1>
+            <h1 v-if="!props.contact" class="text-xl font-semibold text-slate-900 dark:text-white">{{ $t('Add contact') }}</h1>
+            <h1 v-else class="text-xl font-semibold text-slate-900 dark:text-white">{{ $t('Edit contact') }}</h1>
         </div>
         <div class="flex flex-wrap gap-3">
-            <Link v-if="!props.contact" href="/contacts" class="inline-flex justify-center rounded-xl border border-transparent bg-slate-200 px-4 py-2 text-sm text-slate-600 hover:bg-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">{{ $t('Cancel') }}</Link>
-            <Link v-else :href="'/contacts/' + props.contact.uuid" class="inline-flex justify-center rounded-xl border border-transparent bg-slate-200 px-4 py-2 text-sm text-slate-600 hover:bg-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">{{ $t('Back') }}</Link>
+            <Link v-if="!props.contact" href="/contacts" class="contact-form-btn contact-form-btn--ghost">{{ $t('Cancel') }}</Link>
+            <Link v-else :href="'/contacts/' + props.contact.uuid" class="contact-form-btn contact-form-btn--ghost">{{ $t('Back') }}</Link>
         </div>
     </div>
     <div class="flex min-h-0 justify-center px-4 pb-8 md:px-8">
         <form @submit.prevent="submitForm()" class="w-full max-w-4xl">
-            <div class="flex justify-center items-center">
-                <div class="rounded-full w-40 h-40 m-4">
-                    <svg v-if="fileUrl === null" class="text-gray-500" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <div class="flex flex-col items-center gap-3 mb-6">
+                <div class="rounded-full w-32 h-32 ring-4 ring-[var(--ui-surface-soft)]">
+                    <svg v-if="fileUrl === null" class="text-gray-400 dark:text-slate-500" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path fill-rule="evenodd" d="M18.685 19.097A9.723 9.723 0 0021.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 003.065 7.097A9.716 9.716 0 0012 21.75a9.716 9.716 0 006.685-2.653zm-12.54-1.285A7.486 7.486 0 0112 15a7.486 7.486 0 015.855 2.812A8.224 8.224 0 0112 20.25a8.224 8.224 0 01-5.855-2.438zM15.75 9a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" clip-rule="evenodd" />
                     </svg>
-                    <img v-else class="w-40 h-40 rounded-full object-cover" :src="fileUrl" :alt="$t('Contact Image')">
+                    <img v-else class="w-32 h-32 rounded-full object-cover" :src="fileUrl" :alt="$t('Contact Image')">
                 </div>
                 <input type="file" class="sr-only" :accept="'.jpg, .png'" id="file-upload" @change="handleFileUpload">
-                <label for="file-upload" class="cursor-pointer inline-flex justify-center rounded-md border border-transparent bg-slate-200 px-4 py-2 text-sm text-slate-700 hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 me-4">{{ $t('Upload image') }}</label>
+                <label for="file-upload" class="contact-form-btn contact-form-btn--ghost cursor-pointer">{{ $t('Upload image') }}</label>
             </div>
-            <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6 pb-6 border-b">
-                <FormInput v-model="form.first_name" :name="$t('First name')" :error="form.errors.first_name" :type="'text'" :class="'sm:col-span-3'"/>
-                <FormInput v-model="form.last_name" :name="$t('Last name')" :error="form.errors.last_name" :type="'text'" :class="'sm:col-span-3'"/>
-                <FormPhoneInput v-model="form.phone" :name="$t('Phone')" :error="form.errors.phone" :type="'text'" :class="'sm:col-span-3'"/>
-                <FormInput v-model="form.email" :name="$t('Email')" :error="form.errors.email" :type="'text'" :class="'sm:col-span-3'"/>
-                <FormSelect v-model="form.group" :name="$t('Group')" :error="form.errors.group" :options="contactGroupOptions()" :type="'text'" :class="'sm:col-span-6'" :multiple="true"/>
-            </div>
-            <div v-if="locationSettings === 'before' && props.fields.length > 0">
-                <div class="grid gap-x-6 gap-y-4 sm:grid-cols-2 mt-4 pb-6 border-b">
+
+            <UiFormSection :title="$t('Basic information')" class="mb-4">
+                <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6">
+                    <FormInput v-model="form.first_name" :name="$t('First name')" :error="form.errors.first_name" :type="'text'" :class="'sm:col-span-3'"/>
+                    <FormInput v-model="form.last_name" :name="$t('Last name')" :error="form.errors.last_name" :type="'text'" :class="'sm:col-span-3'"/>
+                    <FormInput v-model="form.email" :name="$t('Email')" :error="form.errors.email" :type="'text'" :class="'sm:col-span-6'"/>
+                </div>
+            </UiFormSection>
+
+            <UiFormSection :title="$t('WhatsApp number')" class="mb-4">
+                <FormPhoneInput v-model="form.phone" :name="$t('Phone')" :error="form.errors.phone" :type="'text'" :class="'w-full'"/>
+            </UiFormSection>
+
+            <UiFormSection :title="$t('Groups')" class="mb-4">
+                <FormSelect v-model="form.group" :name="$t('Group')" :error="form.errors.group" :options="contactGroupOptions()" :type="'text'" :class="'w-full'" :multiple="true"/>
+            </UiFormSection>
+
+            <UiFormSection v-if="locationSettings === 'before' && props.fields.length > 0" :title="$t('Additional details')" class="mb-4">
+                <div class="grid gap-x-6 gap-y-4 sm:grid-cols-2">
                     <div v-for="(input, index) in props.fields" :key="index" :class="input.type != 'input' ? 'sm:col-span-2' : 'sm:col-span-1'">
                         <FormInput v-if="input.type === 'input'" v-model="form.metadata[input.name]" :name="input.name" :label="$t(input.name)" :type="input.value" :class="'sm:col-span-2'" :required="input.required === 1 ? true : false"/>
                         <FormTextArea v-if="input.type === 'textarea'" v-model="form.metadata[input.name]" :name="input.name" :label="$t(input.name)" :class="'sm:col-span-2'" :required="input.required === 1 ? true : false"/>
@@ -120,16 +131,20 @@
                         <FormCheckbox v-if="input.type === 'checkbox'" v-model="form.metadata[input.name]" :name="input.name" :label="input.name" :class="'sm:col-span-2'" :required="input.required === 1 ? true : false"/>
                     </div>
                 </div>
-            </div>
-            <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6 pt-4 pb-6">
-                <FormInput v-model="form.street" :name="$t('Street')" :error="form.errors.street" :type="'text'" :class="'sm:col-span-6'"/>
-                <FormInput v-model="form.city" :name="$t('City')" :error="form.errors.city" :type="'text'" :class="'sm:col-span-3'"/>
-                <FormInput v-model="form.state" :name="$t('State')" :error="form.errors.state" :type="'text'" :class="'sm:col-span-3'"/>
-                <FormInput v-model="form.zip" :name="$t('Zip code')" :error="form.errors.zip" :type="'text'" :class="'sm:col-span-3'"/>
-                <FormInput v-model="form.country" :name="$t('Country')" :error="form.errors.country" :type="'text'" :class="'sm:col-span-3'"/>
-            </div>
-            <div v-if="locationSettings === 'after' && props.fields.length > 0">
-                <div class="grid gap-x-6 gap-y-4 sm:grid-cols-2 mb-8 pt-4 border-t">
+            </UiFormSection>
+
+            <UiFormSection :title="$t('Address')" class="mb-4">
+                <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6">
+                    <FormInput v-model="form.street" :name="$t('Street')" :error="form.errors.street" :type="'text'" :class="'sm:col-span-6'"/>
+                    <FormInput v-model="form.city" :name="$t('City')" :error="form.errors.city" :type="'text'" :class="'sm:col-span-3'"/>
+                    <FormInput v-model="form.state" :name="$t('State')" :error="form.errors.state" :type="'text'" :class="'sm:col-span-3'"/>
+                    <FormInput v-model="form.zip" :name="$t('Zip code')" :error="form.errors.zip" :type="'text'" :class="'sm:col-span-3'"/>
+                    <FormInput v-model="form.country" :name="$t('Country')" :error="form.errors.country" :type="'text'" :class="'sm:col-span-3'"/>
+                </div>
+            </UiFormSection>
+
+            <UiFormSection v-if="locationSettings === 'after' && props.fields.length > 0" :title="$t('Additional details')" class="mb-4">
+                <div class="grid gap-x-6 gap-y-4 sm:grid-cols-2">
                     <div v-for="(input, index) in props.fields" :key="index" :class="input.type != 'input' ? 'sm:col-span-2' : 'sm:col-span-1'">
                         <FormInput v-if="input.type === 'input'" v-model="form.metadata[input.name]" :name="input.name" :label="$t(input.name)" :type="input.value" :class="'sm:col-span-2'" :required="input.required === 1 ? true : false"/>
                         <FormTextArea v-if="input.type === 'textarea'" v-model="form.metadata[input.name]" :name="input.name" :label="$t(input.name)" :class="'sm:col-span-2'" :required="input.required === 1 ? true : false"/>
@@ -137,14 +152,48 @@
                         <FormCheckbox v-if="input.type === 'checkbox'" v-model="form.metadata[input.name]" :name="input.name" :label="input.name" :class="'sm:col-span-2'" :required="input.required === 1 ? true : false"/>
                     </div>
                 </div>
-            </div>
-            <div class="mt-4 mb-10 pb-10 flex">
-                <Link href="/contacts" class="inline-flex justify-center rounded-md border border-transparent bg-slate-50 px-4 py-2 text-sm text-slate-500 hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 me-4">{{ $t('Cancel') }}</Link>
-                <button type="submit" :class="'inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2'">
+            </UiFormSection>
+
+            <div class="mt-2 mb-10 flex">
+                <Link href="/contacts" class="contact-form-btn contact-form-btn--ghost me-4">{{ $t('Cancel') }}</Link>
+                <button type="submit" class="contact-form-btn contact-form-btn--solid">
                     <span>{{ $t('Save') }}</span>
                 </button>
             </div>
         </form>
     </div>
 </template>
+
+<style scoped>
+.contact-form-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.7rem;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, filter 160ms ease;
+}
+
+.contact-form-btn--ghost {
+    color: var(--ui-text);
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+}
+
+.contact-form-btn--ghost:hover {
+    background: var(--ui-border);
+}
+
+.contact-form-btn--solid {
+    color: #fff;
+    background: var(--ui-secondary);
+    border: 1px solid var(--ui-secondary);
+}
+
+.contact-form-btn--solid:hover {
+    filter: brightness(1.05);
+}
+</style>
 

@@ -1,36 +1,25 @@
 <template>
-    <SettingLayout :modules="props.modules">
+    <SettingLayout :modules="props.modules" :title="$t('Automation settings')" :subtitle="$t('Control automation and AI assistant behavior')">
         <div class="min-h-0">
             <div class="flex justify-center items-center">
-                <div class="md:w-[60em]">
-                    <div class="bg-white border border-slate-200 rounded-lg py-2 text-sm mb-4 pb-4 px-4 mb-20">
-                        <div class="w-full py-2 mb-2 mt-2">
-                            <div class="flex w-full mb-4">
-                                <div class="text-md">
-                                    <h4 class="text-[16px]">{{ $t('Response Sequence Priority') }}</h4>
-                                    <span class="flex items-center mt-1 text-slate-500">
-                                        {{ $t('Choose the order in which the system searches for a matching response when replying to messages. Set the sequence for Automation Flows, Basic Replies, and AI Assistant to control how replies are prioritized.') }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div>
-                                <span class="mb-2 flex items-center text-slate-700">
-                                    <svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"></path></svg>
-                                    {{ $t('Drag to reorder') }}
-                                </span>
-                                <draggable :list="form.response_sequence" class="mt-2" @end="submitForm()">
-                                    <template #item="{ index, element }">
-                                        <div class="flex gap-x-2 bg-slate-50 rounded-md mb-2 p-2 border w-[20em] cursor-pointer">
-                                            <span>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M9 19.23q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m6 0q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m-6-6q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m6 0q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m-6-6q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m6 0q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36"></path></svg>
-                                            </span>
-                                            <span>{{ $t(element) }}</span>
-                                        </div>
-                                    </template>
-                                </draggable>
-                            </div>
+                <div class="w-full md:w-[60em]">
+                    <UiSectionCard :title="$t('Response Sequence Priority')" :subtitle="$t('Choose the order in which the system searches for a matching response when replying to messages. Set the sequence for Automation Flows, Basic Replies, and AI Assistant to control how replies are prioritized.')" class="mb-20">
+                        <div class="settings-drag-hint">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"></path></svg>
+                            {{ $t('Drag to reorder') }}
                         </div>
-                    </div>
+                        <draggable :list="form.response_sequence" class="flex flex-col gap-2" @end="submitForm()">
+                            <template #item="{ index, element }">
+                                <div class="settings-sequence-item">
+                                    <span class="settings-sequence-rank">{{ index + 1 }}</span>
+                                    <span class="settings-sequence-handle">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M9 19.23q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m6 0q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m-6-6q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m6 0q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m-6-6q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36m6 0q-.508 0-.87-.36q-.36-.362-.36-.87t.36-.87t.87-.36t.87.36q.36.362.36.87t-.36.87t-.87.36"></path></svg>
+                                    </span>
+                                    <span class="settings-field-label">{{ $t(element) }}</span>
+                                </div>
+                            </template>
+                        </draggable>
+                    </UiSectionCard>
                 </div>
             </div>
         </div>
@@ -40,7 +29,8 @@
     import SettingLayout from "./Layout.vue";
     import { ref } from 'vue';
     import { useForm } from "@inertiajs/vue3";
-    import draggable from "vuedraggable";
+    import draggable from "vuedraggable";
+    import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
     const props = defineProps(['rows', 'filters', 'settings', 'modules', 'automationSequenceOptions']);
     const config = ref(props.settings.metadata);
     const settings = ref(config.value ? JSON.parse(config.value) : null);
@@ -92,4 +82,54 @@
     };
 </script>
 
+<style scoped>
+.settings-drag-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.9rem;
+    font-size: 0.85rem;
+    color: var(--ui-muted);
+}
 
+.settings-field-label {
+    font-size: 0.96rem;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+
+.settings-sequence-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.85rem 1rem;
+    cursor: grab;
+    transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.settings-sequence-item:hover {
+    border-color: var(--ui-secondary);
+}
+
+.settings-sequence-rank {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ui-secondary) 14%, var(--ui-surface));
+    color: var(--ui-secondary);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.settings-sequence-handle {
+    display: inline-flex;
+    color: var(--ui-muted);
+}
+</style>

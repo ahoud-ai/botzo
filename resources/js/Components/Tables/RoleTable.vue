@@ -17,6 +17,7 @@
     import DropdownItemGroup from '@/Components/DropdownItemGroup.vue';
     import DropdownItem from '@/Components/DropdownItem.vue';
     import Pagination from '@/Components/Pagination.vue';
+    import UiEmptyState from '@/Components/UI/UiEmptyState.vue';
     import { useWorkspaceAccess } from '@/Composables/useWorkspaceAccess';
 
     const props = defineProps({
@@ -39,20 +40,11 @@
         form.delete('/settings/team/roles/' + key);
     }
 
-    const isLastRow = (index) => {
-      return index === props.rows.data.length - 1;
-    }
-
     const params = ref({
         search: props.filters?.search,
     });
-    
-    const isSearching = ref(false);
-    const emit = defineEmits(['edit', 'delete']);
 
-    function deleteItem(id) {
-        emit('delete', id);
-    }
+    const isSearching = ref(false);
 
     const clearSearch = () => {
         params.value.search = null;
@@ -68,6 +60,9 @@
         router.visit('/settings/team/roles', {
             method: 'get',
             data: params.value,
+            onFinish: () => {
+                isSearching.value = false;
+            },
         })
     }
 
@@ -80,15 +75,15 @@
             return null;
         }
         const meta = props.rows.meta;
-        if (meta && 
-            typeof meta.current_page !== 'undefined' && 
-            typeof meta.last_page !== 'undefined' && 
+        if (meta &&
+            typeof meta.current_page !== 'undefined' &&
+            typeof meta.last_page !== 'undefined' &&
             typeof meta.total !== 'undefined') {
             return meta;
         }
         return null;
     })
-    
+
     const hasValidPagination = computed(() => {
         return paginationMeta.value !== null && paginationMeta.value.last_page > 1;
     })
@@ -108,6 +103,11 @@
 
         return rawValue;
     }
+
+    function initials(name) {
+        const value = String(name ?? '').trim();
+        return value === '' ? '?' : value.charAt(0).toUpperCase();
+    }
 </script>
 <template>
     <div class="ui-table-search">
@@ -126,27 +126,32 @@
         <TableHeader>
             <TableHeaderRow>
                 <TableHeaderRowItem :position="'first'">{{ $t('Role Name') }}</TableHeaderRowItem>
-                <TableHeaderRowItem>{{ $t('Permissions') }}</TableHeaderRowItem>
-                <TableHeaderRowItem>{{ $t('Team Members') }}</TableHeaderRowItem>
+                <TableHeaderRowItem class="hidden sm:table-cell">{{ $t('Permissions') }}</TableHeaderRowItem>
+                <TableHeaderRowItem class="hidden sm:table-cell">{{ $t('Team Members') }}</TableHeaderRowItem>
                 <TableHeaderRowItem v-if="canManageRoles" :position="'last'"></TableHeaderRowItem>
             </TableHeaderRow>
         </TableHeader>
         <TableBody>
-            <TableBodyRow v-for="(item, index) in rows.data" :key="index" :class="!isLastRow(index) ? 'border-b' : ''">
-                <TableBodyRowItem :position="'first'">{{ localizeKnownValue(item.name) }}</TableBodyRowItem>
-                <TableBodyRowItem class="hidden sm:table-cell">
-                    <span v-if="item.permissions && item.permissions.includes('*')" class="text-gray-500 font-medium">{{ $t('All Permissions') }}</span>
-                    <span v-else class="text-gray-500">{{ item.permissions ? item.permissions.length : 0 }} {{ $t('permissions') }}</span>
+            <TableBodyRow v-for="(item, index) in rows.data" :key="index">
+                <TableBodyRowItem :position="'first'">
+                    <div class="flex items-center gap-3">
+                        <span class="role-avatar">{{ initials(localizeKnownValue(item.name)) }}</span>
+                        <span class="font-bold text-[15px] text-[var(--ui-text)]">{{ localizeKnownValue(item.name) }}</span>
+                    </div>
                 </TableBodyRowItem>
-                <TableBodyRowItem class="hidden sm:table-cell text-gray-500">{{ item.teams_count || 0 }} {{ $t('members') }}</TableBodyRowItem>
+                <TableBodyRowItem class="hidden sm:table-cell">
+                    <span v-if="item.permissions && item.permissions.includes('*')" class="role-permissions-chip role-permissions-chip--all">{{ $t('All Permissions') }}</span>
+                    <span v-else class="role-permissions-chip">{{ item.permissions ? item.permissions.length : 0 }} {{ $t('permissions') }}</span>
+                </TableBodyRowItem>
+                <TableBodyRowItem class="hidden sm:table-cell">
+                    <span class="text-[var(--ui-muted)]">{{ item.teams_count || 0 }} {{ $t('members') }}</span>
+                </TableBodyRowItem>
                 <TableBodyRowItem v-if="canManageRoles" :position="'last'">
-                    <Dropdown v-if="item.organization_id" :align="'right'" class="mt-2">
-                        <button type="submit" class="inline-flex w-full justify-center rounded-md text-sm font-medium text-black hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-                            <span class="hover-ui-bg-soft hover:rounded-full w-[fit-content] p-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                                    <path fill="currentColor" d="M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z"/>
-                                </svg>
-                            </span>
+                    <Dropdown v-if="item.organization_id" :align="'right'">
+                        <button type="submit" class="role-toolbar-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                                <path fill="currentColor" d="M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z"/>
+                            </svg>
                         </button>
                         <template #items>
                             <DropdownItemGroup>
@@ -155,19 +160,83 @@
                             </DropdownItemGroup>
                         </template>
                     </Dropdown>
-                    <span v-if="!item.organization_id" class="text-gray-400 text-xs">{{ $t('System Role') }}</span>
+                    <span v-if="!item.organization_id" class="role-system-badge">{{ $t('System Role') }}</span>
                 </TableBodyRowItem>
             </TableBodyRow>
         </TableBody>
     </Table>
+
+    <UiEmptyState v-if="rows.data.length === 0" :title="$t('No roles found.')">
+        <template #icon>
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2l4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622c5.176-1.332 9-6.03 9-11.622c0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </template>
+    </UiEmptyState>
+
     <Pagination v-if="hasValidPagination" class="mt-3" :pagination="paginationMeta"/>
 
     <!-- Alert Modal Component-->
-    <AlertModal 
-        v-model="isOpenAlert" 
+    <AlertModal
+        v-model="isOpenAlert"
         @confirm="() => confirmAlert(deleteAction)"
-        :label = "$t('Delete row')" 
+        :label = "$t('Delete row')"
         :description = "$t('Are you sure you want to delete this row? This action can not be undone')"
     />
 </template>
 
+<style scoped>
+.role-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.3rem;
+    height: 2.3rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ui-secondary) 14%, var(--ui-surface-soft));
+    color: var(--ui-secondary);
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.role-permissions-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+}
+
+.role-permissions-chip--all {
+    color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 12%, var(--ui-surface));
+    border-color: color-mix(in srgb, var(--ui-secondary) 30%, var(--ui-border));
+}
+
+.role-system-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+}
+
+.role-toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 999px;
+    color: var(--ui-muted);
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 160ms ease, color 160ms ease;
+}
+
+.role-toolbar-btn:hover {
+    background: var(--ui-surface-soft);
+    color: var(--ui-text);
+}
+</style>

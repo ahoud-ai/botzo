@@ -28,13 +28,35 @@ class TicketController extends BaseController
 
     public function index(Request $request, $uuid = null){
         if($uuid === null){
+            $search = $request->query('search');
+            $status = $request->query('status');
+
+            $baseQuery = Ticket::where('user_id', auth()->user()->id);
+
+            $query = (clone $baseQuery)
+                ->when($search, fn ($q) => $q->where(function ($q) use ($search) {
+                    $q->where('subject', 'like', '%' . $search . '%')
+                        ->orWhere('reference', 'like', '%' . $search . '%');
+                }))
+                ->when($status && $status !== 'all', fn ($q) => $q->where('status', $status));
+
             return Inertia::render('User/Support/Index', [
                 'title' => __('Support'),
                 'allowCreate' => true,
                 'rows' => TicketResource::collection(
-                    Ticket::where('user_id', auth()->user()->id)
-                        ->latest()->paginate(10)
+                    $query->latest()->paginate(10)->withQueryString()
                 ),
+                'filters' => [
+                    'search' => $search,
+                    'status' => $status,
+                ],
+                'stats' => [
+                    'total' => (clone $baseQuery)->count(),
+                    'open' => (clone $baseQuery)->where('status', 'open')->count(),
+                    'pending' => (clone $baseQuery)->where('status', 'pending')->count(),
+                    'resolved' => (clone $baseQuery)->where('status', 'resolved')->count(),
+                    'closed' => (clone $baseQuery)->where('status', 'closed')->count(),
+                ],
             ]);
         } else if($uuid === 'create'){
             $data['categories'] = TicketCategory::get();

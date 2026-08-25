@@ -117,7 +117,7 @@
         if (channel === 'whatsapp') {
             return {
                 label: t('WhatsApp'),
-                class: 'bg-green-50 text-green-700 ring-1 ring-green-100',
+                class: 'bg-green-50 text-green-700 ring-1 ring-green-100 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20',
             };
         }
 
@@ -742,23 +742,23 @@
         <div class="flex items-center justify-between gap-x-1 text-xl">
             <div class="flex items-end gap-x-1">
                 <h2>{{ $t('Chats') }}</h2>
-                <span class="text-slate-500 text-sm">{{ rowCount }}</span>
+                <span class="text-slate-500 dark:text-slate-400 text-sm">{{ rowCount }}</span>
             </div>
             <button type="button" 
                 @click="showSearchBar = !showSearchBar" 
-                class="p-1.5 rounded hover:bg-gray-100 transition-colors"
+                class="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                 :title="$t('Search')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-600 dark:text-slate-400">
                     <circle cx="11" cy="11" r="8"></circle>
                     <path d="m21 21-4.35-4.35"></path>
                 </svg>
             </button>
         </div>
-        <div v-if="showSearchBar" class="bg-slate-50 rounded-md mt-3 flex items-center py-[2px]">
+        <div v-if="showSearchBar" class="bg-slate-50 dark:bg-white/5 rounded-md mt-3 flex items-center py-[2px]">
             <div class="ps-3 py-2">
-                <svg class="text-slate-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0-14 0m18 11l-6-6"/></svg>
+                <svg class="text-slate-600 dark:text-slate-400" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0-14 0m18 11l-6-6"/></svg>
             </div>
-            <input @input="search" v-model="params.search" class="w-full bg-slate-50 outline-none rounded-xl py-2 ps-2 me-2 text-sm" type="text" :placeholder="$t('Search name or number...')">
+            <input @input="search" v-model="params.search" class="w-full bg-slate-50 dark:bg-white/5 outline-none rounded-xl py-2 ps-2 me-2 text-sm" type="text" :placeholder="$t('Search name or number...')">
             <button v-if="isSearching === false && params.search" @click="clearSearch" type="button" class="pe-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10s10-4.5 10-10S17.5 2 12 2zm3.7 12.3c.4.4.4 1 0 1.4c-.4.4-1 .4-1.4 0L12 13.4l-2.3 2.3c-.4.4-1 .4-1.4 0c-.4-.4-.4-1 0-1.4l2.3-2.3l-2.3-2.3c-.4-.4-.4-1 0-1.4c.4-.4 1-.4 1.4 0l2.3 2.3l2.3-2.3c.4-.4 1-.4 1.4 0c.4.4.4 1 0 1.4L13.4 12l2.3 2.3z"/></svg>
             </button>
@@ -774,9 +774,9 @@
                 <!-- Filter Button -->
                 <span 
                     @click="showFilterModal = true"
-                    class="relative cursor-pointer hover:bg-slate-50 p-1 rounded-full transition-colors"
+                    class="relative cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5 p-1 rounded-full transition-colors"
                     :title="$t('Filters')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-600 w-5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-600 dark:text-slate-400 w-5">
                         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                     </svg>
                     <!-- Badge showing active filter count -->
@@ -791,11 +791,11 @@
         </div>
     </div>
     <!-- Select All Checkbox in Header -->
-    <div v-if="rows.data.length > 0 && !showActions" class="px-4 py-2 border-b bg-gray-50 flex items-center">
+    <div v-if="rows.data.length > 0 && !showActions" class="px-4 py-2 border-b bg-gray-50 dark:bg-white/5 flex items-center">
         <div 
             @click="toggleSelectAll"
             class="relative w-5 h-5 flex items-center justify-center cursor-pointer me-2 rounded border-2 transition-all"
-            :class="isSelectAll ? 'bg-primary border-primary' : 'bg-white border-gray-300 hover:border-primary/50'">
+            :class="isSelectAll ? 'bg-primary border-primary' : 'bg-white dark:bg-[#111b21] border-gray-300 dark:border-white/10 hover:border-primary/50'">
             <svg 
                 v-if="isSelectAll"
                 xmlns="http://www.w3.org/2000/svg" 
@@ -805,18 +805,18 @@
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
             </svg>
         </div>
-        <span class="text-sm text-gray-700 cursor-pointer" @click="toggleSelectAll">{{ $t('Select All') }} ({{ rows.data.length }})</span>
+        <span class="text-sm text-gray-700 dark:text-slate-300 cursor-pointer" @click="toggleSelectAll">{{ $t('Select All') }} ({{ rows.data.length }})</span>
     </div>
     <!-- Action Toolbar -->
-    <div v-if="showActions" class="px-4 py-2 bg-gray-50 border-b">
+    <div v-if="showActions" class="px-4 py-2 bg-gray-50 dark:bg-white/5 border-b">
         <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-2 text-sm text-gray-700">
+            <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-slate-300">
                 <div 
                     @click="handleSelectionCheckboxClick"
                     class="relative w-5 h-5 flex items-center justify-center cursor-pointer rounded border-2 transition-all"
                     :class="{
                         'bg-primary border-primary': getSelectionState() === 'all' || getSelectionState() === 'some',
-                        'bg-white border-gray-300 hover:border-primary/50': getSelectionState() === 'none'
+                        'bg-white dark:bg-[#111b21] border-gray-300 dark:border-white/10 hover:border-primary/50': getSelectionState() === 'none'
                     }">
                     <!-- Checked state (tick) -->
                     <svg 
@@ -844,7 +844,7 @@
                 <button type="button" 
                     v-if="canAssign"
                     @click.stop="openAssignModal" 
-                    class="p-1.5 rounded hover:bg-gray-100 transition-colors relative group"
+                    class="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-white/10 transition-colors relative group"
                     :disabled="processing">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -861,7 +861,7 @@
                 <div v-if="canChangeStatus" class="relative status-dropdown-container group">
                     <button type="button" 
                         @click.stop="showStatusDropdown = !showStatusDropdown" 
-                        class="p-1.5 rounded hover:bg-gray-100 transition-colors"
+                        class="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                         :disabled="processing">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -875,17 +875,17 @@
                     <!-- Status Dropdown Menu -->
                     <div 
                         v-if="showStatusDropdown" 
-                        class="ui-dropdown-menu ui-layer-dropdown absolute end-0 mt-2 w-40 rounded-md border border-gray-200"
+                        class="ui-dropdown-menu ui-layer-dropdown absolute end-0 mt-2 w-40 rounded-md border border-gray-200 dark:border-white/10"
                         @click.stop>
                         <div class="py-1">
                             <button type="button" 
                                 @click="handleChangeStatus('open')"
-                                class="w-full text-start px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                class="w-full text-start px-4 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
                                 {{ $t('Mark as Open') }}
                             </button>
                             <button type="button" 
                                 @click="handleChangeStatus('closed')"
-                                class="w-full text-start px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                class="w-full text-start px-4 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
                                 {{ $t('Mark as Closed') }}
                             </button>
                         </div>
@@ -896,7 +896,7 @@
                 <button type="button" 
                     v-if="canDelete"
                     @click.stop="handleDelete" 
-                    class="p-1.5 rounded hover:bg-red-50 transition-colors relative group"
+                    class="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors relative group"
                     :disabled="processing">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-600">
                         <polyline points="3 6 5 6 21 6"></polyline>
@@ -908,14 +908,14 @@
                 </button>
             </div>
         </div>
-        <div class="flex items-center gap-2 text-xs text-gray-700">
+        <div class="flex items-center gap-2 text-xs text-gray-700 dark:text-slate-300">
             <span 
                 @click="selectAllForCurrentStatus" 
                 class="underline cursor-pointer hover:text-primary transition-colors"
                 :class="{ 'opacity-50 cursor-not-allowed': processing }">
                 {{ $t('Select all') }} {{ getStatusLabel() }} {{ $t('chats') }}
             </span>
-            <span class="text-gray-400">|</span>
+            <span class="text-gray-400 dark:text-slate-500">|</span>
             <span 
                 @click="handleCancelSelection" 
                 class="underline cursor-pointer hover:text-primary transition-colors"
@@ -927,29 +927,30 @@
     <div class="flex-grow min-h-0 overflow-y-auto" ref="scrollContainer">
         <!-- Empty State -->
         <div v-if="rows.data.length === 0" class="flex flex-col items-center justify-center h-full py-12">
-            <div class="text-gray-400 mb-4">
+            <div class="text-gray-400 dark:text-slate-500 mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
             </div>
-            <p class="text-gray-500 text-sm">{{ $t('No chats available') }}</p>
-            <p v-if="status && status !== 'all'" class="text-gray-400 text-xs mt-1">{{ $t('No') }} {{ getStatusLabel() }} {{ $t('chats found') }}</p>
+            <p class="text-gray-500 dark:text-slate-400 text-sm">{{ $t('No chats available') }}</p>
+            <p v-if="status && status !== 'all'" class="text-gray-400 dark:text-slate-500 text-xs mt-1">{{ $t('No') }} {{ getStatusLabel() }} {{ $t('chats found') }}</p>
         </div>
         
         <!-- Chat List -->
-        <div class="block border-b group-hover:pe-0 relative" :class="contact.unread_messages > 0 ? 'bg-green-50' : ''" v-for="(contact, index) in rows.data" :key="index">
-            <div class="flex items-start gap-3 hover:bg-gray-50 py-3 px-4 group relative">
+        <div class="block border-b border-slate-100 dark:border-white/10 group-hover:pe-0 relative" v-for="(contact, index) in rows.data" :key="index">
+            <div class="flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-white/5 py-3.5 px-4 group relative">
                 <div class="shrink-0 relative z-10">
                     <!-- Avatar Container (always present for layout) -->
                     <div class="relative w-10 h-10 avatar-container" @mouseenter="hoveredContact = contact.uuid" @mouseleave="hoveredContact = null">
                         <!-- Avatar (always rendered, hidden when selected or on hover) -->
-                        <div 
-                            class="avatar-display w-10 h-10"
+                        <div
+                            class="avatar-display w-10 h-10 relative"
                             :class="{ 'opacity-0': hoveredContact === contact.uuid && !selectedContacts.has(contact.uuid) }">
                             <img v-if="contactAvatar(contact)" class="rounded-full w-10 h-10 object-cover" :src="contactAvatar(contact)" alt="">
-                            <div v-else class="rounded-full w-10 h-10 flex items-center justify-center bg-slate-200 capitalize text-sm font-medium">{{ contactInitial(contact) }}</div>
+                            <div v-else class="rounded-full w-10 h-10 flex items-center justify-center bg-slate-200 dark:bg-white/10 capitalize text-sm font-medium">{{ contactInitial(contact) }}</div>
+                            <span v-if="channelBadge(contact)" class="chat-channel-dot" :title="channelBadge(contact).label"></span>
                         </div>
-                        
+
                         <!-- Checkbox Overlay (shown when selected) -->
                         <div 
                             v-if="selectedContacts.has(contact.uuid)"
@@ -976,53 +977,46 @@
                 <div class="min-w-0 flex-1">
                     <div class="flex items-start justify-between gap-3">
                         <div class="min-w-0 flex items-center gap-2">
-                            <h3 class="truncate">{{ contactDisplayName(contact) }}</h3>
-                            <span
-                                v-if="channelBadge(contact)"
-                                class="shrink-0 rounded-md px-1.5 py-0.5 text-[10px]"
-                                :class="channelBadge(contact).class"
-                            >
-                                {{ channelBadge(contact).label }}
-                            </span>
+                            <h3 class="truncate text-[16px]" :class="contact.unread_messages > 0 ? 'font-bold text-[var(--ui-text)]' : 'font-semibold text-[var(--ui-text)]'">{{ contactDisplayName(contact) }}</h3>
                         </div>
-                        <span class="shrink-0 text-slate-500 text-xs">{{ formatTime(contact?.last_chat?.created_at) }}</span>
+                        <span class="shrink-0 text-slate-500 dark:text-slate-400 text-[12.5px] font-medium">{{ formatTime(contact?.last_chat?.created_at) }}</span>
                     </div>
                     <div v-if="contact?.last_chat?.deleted_at === null">
                         <div class="flex items-center justify-between gap-3">
-                            <div v-if="contentType(contact?.last_chat?.metadata) ==='text'" class="min-w-0 text-slate-500 text-xs truncate self-end"> {{ content(contact?.last_chat?.metadata).text.body }}</div>
-                            <div v-if="contentType(contact?.last_chat?.metadata) ==='button'" class="min-w-0 text-slate-500 text-xs truncate self-end"> {{ content(contact?.last_chat?.metadata).button.text }}</div>
-                            <div v-if="contentType(contact?.last_chat?.metadata) ==='interactive'" class="min-w-0 text-slate-500 text-xs truncate self-end"> {{ previewText(contact?.last_chat?.metadata) }}</div>
-                            <div v-if="contentType(contact?.last_chat?.metadata) ==='image'" class="min-w-0 text-slate-500 text-xs truncate self-end"> 
+                            <div v-if="contentType(contact?.last_chat?.metadata) ==='text'" class="min-w-0 text-slate-500 dark:text-slate-400 text-[13px] truncate self-end"> {{ content(contact?.last_chat?.metadata).text.body }}</div>
+                            <div v-if="contentType(contact?.last_chat?.metadata) ==='button'" class="min-w-0 text-slate-500 dark:text-slate-400 text-[13px] truncate self-end"> {{ content(contact?.last_chat?.metadata).button.text }}</div>
+                            <div v-if="contentType(contact?.last_chat?.metadata) ==='interactive'" class="min-w-0 text-slate-500 dark:text-slate-400 text-[13px] truncate self-end"> {{ previewText(contact?.last_chat?.metadata) }}</div>
+                            <div v-if="contentType(contact?.last_chat?.metadata) ==='image'" class="min-w-0 text-slate-500 dark:text-slate-400 text-[13px] truncate self-end"> 
                                 <div class="flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.9 13.98l2.1 2.53l3.1-3.99c.2-.26.6-.26.8.01l3.51 4.68a.5.5 0 0 1-.4.8H6.02c-.42 0-.65-.48-.39-.81L8.12 14c.19-.26.57-.27.78-.02z"/></svg>
                                     <span class="ms-2">{{ $t('Photo') }}</span>
                                 </div>
                             </div>
-                            <div v-if="contentType(contact?.last_chat?.metadata) ==='document'" class="min-w-0 text-slate-500 text-xs truncate self-end"> 
+                            <div v-if="contentType(contact?.last_chat?.metadata) ==='document'" class="min-w-0 text-slate-500 dark:text-slate-400 text-[13px] truncate self-end"> 
                                 <div class="flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M14.25 2.5a.25.25 0 0 0-.25-.25H7A2.75 2.75 0 0 0 4.25 5v14A2.75 2.75 0 0 0 7 21.75h10A2.75 2.75 0 0 0 19.75 19V9.147a.25.25 0 0 0-.25-.25H15a.75.75 0 0 1-.75-.75V2.5Zm.75 9.75a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h6Zm0 4a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h6Z" clip-rule="evenodd"/><path fill="currentColor" d="M15.75 2.824c0-.184.193-.301.336-.186c.121.098.23.212.323.342l3.013 4.197c.068.096-.006.22-.124.22H16a.25.25 0 0 1-.25-.25V2.824Z"/></svg>
                                     <span class="ms-2">{{ getExtension(contact?.last_chat?.media.type) }} {{ $t('File') }}</span>
                                 </div>
                             </div>
-                            <div v-if="contentType(contact?.last_chat?.metadata) ==='video'" class="min-w-0 text-slate-500 text-xs truncate self-end"> 
+                            <div v-if="contentType(contact?.last_chat?.metadata) ==='video'" class="min-w-0 text-slate-500 dark:text-slate-400 text-[13px] truncate self-end"> 
                                 <div class="flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M3.5 2.5A2.5 2.5 0 0 0 1 5v6a2.5 2.5 0 0 0 2.5 2.5h5A2.5 2.5 0 0 0 11 11V5a2.5 2.5 0 0 0-2.5-2.5h-5Zm10.684 1.61L12 5.893v4.215l2.184 1.78a.5.5 0 0 0 .816-.389v-7a.5.5 0 0 0-.816-.387Z"/></svg>
                                     <span class="ms-2">{{ $t('Video') }}</span>
                                 </div>
                             </div>
-                            <div v-if="contentType(contact?.last_chat?.metadata) ==='audio'" class="min-w-0 text-slate-500 text-xs truncate self-end"> 
+                            <div v-if="contentType(contact?.last_chat?.metadata) ==='audio'" class="min-w-0 text-slate-500 dark:text-slate-400 text-[13px] truncate self-end"> 
                                 <div class="flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512"><path fill="currentColor" d="M256 80C149.9 80 62.4 159.4 49.6 262c9.4-3.8 19.6-6 30.4-6c26.5 0 48 21.5 48 48v128c0 26.5-21.5 48-48 48c-44.2 0-80-35.8-80-80V288C0 146.6 114.6 32 256 32s256 114.6 256 256v112c0 44.2-35.8 80-80 80c-26.5 0-48-21.5-48-48V304c0-26.5 21.5-48 48-48c10.8 0 21 2.1 30.4 6C449.6 159.4 362.1 80 256 80z"/></svg>
                                     <span class="ms-2">{{ $t('Audio') }}</span>
                                 </div>
                             </div>
-                            <div v-if="contentType(contact?.last_chat?.metadata) ==='sticker'" class="min-w-0 text-slate-500 text-xs truncate self-end"> 
+                            <div v-if="contentType(contact?.last_chat?.metadata) ==='sticker'" class="min-w-0 text-slate-500 dark:text-slate-400 text-[13px] truncate self-end"> 
                                 <div class="flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256"><path fill="currentColor" d="M168 32H88a56.06 56.06 0 0 0-56 56v80a56.06 56.06 0 0 0 56 56h48a8.07 8.07 0 0 0 2.53-.41c26.23-8.75 76.31-58.83 85.06-85.06A8.07 8.07 0 0 0 224 136V88a56.06 56.06 0 0 0-56-56Zm-32 175.42V176a40 40 0 0 1 40-40h31.42c-9.26 21.55-49.87 62.16-71.42 71.42Z"/></svg>
                                     <span class="ms-2">{{ $t('Sticker') }}</span>
                                 </div>
                             </div>
-                            <div v-if="contentType(contact?.last_chat?.metadata) ==='contacts'" class="min-w-0 text-slate-500 text-xs truncate self-end"> 
+                            <div v-if="contentType(contact?.last_chat?.metadata) ==='contacts'" class="min-w-0 text-slate-500 dark:text-slate-400 text-[13px] truncate self-end"> 
                                 <div class="flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M3 14s-1 0-1-1s1-4 6-4s6 3 6 4s-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6a3 3 0 0 0 0 6Z"/></svg>
                                     <span class="ms-2">
@@ -1030,13 +1024,13 @@
                                     </span>
                                 </div>
                             </div>
-                            <div v-if="contentType(contact?.last_chat?.metadata) ==='location'" class="min-w-0 text-slate-500 text-xs truncate self-end"> 
+                            <div v-if="contentType(contact?.last_chat?.metadata) ==='location'" class="min-w-0 text-slate-500 dark:text-slate-400 text-[13px] truncate self-end"> 
                                 <div class="flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" d="M9.156 14.544C10.899 13.01 14 9.876 14 7A6 6 0 0 0 2 7c0 2.876 3.1 6.01 4.844 7.544a1.736 1.736 0 0 0 2.312 0ZM6 7a2 2 0 1 1 4 0a2 2 0 0 1-4 0Z"/></svg>
                                     <span class="ms-2">{{ $t('Location') }}</span>
                                 </div>
                             </div>
-                            <span v-if="contact.unread_messages > 0" class="shrink-0 bg-green-600 text-white rounded-md py-[1px] px-[8px] min-w-10 text-[10px] flex items-center justify-center">{{ contact.unread_messages }}</span>
+                            <span v-if="contact.unread_messages > 0" class="chat-unread-badge">{{ contact.unread_messages }}</span>
                         </div>
                         <div v-if="ticketingIsEnabled && contact?.ticket?.user" class="flex justify-start mt-1">
                             <span 
@@ -1057,7 +1051,7 @@
             </Link>
         </div>
     </div>
-    <div class="border-t bg-white px-4 py-3">
+    <div class="border-t bg-white dark:bg-[#111b21] px-4 py-3">
         <Pagination :pagination="rows.meta"/>
     </div>
 
@@ -1065,7 +1059,7 @@
     <Modal :label="$t('Assign to User')" :isOpen="showAssignModal" :closeBtn="true" @close="closeAssignModal">
         <div class="mt-5">
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('Select Agent') }}</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">{{ $t('Select Agent') }}</label>
                 <FormSelect 
                     v-model="selectedAgent" 
                     :name="''" 
@@ -1074,10 +1068,10 @@
                     :placeholder="$t('Select Agent')" 
                 />
             </div>
-            <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-200">
+            <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-200 dark:border-white/10">
                 <button type="button" 
                     @click="closeAssignModal" 
-                    class="px-3 py-1.5 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                    class="px-3 py-1.5 text-xs bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-slate-300 rounded hover:bg-gray-300 dark:hover:bg-white/15 transition-colors"
                     :disabled="processing">
                     {{ $t('Cancel') }}
                 </button>
@@ -1099,7 +1093,7 @@
             <div class="flex justify-end gap-2">
                 <button type="button" 
                     @click="closeConfirmModal" 
-                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                    class="px-4 py-2 bg-gray-300 dark:bg-white/15 text-gray-700 dark:text-slate-300 rounded hover:bg-gray-400 dark:hover:bg-white/20"
                     :disabled="processing">
                     {{ $t('Cancel') }}
                 </button>
@@ -1123,7 +1117,7 @@
                     <div 
                         @click="filterUnread = !filterUnread"
                         class="relative w-5 h-5 flex items-center justify-center cursor-pointer rounded border-2 transition-all"
-                        :class="filterUnread ? 'bg-primary border-primary' : 'bg-white border-gray-300 hover:border-primary/50'">
+                        :class="filterUnread ? 'bg-primary border-primary' : 'bg-white dark:bg-[#111b21] border-gray-300 dark:border-white/10 hover:border-primary/50'">
                         <svg 
                             v-if="filterUnread"
                             xmlns="http://www.w3.org/2000/svg" 
@@ -1133,44 +1127,44 @@
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <span class="text-sm text-gray-700 font-medium cursor-pointer" @click="filterUnread = !filterUnread">{{ $t('Unread Messages') }}</span>
+                    <span class="text-sm text-gray-700 dark:text-slate-300 font-medium cursor-pointer" @click="filterUnread = !filterUnread">{{ $t('Unread Messages') }}</span>
                 </label>
-                <p class="text-xs text-gray-500 mt-1 ms-7">{{ $t('Show only chats with unread messages') }}</p>
+                <p class="text-xs text-gray-500 dark:text-slate-400 mt-1 ms-7">{{ $t('Show only chats with unread messages') }}</p>
             </div>
 
             <!-- Channel Filter -->
             <div>
-                <label class="block text-sm text-gray-700 font-medium mb-2">{{ $t('Channel') }}</label>
+                <label class="block text-sm text-gray-700 dark:text-slate-300 font-medium mb-2">{{ $t('Channel') }}</label>
                 <FormSelect
                     v-model="filterChannel"
                     :options="channelSelectOptions"
                     :placeholder="$t('All Channels')"
                     class="w-full"
                 />
-                <p class="text-xs text-gray-500 mt-1">{{ $t('Show WhatsApp conversations.') }}</p>
+                <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">{{ $t('Show WhatsApp conversations.') }}</p>
             </div>
             
             <!-- Agent Filter -->
             <div v-if="ticketingIsEnabled && agents.length > 0">
-                <label class="block text-sm text-gray-700 font-medium mb-2">{{ $t('Agent') }}</label>
+                <label class="block text-sm text-gray-700 dark:text-slate-300 font-medium mb-2">{{ $t('Agent') }}</label>
                 <FormSelect
                     v-model="filterAgent"
                     :options="[{ label: $t('All Agents'), value: null }, ...agentSelectOptions]"
                     :placeholder="$t('All Agents')"
                     class="w-full"
                 />
-                <p class="text-xs text-gray-500 mt-1">{{ $t('Filter chats by assigned agent') }}</p>
+                <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">{{ $t('Filter chats by assigned agent') }}</p>
             </div>
             
-            <div v-if="!ticketingIsEnabled || agents.length === 0" class="text-sm text-gray-500 italic">
+            <div v-if="!ticketingIsEnabled || agents.length === 0" class="text-sm text-gray-500 dark:text-slate-400 italic">
                 {{ $t('Agent filter is only available when ticketing is enabled') }}
             </div>
         </div>
         
-        <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-200">
+        <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-200 dark:border-white/10">
             <button type="button" 
                 @click="clearFilters" 
-                class="px-3 py-1.5 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
+                class="px-3 py-1.5 text-xs bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-slate-300 rounded hover:bg-gray-300 dark:hover:bg-white/15 transition-colors">
                 {{ $t('Clear All') }}
             </button>
             <button type="button" 
@@ -1182,4 +1176,32 @@
     </Modal>
     </div>
 </template>
+
+<style scoped>
+.chat-channel-dot {
+    position: absolute;
+    inset-inline-end: -1px;
+    bottom: -1px;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 999px;
+    background: #25d366;
+    border: 2px solid var(--ui-surface);
+}
+
+.chat-unread-badge {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background: var(--ui-secondary);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+</style>
   

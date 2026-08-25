@@ -1,105 +1,50 @@
 <template>
-    <SettingLayout :modules="props.modules">
+    <SettingLayout :modules="props.modules" :title="$t('Ticket settings')" :subtitle="$t('Configure how support tickets are handled')">
         <div class="min-h-0">
             <div class="flex justify-center items-center">
-                <div class="md:w-[60em]">
-                    <div class="bg-white border border-slate-200 rounded-lg pt-2 text-sm mb-4 px-4 mb-20">
-                        <div class="w-full py-2 mb-4 mt-2">
-                            <div class="flex w-full">
-                                <div class="text-md">
-                                    <h4 class="text-[16px]">{{ $t('Enable ticketing') }}</h4>
-                                    <div class="mb-1 text-slate-500">{{ $t('Activate ticketing workflow in your conversations') }}</div>
-                                </div>
-                                <div class="ms-auto">
-                                    <FormToggleSwitch v-model="form.active" @update:modelValue="toggleState1" />
-                                </div>
+                <div class="w-full md:w-[60em]">
+                    <UiSectionCard :title="$t('Enable ticketing')" :subtitle="$t('Activate ticketing workflow in your conversations')" class="mb-4">
+                        <template #icon>
+                            <FormToggleSwitch v-model="form.active" @update:modelValue="toggleState1" />
+                        </template>
+                    </UiSectionCard>
+
+                    <UiSectionCard v-if="form.active" :title="$t('Auto assignment')" :subtitle="$t('Use auto-assignment rules to evenly distribute chats among agents automatically.')" class="mb-4">
+                        <div class="p-5">
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <button type="button" @click="toggleAutoAssignment(false)" class="settings-choice-card" :class="{ 'settings-choice-card--active': form.auto_assignment === false }">
+                                    <span class="settings-choice-check">
+                                        <svg v-if="form.auto_assignment === false" class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    </span>
+                                    <span class="text-start">
+                                        <div class="settings-field-label">{{ $t('Off') }}</div>
+                                        <div class="settings-field-hint">{{ $t('Team members pick conversations manually from Unassigned folder.') }}</div>
+                                    </span>
+                                </button>
+                                <button type="button" @click="toggleAutoAssignment(true)" class="settings-choice-card" :class="{ 'settings-choice-card--active': form.auto_assignment === true }">
+                                    <span class="settings-choice-check">
+                                        <svg v-if="form.auto_assignment === true" class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                    </span>
+                                    <span class="text-start">
+                                        <div class="settings-field-label">{{ $t('Auto') }}</div>
+                                        <div class="settings-field-hint">{{ $t('Distribute conversations among all your available team members.') }}</div>
+                                    </span>
+                                </button>
                             </div>
                         </div>
-                    </div>
-                    <div v-if="form.active" class="bg-white border border-slate-200 rounded-lg py-2 text-sm mb-4 pb-4 px-4 mb-20">
-                        <div class="w-full py-2 mb-2 mt-2">
-                            <div class="flex w-full mb-4">
-                                <div class="text-md">
-                                    <h4 class="text-[16px]">{{ $t('Auto assignment') }}</h4>
-                                    <span class="flex items-center mt-1 text-slate-500">
-                                        {{ $t('Use auto-assignment rules to evenly distribute chats among agents automatically.') }}
-                                    </span> 
-                                </div>
-                            </div>
-                            <div class="w-5/5">
-                                <div class="grid grid-cols-2 gap-x-4">
-                                    <div class="border rounded-xl p-4">
-                                        <div class="flex gap-x-2">
-                                            <div>
-                                                <div class="flex mt-[1px]">
-                                                    <label @click="toggleAutoAssignment(false)" for="myCheckbox" class="cursor-pointer">
-                                                        <div class="w-4 h-4 border border-gray-400 rounded-md flex items-center justify-center" :class="form.auto_assignment === false ? 'bg-[color:var(--ui-text)]' : ''">
-                                                            <svg v-if="form.auto_assignment === false" class="w-4 h-4" :class="form.auto_assignment === false ? 'text-white' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                            </svg>
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div @click="toggleAutoAssignment(false)" class="cursor-pointer">
-                                                <div>{{ $t('Off') }}</div>
-                                                <div>{{ $t('Team members pick conversations manually from Unassigned folder.') }}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="border rounded-xl p-4">
-                                        <div class="flex gap-x-2">
-                                            <div>
-                                                <div class="flex mt-[1px]">
-                                                    <label @click="toggleAutoAssignment(true)" for="myCheckbox" class="cursor-pointer">
-                                                        <div class="w-4 h-4 border border-gray-400 rounded-md flex items-center justify-center" :class="form.auto_assignment === true ? 'bg-[color:var(--ui-text)]' : ''">
-                                                            <svg v-if="form.auto_assignment === true" class="w-4 h-4" :class="form.auto_assignment === true ? 'text-white' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                            </svg>
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div @click="toggleAutoAssignment(true)" class="cursor-pointer">
-                                                <div>{{ $t('Auto') }}</div>
-                                                <div>{{ $t('Distribute conversations among all your available team members.') }}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="form.active" class="bg-white border border-slate-200 rounded-lg pt-2 text-sm mb-4 px-4 mb-20">
-                        <div class="w-full py-2 mb-4 mt-2">
-                            <div class="flex w-full">
-                                <div class="w-3/4 text-md">
-                                    <h4 class="text-[16px]">{{ $t('Reassign chats that have been reopened') }}</h4>
-                                    <div class="mb-1 text-slate-500">{{ $t('Enable this option to reassign chats when a contact re-opens a closed conversation. If disabled, reopened chats will either return to the previous agent or remain unassigned, based on auto-assignment settings.') }}</div>
-                                </div>
-                                <div class="w-1/4">
-                                    <div class="ms-auto">
-                                        <FormToggleSwitch v-model="form.reassign_reopened_chats" @update:modelValue="toggleState2" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="form.active" class="bg-white border border-slate-200 rounded-lg pt-2 text-sm mb-4 px-4 mb-20">
-                        <div class="w-full py-2 mb-4 mt-2">
-                            <div class="flex w-full">
-                                <div class="w-3/4 text-md">
-                                    <h4 class="text-[16px]">{{ $t('Grant agents access to view all chats not assigned to them') }}</h4>
-                                    <div class="mb-1 text-slate-500">{{ $t('Disable this option, if you want live chat agents to have access only to new conversations and conversations that are assigned to them.') }}</div>
-                                </div>
-                                <div class="w-1/4">
-                                    <div class="ms-auto">
-                                        <FormToggleSwitch v-model="form.allow_agents_to_view_all_chats" @update:modelValue="toggleState3" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    </UiSectionCard>
+
+                    <UiSectionCard v-if="form.active" :title="$t('Reassign chats that have been reopened')" :subtitle="$t('Enable this option to reassign chats when a contact re-opens a closed conversation. If disabled, reopened chats will either return to the previous agent or remain unassigned, based on auto-assignment settings.')" class="mb-4">
+                        <template #icon>
+                            <FormToggleSwitch v-model="form.reassign_reopened_chats" @update:modelValue="toggleState2" />
+                        </template>
+                    </UiSectionCard>
+
+                    <UiSectionCard v-if="form.active" :title="$t('Grant agents access to view all chats not assigned to them')" :subtitle="$t('Disable this option, if you want live chat agents to have access only to new conversations and conversations that are assigned to them.')" class="mb-20">
+                        <template #icon>
+                            <FormToggleSwitch v-model="form.allow_agents_to_view_all_chats" @update:modelValue="toggleState3" />
+                        </template>
+                    </UiSectionCard>
                 </div>
             </div>
         </div>
@@ -108,6 +53,7 @@
 <script setup>
     import SettingLayout from "./Layout.vue";
     import FormToggleSwitch from '@/Components/FormToggleSwitch.vue';
+    import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
     import { ref, watch } from 'vue';
     import { useForm } from "@inertiajs/vue3";
     import { useI18n } from 'vue-i18n';
@@ -148,4 +94,57 @@
     };
 </script>
 
+<style scoped>
+.settings-field-label {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
 
+.settings-field-hint {
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    color: var(--ui-muted);
+}
+
+.settings-choice-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    border-radius: 1rem;
+    border: 1.5px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 1.1rem;
+    text-align: start;
+    transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.settings-choice-card:hover {
+    background: var(--ui-surface-soft);
+}
+
+.settings-choice-card--active {
+    border-color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 8%, var(--ui-surface));
+}
+
+.settings-choice-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.3rem;
+    height: 1.3rem;
+    margin-top: 0.15rem;
+    border-radius: 0.4rem;
+    border: 1.5px solid var(--ui-border-strong);
+    background: transparent;
+    transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.settings-choice-card--active .settings-choice-check {
+    background: var(--ui-secondary);
+    border-color: var(--ui-secondary);
+}
+
+</style>
