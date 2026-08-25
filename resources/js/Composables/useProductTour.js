@@ -131,11 +131,6 @@ export function useProductTour() {
 
         state.autoStartChecked = true;
 
-        if (onboardingTourStatus) {
-            clearPersistedIndex();
-            return false;
-        }
-
         const resumeIndex = readStoredIndex();
         if (resumeIndex !== null) {
             state.active = true;

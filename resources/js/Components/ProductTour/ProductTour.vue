@@ -108,7 +108,7 @@ function buildPopover(step) {
         },
         onCloseClick: () => tour.skip(),
         onPopoverRender: (popoverDom) => {
-            popoverDom.closeButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+            popoverDom.closeButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
             popoverDom.closeButton.setAttribute('title', t('Skip'));
             popoverDom.closeButton.setAttribute('aria-label', t('Skip'));
             popoverDom.closeButton.classList.add('botzo-tour-skip-btn');
