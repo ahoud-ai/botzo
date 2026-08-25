@@ -123,7 +123,18 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-10 border-t pt-5 text-sm">
+            <div class="mt-10 border-t pt-5 text-sm space-y-1">
+                <p class="font-medium">{{ businessInfo.name }}</p>
+                <p>{{ businessInfo.address }}</p>
+                <p class="flex flex-wrap gap-x-2 gap-y-1">
+                    <span>{{ $t('Phone') }}: <a :href="'tel:' + businessInfo.phone" dir="ltr" class="hover:underline">{{ businessInfo.phone }}</a></span>
+                    <span class="hidden md:inline">&bull;</span>
+                    <span>{{ $t('Website') }}: <a :href="businessInfo.website" target="_blank" rel="noopener" dir="ltr" class="hover:underline">{{ businessInfo.website }}</a></span>
+                    <span class="hidden md:inline">&bull;</span>
+                    <span>{{ $t('Tax ID') }}: <span dir="ltr">{{ businessInfo.taxId }}</span></span>
+                </p>
+            </div>
+            <div class="mt-5 border-t pt-5 text-sm">
                 <p class="font-light">{{ $t('Copyright') }} {{ currentYear }}. {{ $t('All rights reserved') }}.</p>
             </div>
         </footer>
@@ -138,6 +149,13 @@
     const config = computed(() => usePage().props.config);
 
     const currentYear = new Date().getFullYear();
+    const businessInfo = {
+        name: 'مؤسسة بوتوزو',
+        address: 'حي العارض، طريق الملك عبدالعزيز بن عبدالرحمن آل سعود الفرعي، مبنى 7217، الرقم الإضافي 2312، الرياض 13342، المملكة العربية السعودية',
+        phone: '+966532222773',
+        website: 'https://botzo.net/',
+        taxId: '3022207986',
+    };
     const facebookUrl = ref(null);
     const twitterUrl = ref(null);
     const tiktokUrl = ref(null);
