@@ -1,0 +1,51 @@
+
+.support-action-btn[data-v-2f55138f] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 0.7rem;
+    padding: 0.6rem 1.1rem;
+}
+.support-action-btn--solid[data-v-2f55138f] {
+    background: var(--ui-secondary);
+    color: #fff;
+    transition: filter 160ms ease;
+}
+.support-action-btn--solid[data-v-2f55138f]:hover {
+    filter: brightness(1.05);
+}
+.support-kpi[data-v-2f55138f] .ui-kpi-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.85rem;
+}
+.support-kpi[data-v-2f55138f] .ui-kpi-icon svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+.support-kpi--total[data-v-2f55138f] .ui-kpi-icon {
+    background: color-mix(in srgb, var(--ui-secondary) 16%, transparent);
+    border-color: color-mix(in srgb, var(--ui-secondary) 30%, transparent);
+}
+.support-kpi--total[data-v-2f55138f] .ui-kpi-icon svg { color: var(--ui-secondary) !important;
+}
+.support-kpi--open[data-v-2f55138f] .ui-kpi-icon {
+    background: rgba(21, 93, 252, 0.12);
+    border-color: rgba(21, 93, 252, 0.22);
+}
+.support-kpi--open[data-v-2f55138f] .ui-kpi-icon svg { color: #155dfc !important;
+}
+.support-kpi--pending[data-v-2f55138f] .ui-kpi-icon {
+    background: color-mix(in srgb, var(--ui-warning) 16%, transparent);
+    border-color: color-mix(in srgb, var(--ui-warning) 30%, transparent);
+}
+.support-kpi--pending[data-v-2f55138f] .ui-kpi-icon svg { color: var(--ui-warning) !important;
+}
+.support-kpi--resolved[data-v-2f55138f] .ui-kpi-icon {
+    background: color-mix(in srgb, var(--ui-success) 16%, transparent);
+    border-color: color-mix(in srgb, var(--ui-success) 30%, transparent);
+}
+.support-kpi--resolved[data-v-2f55138f] .ui-kpi-icon svg { color: var(--ui-success) !important;
+}

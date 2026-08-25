@@ -1,0 +1,10 @@
+
+.theme-toggle-btn[data-v-8acad3e0] {
+    color: var(--ui-text);
+    border-color: var(--ui-border);
+    background: transparent;
+}
+.theme-toggle-btn[data-v-8acad3e0]:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
