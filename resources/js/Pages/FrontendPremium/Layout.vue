@@ -20,7 +20,7 @@
                     <div class="premium-brand-lockup" v-if="props.companyConfig.logo">
                         <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
                         <span class="premium-brand-lockup__text">
-                            <span class="premium-brand-lockup__name"><span>botz</span><span class="premium-brand-lockup__accent">o</span></span>
+                            <span class="premium-brand-lockup__name"><span>botoz</span><span class="premium-brand-lockup__accent">o</span></span>
                         </span>
                     </div>
                     <h1 v-else class="text-2xl">{{ props.companyConfig.company_name }}</h1>
@@ -50,7 +50,7 @@
                         <div class="premium-brand-lockup premium-brand-lockup--footer" v-if="props.companyConfig.logo">
                             <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
                             <span class="premium-brand-lockup__text">
-                                <span class="premium-brand-lockup__name"><span>botz</span><span class="premium-brand-lockup__accent">o</span></span>
+                                <span class="premium-brand-lockup__name"><span>botoz</span><span class="premium-brand-lockup__accent">o</span></span>
                             </span>
                         </div>
                         <h4 v-else class="text-2xl mb-2">{{ props.companyConfig.company_name }}</h4>

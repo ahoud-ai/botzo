@@ -9,7 +9,7 @@
                             <template v-if="props.companyConfig && props.companyConfig.logo">
                                 <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
                                 <span class="premium-brand-lockup__text">
-                                    <span class="premium-brand-lockup__name"><span>botz</span><span class="premium-brand-lockup__accent">o</span></span>
+                                    <span class="premium-brand-lockup__name"><span>botoz</span><span class="premium-brand-lockup__accent">o</span></span>
                                 </span>
                             </template>
                             <h1 v-else class="text-xl">{{ props.companyConfig?.company_name }}</h1>
@@ -253,7 +253,7 @@
                             <div class="premium-brand-lockup premium-brand-lockup--footer" v-if="props.companyConfig.logo">
                                 <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
                                 <span class="premium-brand-lockup__text">
-                                    <span class="premium-brand-lockup__name"><span>botz</span><span class="premium-brand-lockup__accent">o</span></span>
+                                    <span class="premium-brand-lockup__name"><span>botoz</span><span class="premium-brand-lockup__accent">o</span></span>
                                 </span>
                             </div>
                             <h4 v-else-if="props.companyConfig.company_name" class="text-xl mb-2 text-gray-900 font-bold">{{ props.companyConfig.company_name }}</h4>
@@ -343,6 +343,19 @@
                     </div>
                 </div>
 
+                <!-- Business / Tax Disclosure -->
+                <div class="border-t border-gray-200 pt-8 mt-8 text-sm text-gray-600 space-y-1">
+                    <p class="font-medium text-gray-900">{{ businessInfo.name }}</p>
+                    <p>{{ businessInfo.address }}</p>
+                    <p class="flex flex-wrap gap-x-2 gap-y-1">
+                        <span>{{ $t('Phone') }}: <a :href="'tel:' + businessInfo.phone" dir="ltr" class="hover:underline hover:text-primary">{{ businessInfo.phone }}</a></span>
+                        <span class="hidden md:inline">&bull;</span>
+                        <span>{{ $t('Website') }}: <a :href="businessInfo.website" target="_blank" rel="noopener" dir="ltr" class="hover:underline hover:text-primary">{{ businessInfo.website }}</a></span>
+                        <span class="hidden md:inline">&bull;</span>
+                        <span>{{ $t('Tax ID') }}: <span dir="ltr">{{ businessInfo.taxId }}</span></span>
+                    </p>
+                </div>
+
                 <!-- Bottom Bar -->
                 <div class="border-t border-gray-200 pt-8 mt-8">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -370,6 +383,13 @@
 
     const page = usePage();
     const currentYear = new Date().getFullYear();
+    const businessInfo = {
+        name: 'مؤسسة بوتوزو',
+        address: 'حي العارض، طريق الملك عبدالعزيز بن عبدالرحمن آل سعود الفرعي، مبنى 7217، الرقم الإضافي 2312، الرياض 13342، المملكة العربية السعودية',
+        phone: '+966532222773',
+        website: 'https://botzo.net/',
+        taxId: '3022207986',
+    };
     const { rtlClass, isRtl } = useRtl();
     
     const isAuthenticated = computed(() => {

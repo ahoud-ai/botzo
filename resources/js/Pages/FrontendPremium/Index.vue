@@ -67,7 +67,7 @@
           <div class="premium-home-dashboard-card">
             <div class="premium-home-dashboard-top">
               <span>{{ $t("Dashboard") }}</span>
-              <span>Botzo Admin</span>
+              <span>Botozo Admin</span>
             </div>
             <div class="premium-home-dashboard-stats">
               <div>
