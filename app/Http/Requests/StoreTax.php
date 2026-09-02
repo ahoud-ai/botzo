@@ -24,6 +24,7 @@ class StoreTax extends FormRequest
         $rules = [
             'name' => 'required',
             'percentage' => 'required|numeric',
+            'status' => 'nullable|in:active,inactive',
         ];
 
         return $rules;

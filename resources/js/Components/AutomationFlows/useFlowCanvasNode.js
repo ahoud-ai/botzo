@@ -131,56 +131,62 @@ export const useFlowCanvasNode = (props) => {
     const showBranchHealth = computed(() => branchCoverage.value.total > 1 || branchCoverage.value.remaining > 0);
     const flowDelayMinutes = computed(() => Math.max(0, Number(config.value.minutes || 0)));
     const hiddenIssuesLabel = computed(() => translateFlowMessage(t, '+ :count more issue(s)', { count: hiddenErrorCount.value }));
+    const BADGE_TONE_DANGER = 'border-[color-mix(in_srgb,var(--ui-danger)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-danger)_12%,var(--ui-surface))] text-[var(--ui-danger)]';
+    const BADGE_TONE_MUTED = 'border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] text-[var(--ui-muted)]';
+    const BADGE_TONE_TRIGGER = 'border-[color-mix(in_srgb,var(--flow-tone-trigger)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-trigger)_12%,var(--ui-surface))] text-[var(--flow-tone-trigger)]';
+    const BADGE_TONE_BRANCH = 'border-[color-mix(in_srgb,var(--flow-tone-branch)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-branch)_12%,var(--ui-surface))] text-[var(--flow-tone-branch)]';
+    const BADGE_TONE_WARNING = 'border-[color-mix(in_srgb,var(--ui-warning)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-warning)_12%,var(--ui-surface))] text-[var(--ui-warning)]';
+    const BADGE_TONE_INFO = 'border-[color-mix(in_srgb,var(--flow-tone-message)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-message)_12%,var(--ui-surface))] text-[var(--flow-tone-message)]';
     const statusBadge = computed(() => {
         if (errors.value.length) {
-            return makeBadge(t('Needs attention'), 'border-rose-200 bg-rose-50 text-rose-700');
+            return makeBadge(t('Needs attention'), BADGE_TONE_DANGER);
         }
 
         if (isInactive.value) {
-            return makeBadge(t('Paused'), 'border-slate-200 bg-slate-100 text-slate-600');
+            return makeBadge(t('Paused'), BADGE_TONE_MUTED);
         }
 
         return null;
     });
     const journeyBadge = computed(() => {
         if (nodeType.value === 'trigger') {
-            return makeBadge(t('Entry step'), 'border-sky-200 bg-sky-50 text-sky-700');
+            return makeBadge(t('Entry step'), BADGE_TONE_TRIGGER);
         }
 
         if (nodeType.value === 'send_buttons' || nodeType.value === 'send_list') {
-            return makeBadge(translateFlowMessage(t, ':count choice(s)', { count: branchCoverage.value.total }), 'border-violet-200 bg-violet-50 text-violet-700');
+            return makeBadge(translateFlowMessage(t, ':count choice(s)', { count: branchCoverage.value.total }), BADGE_TONE_BRANCH);
         }
 
         if (nodeType.value === 'condition') {
-            return makeBadge(t('Split path'), 'border-violet-200 bg-violet-50 text-violet-700');
+            return makeBadge(t('Split path'), BADGE_TONE_BRANCH);
         }
 
         if (nodeType.value === 'save_reply_to_field') {
-            return makeBadge(t('Waiting for customer'), 'border-amber-200 bg-amber-50 text-amber-700');
+            return makeBadge(t('Waiting for customer'), BADGE_TONE_WARNING);
         }
 
         if (['add_to_group', 'remove_from_group', 'update_contact_field'].includes(nodeType.value)) {
-            return makeBadge(t('CRM update'), 'border-cyan-200 bg-cyan-50 text-cyan-700');
+            return makeBadge(t('CRM update'), BADGE_TONE_INFO);
         }
 
         if (nodeType.value === 'assign_to_agent') {
-            return makeBadge(t('Team handoff'), 'border-cyan-200 bg-cyan-50 text-cyan-700');
+            return makeBadge(t('Team handoff'), BADGE_TONE_INFO);
         }
 
         if (['human_handoff', 'handoff_to_ai_assistant'].includes(nodeType.value)) {
-            return makeBadge(t('Automation stops'), 'border-amber-200 bg-amber-50 text-amber-700');
+            return makeBadge(t('Automation stops'), BADGE_TONE_WARNING);
         }
 
         if (nodeType.value === 'delay' && flowDelayMinutes.value > 0) {
-            return makeBadge(translateFlowMessage(t, 'Waits :count min', { count: flowDelayMinutes.value }), 'border-amber-200 bg-amber-50 text-amber-700');
+            return makeBadge(translateFlowMessage(t, 'Waits :count min', { count: flowDelayMinutes.value }), BADGE_TONE_WARNING);
         }
 
         if (nodeType.value === 'send_email') {
-            return makeBadge(t('Email step'), 'border-cyan-200 bg-cyan-50 text-cyan-700');
+            return makeBadge(t('Email step'), BADGE_TONE_INFO);
         }
 
         if (nodeType.value === 'end') {
-            return makeBadge(t('Finish point'), 'border-slate-200 bg-slate-100 text-slate-600');
+            return makeBadge(t('Finish point'), BADGE_TONE_MUTED);
         }
 
         return null;
@@ -196,7 +202,7 @@ export const useFlowCanvasNode = (props) => {
         }
 
         return missing > 0
-            ? makeBadge(translateFlowMessage(t, ':count path(s) missing', { count: missing }), 'border-amber-200 bg-amber-50 text-amber-700')
+            ? makeBadge(translateFlowMessage(t, ':count path(s) missing', { count: missing }), BADGE_TONE_WARNING)
             : null;
     });
     const primaryCardMetric = computed(() => journeyBadge.value || branchCoverageBadge.value || null);
@@ -212,17 +218,17 @@ export const useFlowCanvasNode = (props) => {
     ));
     const articleClass = computed(() => ([
         uiEnhanced.value ? 'flow-card-shell-enhanced' : '',
-        isFocused.value ? 'w-[420px] max-w-[420px] rounded-[24px]' : 'w-[236px] max-w-[236px]',
+        'w-[236px] max-w-[236px]',
         hasFocusedNode.value && !isFocused.value ? 'opacity-55 saturate-75' : '',
         isDragging.value
-            ? 'border-emerald-300 ring-2 ring-emerald-200 shadow-[0_16px_34px_rgba(16,185,129,0.18)] scale-[1.01]'
+            ? 'border-[var(--ui-secondary)] ring-2 ring-[color-mix(in_srgb,var(--ui-secondary)_35%,transparent)] shadow-[0_16px_34px_color-mix(in_srgb,var(--ui-secondary)_18%,transparent)] scale-[1.01]'
             : isFocused.value
-                ? 'border-emerald-300 ring-2 ring-emerald-100 shadow-[0_20px_48px_rgba(15,23,42,0.16)]'
+                ? 'border-[var(--ui-secondary)] ring-2 ring-[color-mix(in_srgb,var(--ui-secondary)_22%,transparent)] shadow-[0_20px_48px_color-mix(in_srgb,var(--ui-text)_16%,transparent)]'
                 : props.selected || isActive.value
-                    ? 'border-emerald-200 shadow-[0_10px_22px_rgba(16,185,129,0.10)]'
-                    : 'border-slate-200 hover:border-slate-300 hover:shadow-[0_10px_20px_rgba(15,23,42,0.08)]',
+                    ? 'border-[color-mix(in_srgb,var(--ui-secondary)_55%,var(--ui-border))] shadow-[0_10px_22px_color-mix(in_srgb,var(--ui-secondary)_10%,transparent)]'
+                    : 'border-[var(--ui-border)] hover:border-[var(--ui-border-strong)] hover:shadow-[0_10px_20px_color-mix(in_srgb,var(--ui-text)_8%,transparent)]',
     ]));
-    const handleClass = computed(() => cardTone.value.handleClass || '!bg-emerald-700');
+    const handleClass = computed(() => cardTone.value.handleClass || '!bg-[var(--ui-secondary)]');
     const menuStyle = computed(() => ({ top: `${menuPosition.value.top}px`, left: `${menuPosition.value.left}px` }));
 
     const handleActionPointerDown = () => {

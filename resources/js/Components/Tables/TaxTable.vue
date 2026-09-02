@@ -56,7 +56,9 @@
             <TableBodyRow v-for="(item, index) in rows.data" :key="index" :class="!isLastRow(index) ? 'border-b' : ''">
                 <TableBodyRowItem :position="'first'">{{ item.name }}</TableBodyRowItem>
                 <TableBodyRowItem>{{ item.percentage }}%</TableBodyRowItem>
-                <TableBodyRowItem>{{ $t(item.status) }}</TableBodyRowItem>
+                <TableBodyRowItem>
+                    <span class="tax-chip" :class="item.status === 'active' ? 'ui-chip-success' : 'ui-chip-neutral'">{{ $t(item.status) }}</span>
+                </TableBodyRowItem>
                 <TableBodyRowItem :position="'last'">
                     <Dropdown :align="'right'" class="mt-2">
                     <button type="submit"
@@ -96,4 +98,16 @@
         :description = "$t('Are you sure you want to delete this row? This action can not be undone')"
     />
 </template>
+
+<style scoped>
+.tax-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+</style>
   

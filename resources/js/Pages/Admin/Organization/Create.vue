@@ -1,38 +1,28 @@
 <template>
     <AppLayout>
         <div class="ui-page ui-fade-up ui-page-frame ui-text-main min-h-full">
-            <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div>
-                    <h1 class="text-2xl font-semibold text-slate-950">{{ $t('Create organization') }}</h1>
-                    <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                        {{ $t('Create a new main organization or branch, assign its owner, and decide whether billing starts now or later.') }}
-                    </p>
-                </div>
-
-                <Link href="/admin/organizations" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50">
-                    {{ $t('Back') }}
-                </Link>
-            </div>
+            <UiPageHeader :title="$t('Create organization')" :subtitle="$t('Create a new main organization or branch, assign its owner, and decide whether billing starts now or later.')">
+                <template #actions>
+                    <Link href="/admin/organizations" class="org-btn org-btn--ghost">
+                        {{ $t('Back') }}
+                    </Link>
+                </template>
+            </UiPageHeader>
 
             <form @submit.prevent="submitForm" class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
                 <div class="space-y-6">
-                    <section class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
-                        <div class="mb-4">
-                            <h2 class="text-base font-semibold text-slate-950">{{ $t('Organization type') }}</h2>
-                            <p class="mt-1 text-sm text-slate-500">{{ $t('Main organizations own billing, while branches inherit plan limits from the parent organization.') }}</p>
-                        </div>
-
+                    <UiSectionCard :title="$t('Organization type')" :subtitle="$t('Main organizations own billing, while branches inherit plan limits from the parent organization.')">
                         <div class="grid gap-3 md:grid-cols-2">
                             <button
                                 v-for="option in organizationTypeOptions"
                                 :key="option.value"
                                 type="button"
-                                class="rounded-2xl border px-4 py-3 text-start text-sm transition"
-                                :class="form.organization_type === option.value ? 'border-indigo-300 bg-indigo-50 text-indigo-900' : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'"
+                                class="org-choice-card"
+                                :class="{ 'org-choice-card--active': form.organization_type === option.value }"
                                 @click="form.organization_type = option.value"
                             >
-                                <div class="font-semibold">{{ option.label }}</div>
-                                <div class="mt-1 text-xs leading-5 text-slate-500">{{ option.description }}</div>
+                                <div class="org-choice-card-title">{{ option.label }}</div>
+                                <div class="org-choice-card-desc">{{ option.description }}</div>
                             </button>
                         </div>
 
@@ -50,14 +40,9 @@
                                 class-name="md:col-span-2"
                             />
                         </div>
-                    </section>
+                    </UiSectionCard>
 
-                    <section v-if="form.organization_type === 'main'" class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
-                        <div class="mb-4">
-                            <h2 class="text-base font-semibold text-slate-950">{{ $t('Billing') }}</h2>
-                            <p class="mt-1 text-sm text-slate-500">{{ $t('You can create the organization without a plan, then let the owner complete billing after the first sign-in.') }}</p>
-                        </div>
-
+                    <UiSectionCard v-if="form.organization_type === 'main'" :title="$t('Billing')" :subtitle="$t('You can create the organization without a plan, then let the owner complete billing after the first sign-in.')">
                         <FormSelect
                             :model-value="form.billing_setup_mode"
                             @update:modelValue="value => form.billing_setup_mode = value"
@@ -77,25 +62,20 @@
                             :placeholder="$t('Select a plan')"
                             class-name="mt-4"
                         />
-                    </section>
+                    </UiSectionCard>
 
-                    <section class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
-                        <div class="mb-4">
-                            <h2 class="text-base font-semibold text-slate-950">{{ $t('Owner') }}</h2>
-                            <p class="mt-1 text-sm text-slate-500">{{ $t('Every new organization is created with a single owner account.') }}</p>
-                        </div>
-
+                    <UiSectionCard :title="$t('Owner')" :subtitle="$t('Every new organization is created with a single owner account.')">
                         <div class="flex flex-wrap gap-3">
                             <button
                                 v-for="option in ownerModeOptions"
                                 :key="option.value"
                                 type="button"
-                                class="rounded-2xl border px-4 py-3 text-start text-sm transition"
-                                :class="form.create_user === option.value ? 'border-indigo-300 bg-indigo-50 text-indigo-900' : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'"
+                                class="org-choice-card"
+                                :class="{ 'org-choice-card--active': form.create_user === option.value }"
                                 @click="setOwnerMode(option.value)"
                             >
-                                <div class="font-semibold">{{ option.label }}</div>
-                                <div class="mt-1 text-xs leading-5 text-slate-500">{{ option.description }}</div>
+                                <div class="org-choice-card-title">{{ option.label }}</div>
+                                <div class="org-choice-card-desc">{{ option.description }}</div>
                             </button>
                         </div>
 
@@ -107,7 +87,7 @@
                             <FormInput v-model="form.password" :name="$t('Password')" :error="form.errors.password" type="password" />
                             <FormInput v-model="form.password_confirmation" :name="$t('Confirm password')" :error="form.errors.password_confirmation" type="password" />
 
-                            <label class="md:col-span-2 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                            <label class="org-checkbox-row md:col-span-2">
                                 <input v-model="form.send_registration_email" type="checkbox" class="ui-checkbox-input">
                                 <span>{{ $t('Send a registration email after saving') }}</span>
                             </label>
@@ -122,7 +102,7 @@
                                 type="text"
                             />
 
-                            <div v-if="ownerSearchLoading" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
+                            <div v-if="ownerSearchLoading" class="org-tile">
                                 {{ $t('Searching...') }}
                             </div>
 
@@ -131,36 +111,31 @@
                                     v-for="user in ownerSearchResults"
                                     :key="user.id"
                                     type="button"
-                                    class="flex w-full items-start justify-between rounded-2xl border px-4 py-3 text-start transition"
-                                    :class="form.owner_user_id === user.id ? 'border-indigo-300 bg-indigo-50' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'"
+                                    class="org-choice-card org-choice-card--wide"
+                                    :class="{ 'org-choice-card--active': form.owner_user_id === user.id }"
                                     @click="selectExistingOwner(user)"
                                 >
                                     <div>
-                                        <div class="font-semibold text-slate-900">{{ user.full_name || `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || $t('Not set') }}</div>
-                                        <div class="mt-1 text-sm text-slate-500">{{ user.email }}</div>
+                                        <div class="org-choice-card-title">{{ user.full_name || `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || $t('Not set') }}</div>
+                                        <div class="org-choice-card-desc">{{ user.email }}</div>
                                     </div>
-                                    <div v-if="user.phone" class="text-xs text-slate-500">{{ user.phone }}</div>
+                                    <div v-if="user.phone" class="org-choice-card-meta">{{ user.phone }}</div>
                                 </button>
                             </div>
 
-                            <div v-else-if="ownerSearch.length >= 2" class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+                            <div v-else-if="ownerSearch.length >= 2" class="org-tile org-tile--dashed">
                                 {{ $t('No matching users found.') }}
                             </div>
 
-                            <div v-if="selectedExistingOwner" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm">
-                                <div class="text-xs text-slate-500">{{ $t('Selected owner') }}</div>
-                                <div class="mt-1 font-semibold text-slate-900">{{ selectedExistingOwner.full_name || `${selectedExistingOwner.first_name ?? ''} ${selectedExistingOwner.last_name ?? ''}`.trim() || $t('Not set') }}</div>
-                                <div class="mt-1 text-slate-500">{{ selectedExistingOwner.email }}</div>
+                            <div v-if="selectedExistingOwner" class="org-tile">
+                                <p class="org-tile-label">{{ $t('Selected owner') }}</p>
+                                <p class="org-tile-value">{{ selectedExistingOwner.full_name || `${selectedExistingOwner.first_name ?? ''} ${selectedExistingOwner.last_name ?? ''}`.trim() || $t('Not set') }}</p>
+                                <p class="org-tile-sub">{{ selectedExistingOwner.email }}</p>
                             </div>
                         </div>
-                    </section>
+                    </UiSectionCard>
 
-                    <section class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
-                        <div class="mb-4">
-                            <h2 class="text-base font-semibold text-slate-950">{{ $t('Address') }}</h2>
-                            <p class="mt-1 text-sm text-slate-500">{{ $t('Optional profile details for the new organization.') }}</p>
-                        </div>
-
+                    <UiSectionCard :title="$t('Address')" :subtitle="$t('Optional profile details for the new organization.')">
                         <div class="grid gap-4 md:grid-cols-2">
                             <FormInput v-model="form.street" :name="$t('Street')" :error="form.errors.street" type="text" class-name="md:col-span-2" />
                             <FormInput v-model="form.city" :name="$t('City')" :error="form.errors.city" type="text" />
@@ -168,16 +143,16 @@
                             <FormInput v-model="form.zip" :name="$t('Zip code')" :error="form.errors.zip" type="text" />
                             <FormInput v-model="form.country" :name="$t('Country')" :error="form.errors.country" type="text" />
                         </div>
-                    </section>
+                    </UiSectionCard>
 
                     <div class="flex justify-end gap-3">
-                        <Link href="/admin/organizations" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                        <Link href="/admin/organizations" class="org-btn org-btn--ghost">
                             {{ $t('Cancel') }}
                         </Link>
                         <button
                             type="submit"
                             :disabled="form.processing || ownerSelectionBlocked"
-                            class="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+                            class="org-btn org-btn--solid"
                         >
                             {{ form.processing ? $t('Saving...') : $t('Create organization') }}
                         </button>
@@ -185,31 +160,30 @@
                 </div>
 
                 <aside class="space-y-4">
-                    <section class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
-                        <h2 class="text-base font-semibold text-slate-950">{{ $t('Summary') }}</h2>
-                        <div class="mt-4 space-y-3 text-sm">
-                            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <div class="text-xs text-slate-500">{{ $t('Type') }}</div>
-                                <div class="mt-1 font-semibold text-slate-900">{{ form.organization_type === 'branch' ? $t('Branch') : $t('Main organization') }}</div>
+                    <UiSectionCard :title="$t('Summary')">
+                        <div class="space-y-3 text-sm">
+                            <div class="org-tile">
+                                <p class="org-tile-label">{{ $t('Type') }}</p>
+                                <p class="org-tile-value">{{ form.organization_type === 'branch' ? $t('Branch') : $t('Main organization') }}</p>
                             </div>
-                            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <div class="text-xs text-slate-500">{{ $t('Name') }}</div>
-                                <div class="mt-1 font-semibold text-slate-900">{{ form.name || $t('Not set') }}</div>
+                            <div class="org-tile">
+                                <p class="org-tile-label">{{ $t('Name') }}</p>
+                                <p class="org-tile-value">{{ form.name || $t('Not set') }}</p>
                             </div>
-                            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <div class="text-xs text-slate-500">{{ $t('Owner flow') }}</div>
-                                <div class="mt-1 font-semibold text-slate-900">{{ form.create_user === 1 ? $t('Create a new owner') : $t('Use an existing owner') }}</div>
+                            <div class="org-tile">
+                                <p class="org-tile-label">{{ $t('Owner flow') }}</p>
+                                <p class="org-tile-value">{{ form.create_user === 1 ? $t('Create a new owner') : $t('Use an existing owner') }}</p>
                             </div>
-                            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <div class="text-xs text-slate-500">{{ $t('Billing') }}</div>
-                                <div class="mt-1 font-semibold text-slate-900">
+                            <div class="org-tile">
+                                <p class="org-tile-label">{{ $t('Billing') }}</p>
+                                <p class="org-tile-value">
                                     {{ form.organization_type === 'branch'
                                         ? $t('Inherited from the parent organization')
                                         : (form.billing_setup_mode === 'later' ? $t('Owner completes billing later') : $t('Plan selected now')) }}
-                                </div>
+                                </p>
                             </div>
                         </div>
-                    </section>
+                    </UiSectionCard>
                 </aside>
             </form>
         </div>
@@ -224,6 +198,8 @@ import AppLayout from './../Layout/App.vue';
 import FormInput from '@/Components/FormInput.vue';
 import FormPhoneInput from '@/Components/FormPhoneInput.vue';
 import FormSelect from '@/Components/FormSelect.vue';
+import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
+import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
 
 const props = defineProps({
     title: String,
@@ -405,3 +381,138 @@ function submitForm() {
     });
 }
 </script>
+
+<style scoped>
+.org-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, filter 160ms ease, opacity 160ms ease;
+}
+
+.org-btn--ghost {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+
+.org-btn--ghost:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+
+.org-btn--solid {
+    border: 1px solid transparent;
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.org-btn--solid:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+
+.org-btn--solid:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.org-choice-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.9rem 1.05rem;
+    text-align: start;
+    transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.org-choice-card:hover {
+    border-color: var(--ui-border-strong);
+}
+
+.org-choice-card--active {
+    border-color: color-mix(in srgb, var(--ui-secondary) 55%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-secondary) 10%, var(--ui-surface));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-secondary) 12%, transparent);
+}
+
+.org-choice-card--wide {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.org-choice-card-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.org-choice-card-desc {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--ui-muted);
+}
+
+.org-choice-card-meta {
+    font-size: 0.78rem;
+    color: var(--ui-muted);
+    white-space: nowrap;
+}
+
+.org-tile {
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.85rem 1rem;
+}
+
+.org-tile--dashed {
+    border-style: dashed;
+    text-align: center;
+    color: var(--ui-muted);
+}
+
+.org-tile-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--ui-muted);
+}
+
+.org-tile-value {
+    margin-top: 0.3rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.org-tile-sub {
+    margin-top: 0.2rem;
+    font-size: 0.82rem;
+    color: var(--ui-muted);
+}
+
+.org-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.85rem 1.05rem;
+    font-size: 0.88rem;
+    color: var(--ui-text);
+}
+</style>

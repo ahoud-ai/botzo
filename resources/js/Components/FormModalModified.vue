@@ -57,9 +57,10 @@
                 </template>
                 
                 <div class="mt-4 flex">
-                    <button type="button" @click="onClose" class="inline-flex justify-center rounded-md border border-transparent bg-slate-50 px-4 py-2 text-sm text-slate-500 hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 me-4">{{ $t('Cancel') }}</button>
-                    <button type="submit" 
-                        :class="['inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2', { 'opacity-50': isLoading }]"
+                    <button type="button" @click="onClose" class="fmm-btn fmm-btn--ghost me-4">{{ $t('Cancel') }}</button>
+                    <button type="submit"
+                        class="fmm-btn fmm-btn--solid"
+                        :class="{ 'opacity-50': isLoading }"
                         :disabled="isLoading"
                     >
                         <svg v-if="isLoading" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z" opacity=".5"/><path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"><animateTransform attributeName="transform" dur="1s" from="0 12 12" repeatCount="indefinite" to="360 12 12" type="rotate"/></path></svg>
@@ -70,3 +71,42 @@
         </div>
     </Modal>
 </template>
+
+<style scoped>
+.fmm-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, filter 160ms ease, opacity 160ms ease;
+}
+
+.fmm-btn--ghost {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    color: var(--ui-muted);
+}
+
+.fmm-btn--ghost:hover {
+    background: var(--ui-border);
+    color: var(--ui-text);
+}
+
+.fmm-btn--solid {
+    border: 1px solid transparent;
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.fmm-btn--solid:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+
+.fmm-btn--solid:disabled {
+    cursor: not-allowed;
+}
+</style>

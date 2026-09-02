@@ -1,8 +1,8 @@
 <template>
-    <header class="border-b border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.94))] px-3 py-2.5">
+    <header class="border-b border-[var(--ui-border)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--ui-surface)_98%,transparent),color-mix(in_srgb,var(--ui-surface-soft)_94%,transparent))] px-3 py-2.5">
         <div class="flex items-start justify-between gap-2.5">
             <div class="flow-card-drag-handle min-w-0 flex flex-1 items-start gap-2.5 rounded-2xl pe-1" data-flow-node-drag-handle="true">
-                <span class="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-xl border text-slate-700" :class="cardTone.iconClass">
+                <span class="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-xl border text-[var(--ui-text)]" :class="cardTone.iconClass">
                     <component :is="icon" class="h-3.5 w-3.5" />
                 </span>
 
@@ -12,14 +12,14 @@
                         <span v-if="statusBadge" class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold" :class="statusBadge.className">{{ statusBadge.label }}</span>
                     </div>
 
-                    <h3 class="mt-1.5 truncate text-[11.5px] font-semibold text-slate-950">{{ title }}</h3>
+                    <h3 class="mt-1.5 truncate text-[11.5px] font-semibold text-[var(--ui-text)]">{{ title }}</h3>
                 </div>
             </div>
 
             <div class="pointer-events-auto relative z-[2] flex shrink-0 items-center gap-1.5">
                 <button
                     type="button"
-                    class="nodrag nopan inline-flex h-7 w-7 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:text-slate-900"
+                    class="nodrag nopan inline-flex h-7 w-7 items-center justify-center rounded-xl border border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] text-[var(--ui-muted)] transition hover:border-[var(--ui-secondary)] hover:text-[var(--ui-text)]"
                     data-flow-node-action="true"
                     data-flow-node-expand="true"
                     :aria-label="isExpanded ? t('Collapse step') : t('Edit step')"
@@ -36,7 +36,7 @@
                     v-if="!isTrigger"
                     :ref="menuButtonRef"
                     type="button"
-                    class="nodrag nopan inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:text-slate-900"
+                    class="nodrag nopan inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] text-[var(--ui-muted)] transition hover:border-[var(--ui-secondary)] hover:text-[var(--ui-text)]"
                     data-flow-node-action="true"
                     data-flow-node-menu="true"
                     @pointerdown.stop="$emit('action-pointerdown')"

@@ -1,3 +1,21 @@
+:root {
+    /* Mixed with --ui-accent (not just primary/secondary) so trigger/message/branch stay
+       visually distinct even when an organization's brand primary and secondary are close
+       in hue - relying on primary vs secondary alone can collapse to one color. */
+    --flow-tone-trigger: var(--ui-secondary);
+    --flow-tone-message: color-mix(in srgb, var(--ui-primary) 70%, var(--ui-accent) 30%);
+    --flow-tone-branch: color-mix(in srgb, var(--ui-secondary) 55%, var(--ui-accent) 45%);
+    --flow-tone-action: var(--ui-success);
+    --flow-tone-handoff: color-mix(in srgb, var(--ui-warning) 60%, var(--ui-danger) 40%);
+
+    /* Elevation ladder for the builder's nested panels: mixing surface with border-strong
+       shifts lighter in dark mode and darker in light mode (border-strong is a solid tint
+       in dark mode, a translucent dark overlay in light mode), so panels read as a distinct
+       "desk" layer beneath the pure --ui-surface node cards/pills in both themes. */
+    --flow-panel-bg: color-mix(in srgb, var(--ui-surface) 90%, var(--ui-border-strong) 10%);
+    --flow-shell-bg: color-mix(in srgb, var(--ui-surface) 94%, var(--ui-border) 6%);
+}
+
 .vue-flow__node,
 .vue-flow__node[class*="automationcanvasnode" i],
 .vue-flow__node[class*="automation-canvas-node" i] {
@@ -73,7 +91,7 @@
 }
 
 .vue-flow__node.selected .flow-card-shell {
-    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.22);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--ui-secondary) 45%, transparent);
 }
 
 .vue-flow__node.dragging .flow-card-shell,
@@ -105,17 +123,4 @@
 
 .vue-flow__node .flow-card-shell .flow-card-drag-handle * {
     -webkit-user-drag: none;
-}
-
-.vue-flow__minimap {
-    overflow: hidden;
-    border-radius: 18px;
-}
-
-.vue-flow__minimap-mask {
-    fill: rgba(248, 250, 252, 0.82);
-}
-
-.vue-flow__minimap-node {
-    rx: 6;
 }

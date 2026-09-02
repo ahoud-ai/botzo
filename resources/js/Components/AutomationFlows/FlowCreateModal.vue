@@ -3,8 +3,8 @@
         <div class="w-full max-w-lg p-2 sm:p-3">
             <div class="mb-4 flex items-start justify-between gap-4">
                 <div>
-                    <h3 class="text-xl font-semibold text-slate-950">{{ $t('Create Automation') }}</h3>
-                    <p class="mt-1.5 text-sm text-slate-500">{{ $t('Start with a ready-to-edit WhatsApp journey that matches the goal you choose.') }}</p>
+                    <h3 class="text-xl font-semibold text-[var(--ui-text)]">{{ $t('Create Automation') }}</h3>
+                    <p class="mt-1.5 text-sm text-[var(--ui-muted)]">{{ $t('Start with a ready-to-edit WhatsApp journey that matches the goal you choose.') }}</p>
                 </div>
             </div>
 
@@ -12,7 +12,7 @@
                 <FormInput v-model="form.name" :label="$t('Name')" :placeholder="namePlaceholder" :error="errors.name" />
 
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-slate-700">{{ $t('Goal') }}</label>
+                    <label class="mb-2 block text-sm font-medium text-[var(--ui-text)]">{{ $t('Goal') }}</label>
                     <div class="grid gap-2 sm:grid-cols-2">
                         <button
                             v-for="option in presetOptions"
@@ -20,25 +20,25 @@
                             type="button"
                             class="rounded-2xl border px-3.5 py-3 text-start transition"
                             :class="form.goal_preset === option.value
-                                ? 'border-emerald-300 bg-emerald-50 text-emerald-900'
-                                : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-white'"
+                                ? 'border-[color-mix(in_srgb,var(--ui-secondary)_45%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-secondary)_12%,var(--ui-surface))] text-[var(--ui-text)]'
+                                : 'border-[var(--ui-border)] bg-[var(--ui-surface-soft)] text-[var(--ui-text)] hover:border-[var(--ui-border-strong)] hover:bg-[var(--ui-surface)]'"
                             @click="form.goal_preset = option.value"
                         >
                             <div class="font-medium">{{ option.label }}</div>
-                            <div class="mt-1 text-xs leading-5 line-clamp-2" :class="form.goal_preset === option.value ? 'text-emerald-700' : 'text-slate-500'">
+                            <div class="mt-1 text-xs leading-5 line-clamp-2" :class="form.goal_preset === option.value ? 'text-[var(--ui-secondary)]' : 'text-[var(--ui-muted)]'">
                                 {{ option.description }}
                             </div>
                         </button>
                     </div>
-                    <p class="mt-2 text-xs leading-5 text-slate-500">
+                    <p class="mt-2 text-xs leading-5 text-[var(--ui-muted)]">
                         {{ $t('This creates a ready-to-edit starter journey for the selected goal. You can still change every step after creation.') }}
                     </p>
                 </div>
 
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-slate-700">{{ $t('Description') }}</label>
-                    <FlowAutosizeTextarea v-model="form.description" rows="3" class="w-full min-h-[92px] rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 outline-none transition focus:border-primary focus:bg-white" :placeholder="descriptionPlaceholder" />
-                    <p v-if="errors.description" class="mt-2 text-sm text-rose-600">{{ errors.description }}</p>
+                    <label class="mb-2 block text-sm font-medium text-[var(--ui-text)]">{{ $t('Description') }}</label>
+                    <FlowAutosizeTextarea v-model="form.description" rows="3" class="w-full min-h-[92px] rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-4 py-3 text-sm leading-6 outline-none transition focus:border-[var(--ui-secondary)] focus:bg-[var(--ui-surface)]" :placeholder="descriptionPlaceholder" />
+                    <p v-if="errors.description" class="mt-2 text-sm text-[var(--ui-danger)]">{{ errors.description }}</p>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-2">

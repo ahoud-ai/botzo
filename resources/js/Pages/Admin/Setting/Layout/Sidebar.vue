@@ -1,41 +1,29 @@
 <template>
-    <aside class="settings-sidebar flex max-h-[52svh] w-full shrink-0 flex-col overflow-hidden border-b border-slate-200 bg-white/95 md:h-full md:max-h-none md:w-80 md:border-b-0 md:border-e md:border-slate-200">
-        <div class="border-b border-slate-100 px-4 py-5">
-            <h2 class="text-lg font-semibold text-slate-950">{{ $t('Settings') }}</h2>
-            <p class="mt-1 text-sm leading-5 text-slate-500">{{ $t('Choose one settings area at a time') }}</p>
+    <aside class="settings-sidebar flex max-h-[52svh] w-full shrink-0 flex-col overflow-hidden border-b border-[var(--ui-border)] bg-[var(--ui-surface)] md:h-full md:max-h-none md:w-80 md:border-b-0 md:border-e">
+        <div class="settings-sidebar-head border-b border-[var(--ui-border)] px-4 py-5">
+            <h2 class="settings-sidebar-title">{{ $t('Settings') }}</h2>
+            <p class="settings-sidebar-subtitle">{{ $t('Choose one settings area at a time') }}</p>
         </div>
 
         <nav class="min-h-0 flex-1 space-y-5 overflow-y-auto px-3 py-4">
             <section v-for="section in visibleSections" :key="section.key" class="space-y-2">
-                <div class="px-2 text-xs font-semibold uppercase tracking-[0px] text-slate-500">
+                <p class="ui-sidebar-section-label ui-sidebar-section-label--spaced">
                     {{ $t(section.labelKey) }}
-                </div>
+                </p>
 
-                <div class="space-y-1">
-                    <Link
+                <ul class="space-y-1">
+                    <li
                         v-for="item in section.items"
                         :key="item.href"
-                        :href="item.href"
-                        :class="[
-                            'group flex min-h-11 items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition',
-                            isActive(item)
-                                ? 'bg-primary text-white shadow-sm'
-                                : 'text-slate-700 hover:bg-slate-50 hover:text-primary'
-                        ]"
+                        class="ui-sidebar-item rounded-xl px-2 truncate"
+                        :class="{ 'ui-sidebar-item--active': isActive(item) }"
                     >
-                        <span
-                            :class="[
-                                'flex h-8 w-8 shrink-0 items-center justify-center rounded-md border transition',
-                                isActive(item)
-                                    ? 'border-white/30 bg-white/15 text-white'
-                                    : 'border-slate-200 bg-white text-slate-500 group-hover:border-primary/30 group-hover:text-primary'
-                            ]"
-                        >
-                            <component :is="item.icon" class="h-4 w-4" />
-                        </span>
-                        <span class="min-w-0 flex-1 truncate">{{ $t(item.labelKey) }}</span>
-                    </Link>
-                </div>
+                        <Link :href="item.href" class="flex items-center p-2 gap-x-3 rounded-xl">
+                            <span class="ui-sidebar-icon-chip"><component :is="item.icon" class="h-[18px] w-[18px]" /></span>
+                            <span class="ui-sidebar-item-label">{{ $t(item.labelKey) }}</span>
+                        </Link>
+                    </li>
+                </ul>
             </section>
         </nav>
     </aside>
@@ -148,3 +136,18 @@
         return currentUrl.startsWith(item.href);
     };
 </script>
+
+<style scoped>
+.settings-sidebar-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--ui-text);
+}
+
+.settings-sidebar-subtitle {
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    line-height: 1.35;
+    color: var(--ui-muted);
+}
+</style>

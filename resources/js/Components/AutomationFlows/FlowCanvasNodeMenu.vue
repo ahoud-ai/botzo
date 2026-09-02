@@ -2,19 +2,19 @@
     <Teleport to="body">
         <div
             v-if="open && !isTrigger"
-            class="flow-node-menu-layer fixed z-[2200] w-44 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+            class="flow-node-menu-layer fixed z-[2200] w-44 overflow-hidden rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] shadow-[var(--ui-shadow-1)]"
             :style="style"
             data-flow-node-action="true"
             @pointerdown.stop="$emit('action-pointerdown')"
             @mousedown.stop="$emit('action-pointerdown')"
         >
-            <button type="button" class="nodrag flex w-full items-center px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50" @click="$emit('duplicate')">
+            <button type="button" class="nodrag flex w-full items-center px-4 py-3 text-sm text-[var(--ui-text)] transition hover:bg-[var(--ui-surface-soft)]" @click="$emit('duplicate')">
                 {{ $t('Duplicate') }}
             </button>
-            <button type="button" class="nodrag flex w-full items-center px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50" @click="$emit('rename')">
+            <button type="button" class="nodrag flex w-full items-center px-4 py-3 text-sm text-[var(--ui-text)] transition hover:bg-[var(--ui-surface-soft)]" @click="$emit('rename')">
                 {{ $t('Rename') }}
             </button>
-            <button type="button" class="nodrag flex w-full items-center px-4 py-3 text-sm text-rose-600 transition hover:bg-rose-50" @click="$emit('delete')">
+            <button type="button" class="nodrag flex w-full items-center px-4 py-3 text-sm text-[var(--ui-danger)] transition hover:bg-[color-mix(in_srgb,var(--ui-danger)_10%,transparent)]" @click="$emit('delete')">
                 {{ $t('Delete') }}
             </button>
         </div>

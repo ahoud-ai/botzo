@@ -1,27 +1,20 @@
 <template>
     <AppLayout>
-        <div class="flex justify-between">
-            <div>
-                <h2 class="text-xl mb-1">{{ $t('Coupons') }}</h2>
-                <p class="mb-6 flex items-center text-sm leading-6 text-gray-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                    <span class="ms-1 mt-1">{{ $t('Configure coupons') }}</span>
-                </p>
-            </div>
-            <div>
-                <button @click="openModal()" type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $t('Add coupon') }}</button>
-            </div>
-        </div>
+        <UiPageHeader :title="$t('Coupons')" :subtitle="$t('Configure coupons')">
+            <template #actions>
+                <button @click="openModal()" type="button" class="cpn-btn cpn-btn--solid">{{ $t('Add coupon') }}</button>
+            </template>
+        </UiPageHeader>
 
         <!-- Table Component-->
         <CouponTable :rows="props.rows" @edit="openModal" @delete="openAlert" />
 
         <!-- Form Modal Component-->
-        <FormModal 
-            v-model="isOpenFormModal" 
-            :label="label" 
-            :url="formUrl" 
-            :form="form" 
+        <FormModal
+            v-model="isOpenFormModal"
+            :label="label"
+            :url="formUrl"
+            :form="form"
             :formInputs="formInputs"
             :formMethod="formMethod"
             @close="isOpenFormModal = false"
@@ -34,6 +27,7 @@
     import { ref } from 'vue';
     import CouponTable from '@/Components/Tables/CouponTable.vue';
     import FormModal from '@/Components/FormModalModified.vue';
+    import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
     import { useI18n } from 'vue-i18n';
     const { t } = useI18n();
 
@@ -115,4 +109,27 @@
         },
     ];
 </script>
+
+<style scoped>
+.cpn-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease;
+}
+
+.cpn-btn--solid {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.cpn-btn--solid:hover {
+    filter: brightness(1.05);
+}
+</style>
 

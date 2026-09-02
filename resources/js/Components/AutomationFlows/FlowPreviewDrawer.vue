@@ -1,16 +1,16 @@
 <template>
     <div :class="surfaceRootClass">
-        <div v-if="!isModalSurface" class="border-b border-slate-200 px-3 py-3">
+        <div v-if="!isModalSurface" class="border-b border-[var(--ui-border)] px-3 py-3">
             <div class="flex items-center justify-between gap-3">
                 <div v-if="!collapsed" class="min-w-0">
-                    <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Customer view') }}</div>
-                    <div class="mt-1 truncate text-sm font-semibold text-slate-950">{{ activeNodeLabel || $t('Customer preview') }}</div>
-                    <div v-if="!activeNodeLabel" class="mt-1 truncate text-xs text-slate-500">{{ $t('Preview the live WhatsApp journey before you publish.') }}</div>
+                    <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--ui-muted)]">{{ $t('Customer view') }}</div>
+                    <div class="mt-1 truncate text-sm font-semibold text-[var(--ui-text)]">{{ activeNodeLabel || $t('Customer preview') }}</div>
+                    <div v-if="!activeNodeLabel" class="mt-1 truncate text-xs text-[var(--ui-muted)]">{{ $t('Preview the live WhatsApp journey before you publish.') }}</div>
                 </div>
 
                 <button
                     type="button"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-muted)] transition hover:border-[var(--ui-border-strong)] hover:text-[var(--ui-text)]"
                     @click="$emit('toggle')"
                 >
                     <svg v-if="collapsed" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -24,12 +24,12 @@
         </div>
 
         <div v-if="!isModalSurface && collapsed" class="flex flex-1 flex-col items-center gap-3 px-3 py-5">
-            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-text)]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path d="M7 10h10M7 14h7m5 7l-3.8-2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2v4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </span>
-            <span class="text-center text-[11px] font-semibold leading-4 text-slate-500">
+            <span class="text-center text-[11px] font-semibold leading-4 text-[var(--ui-muted)]">
                 {{ $t('Customer view') }}
             </span>
         </div>
@@ -59,7 +59,7 @@
                     </button>
                     <span
                         v-if="validation.errors?.length"
-                        class="inline-flex h-10 min-w-10 items-center justify-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 text-[11px] font-semibold text-rose-700"
+                        class="inline-flex h-10 min-w-10 items-center justify-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--ui-danger)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-danger)_12%,var(--ui-surface))] px-3 text-[11px] font-semibold text-[var(--ui-danger)]"
                         :title="previewBlockersLabel"
                     >
                         <TriangleAlert class="h-3.5 w-3.5" />
@@ -85,27 +85,27 @@
                         <RotateCcw class="h-3.5 w-3.5" />
                         <span>{{ $t('Reset') }}</span>
                     </button>
-                    <span class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium text-slate-600">
+                    <span class="inline-flex items-center rounded-full border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-3 py-1 text-[11px] font-medium text-[var(--ui-muted)]">
                         {{ simulationStatusShortLabel }}
                     </span>
                     <span
                         v-if="branchCoverageSummary.total"
                         class="inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-medium"
-                        :class="branchCoverageSummary.remaining > 0 ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700'"
+                        :class="branchCoverageSummary.remaining > 0 ? 'border-[color-mix(in_srgb,var(--ui-warning)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-warning)_12%,var(--ui-surface))] text-[var(--ui-warning)]' : 'border-[color-mix(in_srgb,var(--ui-success)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-success)_12%,var(--ui-surface))] text-[var(--ui-success)]'"
                     >
                         {{ coverageSummaryLabel }}
                     </span>
                     <span
                         v-if="validation.errors?.length"
-                        class="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-[11px] font-medium text-rose-700"
+                        class="inline-flex items-center rounded-full border border-[color-mix(in_srgb,var(--ui-danger)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-danger)_12%,var(--ui-surface))] px-3 py-1 text-[11px] font-medium text-[var(--ui-danger)]"
                     >
                         {{ previewBlockersLabel }}
                     </span>
                     <label
                         v-if="enforceCustomerCareWindow"
-                        class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-600"
+                        class="inline-flex items-center gap-2 rounded-full border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-3 py-2 text-[11px] font-medium text-[var(--ui-muted)]"
                     >
-                        <input v-model="assumeOpenCustomerCareWindow" type="checkbox" class="h-3.5 w-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                        <input v-model="assumeOpenCustomerCareWindow" type="checkbox" class="h-3.5 w-3.5 rounded border-[var(--ui-border-strong)] text-[var(--ui-secondary)] focus:ring-[var(--ui-secondary)]" />
                         <span>{{ customerCareWindowLabel }}</span>
                     </label>
                 </template>
@@ -114,8 +114,8 @@
             <div :class="phoneStageClass">
                 <div :class="phoneViewportClass">
                     <div :class="phoneFrameClass">
-                    <div v-if="isModalSurface" class="flex justify-center bg-slate-950 px-6 py-1.5">
-                        <span class="h-1.5 w-24 rounded-full bg-slate-700"></span>
+                    <div v-if="isModalSurface" class="flex justify-center bg-[var(--ui-text)] px-6 py-1.5">
+                        <span class="h-1.5 w-24 rounded-full bg-[color-mix(in_srgb,var(--ui-text)_55%,transparent)]"></span>
                     </div>
 
                         <div :class="phoneHeaderClass">
@@ -128,7 +128,7 @@
                         <div :class="chatCanvasClass">
                             <div class="space-y-2">
                                 <template v-for="(step, index) in renderedSteps" :key="step.id || `${step.node_id || 'step'}-${index}`">
-                                    <div v-if="step.kind === 'system'" class="rounded-full bg-slate-100/95 px-3 py-2 text-center text-[11px] font-medium text-slate-600">
+                                    <div v-if="step.kind === 'system'" class="rounded-full bg-[color-mix(in_srgb,var(--ui-surface-soft)_95%,transparent)] px-3 py-2 text-center text-[11px] font-medium text-[var(--ui-muted)]">
                                         {{ stepLabel(step) }}
                                     </div>
                                     <div v-else class="flex" :class="step.kind === 'user' ? 'justify-end' : 'justify-start'">
@@ -136,57 +136,57 @@
                                             <div class="whitespace-pre-wrap leading-6">{{ step.label }}</div>
 
                                             <div v-if="step.meta?.media_type" class="mt-2">
-                                                <span class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600">
+                                                <span class="inline-flex rounded-full border border-[var(--ui-border)] bg-[var(--ui-surface)] px-2.5 py-1 text-[11px] font-medium text-[var(--ui-muted)]">
                                                     {{ mediaTypeLabel(step.meta.media_type) }}
                                                 </span>
                                             </div>
 
-                                            <div v-if="step.meta?.media_url && step.meta?.media_type === 'image'" class="mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                                            <div v-if="step.meta?.media_url && step.meta?.media_type === 'image'" class="mt-2 overflow-hidden rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)]">
                                                 <img :src="step.meta.media_url" :alt="step.meta?.media_name || step.label" class="block max-h-72 w-full object-cover" />
                                             </div>
 
-                                            <div v-else-if="step.meta?.media_url && step.meta?.media_type === 'video'" class="mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2">
-                                                <video :src="step.meta.media_url" controls preload="metadata" class="block max-h-72 w-full rounded-xl bg-slate-950" />
+                                            <div v-else-if="step.meta?.media_url && step.meta?.media_type === 'video'" class="mt-2 overflow-hidden rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] p-2">
+                                                <video :src="step.meta.media_url" controls preload="metadata" class="block max-h-72 w-full rounded-xl bg-[var(--ui-text)]" />
                                             </div>
 
-                                            <div v-else-if="step.meta?.media_url && step.meta?.media_type === 'audio'" class="mt-2 rounded-2xl border border-slate-200 bg-white p-3">
+                                            <div v-else-if="step.meta?.media_url && step.meta?.media_type === 'audio'" class="mt-2 rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] p-3">
                                                 <audio :src="step.meta.media_url" controls preload="metadata" class="w-full" />
                                             </div>
 
-                                            <div v-else-if="step.meta?.media_url && step.meta?.media_type === 'document'" class="mt-2 rounded-2xl border border-slate-200 bg-white px-3 py-2">
-                                                <div class="text-xs font-semibold text-slate-700">{{ step.meta?.media_name || $t('Document') }}</div>
+                                            <div v-else-if="step.meta?.media_url && step.meta?.media_type === 'document'" class="mt-2 rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] px-3 py-2">
+                                                <div class="text-xs font-semibold text-[var(--ui-text)]">{{ step.meta?.media_name || $t('Document') }}</div>
                                             </div>
 
                                             <div v-if="step.meta?.buttons?.length" class="mt-2 flex flex-wrap gap-1.5">
-                                                <span v-for="button in step.meta.buttons" :key="button.id" class="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700">
+                                                <span v-for="button in step.meta.buttons" :key="button.id" class="rounded-full border border-[var(--ui-border)] bg-[var(--ui-surface)] px-2.5 py-1 text-[11px] font-medium text-[var(--ui-text)]">
                                                     {{ button.title }}
                                                 </span>
                                             </div>
 
-                                            <div v-if="step.meta?.sections?.length" class="mt-2 space-y-1.5 rounded-xl border border-slate-200 bg-slate-50 p-2 text-xs text-slate-600">
-                                                <div v-if="step.meta?.button_label" class="rounded-xl border border-slate-200 bg-white px-2.5 py-2 font-medium text-slate-700">
+                                            <div v-if="step.meta?.sections?.length" class="mt-2 space-y-1.5 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] p-2 text-xs text-[var(--ui-muted)]">
+                                                <div v-if="step.meta?.button_label" class="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] px-2.5 py-2 font-medium text-[var(--ui-text)]">
                                                     {{ step.meta.button_label }}
                                                 </div>
                                                 <div v-for="section in step.meta.sections" :key="section.title" class="space-y-1.5">
-                                                    <div class="font-semibold text-slate-700">{{ section.title }}</div>
-                                                    <div v-for="row in section.rows" :key="row.id" class="rounded-xl border border-slate-200 bg-white px-2.5 py-2">
-                                                        <div class="font-medium text-slate-800">{{ row.title }}</div>
-                                                        <div v-if="row.description" class="mt-1 text-[11px] text-slate-500">{{ row.description }}</div>
+                                                    <div class="font-semibold text-[var(--ui-text)]">{{ section.title }}</div>
+                                                    <div v-for="row in section.rows" :key="row.id" class="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] px-2.5 py-2">
+                                                        <div class="font-medium text-[var(--ui-text)]">{{ row.title }}</div>
+                                                        <div v-if="row.description" class="mt-1 text-[11px] text-[var(--ui-muted)]">{{ row.description }}</div>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div v-if="step.meta?.header" class="mt-2 text-[11px] font-semibold text-slate-700">{{ step.meta.header }}</div>
-                                            <div v-if="step.meta?.footer" class="mt-2 text-[11px] text-slate-500">{{ step.meta.footer }}</div>
+                                            <div v-if="step.meta?.header" class="mt-2 text-[11px] font-semibold text-[var(--ui-text)]">{{ step.meta.header }}</div>
+                                            <div v-if="step.meta?.footer" class="mt-2 text-[11px] text-[var(--ui-muted)]">{{ step.meta.footer }}</div>
 
-                                            <a v-if="step.meta?.media_url" :href="step.meta.media_url" target="_blank" class="mt-2 inline-flex items-center rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-950">
+                                            <a v-if="step.meta?.media_url" :href="step.meta.media_url" target="_blank" class="mt-2 inline-flex items-center rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] px-2.5 py-1.5 text-xs font-medium text-[var(--ui-text)] transition hover:border-[var(--ui-border-strong)] hover:text-[var(--ui-text)]">
                                                 {{ $t('Preview file') }}
                                             </a>
                                         </div>
                                     </div>
                                 </template>
 
-                                <div v-if="!renderedSteps.length" class="rounded-2xl border border-dashed border-slate-300 bg-slate-50/95 px-4 py-8 text-center">
+                                <div v-if="!renderedSteps.length" class="rounded-2xl border border-dashed border-[var(--ui-border-strong)] bg-[color-mix(in_srgb,var(--ui-surface-soft)_95%,transparent)] px-4 py-8 text-center">
                                     <button
                                         type="button"
                                         :class="emptyStateActionButtonClass"
@@ -202,31 +202,31 @@
 
                         <div :class="composerClass">
                             <template v-if="simulation.waiting?.kind === 'buttons'">
-                                <div class="mb-2 text-xs font-semibold text-slate-700">{{ $t('Choose a button') }}</div>
+                                <div class="mb-2 text-xs font-semibold text-[var(--ui-text)]">{{ $t('Choose a button') }}</div>
                                 <div class="flex flex-wrap gap-2">
                                     <button
                                         v-for="option in simulation.waiting.options"
                                         :key="option.id"
                                         type="button"
-                                        class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white"
+                                        class="inline-flex items-center rounded-full border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-3 py-1.5 text-xs font-medium text-[var(--ui-text)] transition hover:border-[var(--ui-border-strong)] hover:bg-[var(--ui-surface)]"
                                         @click="selectButtonOption(option)"
                                     >
                                         {{ option.title }}
                                     </button>
                                 </div>
-                                <div class="mt-3 border-t border-slate-200 pt-3">
-                                    <div class="mb-2 text-[11px] font-semibold text-slate-600">{{ $t('Or send a normal text') }}</div>
+                                <div class="mt-3 border-t border-[var(--ui-border)] pt-3">
+                                    <div class="mb-2 text-[11px] font-semibold text-[var(--ui-muted)]">{{ $t('Or send a normal text') }}</div>
                                     <div class="flex items-center gap-2">
                                         <input
                                             v-model="invalidInteractiveReply"
                                             type="text"
-                                            class="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 outline-none transition focus:border-emerald-300"
+                                            class="min-w-0 flex-1 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-3 py-2 text-xs text-[var(--ui-text)] outline-none transition focus:border-[var(--ui-secondary)]"
                                             :placeholder="$t('Write a normal reply')"
                                             @keydown.enter.prevent="submitInteractiveInvalidReply"
                                         />
                                         <button
                                             type="button"
-                                            class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+                                            class="inline-flex items-center rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] px-3 py-2 text-xs font-semibold text-[var(--ui-text)] transition hover:border-[var(--ui-border-strong)] hover:text-[var(--ui-text)] disabled:cursor-not-allowed disabled:opacity-60"
                                             :disabled="!invalidInteractiveReply.trim()"
                                             @click="submitInteractiveInvalidReply"
                                         >
@@ -237,34 +237,34 @@
                             </template>
 
                             <template v-else-if="simulation.waiting?.kind === 'list'">
-                                <div class="mb-2 text-xs font-semibold text-slate-700">{{ $t('Choose an option') }}</div>
+                                <div class="mb-2 text-xs font-semibold text-[var(--ui-text)]">{{ $t('Choose an option') }}</div>
                                 <div class="flex items-center gap-2">
-                                    <select v-model="selectedListOptionId" class="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 outline-none transition focus:border-emerald-300">
+                                    <select v-model="selectedListOptionId" class="min-w-0 flex-1 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-3 py-2 text-xs text-[var(--ui-text)] outline-none transition focus:border-[var(--ui-secondary)]">
                                         <option value="">{{ $t('Select an option') }}</option>
                                         <option v-for="option in simulation.waiting.options" :key="option.id" :value="option.id">{{ option.title }}</option>
                                     </select>
                                     <button
                                         type="button"
-                                        class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+                                        class="inline-flex items-center rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] px-3 py-2 text-xs font-semibold text-[var(--ui-text)] transition hover:border-[var(--ui-border-strong)] hover:text-[var(--ui-text)] disabled:cursor-not-allowed disabled:opacity-60"
                                         :disabled="selectedListOptionId === ''"
                                         @click="submitListOption"
                                     >
                                         {{ $t('Send') }}
                                     </button>
                                 </div>
-                                <div class="mt-3 border-t border-slate-200 pt-3">
-                                    <div class="mb-2 text-[11px] font-semibold text-slate-600">{{ $t('Or send a normal text') }}</div>
+                                <div class="mt-3 border-t border-[var(--ui-border)] pt-3">
+                                    <div class="mb-2 text-[11px] font-semibold text-[var(--ui-muted)]">{{ $t('Or send a normal text') }}</div>
                                     <div class="flex items-center gap-2">
                                         <input
                                             v-model="invalidInteractiveReply"
                                             type="text"
-                                            class="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 outline-none transition focus:border-emerald-300"
+                                            class="min-w-0 flex-1 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-3 py-2 text-xs text-[var(--ui-text)] outline-none transition focus:border-[var(--ui-secondary)]"
                                             :placeholder="$t('Write a normal reply')"
                                             @keydown.enter.prevent="submitInteractiveInvalidReply"
                                         />
                                         <button
                                             type="button"
-                                            class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+                                            class="inline-flex items-center rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] px-3 py-2 text-xs font-semibold text-[var(--ui-text)] transition hover:border-[var(--ui-border-strong)] hover:text-[var(--ui-text)] disabled:cursor-not-allowed disabled:opacity-60"
                                             :disabled="!invalidInteractiveReply.trim()"
                                             @click="submitInteractiveInvalidReply"
                                         >
@@ -275,24 +275,38 @@
                             </template>
 
                             <template v-else-if="simulation.waiting?.kind === 'free_text'">
-                                <div class="mb-2 text-xs font-semibold text-slate-700">{{ $t('Customer reply') }}</div>
+                                <div class="mb-2 text-xs font-semibold text-[var(--ui-text)]">{{ $t('Customer reply') }}</div>
                                 <div class="flex items-center gap-2">
                                     <input
                                         v-model="freeTextReply"
                                         type="text"
-                                        class="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 outline-none transition focus:border-emerald-300"
+                                        class="min-w-0 flex-1 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-3 py-2 text-xs text-[var(--ui-text)] outline-none transition focus:border-[var(--ui-secondary)]"
                                         :placeholder="$t('Write the customer reply')"
                                         @keydown.enter.prevent="submitFreeText"
                                     />
                                     <button
                                         type="button"
-                                        class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+                                        class="inline-flex items-center rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] px-3 py-2 text-xs font-semibold text-[var(--ui-text)] transition hover:border-[var(--ui-border-strong)] hover:text-[var(--ui-text)] disabled:cursor-not-allowed disabled:opacity-60"
                                         :disabled="!freeTextReply.trim()"
                                         @click="submitFreeText"
                                     >
                                         {{ $t('Send') }}
                                     </button>
                                 </div>
+                            </template>
+
+                            <template v-else-if="simulation.status === 'completed'">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <span class="text-xs font-medium text-[var(--ui-muted)]">{{ $t('This preview reached the end of the journey.') }}</span>
+                                    <button type="button" :class="emptyStateActionButtonClass" @click="runSimulation">
+                                        <Play class="h-3.5 w-3.5" />
+                                        <span>{{ $t('Run again') }}</span>
+                                    </button>
+                                </div>
+                            </template>
+
+                            <template v-else-if="simulation.status === 'running'">
+                                <div class="text-center text-xs font-medium text-[var(--ui-muted)]">{{ $t('Playing the next steps...') }}</div>
                             </template>
                         </div>
                     </div>
@@ -384,17 +398,17 @@ const isModalSurface = computed(() => props.surface === 'modal');
 const surfaceRootClass = computed(() => (
     isModalSurface.value
         ? 'flex h-full min-h-0 flex-col bg-transparent'
-        : 'flex h-full flex-col bg-white'
+        : 'flex h-full flex-col bg-[var(--ui-surface)]'
 ));
 const surfaceBodyClass = computed(() => (
     isModalSurface.value
         ? 'mx-auto flex min-h-0 w-full max-w-[320px] flex-1 flex-col items-center gap-2.5 overflow-hidden bg-transparent'
-        : 'flex min-h-0 flex-1 flex-col gap-2.5 overflow-hidden bg-slate-50/70 p-2.5'
+        : 'flex min-h-0 flex-1 flex-col gap-2.5 overflow-hidden bg-[color-mix(in_srgb,var(--ui-surface-soft)_70%,transparent)] p-2.5'
 ));
 const controlsCardClass = computed(() => (
     isModalSurface.value
-        ? 'inline-flex w-auto items-center justify-center gap-1.5 rounded-full border border-slate-200/90 bg-white/92 p-1.5 shadow-[0_12px_24px_rgba(15,23,42,0.08)] backdrop-blur'
-        : 'rounded-[18px] border border-slate-200 bg-white px-3 py-2.5'
+        ? 'inline-flex w-auto items-center justify-center gap-1.5 rounded-full border border-[var(--ui-border-strong)] bg-[color-mix(in_srgb,var(--ui-surface)_85%,var(--ui-border-strong)_15%)] p-1.5 shadow-[0_12px_24px_color-mix(in_srgb,var(--ui-text)_8%,transparent)] backdrop-blur'
+        : 'rounded-[18px] border border-[var(--ui-border-strong)] bg-[color-mix(in_srgb,var(--ui-surface)_85%,var(--ui-border-strong)_15%)] px-3 py-2.5'
 ));
 const phoneStageClass = computed(() => (
     isModalSurface.value
@@ -408,16 +422,16 @@ const phoneViewportClass = computed(() => (
 ));
 const primaryActionButtonClass = computed(() => (
     isModalSurface.value
-        ? 'inline-flex h-10 w-10 items-center justify-center rounded-full border border-emerald-700 bg-[#0f766e] text-white transition hover:bg-[#0b5f59] disabled:cursor-not-allowed disabled:opacity-60'
-        : 'inline-flex items-center gap-2 rounded-xl border border-emerald-700 bg-[#0f766e] px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[#0b5f59] disabled:cursor-not-allowed disabled:opacity-60'
+        ? 'inline-flex h-10 w-10 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--ui-secondary)_70%,black)] bg-[var(--ui-secondary)] text-white transition hover:bg-[color-mix(in_srgb,var(--ui-secondary)_82%,black)] disabled:cursor-not-allowed disabled:opacity-60'
+        : 'inline-flex items-center gap-2 rounded-xl border border-[color-mix(in_srgb,var(--ui-secondary)_70%,black)] bg-[var(--ui-secondary)] px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[color-mix(in_srgb,var(--ui-secondary)_82%,black)] disabled:cursor-not-allowed disabled:opacity-60'
 ));
 const secondaryActionButtonClass = computed(() => (
     isModalSurface.value
-        ? 'inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition hover:border-slate-300 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-60'
-        : 'inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-60'
+        ? 'inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--ui-border-strong)] bg-[var(--ui-surface)] text-[var(--ui-text)] transition hover:border-[var(--ui-secondary)] hover:text-[var(--ui-text)] disabled:cursor-not-allowed disabled:opacity-60'
+        : 'inline-flex items-center gap-2 rounded-xl border border-[var(--ui-border-strong)] bg-[var(--ui-surface)] px-3.5 py-2 text-xs font-semibold text-[var(--ui-text)] transition hover:border-[var(--ui-secondary)] hover:text-[var(--ui-text)] disabled:cursor-not-allowed disabled:opacity-60'
 ));
 const emptyStateActionButtonClass = computed(() => (
-    'inline-flex items-center gap-2 rounded-xl border border-emerald-700 bg-[#0f766e] px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[#0b5f59] disabled:cursor-not-allowed disabled:opacity-60'
+    'inline-flex items-center gap-2 rounded-xl border border-[color-mix(in_srgb,var(--ui-secondary)_70%,black)] bg-[var(--ui-secondary)] px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[color-mix(in_srgb,var(--ui-secondary)_82%,black)] disabled:cursor-not-allowed disabled:opacity-60'
 ));
 
 const freeTextReply = ref('');
@@ -505,15 +519,15 @@ const previewSyncSignature = computed(() => JSON.stringify({
 }));
 const phoneFrameClass = computed(() => (
     isModalSurface.value
-        ? 'flow-preview-phone flex h-full w-full flex-col overflow-hidden rounded-[34px] border-[8px] border-slate-900 bg-[#d9ede4] shadow-[0_24px_60px_rgba(15,23,42,0.22)]'
+        ? 'flow-preview-phone flex h-full w-full flex-col overflow-hidden rounded-[34px] border-[8px] border-[var(--ui-text)] bg-[color-mix(in_srgb,var(--ui-success)_14%,var(--ui-surface-soft))] shadow-[0_24px_60px_color-mix(in_srgb,var(--ui-text)_22%,transparent)]'
         : (props.uiEnhanced
-            ? 'flow-preview-phone mx-auto flex min-h-0 w-full max-w-full flex-1 flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-[#d9ede4] shadow-[0_14px_36px_rgba(15,23,42,0.12)]'
-            : 'mx-auto flex min-h-0 w-full max-w-full flex-1 flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-[#d9ede4] shadow-[0_14px_36px_rgba(15,23,42,0.12)]')
+            ? 'flow-preview-phone mx-auto flex min-h-0 w-full max-w-full flex-1 flex-col overflow-hidden rounded-[28px] border border-[var(--ui-border)] bg-[color-mix(in_srgb,var(--ui-success)_14%,var(--ui-surface-soft))] shadow-[0_14px_36px_color-mix(in_srgb,var(--ui-text)_12%,transparent)]'
+            : 'mx-auto flex min-h-0 w-full max-w-full flex-1 flex-col overflow-hidden rounded-[28px] border border-[var(--ui-border)] bg-[color-mix(in_srgb,var(--ui-success)_14%,var(--ui-surface-soft))] shadow-[0_14px_36px_color-mix(in_srgb,var(--ui-text)_12%,transparent)]')
 ));
 const phoneHeaderClass = computed(() => (
     isModalSurface.value
-        ? 'border-b border-slate-200 bg-[#0f766e] px-3 py-2.5 text-white'
-        : 'border-b border-slate-200 bg-[#0f766e] px-4 py-3 text-white'
+        ? 'border-b border-[var(--ui-border)] bg-[var(--ui-secondary)] px-3 py-2.5 text-white'
+        : 'border-b border-[var(--ui-border)] bg-[var(--ui-secondary)] px-4 py-3 text-white'
 ));
 const chatCanvasClass = computed(() => (
     isModalSurface.value
@@ -522,8 +536,8 @@ const chatCanvasClass = computed(() => (
 ));
 const composerClass = computed(() => (
     isModalSurface.value
-        ? 'border-t border-slate-200 bg-white px-2.5 py-2.5'
-        : 'border-t border-slate-200 bg-white px-3 py-3'
+        ? 'border-t border-[var(--ui-border)] bg-[var(--ui-surface)] px-2.5 py-2.5'
+        : 'border-t border-[var(--ui-border)] bg-[var(--ui-surface)] px-3 py-3'
 ));
 const normalizedBuilderPolicy = computed(() => {
     const raw = props.builderPolicy || {};
@@ -1369,14 +1383,14 @@ const submitInteractiveInvalidReply = () => {
 
 const bubbleClass = (step) => {
     if (step.kind === 'user') {
-        return 'border-emerald-200 bg-emerald-100 text-slate-900 speech-bubble-right';
+        return 'border-[color-mix(in_srgb,var(--ui-success)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-success)_16%,var(--ui-surface))] text-[var(--ui-text)] speech-bubble-right';
     }
 
     if (step.kind === 'assistant') {
-        return 'border-slate-200 bg-white text-slate-900 speech-bubble-left';
+        return 'border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-text)] speech-bubble-left';
     }
 
-    return 'border-slate-200 bg-slate-100 text-slate-700';
+    return 'border-[var(--ui-border)] bg-[var(--ui-surface-soft)] text-[var(--ui-text)]';
 };
 
 watch(assumeOpenCustomerCareWindow, (value) => {

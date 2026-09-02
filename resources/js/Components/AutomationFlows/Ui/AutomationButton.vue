@@ -23,11 +23,11 @@ const props = defineProps({
 });
 
 const variantClass = {
-    primary: 'border border-primary bg-primary text-white hover:opacity-90',
-    secondary: 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-950',
-    subtle: 'border border-transparent bg-slate-100 text-slate-700 hover:bg-slate-200',
-    danger: 'border border-rose-200 bg-white text-rose-600 hover:bg-rose-50',
-    ghost: 'border border-transparent bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-950',
+    primary: 'border border-[var(--ui-primary)] bg-[var(--ui-primary)] text-white hover:opacity-90',
+    secondary: 'border border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] text-[var(--ui-text)] shadow-[var(--ui-shadow-1)] hover:bg-[var(--ui-surface)] hover:border-[var(--ui-secondary)]',
+    subtle: 'border border-transparent bg-[var(--ui-surface-soft)] text-[var(--ui-text)] hover:bg-[color-mix(in_srgb,var(--ui-surface-soft)_60%,var(--ui-border))]',
+    danger: 'border border-[color-mix(in_srgb,var(--ui-danger)_35%,var(--ui-border))] bg-[var(--ui-surface)] text-[var(--ui-danger)] hover:bg-[color-mix(in_srgb,var(--ui-danger)_10%,transparent)]',
+    ghost: 'border border-transparent bg-transparent text-[var(--ui-muted)] hover:bg-[var(--ui-surface-soft)] hover:text-[var(--ui-text)]',
 };
 
 const sizeClass = {

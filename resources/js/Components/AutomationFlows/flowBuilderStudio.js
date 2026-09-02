@@ -6,29 +6,29 @@ const resolveBranchId = (edge = {}) => edge.branch || edge.sourceHandle || 'defa
 const findGraphNodeById = (graphNodes = [], nodeId = '') => graphNodes.find((node) => String(node?.id || '') === String(nodeId || '')) || null;
 const EDGE_TONES = {
     default: {
-        stroke: '#0f766e',
-        badgeClass: 'border-slate-200 bg-white/95 text-slate-700',
-        actionClass: 'border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-900',
+        stroke: 'var(--ui-border-strong)',
+        badgeClass: 'border-[var(--ui-border)] bg-[color-mix(in_srgb,var(--ui-surface)_95%,transparent)] text-[var(--ui-text)]',
+        actionClass: 'border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-muted)] hover:border-[var(--ui-border-strong)] hover:text-[var(--ui-text)]',
     },
     choice: {
-        stroke: '#7c3aed',
-        badgeClass: 'border-violet-200 bg-violet-50/95 text-violet-700',
-        actionClass: 'border-violet-200 bg-white text-violet-600 hover:border-violet-300 hover:text-violet-800',
+        stroke: 'var(--flow-tone-branch)',
+        badgeClass: 'border-[color-mix(in_srgb,var(--flow-tone-branch)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-branch)_12%,var(--ui-surface))] text-[var(--flow-tone-branch)]',
+        actionClass: 'border-[color-mix(in_srgb,var(--flow-tone-branch)_35%,var(--ui-border))] bg-[var(--ui-surface)] text-[var(--flow-tone-branch)] hover:border-[color-mix(in_srgb,var(--flow-tone-branch)_55%,var(--ui-border))]',
     },
     positive: {
-        stroke: '#059669',
-        badgeClass: 'border-emerald-200 bg-emerald-50/95 text-emerald-700',
-        actionClass: 'border-emerald-200 bg-white text-emerald-600 hover:border-emerald-300 hover:text-emerald-800',
+        stroke: 'var(--ui-success)',
+        badgeClass: 'border-[color-mix(in_srgb,var(--ui-success)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-success)_12%,var(--ui-surface))] text-[var(--ui-success)]',
+        actionClass: 'border-[color-mix(in_srgb,var(--ui-success)_35%,var(--ui-border))] bg-[var(--ui-surface)] text-[var(--ui-success)] hover:border-[color-mix(in_srgb,var(--ui-success)_55%,var(--ui-border))]',
     },
     warning: {
-        stroke: '#d97706',
-        badgeClass: 'border-amber-200 bg-amber-50/95 text-amber-700',
-        actionClass: 'border-amber-200 bg-white text-amber-600 hover:border-amber-300 hover:text-amber-800',
+        stroke: 'var(--ui-warning)',
+        badgeClass: 'border-[color-mix(in_srgb,var(--ui-warning)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-warning)_12%,var(--ui-surface))] text-[var(--ui-warning)]',
+        actionClass: 'border-[color-mix(in_srgb,var(--ui-warning)_35%,var(--ui-border))] bg-[var(--ui-surface)] text-[var(--ui-warning)] hover:border-[color-mix(in_srgb,var(--ui-warning)_55%,var(--ui-border))]',
     },
     handoff: {
-        stroke: '#0ea5e9',
-        badgeClass: 'border-sky-200 bg-sky-50/95 text-sky-700',
-        actionClass: 'border-sky-200 bg-white text-sky-600 hover:border-sky-300 hover:text-sky-800',
+        stroke: 'var(--flow-tone-handoff)',
+        badgeClass: 'border-[color-mix(in_srgb,var(--flow-tone-handoff)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-handoff)_12%,var(--ui-surface))] text-[var(--flow-tone-handoff)]',
+        actionClass: 'border-[color-mix(in_srgb,var(--flow-tone-handoff)_35%,var(--ui-border))] bg-[var(--ui-surface)] text-[var(--flow-tone-handoff)] hover:border-[color-mix(in_srgb,var(--flow-tone-handoff)_55%,var(--ui-border))]',
     },
 };
 

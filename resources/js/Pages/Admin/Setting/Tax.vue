@@ -1,39 +1,27 @@
 <template>
     <AppLayout>
-        <div class="flex justify-between">
-            <div>
-                <h2 class="text-xl mb-1">{{ $t('Tax rates') }}</h2>
-                <p class="mb-6 flex items-center text-sm leading-6 text-gray-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                    <span class="ms-1 mt-1">{{ $t('Configure tax rates') }}</span>
-                </p>
-            </div>
-            <div>
-                <button @click="openModal()" type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $t('Add tax rate') }}</button>
-            </div>
-        </div>
+        <UiPageHeader :title="$t('Tax rates')" :subtitle="$t('Configure tax rates')">
+            <template #actions>
+                <button @click="openModal()" type="button" class="tax-btn tax-btn--solid">{{ $t('Add tax rate') }}</button>
+            </template>
+        </UiPageHeader>
 
-        <!-- Tax Calculation Method-->
-        <div class="bg-white rounded-md mb-4 py-4 px-4 flex grid grid-cols-2">
-            <div>
-                <h3>{{ $t('Tax calculation method') }}</h3>
-                <span class="text-xs">{{ $t('Choose whether tax should be calculated inclusively or exclusively') }}</span>
+        <UiSectionCard class="mt-6 mb-6" :title="$t('Tax calculation method')" :subtitle="$t('Choose whether tax should be calculated inclusively or exclusively')">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:max-w-md">
+                <FormSelect v-model="form1.is_tax_inclusive" :name="''" :type="'text'" :options="taxCalculationOptions" :error="form1.errors.is_tax_inclusive" :class="'flex-1'"/>
+                <button @click="submitForm1()" type="button" class="tax-btn tax-btn--ghost">{{ $t('Update') }}</button>
             </div>
-            <div>
-                <FormSelect v-model="form1.is_tax_inclusive" :name="''" :type="'text'"  :options="taxCalculationOptions" :error="form1.errors.is_tax_inclusive" :class="'sm:col-span-3'"/>
-                <button @click="submitForm1()" type="button" class="rounded-md bg-gray-600 mt-4 px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $t('Update') }}</button>
-            </div>
-        </div>
+        </UiSectionCard>
 
         <!-- Table Component-->
         <TaxTable :rows="props.rows" @edit="openModal" @delete="openAlert" />
 
         <!-- Form Modal Component-->
-        <FormModal 
-            v-model="isOpenFormModal" 
-            :label="label" 
-            :url="formUrl" 
-            :form="form" 
+        <FormModal
+            v-model="isOpenFormModal"
+            :label="label"
+            :url="formUrl"
+            :form="form"
             :formInputs="formInputs"
             :formMethod="formMethod"
             @close="isOpenFormModal = false"
@@ -48,6 +36,8 @@
     import TaxTable from '@/Components/Tables/TaxTable.vue';
     import FormModal from '@/Components/FormModalModified.vue';
     import FormSelect from '@/Components/FormSelect.vue';
+    import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
+    import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
     import { useI18n } from 'vue-i18n';
     const { t } = useI18n();
 
@@ -144,4 +134,38 @@
         })
     };
 </script>
+
+<style scoped>
+.tax-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.tax-btn--solid {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.tax-btn--solid:hover {
+    filter: brightness(1.05);
+}
+
+.tax-btn--ghost {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+
+.tax-btn--ghost:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+</style>
 

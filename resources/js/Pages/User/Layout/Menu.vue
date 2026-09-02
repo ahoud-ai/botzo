@@ -1,18 +1,18 @@
 <template>
-    <div v-if="menuIconsOnly" class="ui-menu creative-menu menu-header menu-header--compact flex flex-col items-center justify-center gap-y-2 px-2 h-24 mb-1">
+    <div v-if="menuIconsOnly" class="ui-menu creative-menu ui-sidebar-header ui-sidebar-header--compact flex flex-col items-center justify-center gap-y-2 px-2 h-24 mb-1">
         <Link href="/dashboard" class="shrink-0">
             <NavBrandMark variant="mobile" />
         </Link>
-        <button type="button" class="menu-collapse-btn shrink-0" :title="$t('Expand menu')" @click="toggleMenu">
+        <button type="button" class="ui-sidebar-collapse-btn shrink-0" :title="$t('Expand menu')" @click="toggleMenu">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3.5v17M3 9.4c0-2.24 0-3.36.436-4.216a4 4 0 0 1 1.748-1.748C6.04 3 7.16 3 9.4 3h5.2c2.24 0 3.36 0 4.216.436a4 4 0 0 1 1.748 1.748C21 6.04 21 7.16 21 9.4v5.2c0 2.24 0 3.36-.436 4.216a4 4 0 0 1-1.748 1.748C17.96 21 16.84 21 14.6 21H9.4c-2.24 0-3.36 0-4.216-.436a4 4 0 0 1-1.748-1.748C3 17.96 3 16.84 3 14.6z"/></svg>
         </button>
     </div>
-    <div v-else class="ui-menu creative-menu menu-header flex items-center justify-between px-5 pt-5 h-20 mb-1">
+    <div v-else class="ui-menu creative-menu ui-sidebar-header flex items-center justify-between px-5 pt-5 h-20 mb-1">
         <Link href="/dashboard">
             <NavBrandMark variant="desktop" />
         </Link>
         <div class="flex items-center gap-x-2">
-            <button type="button" class="menu-collapse-btn" :title="$t('Collapse menu')" @click="toggleMenu">
+            <button type="button" class="ui-sidebar-collapse-btn" :title="$t('Collapse menu')" @click="toggleMenu">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3.5v17M3 9.4c0-2.24 0-3.36.436-4.216a4 4 0 0 1 1.748-1.748C6.04 3 7.16 3 9.4 3h5.2c2.24 0 3.36 0 4.216.436a4 4 0 0 1 1.748 1.748C21 6.04 21 7.16 21 9.4v5.2c0 2.24 0 3.36-.436 4.216a4 4 0 0 1-1.748 1.748C17.96 21 16.84 21 14.6 21H9.4c-2.24 0-3.36 0-4.216-.436a4 4 0 0 1-1.748-1.748C3 17.96 3 16.84 3 14.6z"/></svg>
             </button>
             <span v-if="isSidebarOpen === true" @click="closeSidebar()">
@@ -22,84 +22,90 @@
     </div>
     <div class="ui-menu flex-grow space-y-4 px-3 pt-2 overflow-y-auto">
         <div class="flex-1">
-            <p class="menu-section-label" :class="menuIconsOnly ? 'menu-section-label--collapsed' : ''">{{ $t('Menu') }}</p>
+            <p class="ui-sidebar-section-label" :class="menuIconsOnly ? 'ui-sidebar-section-label--collapsed' : ''">{{ $t('Menu') }}</p>
             <ul class="space-y-1 text-sm mb-1">
-                <li class="menu-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/dashboard') ? 'menu-item--active' : ''">
+                <li class="ui-sidebar-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/dashboard') ? 'ui-sidebar-item--active' : ''">
                     <Link rel="noopener noreferrer" href="/dashboard" class="flex items-center p-2 gap-x-3 rounded-xl">
-                        <span class="menu-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.75"/><rect x="14" y="3" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.75"/><rect x="14" y="12" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.75"/><rect x="3" y="16" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.75"/></svg></span>
-                        <span class="menu-item-label" :class="menuIconsOnly ? 'menu-item-label--collapsed' : ''">{{ $t('Dashboard') }}</span>
+                        <span class="ui-sidebar-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.75"/><rect x="14" y="3" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.75"/><rect x="14" y="12" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.75"/><rect x="3" y="16" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.75"/></svg></span>
+                        <span class="ui-sidebar-item-label" :class="menuIconsOnly ? 'ui-sidebar-item-label--collapsed' : ''">{{ $t('Dashboard') }}</span>
                     </Link>
                 </li>
-                <li v-if="canViewChats" class="menu-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/chats') ? 'menu-item--active' : ''">
+                <li v-if="canViewChats" class="ui-sidebar-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/chats') ? 'ui-sidebar-item--active' : ''">
                     <Link rel="noopener noreferrer" href="/chats" class="flex items-center justify-between p-2 gap-x-3 rounded-xl">
                         <div class="flex items-center gap-x-3">
-                            <span class="menu-icon-chip" :class="menuIconsOnly && parseInt(unreadMessages) > 0 ? 'menu-icon-chip--dot' : ''"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                            <span class="menu-item-label" :class="menuIconsOnly ? 'menu-item-label--collapsed' : ''">{{ $t('Chats') }}</span>
+                            <span class="ui-sidebar-icon-chip" :class="menuIconsOnly && parseInt(unreadMessages) > 0 ? 'ui-sidebar-icon-chip--dot' : ''"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                            <span class="ui-sidebar-item-label" :class="menuIconsOnly ? 'ui-sidebar-item-label--collapsed' : ''">{{ $t('Chats') }}</span>
                         </div>
-                        <span v-if="parseInt(unreadMessages) > 0 && !menuIconsOnly" class="menu-badge">{{ unreadMessages }}</span>
+                        <span v-if="parseInt(unreadMessages) > 0 && !menuIconsOnly" class="ui-sidebar-badge">{{ unreadMessages }}</span>
                     </Link>
                 </li>
-                <li v-if="canViewContacts" class="menu-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/contact') ? 'menu-item--active' : ''">
+                <li v-if="canViewContacts" class="ui-sidebar-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/contact') ? 'ui-sidebar-item--active' : ''">
                     <Link rel="noopener noreferrer" href="/contacts" class="flex items-center p-2 gap-x-3 rounded-xl">
-                        <span class="menu-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.75"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                        <span class="menu-item-label" :class="menuIconsOnly ? 'menu-item-label--collapsed' : ''">{{ $t('Contacts') }}</span>
+                        <span class="ui-sidebar-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.75"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                        <span class="ui-sidebar-item-label" :class="menuIconsOnly ? 'ui-sidebar-item-label--collapsed' : ''">{{ $t('Contacts') }}</span>
                     </Link>
                 </li>
-                <li v-if="canViewCampaigns" class="menu-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/campaign') ? 'menu-item--active' : ''">
+                <li v-if="canViewCampaigns" class="ui-sidebar-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/campaign') ? 'ui-sidebar-item--active' : ''">
                     <Link rel="noopener noreferrer" href="/campaigns" class="flex items-center p-2 gap-x-3 rounded-xl">
-                        <span class="menu-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m3 11 18-5v12L3 14v-3z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                        <span class="menu-item-label" :class="menuIconsOnly ? 'menu-item-label--collapsed' : ''">{{ $t('Campaigns') }}</span>
+                        <span class="ui-sidebar-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m3 11 18-5v12L3 14v-3z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                        <span class="ui-sidebar-item-label" :class="menuIconsOnly ? 'ui-sidebar-item-label--collapsed' : ''">{{ $t('Campaigns') }}</span>
                     </Link>
                 </li>
-                <li v-if="canViewTemplates" class="menu-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/template') ? 'menu-item--active' : ''">
+                <li v-if="canViewTemplates" class="ui-sidebar-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/template') ? 'ui-sidebar-item--active' : ''">
                     <Link rel="noopener noreferrer" href="/templates" class="flex items-center p-2 gap-x-3 rounded-xl">
-                        <span class="menu-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2v4a2 2 0 0 0 2 2h4M9 13h6M9 17h6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                        <span class="menu-item-label" :class="menuIconsOnly ? 'menu-item-label--collapsed' : ''">{{ $t('Message templates') }}</span>
+                        <span class="ui-sidebar-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2v4a2 2 0 0 0 2 2h4M9 13h6M9 17h6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                        <span class="ui-sidebar-item-label" :class="menuIconsOnly ? 'ui-sidebar-item-label--collapsed' : ''">{{ $t('Message templates') }}</span>
                     </Link>
                 </li>
-                <li v-if="canViewAutomations" class="menu-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/automation') ? 'menu-item--active' : ''">
+                <li v-if="canViewAutomations" class="ui-sidebar-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/automation') ? 'ui-sidebar-item--active' : ''">
                     <Link rel="noopener noreferrer" href="/automation/basic" class="flex items-center p-2 gap-x-3 rounded-xl">
-                        <span class="menu-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                        <span class="menu-item-label" :class="menuIconsOnly ? 'menu-item-label--collapsed' : ''">{{ $t('Automation') }}</span>
+                        <span class="ui-sidebar-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                        <span class="ui-sidebar-item-label" :class="menuIconsOnly ? 'ui-sidebar-item-label--collapsed' : ''">{{ $t('Automation') }}</span>
                     </Link>
                 </li>
             </ul>
 
-            <p class="menu-section-label menu-section-label--spaced" :class="menuIconsOnly ? 'menu-section-label--collapsed' : ''">{{ $t('Account') }}</p>
+            <p class="ui-sidebar-section-label ui-sidebar-section-label--spaced" :class="menuIconsOnly ? 'ui-sidebar-section-label--collapsed' : ''">{{ $t('Account') }}</p>
             <div class="px-4">
-                <hr class="menu-divider" :class="menuIconsOnly ? '' : 'menu-divider--hidden'">
+                <hr class="ui-sidebar-divider" :class="menuIconsOnly ? '' : 'ui-sidebar-divider--hidden'">
             </div>
 
             <ul class="pb-2 space-y-1 text-sm">
-                <li v-if="canManageSettings" class="menu-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/settings') ? 'menu-item--active' : ''">
+                <li v-if="canManageSettings" class="ui-sidebar-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/settings') ? 'ui-sidebar-item--active' : ''">
                     <Link rel="noopener noreferrer" href="/settings" class="flex items-center p-2 gap-x-3 rounded-xl">
-                        <span class="menu-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><circle cx="10" cy="4" r="2" stroke="currentColor" stroke-width="1.75"/><circle cx="8" cy="12" r="2" stroke="currentColor" stroke-width="1.75"/><circle cx="12" cy="20" r="2" stroke="currentColor" stroke-width="1.75"/></svg></span>
-                        <span class="menu-item-label" :class="menuIconsOnly ? 'menu-item-label--collapsed' : ''">{{ $t('Settings') }}</span>
+                        <span class="ui-sidebar-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><circle cx="10" cy="4" r="2" stroke="currentColor" stroke-width="1.75"/><circle cx="8" cy="12" r="2" stroke="currentColor" stroke-width="1.75"/><circle cx="12" cy="20" r="2" stroke="currentColor" stroke-width="1.75"/></svg></span>
+                        <span class="ui-sidebar-item-label" :class="menuIconsOnly ? 'ui-sidebar-item-label--collapsed' : ''">{{ $t('Settings') }}</span>
                     </Link>
                 </li>
-                <li v-if="canViewBilling" class="menu-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/billing') || $page.url.startsWith('/subscription') ? 'menu-item--active' : ''">
+                <li v-if="canViewBilling" class="ui-sidebar-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/billing') || $page.url.startsWith('/subscription') ? 'ui-sidebar-item--active' : ''">
                     <Link rel="noopener noreferrer" href="/billing" class="flex items-center p-2 gap-x-3 rounded-xl">
-                        <span class="menu-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.75"/><path d="M2 10h20M6 15h4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span>
-                        <span class="menu-item-label" :class="menuIconsOnly ? 'menu-item-label--collapsed' : ''">{{ $t('Billing and subscription') }}</span>
+                        <span class="ui-sidebar-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.75"/><path d="M2 10h20M6 15h4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span>
+                        <span class="ui-sidebar-item-label" :class="menuIconsOnly ? 'ui-sidebar-item-label--collapsed' : ''">{{ $t('Billing and subscription') }}</span>
                     </Link>
                 </li>
-                <li class="menu-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/support') ? 'menu-item--active' : ''">
+                <li class="ui-sidebar-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/meta-verification') ? 'ui-sidebar-item--active' : ''">
+                    <Link rel="noopener noreferrer" href="/meta-verification" class="flex items-center p-2 gap-x-3 rounded-xl">
+                        <span class="ui-sidebar-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                        <span class="ui-sidebar-item-label" :class="menuIconsOnly ? 'ui-sidebar-item-label--collapsed' : ''">{{ $t('Meta verification') }}</span>
+                    </Link>
+                </li>
+                <li class="ui-sidebar-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/support') ? 'ui-sidebar-item--active' : ''">
                     <Link rel="noopener noreferrer" href="/support" class="flex items-center p-2 gap-x-3 rounded-xl">
-                        <span class="menu-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.75"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="17" r="0.9" fill="currentColor"/></svg></span>
-                        <span class="menu-item-label" :class="menuIconsOnly ? 'menu-item-label--collapsed' : ''">{{ $t('Support') }}</span>
+                        <span class="ui-sidebar-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.75"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="17" r="0.9" fill="currentColor"/></svg></span>
+                        <span class="ui-sidebar-item-label" :class="menuIconsOnly ? 'ui-sidebar-item-label--collapsed' : ''">{{ $t('Support') }}</span>
                     </Link>
                 </li>
-                <li v-if="canAccessDeveloperTools" class="menu-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/developer-tools') ? 'menu-item--active' : ''">
+                <li v-if="canAccessDeveloperTools" class="ui-sidebar-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/developer-tools') ? 'ui-sidebar-item--active' : ''">
                     <Link rel="noopener noreferrer" href="/developer-tools/access-tokens" class="flex items-center p-2 gap-x-3 rounded-xl">
-                        <span class="menu-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                        <span class="menu-item-label" :class="menuIconsOnly ? 'menu-item-label--collapsed' : ''">{{ $t('Developer Tools') }}</span>
+                        <span class="ui-sidebar-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                        <span class="ui-sidebar-item-label" :class="menuIconsOnly ? 'ui-sidebar-item-label--collapsed' : ''">{{ $t('Developer Tools') }}</span>
                     </Link>
                 </li>
             </ul>
         </div>
     </div>
 
-    <div class="menu-footer">
+    <div class="ui-sidebar-footer">
         <div v-if="menuIconsOnly === false" @click="switchTeams()" class="menu-workspace-card cursor-pointer">
             <span class="menu-workspace-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 21V7a1 1 0 0 1 1-1h5V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2h3a1 1 0 0 1 1 1v13M4 21h16M4 21H2m18 0h2M9 9h1m4 0h1M9 13h1m4 0h1M9 17h1m4 0h1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -111,7 +117,7 @@
             <svg class="shrink-0 text-[var(--ui-muted)]" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="m8 10l4 4l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
 
-        <div v-if="!menuIconsOnly" class="menu-utility-row">
+        <div v-if="!menuIconsOnly" class="ui-sidebar-utility-row">
             <ThemeToggle />
             <LangToggle :languages="languages" :currentLanguage="currentLanguage" />
         </div>
@@ -119,15 +125,15 @@
             <ThemeToggle />
         </div>
 
-        <Dropdown :align="'top-start'" class="menu-profile-dropdown">
-            <div class="menu-profile-card cursor-pointer" :class="!menuIconsOnly ? 'justify-between' : 'justify-center'">
+        <Dropdown :align="'top-start'" class="ui-sidebar-profile-dropdown">
+            <div class="ui-sidebar-profile-card cursor-pointer" :class="!menuIconsOnly ? 'justify-between' : 'justify-center'">
                 <div class="flex min-w-0 items-center gap-x-2">
-                    <div class="menu-profile-avatar">
+                    <div class="ui-sidebar-profile-avatar">
                         <img v-if="user.avatar" class="h-full w-full rounded-full object-cover" :src="'/media/' + user.avatar" alt="">
                         <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="6" r="4"/><path stroke-linecap="round" d="M19.998 18c.002-.164.002-.331.002-.5c0-2.485-3.582-4.5-8-4.5s-8 2.015-8 4.5S4 22 12 22c2.231 0 3.84-.157 5-.437"/></g></svg>
                     </div>
                     <div v-if="!menuIconsOnly" class="min-w-0">
-                        <h2 class="menu-profile-name truncate">{{ user.first_name + ' ' + user.last_name }}</h2>
+                        <h2 class="ui-sidebar-profile-name truncate">{{ user.first_name + ' ' + user.last_name }}</h2>
                     </div>
                 </div>
                 <svg v-if="!menuIconsOnly" class="shrink-0 text-[var(--ui-muted)]" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="m8 10l4 4l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -141,7 +147,7 @@
                         </span>
                     </DropdownItem>
                     <MenuItem v-slot="{ active }">
-                        <Link href="/logout" method="post" as="button" type="button" :class="[active ? 'ui-dropdown-item ui-dropdown-item-active' : 'ui-dropdown-item', 'group flex w-full items-center gap-x-2 rounded-md px-2 py-2 text-sm menu-logout-item']">
+                        <Link href="/logout" method="post" as="button" type="button" :class="[active ? 'ui-dropdown-item ui-dropdown-item-active' : 'ui-dropdown-item', 'group flex w-full items-center gap-x-2 rounded-md px-2 py-2 text-sm ui-sidebar-logout-item']">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 15l3-3m0 0l-3-3m3 3H4m5-4.751V7.2c0-1.12 0-1.68.218-2.108c.192-.377.497-.682.874-.874C10.52 4 11.08 4 12.2 4h4.6c1.12 0 1.68 0 2.107.218c.377.192.683.497.875.874c.218.427.218.987.218 2.105v9.607c0 1.118 0 1.677-.218 2.104a2.002 2.002 0 0 1-.875.874c-.427.218-.986.218-2.104.218h-4.606c-1.118 0-1.678 0-2.105-.218a2 2 0 0 1-.874-.874C9 18.48 9 17.92 9 16.8v-.05"/></svg>
                             {{ $t('Logout') }}
                         </Link>
@@ -353,202 +359,6 @@
 </script>
 
 <style scoped>
-.menu-item {
-    position: relative;
-    color: var(--ui-text);
-    background: transparent;
-    transition: background-color 160ms ease, color 160ms ease, box-shadow 200ms ease;
-}
-
-.menu-item:hover {
-    background: var(--ui-surface-soft) !important;
-    color: var(--ui-text) !important;
-    box-shadow:
-        0 10px 22px -18px rgba(15, 23, 42, 0.35),
-        inset 0 0 0 1px var(--ui-border-strong);
-}
-
-.menu-item.menu-item--active {
-    background: color-mix(in srgb, var(--ui-secondary) 18%, transparent) !important;
-    color: var(--ui-secondary) !important;
-    font-weight: 600;
-}
-
-.menu-item--active::before {
-    content: "";
-    position: absolute;
-    inset-inline-start: -0.3rem;
-    top: 0.3rem;
-    bottom: 0.3rem;
-    width: 3px;
-    border-radius: 999px;
-    background: var(--ui-secondary);
-}
-
-.menu-item :deep(a) {
-    transition: transform 120ms ease;
-}
-
-.menu-item:active :deep(a) {
-    transform: scale(0.98);
-}
-
-.menu-icon-chip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.1rem;
-    height: 2.1rem;
-    flex-shrink: 0;
-    border-radius: 0.65rem;
-    color: var(--ui-muted);
-    background: color-mix(in srgb, var(--ui-secondary) 8%, transparent);
-    transition: background-color 160ms ease, color 160ms ease, transform 200ms ease, box-shadow 200ms ease;
-}
-
-.menu-item:hover .menu-icon-chip {
-    background: var(--ui-surface);
-    color: var(--ui-text);
-    transform: scale(1.08);
-    box-shadow: 0 4px 10px -4px rgba(15, 23, 42, 0.28);
-}
-
-.menu-item--active .menu-icon-chip {
-    background: var(--ui-secondary);
-    color: #fff;
-}
-
-.menu-item--active:hover .menu-icon-chip {
-    background: var(--ui-secondary);
-    color: #fff;
-    box-shadow: 0 6px 14px -6px color-mix(in srgb, var(--ui-secondary) 70%, transparent);
-}
-
-.menu-icon-chip {
-    position: relative;
-}
-
-.menu-icon-chip--dot::after {
-    content: "";
-    position: absolute;
-    top: -2px;
-    inset-inline-end: -2px;
-    width: 0.6rem;
-    height: 0.6rem;
-    border-radius: 999px;
-    background: var(--ui-warning);
-    border: 2px solid var(--ui-surface);
-}
-
-.menu-item-label {
-    font-weight: 500;
-    display: inline-block;
-    max-width: 12rem;
-    opacity: 1;
-    transition: opacity 160ms ease, max-width 220ms ease, margin 220ms ease;
-}
-
-.menu-item-label--collapsed {
-    opacity: 0;
-    max-width: 0;
-    margin: 0;
-    overflow: hidden;
-}
-
-.menu-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.35rem;
-    height: 1.35rem;
-    padding: 0 0.45rem;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 800;
-}
-
-.menu-divider {
-    border: none;
-    border-top: 1px solid var(--ui-border);
-    opacity: 0.7;
-    max-height: 2rem;
-    margin: 0.9rem 0;
-    transition: opacity 160ms ease, max-height 220ms ease, margin 220ms ease;
-}
-
-.menu-divider--hidden {
-    opacity: 0;
-    max-height: 0;
-    margin: 0;
-    overflow: hidden;
-    border-top-width: 0;
-}
-
-.menu-collapse-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.1rem;
-    height: 2.1rem;
-    border-radius: 0.6rem;
-    color: var(--ui-muted);
-    background: transparent;
-    cursor: pointer;
-    transition: background-color 160ms ease, color 160ms ease;
-}
-
-.menu-collapse-btn:hover {
-    background: color-mix(in srgb, #fff 86%, var(--ui-secondary) 14%);
-    color: var(--ui-secondary);
-}
-
-.dark .menu-collapse-btn:hover {
-    background: color-mix(in srgb, var(--ui-bg) 80%, var(--ui-secondary) 20%);
-    color: var(--ui-secondary);
-}
-
-.menu-header {
-    border-bottom: 1px solid var(--ui-border);
-}
-
-.menu-header--compact {
-    border-bottom: none;
-}
-
-.menu-section-label {
-    padding: 0 0.6rem;
-    margin-bottom: 0.4rem;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ui-muted);
-    opacity: 0.75;
-    max-height: 1.5rem;
-    transition: opacity 160ms ease, max-height 220ms ease, margin 220ms ease;
-}
-
-.menu-section-label--spaced {
-    margin-top: 0.35rem;
-}
-
-.menu-section-label--collapsed {
-    opacity: 0;
-    max-height: 0;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
-.menu-footer {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    margin: 0 0.75rem 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--ui-border);
-}
-
 .menu-workspace-card {
     display: flex;
     align-items: center;
@@ -587,55 +397,6 @@
 .menu-workspace-meta {
     font-size: 0.74rem;
     color: var(--ui-muted);
-}
-
-.menu-utility-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.menu-profile-card {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    border-radius: 0.85rem;
-    border: 1px solid var(--ui-border);
-    background: var(--ui-surface-soft);
-}
-
-.menu-profile-avatar {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    flex-shrink: 0;
-    border-radius: 999px;
-    overflow: hidden;
-    color: var(--ui-secondary);
-    background: color-mix(in srgb, var(--ui-secondary) 16%, transparent);
-}
-
-.menu-profile-name {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--ui-text);
-}
-
-.menu-profile-dropdown {
-    display: block !important;
-    width: 100%;
-}
-
-.menu-logout-item {
-    color: var(--ui-danger);
-}
-
-.menu-logout-item.ui-dropdown-item-active {
-    background: color-mix(in srgb, var(--ui-danger) 12%, transparent);
-    color: var(--ui-danger);
 }
 
 .ws-switch-row {

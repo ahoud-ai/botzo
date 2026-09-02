@@ -10,6 +10,7 @@ use App\Models\Addon;
 use App\Models\Chat;
 use App\Models\Campaign;
 use App\Models\Contact;
+use App\Models\MetaVerificationRequest;
 use App\Models\Organization;
 use App\Models\Setting;
 use App\Models\Template;
@@ -87,6 +88,9 @@ class DashboardController extends BaseController
         );
 
         $data['organization'] = $organization;
+        $data['metaVerificationRequest'] = MetaVerificationRequest::where('organization_id', $organizationId)
+            ->latest()
+            ->first();
         $campaignsForQueue = Campaign::where('organization_id', $organizationId)
             ->whereIn('status', ['pending', 'scheduled'])
             ->limit(5)
