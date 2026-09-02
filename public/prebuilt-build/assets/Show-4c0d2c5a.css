@@ -1,0 +1,18 @@
+
+.fq-btn[data-v-108ddb0b] {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease;
+}
+.fq-btn--solid[data-v-108ddb0b] {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.fq-btn--solid[data-v-108ddb0b]:hover {
+    filter: brightness(1.05);
+}

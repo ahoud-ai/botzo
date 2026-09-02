@@ -1,0 +1,159 @@
+
+.dashboard-panel--verification[data-v-6191ebc1] .ui-card {
+    height: auto;
+}
+.mvw-head-icon[data-v-6191ebc1] {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.7rem;
+    background: color-mix(in srgb, var(--ui-secondary) 16%, transparent);
+    color: var(--ui-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.mvw-stepper[data-v-6191ebc1] {
+    display: flex;
+    align-items: flex-start;
+    overflow-x: auto;
+    padding: 0.25rem 0.1rem 0.1rem;
+}
+.mvw-step[data-v-6191ebc1] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+}
+.mvw-step-circle[data-v-6191ebc1] {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 2px solid var(--ui-border-strong);
+    color: var(--ui-muted);
+    background: var(--ui-surface-soft);
+    transition: background 350ms ease, border-color 350ms ease, box-shadow 350ms ease, color 350ms ease, transform 350ms ease;
+}
+.mvw-step-circle--done[data-v-6191ebc1] {
+    border-color: color-mix(in srgb, var(--ui-success) 55%, transparent);
+    color: var(--ui-success);
+    background: color-mix(in srgb, var(--ui-success) 13%, var(--ui-surface));
+}
+.mvw-step-circle--active[data-v-6191ebc1] {
+    border-color: var(--ui-secondary);
+    background: linear-gradient(135deg, var(--ui-secondary), color-mix(in srgb, var(--ui-secondary) 72%, var(--ui-primary)));
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--ui-secondary) 15%, transparent);
+    animation: mvwPulse-6191ebc1 2.4s ease-in-out infinite;
+}
+@keyframes mvwPulse-6191ebc1 {
+0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ui-secondary) 38%, transparent);
+}
+50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--ui-secondary) 0%, transparent);
+}
+}
+@media (prefers-reduced-motion: reduce) {
+.mvw-step-circle--active[data-v-6191ebc1] { animation: none;
+}
+}
+.mvw-step-badge[data-v-6191ebc1] {
+    position: absolute;
+    inset-inline-end: -2px;
+    bottom: -2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    background: var(--ui-success);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--ui-surface);
+}
+.mvw-step-label[data-v-6191ebc1] {
+    font-size: 0.66rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+    text-align: center;
+    max-width: 4.6rem;
+    line-height: 1.3;
+    transition: color 300ms ease, font-weight 300ms ease;
+}
+.mvw-step-label--on[data-v-6191ebc1] {
+    color: var(--ui-text);
+    font-weight: 800;
+}
+.mvw-step-track[data-v-6191ebc1] {
+    flex: 1;
+    min-width: 0.75rem;
+    height: 3px;
+    background: var(--ui-border);
+    margin-top: 18px;
+    border-radius: 999px;
+    overflow: hidden;
+}
+.mvw-step-track-fill[data-v-6191ebc1] {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: var(--ui-success);
+    transition: width 500ms ease;
+}
+.mvw-step-track-fill--full[data-v-6191ebc1] {
+    width: 100%;
+}
+.mvw-callout[data-v-6191ebc1] {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    border-radius: 0.9rem;
+}
+.mvw-callout--success[data-v-6191ebc1] {
+    background: color-mix(in srgb, var(--ui-success) 7%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-success) 22%, var(--ui-border));
+}
+.mvw-callout--danger[data-v-6191ebc1] {
+    background: color-mix(in srgb, var(--ui-danger) 7%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-danger) 22%, var(--ui-border));
+}
+.mvw-callout-icon[data-v-6191ebc1] {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.mvw-callout--success .mvw-callout-icon[data-v-6191ebc1] {
+    background: color-mix(in srgb, var(--ui-success) 16%, transparent);
+    color: var(--ui-success);
+}
+.mvw-callout--danger .mvw-callout-icon[data-v-6191ebc1] {
+    background: color-mix(in srgb, var(--ui-danger) 16%, transparent);
+    color: var(--ui-danger);
+}
+.mvw-callout-title[data-v-6191ebc1] {
+    font-weight: 800;
+    font-size: 0.88rem;
+    margin: 0;
+}
+.mvw-callout--success .mvw-callout-title[data-v-6191ebc1] {
+    color: var(--ui-success);
+}
+.mvw-callout--danger .mvw-callout-title[data-v-6191ebc1] {
+    color: var(--ui-danger);
+}
+.mvw-callout-text[data-v-6191ebc1] {
+    font-size: 0.8rem;
+    color: var(--ui-muted);
+    margin: 0.2rem 0 0;
+    line-height: 1.6;
+}

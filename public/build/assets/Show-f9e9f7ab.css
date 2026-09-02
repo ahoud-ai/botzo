@@ -1,0 +1,83 @@
+
+.rl-btn[data-v-ab5a8a01] {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, filter 160ms ease, opacity 160ms ease;
+}
+.rl-btn--ghost[data-v-ab5a8a01] {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+.rl-btn--ghost[data-v-ab5a8a01]:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+.rl-btn--solid[data-v-ab5a8a01] {
+    border: 1px solid transparent;
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.rl-btn--solid[data-v-ab5a8a01]:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+.rl-btn--solid[data-v-ab5a8a01]:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+.rl-note[data-v-ab5a8a01] {
+    font-size: 0.78rem;
+    color: var(--ui-muted);
+}
+.rl-module[data-v-ab5a8a01] {
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 1rem 1.1rem;
+}
+.rl-module-title[data-v-ab5a8a01] {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--ui-text);
+    margin-bottom: 0.75rem;
+}
+.rl-permission-grid[data-v-ab5a8a01] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+}
+@media (min-width: 640px) {
+.rl-permission-grid[data-v-ab5a8a01] {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+}
+.rl-permission-item[data-v-ab5a8a01] {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 0.55rem 0.75rem;
+    font-size: 0.85rem;
+    color: var(--ui-text);
+    cursor: pointer;
+    transition: border-color 160ms ease, background-color 160ms ease;
+}
+.rl-permission-item[data-v-ab5a8a01]:hover {
+    border-color: var(--ui-border-strong);
+}
+.rl-permission-item--active[data-v-ab5a8a01] {
+    border-color: color-mix(in srgb, var(--ui-secondary) 50%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-secondary) 9%, var(--ui-surface));
+    font-weight: 600;
+}
+.rl-permission-item--disabled[data-v-ab5a8a01] {
+    cursor: not-allowed;
+    opacity: 0.7;
+}

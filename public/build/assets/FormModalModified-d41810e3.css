@@ -1,0 +1,32 @@
+
+.fmm-btn[data-v-7ed678a9] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, filter 160ms ease, opacity 160ms ease;
+}
+.fmm-btn--ghost[data-v-7ed678a9] {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    color: var(--ui-muted);
+}
+.fmm-btn--ghost[data-v-7ed678a9]:hover {
+    background: var(--ui-border);
+    color: var(--ui-text);
+}
+.fmm-btn--solid[data-v-7ed678a9] {
+    border: 1px solid transparent;
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.fmm-btn--solid[data-v-7ed678a9]:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+.fmm-btn--solid[data-v-7ed678a9]:disabled {
+    cursor: not-allowed;
+}

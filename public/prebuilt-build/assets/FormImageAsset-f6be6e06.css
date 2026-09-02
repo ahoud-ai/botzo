@@ -1,0 +1,87 @@
+
+.fia-card[data-v-a2cec28f] {
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 1.1rem;
+}
+.fia-title[data-v-a2cec28f] {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+.fia-description[data-v-a2cec28f] {
+    margin-top: 0.25rem;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--ui-muted);
+}
+.fia-dropzone[data-v-a2cec28f] {
+    overflow: hidden;
+    border-radius: 0.9rem;
+    border: 2px dashed var(--ui-border-strong);
+    background: var(--ui-surface-soft);
+    transition: border-color 160ms ease, background-color 160ms ease;
+}
+.fia-dropzone--over[data-v-a2cec28f] {
+    border-color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 8%, var(--ui-surface-soft));
+}
+.fia-empty[data-v-a2cec28f] {
+    display: flex;
+    height: 100%;
+    min-height: 10rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--ui-muted);
+}
+.fia-chip[data-v-a2cec28f] {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+    padding: 0.2rem 0.65rem;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+.fia-hint[data-v-a2cec28f] {
+    color: var(--ui-muted);
+}
+.fia-btn[data-v-a2cec28f] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 0.7rem;
+    padding: 0.5rem 0.95rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: filter 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+.fia-btn--solid[data-v-a2cec28f] {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.fia-btn--solid[data-v-a2cec28f]:hover {
+    filter: brightness(1.05);
+}
+.fia-btn--ghost[data-v-a2cec28f] {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+.fia-btn--ghost[data-v-a2cec28f]:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+.fia-filename[data-v-a2cec28f] {
+    font-size: 0.8rem;
+    color: var(--ui-muted);
+}

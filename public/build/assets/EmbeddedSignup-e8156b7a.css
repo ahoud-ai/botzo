@@ -1,0 +1,73 @@
+
+.es-chip[data-v-4b69bc9e] {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.es-btn[data-v-4b69bc9e] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease, background-color 160ms ease, border-color 160ms ease, opacity 160ms ease;
+}
+.es-btn--ghost[data-v-4b69bc9e] {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+.es-btn--ghost[data-v-4b69bc9e]:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+.es-btn--solid[data-v-4b69bc9e] {
+    border: 1px solid transparent;
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.es-btn--solid[data-v-4b69bc9e]:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+.es-btn--solid[data-v-4b69bc9e]:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+.es-tile[data-v-4b69bc9e] {
+    border-radius: 0.8rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+    color: var(--ui-text);
+}
+.es-tile--block[data-v-4b69bc9e] {
+    background: var(--ui-surface);
+    padding: 0.85rem 1rem;
+}
+.es-muted[data-v-4b69bc9e] {
+    color: var(--ui-muted);
+}
+.es-banner[data-v-4b69bc9e] {
+    border-radius: 0.85rem;
+    border: 1px solid;
+    padding: 0.85rem 1rem;
+    font-size: 0.85rem;
+}
+.es-banner--info[data-v-4b69bc9e] {
+    border-color: color-mix(in srgb, var(--ui-primary) 30%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-primary) 8%, var(--ui-surface));
+    color: var(--ui-text);
+}
+.es-banner--danger[data-v-4b69bc9e] {
+    border-color: color-mix(in srgb, var(--ui-danger) 35%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-danger) 10%, var(--ui-surface));
+    color: var(--ui-text);
+}

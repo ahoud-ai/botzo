@@ -1,0 +1,293 @@
+
+.mvr-detail[data-v-98893240] {
+    min-height: 100%;
+    padding: 1.5rem 2rem;
+}
+.mvr-detail__inner[data-v-98893240] {
+    width: 100%;
+    max-width: 1680px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+.mvr-back[data-v-98893240] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: -moz-fit-content;
+    width: fit-content;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ui-muted);
+    transition: color 150ms ease, transform 150ms ease;
+}
+.mvr-back[data-v-98893240]:hover {
+    color: var(--ui-primary);
+    transform: translateX(3px);
+}
+.direction-ltr {
+    transform: translateX(-3px);
+}
+.mvr-grid[data-v-98893240] {
+    display: grid;
+    grid-template-columns: 1.65fr 1fr;
+    gap: 1.4rem;
+    align-items: start;
+}
+.mvr-main[data-v-98893240] {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+}
+.mvr-side[data-v-98893240] {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+.mvr-field-grid[data-v-98893240] {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem 1.75rem;
+}
+.mvr-field-label[data-v-98893240] {
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--ui-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0;
+}
+.mvr-field-value[data-v-98893240] {
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin: 0.3rem 0 0;
+}
+.mvr-notes[data-v-98893240] {
+    margin-top: 1.25rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--ui-border);
+}
+.mvr-notes-text[data-v-98893240] {
+    font-weight: 500;
+    color: var(--ui-muted);
+    margin-top: 0.4rem;
+    line-height: 1.7;
+}
+.mvr-org-link[data-v-98893240] {
+    font-weight: 700;
+    font-size: 0.78rem;
+}
+
+/* Stepper */
+.mvr-stepper[data-v-98893240] {
+    display: flex;
+    align-items: flex-start;
+}
+.mvr-step[data-v-98893240] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+.mvr-step-circle[data-v-98893240] {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 2px solid var(--ui-border-strong);
+    color: var(--ui-muted);
+    background: var(--ui-surface-soft);
+    transition: background 350ms ease, border-color 350ms ease, box-shadow 350ms ease, color 350ms ease, transform 350ms ease;
+}
+.mvr-step-circle--done[data-v-98893240] {
+    border-color: color-mix(in srgb, var(--ui-success) 55%, transparent);
+    color: var(--ui-success);
+    background: color-mix(in srgb, var(--ui-success) 13%, var(--ui-surface));
+}
+.mvr-step-circle--active[data-v-98893240] {
+    border-color: var(--ui-secondary);
+    background: linear-gradient(135deg, var(--ui-secondary), color-mix(in srgb, var(--ui-secondary) 72%, var(--ui-primary)));
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--ui-secondary) 15%, transparent);
+    animation: mvrPulse-98893240 2.4s ease-in-out infinite;
+}
+@keyframes mvrPulse-98893240 {
+0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ui-secondary) 38%, transparent);
+}
+50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--ui-secondary) 0%, transparent);
+}
+}
+@media (prefers-reduced-motion: reduce) {
+.mvr-step-circle--active[data-v-98893240] { animation: none;
+}
+}
+.mvr-step-badge[data-v-98893240] {
+    position: absolute;
+    inset-inline-end: -3px;
+    bottom: -3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: var(--ui-success);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--ui-surface);
+}
+.mvr-step-label[data-v-98893240] {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+    text-align: center;
+    max-width: 5.25rem;
+    line-height: 1.35;
+    transition: color 300ms ease, font-weight 300ms ease;
+}
+.mvr-step-label--on[data-v-98893240] {
+    color: var(--ui-text);
+    font-weight: 800;
+}
+.mvr-step-track[data-v-98893240] {
+    flex: 1;
+    height: 4px;
+    background: var(--ui-border);
+    margin-top: 21px;
+    border-radius: 999px;
+    overflow: hidden;
+}
+.mvr-step-track-fill[data-v-98893240] {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: var(--ui-success);
+    transition: width 500ms ease;
+}
+.mvr-step-track-fill--full[data-v-98893240] {
+    width: 100%;
+}
+
+/* Status hero */
+.mvr-status-hero[data-v-98893240] {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1.1rem;
+    border-radius: 1rem;
+    background: linear-gradient(160deg, var(--ui-surface), color-mix(in srgb, var(--ui-surface) 90%, var(--tone) 10%));
+    border: 1px solid color-mix(in srgb, var(--tone) 24%, var(--ui-border));
+}
+.mvr-status-hero-icon[data-v-98893240] {
+    width: 52px;
+    height: 52px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, var(--tone), color-mix(in srgb, var(--tone) 70%, var(--ui-primary)));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 14px 26px -16px color-mix(in srgb, var(--tone) 70%, rgba(15, 23, 42, 0.6));
+}
+.mvr-status-hero-eyebrow[data-v-98893240] {
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: color-mix(in srgb, var(--tone) 75%, var(--ui-text));
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0;
+}
+.mvr-status-hero-title[data-v-98893240] {
+    font-size: 1.18rem;
+    font-weight: 900;
+    margin: 0.2rem 0 0;
+    letter-spacing: -0.01em;
+}
+.mvr-reject-callout[data-v-98893240] {
+    padding: 1rem 1.1rem;
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--ui-danger) 7%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-danger) 22%, var(--ui-border));
+}
+.mvr-reject-title[data-v-98893240] {
+    font-weight: 800;
+    color: var(--ui-danger);
+    margin: 0;
+    font-size: 0.88rem;
+}
+.mvr-reject-text[data-v-98893240] {
+    font-size: 0.82rem;
+    color: var(--ui-muted);
+    margin: 0.35rem 0 0;
+    line-height: 1.6;
+}
+
+/* Actions */
+.mvr-actions[data-v-98893240] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+.mvr-btn[data-v-98893240] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 0.9rem;
+    font-size: 0.84rem;
+    font-weight: 800;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+.mvr-btn--primary[data-v-98893240] {
+    color: #fff;
+    background: linear-gradient(135deg, var(--ui-secondary), color-mix(in srgb, var(--ui-secondary) 76%, var(--ui-primary)));
+    box-shadow: 0 16px 28px -18px color-mix(in srgb, var(--ui-secondary) 65%, rgba(15, 23, 42, 0.55));
+}
+.mvr-btn--primary[data-v-98893240]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 34px -18px color-mix(in srgb, var(--ui-secondary) 70%, rgba(15, 23, 42, 0.6));
+}
+.mvr-btn--danger[data-v-98893240] {
+    color: var(--ui-danger);
+    border-color: color-mix(in srgb, var(--ui-danger) 30%, var(--ui-border));
+    background: var(--ui-surface);
+}
+.mvr-btn--danger[data-v-98893240]:hover {
+    transform: translateY(-2px);
+    background: color-mix(in srgb, var(--ui-danger) 6%, var(--ui-surface));
+    border-color: color-mix(in srgb, var(--ui-danger) 46%, var(--ui-border));
+}
+.mvr-btn[data-v-98893240]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+.mvr-textarea[data-v-98893240] {
+    width: 100%;
+    border: 1px solid var(--ui-border);
+    border-radius: 0.75rem;
+    background: var(--ui-surface);
+    color: var(--ui-text);
+    padding: 0.7rem 0.85rem;
+    font-size: 0.85rem;
+    font-family: inherit;
+    resize: vertical;
+}
+.mvr-modal-actions[data-v-98893240] {
+    margin-top: 0.9rem;
+}
+@media (max-width: 1024px) {
+.mvr-grid[data-v-98893240] {
+        grid-template-columns: 1fr;
+}
+}

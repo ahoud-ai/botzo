@@ -1,0 +1,75 @@
+
+.pgt-grid[data-v-66dc2ab0] {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+.pgt-card[data-v-66dc2ab0] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: 1.1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 1.1rem 1.25rem;
+    box-shadow: var(--ui-shadow-1);
+    transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+}
+.pgt-card[data-v-66dc2ab0]:hover {
+    border-color: var(--ui-border-strong);
+    box-shadow: var(--ui-shadow-2);
+    transform: translateY(-2px);
+}
+.pgt-avatar[data-v-66dc2ab0] {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.9rem;
+    font-size: 1.05rem;
+    font-weight: 800;
+    background: var(--ui-surface-soft);
+    color: var(--ui-muted);
+    border: 1px solid var(--ui-border);
+}
+.pgt-avatar--active[data-v-66dc2ab0] {
+    background: linear-gradient(135deg, var(--ui-secondary), color-mix(in srgb, var(--ui-secondary) 70%, var(--ui-primary)));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 8px 18px -10px color-mix(in srgb, var(--ui-secondary) 70%, transparent);
+}
+.pgt-name[data-v-66dc2ab0] {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--ui-text);
+}
+.pgt-chip[data-v-66dc2ab0] {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 0.35rem;
+    border-radius: 999px;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+.pgt-btn[data-v-66dc2ab0] {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+    padding: 0.55rem 1rem;
+    font-size: 0.83rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease;
+}
+.pgt-btn[data-v-66dc2ab0]:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}

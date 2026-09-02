@@ -1,0 +1,29 @@
+
+.tkt-btn[data-v-44d5bc2f] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, filter 160ms ease;
+}
+.tkt-btn--ghost[data-v-44d5bc2f] {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+.tkt-btn--ghost[data-v-44d5bc2f]:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+.tkt-btn--solid[data-v-44d5bc2f] {
+    border: 1px solid transparent;
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.tkt-btn--solid[data-v-44d5bc2f]:hover {
+    filter: brightness(1.05);
+}
