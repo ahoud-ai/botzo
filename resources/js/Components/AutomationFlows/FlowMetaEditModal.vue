@@ -3,11 +3,11 @@
         <div class="space-y-5 pt-3">
             <FormInput v-model="localName" :label="$t('Name')" :placeholder="$t('Automation name')" />
             <div>
-                <label class="mb-2 block text-sm font-medium text-slate-700">{{ $t('Description') }}</label>
+                <label class="mb-2 block text-sm font-medium text-[var(--ui-text)]">{{ $t('Description') }}</label>
                 <FlowAutosizeTextarea
                     v-model="localDescription"
                     rows="3"
-                    class="w-full min-h-[96px] rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-7 outline-none transition focus:border-primary focus:bg-white"
+                    class="w-full min-h-[96px] rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-4 py-3 text-sm leading-7 outline-none transition focus:border-[var(--ui-secondary)] focus:bg-[var(--ui-surface)]"
                     :placeholder="$t('Short internal description')"
                 />
             </div>

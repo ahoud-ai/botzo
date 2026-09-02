@@ -1,90 +1,107 @@
 <template>
     <AppLayout>
-        <div class="mb-6 flex flex-wrap items-start justify-between gap-3">
-            <div>
-                <h2 class="mb-1 text-xl">{{ $t('Content pages') }} | {{ $t('Edit') }}</h2>
-                <p class="flex items-center text-sm leading-6 text-gray-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                    <span class="ms-1 mt-1">{{ $t('Edit bilingual public pages using the advanced editor') }}</span>
-                </p>
-            </div>
-            <div class="flex items-center gap-x-2">
-                <button type="button" @click="submitForm()" class="rounded-md bg-indigo-600 px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $t('Save') }}</button>
-                <Link href="/admin/settings/pages" class="rounded-md border border-indigo-600 px-3 py-2 text-sm text-indigo-600 shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $t('Back') }}</Link>
-                <button type="button" @click="deletePage()" class="rounded-md border border-red-500 px-3 py-2 text-sm text-red-600 shadow-sm hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">{{ $t('Delete') }}</button>
-            </div>
-        </div>
+        <UiPageHeader :title="$t('Content pages') + ' | ' + $t('Edit')" :subtitle="$t('Edit bilingual public pages using the advanced editor')">
+            <template #actions>
+                <Link href="/admin/settings/pages" class="pgs-btn pgs-btn--ghost">{{ $t('Back') }}</Link>
+                <button type="button" @click="openAlert()" class="pgs-btn pgs-btn--danger">{{ $t('Delete') }}</button>
+                <button type="button" @click="submitForm()" class="pgs-btn pgs-btn--solid" :disabled="form.processing">{{ $t('Save') }}</button>
+            </template>
+        </UiPageHeader>
 
-        <form @submit.prevent="submitForm()" class="space-y-4">
-            <div class="grid gap-4 sm:grid-cols-2">
-                <FormInput v-model="form.name_ar" :name="$t('Name (Arabic)')" :error="form.errors.name_ar" :type="'text'" :class="'sm:col-span-1'"/>
-                <FormInput v-model="form.name_en" :name="$t('Name (English)')" :error="form.errors.name_en" :type="'text'" :class="'sm:col-span-1'"/>
-            </div>
+        <form @submit.prevent="submitForm()" class="mt-6 space-y-6">
+            <UiSectionCard :title="$t('Page name')">
+                <div class="grid gap-5 sm:grid-cols-2">
+                    <FormInput v-model="form.name_ar" :name="$t('Name (Arabic)')" :error="form.errors.name_ar" :type="'text'"/>
+                    <FormInput v-model="form.name_en" :name="$t('Name (English)')" :error="form.errors.name_en" :type="'text'"/>
+                </div>
 
-            <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
-                <div class="flex flex-wrap gap-3">
-                    <span class="rounded bg-white px-2 py-1">{{ `${$t('Slug')} (AR): /pages/${formattedNameAr || '-'}` }}</span>
-                    <span class="rounded bg-white px-2 py-1">{{ `${$t('Slug')} (EN): /pages/${formattedNameEn || '-'}` }}</span>
-                    <span class="rounded bg-white px-2 py-1">{{ `${$t('Canonical slug')}: /pages/${canonicalSlug || '-'}` }}</span>
+                <div class="pgs-slug-row">
+                    <span class="pgs-slug-chip">{{ `${$t('Slug')} (AR): /pages/${formattedNameAr || '-'}` }}</span>
+                    <span class="pgs-slug-chip">{{ `${$t('Slug')} (EN): /pages/${formattedNameEn || '-'}` }}</span>
+                    <span class="pgs-slug-chip pgs-slug-chip--accent">{{ `${$t('Canonical slug')}: /pages/${canonicalSlug || '-'}` }}</span>
+                </div>
+            </UiSectionCard>
+
+            <div class="pgs-layout">
+                <div class="pgs-editor-col">
+                    <UiSectionCard :title="$t('Content')">
+                        <div class="pgs-tabs" role="tablist">
+                            <button
+                                v-for="locale in localeTabs"
+                                :key="locale.id"
+                                type="button"
+                                class="pgs-tab"
+                                :class="{ 'pgs-tab--active': activeLocale === locale.id }"
+                                @click="activeLocale = locale.id"
+                            >
+                                {{ locale.label }}
+                            </button>
+                        </div>
+
+                        <div class="pgs-tabs pgs-tabs--secondary" role="tablist">
+                            <button
+                                v-for="tab in editorTabs"
+                                :key="tab.id"
+                                type="button"
+                                class="pgs-tab pgs-tab--sm"
+                                :class="{ 'pgs-tab--active': activeTab === tab.id }"
+                                @click="activeTab = tab.id"
+                            >
+                                {{ tab.label }}
+                            </button>
+                        </div>
+
+                        <div v-if="activeTab === 'visual'" class="pgs-editor-shell">
+                            <QuillEditor
+                                v-model:content="selectedContent"
+                                toolbar="essential"
+                                contentType="html"
+                                theme="snow"
+                            />
+                        </div>
+
+                        <div v-if="activeTab === 'html'" class="pgs-editor-shell">
+                            <textarea
+                                v-model="selectedContent"
+                                class="pgs-html-textarea"
+                                rows="18"
+                                spellcheck="false"
+                                :aria-label="$t('HTML Source')"
+                            />
+                        </div>
+
+                        <p v-if="currentContentError" class="pgs-notice pgs-notice--danger">{{ currentContentError }}</p>
+                        <p v-if="form.errors.content" class="pgs-notice pgs-notice--danger">{{ form.errors.content }}</p>
+                    </UiSectionCard>
+                </div>
+
+                <div class="pgs-preview-col">
+                    <UiSectionCard :title="$t('Live preview')" :subtitle="$t('Updates as you type')" class="pgs-preview-card">
+                        <p class="pgs-notice pgs-notice--warning">{{ $t('HTML preview may differ after sanitization') }}</p>
+                        <div class="pgs-preview-frame prose prose-sm max-w-none" v-html="previewContent" />
+                    </UiSectionCard>
                 </div>
             </div>
 
-            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                <div class="mb-4 flex flex-wrap items-center gap-2 border-b border-gray-200 pb-3">
-                    <button
-                        v-for="locale in localeTabs"
-                        :key="locale.id"
-                        type="button"
-                        class="rounded-md px-3 py-2 text-sm transition-colors"
-                        :class="activeLocale === locale.id ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-                        @click="activeLocale = locale.id"
-                    >
-                        {{ locale.label }}
+            <div class="pgs-save-bar">
+                <span class="pgs-save-hint">{{ form.isDirty ? $t('You have unsaved changes') : $t('All changes saved') }}</span>
+                <div class="flex items-center gap-x-3">
+                    <Link href="/admin/settings/pages" class="pgs-btn pgs-btn--ghost">{{ $t('Back') }}</Link>
+                    <button type="submit" class="pgs-btn pgs-btn--solid" :disabled="form.processing">
+                        <span v-if="form.processing">{{ $t('Saving...') }}</span>
+                        <span v-else>{{ $t('Save') }}</span>
                     </button>
                 </div>
-
-                <div class="mb-4 flex flex-wrap items-center gap-2 border-b border-gray-200 pb-3">
-                    <button
-                        v-for="tab in editorTabs"
-                        :key="tab.id"
-                        type="button"
-                        class="rounded-md px-3 py-2 text-sm transition-colors"
-                        :class="activeTab === tab.id ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-                        @click="activeTab = tab.id"
-                    >
-                        {{ tab.label }}
-                    </button>
-                </div>
-
-                <div v-if="activeTab === 'visual'" class="space-y-2">
-                    <QuillEditor
-                        v-model:content="selectedContent"
-                        toolbar="essential"
-                        contentType="html"
-                        theme="snow"
-                    />
-                </div>
-
-                <div v-if="activeTab === 'html'" class="space-y-2">
-                    <textarea
-                        v-model="selectedContent"
-                        class="w-full rounded-lg border border-gray-300 bg-white p-3 font-mono text-sm text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                        rows="18"
-                        spellcheck="false"
-                    />
-                </div>
-
-                <div v-if="activeTab === 'preview'" class="space-y-3">
-                    <p class="text-xs text-amber-700">{{ $t('HTML preview may differ after sanitization') }}</p>
-                    <div class="max-h-[600px] overflow-auto rounded-lg border border-gray-200 bg-white p-4">
-                        <div class="prose prose-sm max-w-none" v-html="previewContent" />
-                    </div>
-                </div>
-
-                <p v-if="currentContentError" class="mt-3 text-sm text-red-600">{{ currentContentError }}</p>
-                <p v-if="form.errors.content" class="mt-1 text-sm text-red-600">{{ form.errors.content }}</p>
             </div>
         </form>
+
+        <!-- Alert Modal Component-->
+        <AlertModal
+            v-model="isOpenAlert"
+            @confirm="() => confirmAlert(deletePage)"
+            :label="$t('Delete row')"
+            :description="$t('Are you sure you want to delete this page? This action can not be undone')"
+        />
     </AppLayout>
 </template>
 <script setup>
@@ -92,6 +109,11 @@
     import { computed, ref } from 'vue';
     import { Link, useForm } from "@inertiajs/vue3";
     import FormInput from '@/Components/FormInput.vue';
+    import AlertModal from '@/Components/AlertModal.vue';
+    import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
+    import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
+    import { useAlertModal } from '@/Composables/useAlertModal';
+    import { useUnsavedChangesGuard } from '@/Composables/useUnsavedChangesGuard';
     import { useI18n } from 'vue-i18n';
     import { QuillEditor } from '@vueup/vue-quill';
     import '@vueup/vue-quill/dist/vue-quill.snow.css';
@@ -100,6 +122,7 @@
     const props = defineProps({ page: Object });
     const activeLocale = ref('ar');
     const activeTab = ref('visual');
+    const { isOpenAlert, openAlert, confirmAlert } = useAlertModal();
 
     const localeTabs = [
         { id: 'ar', label: t('Arabic') },
@@ -109,7 +132,6 @@
     const editorTabs = [
         { id: 'visual', label: t('Visual Editor') },
         { id: 'html', label: t('HTML Source') },
-        { id: 'preview', label: t('Preview') },
     ];
 
     const form = useForm({
@@ -121,6 +143,8 @@
         content_ar: props.page.content_ar ?? props.page.content ?? null,
         content_en: props.page.content_en ?? props.page.content ?? null,
     });
+
+    const { markSubmitting } = useUnsavedChangesGuard(() => form.isDirty, t('You have unsaved changes. Leave this page?'));
 
     const firstFilled = (...values) => {
         for (const value of values) {
@@ -161,6 +185,7 @@
 
         const url = window.location.pathname;
 
+        markSubmitting();
         form.put(url, {
             preserveScroll: true,
         });
@@ -169,10 +194,204 @@
     const deletePage = async () => {
         const url = window.location.pathname;
 
+        markSubmitting();
         form.delete(url, {
-            onBefore: () => confirm(t('Are you sure you want to delete this page?')),
             preserveScroll: true,
         });
     };
 </script>
 
+<style scoped>
+.pgs-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease, background-color 160ms ease, border-color 160ms ease, opacity 160ms ease;
+}
+
+.pgs-btn--solid {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.pgs-btn--solid:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+
+.pgs-btn--solid:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.pgs-btn--ghost {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+
+.pgs-btn--ghost:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+
+.pgs-btn--danger {
+    border: 1px solid color-mix(in srgb, var(--ui-danger) 45%, transparent);
+    background: var(--ui-surface);
+    color: var(--ui-danger);
+}
+
+.pgs-btn--danger:hover {
+    background: color-mix(in srgb, var(--ui-danger) 10%, transparent);
+}
+
+.pgs-slug-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.1rem;
+    border-top: 1px solid var(--ui-border);
+    padding-top: 1.1rem;
+}
+
+.pgs-slug-chip {
+    border-radius: 0.6rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.3rem 0.65rem;
+    font-size: 0.75rem;
+    color: var(--ui-muted);
+}
+
+.pgs-slug-chip--accent {
+    border-color: color-mix(in srgb, var(--ui-secondary) 40%, transparent);
+    color: var(--ui-secondary);
+    font-weight: 600;
+}
+
+.pgs-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+@media (min-width: 1100px) {
+    .pgs-layout {
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    }
+
+    .pgs-preview-card {
+        position: sticky;
+        top: 1.5rem;
+    }
+}
+
+.pgs-tabs {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+}
+
+.pgs-tabs--secondary {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--ui-border);
+    padding-bottom: 0.85rem;
+}
+
+.pgs-tab {
+    border-radius: 0.65rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+    background: var(--ui-surface-soft);
+    transition: background-color 160ms ease, color 160ms ease;
+}
+
+.pgs-tab--sm {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.8rem;
+}
+
+.pgs-tab:hover {
+    background: color-mix(in srgb, var(--ui-secondary) 8%, var(--ui-surface-soft));
+    color: var(--ui-text);
+}
+
+.pgs-tab--active {
+    background: var(--ui-secondary);
+    color: #fff;
+}
+
+.pgs-editor-shell {
+    border-radius: 0.9rem;
+    overflow: hidden;
+}
+
+.pgs-html-textarea {
+    width: 100%;
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.85rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.83rem;
+    color: var(--ui-text);
+}
+
+.pgs-html-textarea:focus {
+    outline: none;
+    border-color: var(--ui-secondary);
+}
+
+.pgs-notice {
+    margin-top: 0.85rem;
+    font-size: 0.8rem;
+}
+
+.pgs-notice--warning {
+    color: var(--ui-warning);
+}
+
+.pgs-notice--danger {
+    color: var(--ui-danger);
+}
+
+.pgs-preview-frame {
+    max-height: 32rem;
+    overflow: auto;
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: var(--ui-text);
+}
+
+.pgs-save-bar {
+    position: sticky;
+    bottom: 0.75rem;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--ui-shadow-2);
+}
+
+.pgs-save-hint {
+    font-size: 0.8rem;
+    color: var(--ui-muted);
+}
+</style>

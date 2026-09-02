@@ -1,97 +1,63 @@
 <template>
     <AppLayout>
-        <div>
-            <h2 class="text-xl mb-1">{{ $t('General settings') }}</h2>
-            <p class="mb-6 flex items-center text-sm leading-6">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                <span class="ms-1 mt-1">{{ $t('Configure general account information') }}</span>
-            </p>
-        </div>
-        <form @submit.prevent="submitForm()" enctype="multipart/form-data">
-            <div class="space-y-12">
-                <div class="pb-12">
-                    <div class="grid gap-6 grid-cols-2 pb-10 border-b md:w-2/3">
-                        <FormInput v-model="form.company_name" :name="$t('Organization/company name')" :error="form.errors.company_name" :type="'text'" :class="'col-span-2'"/>
-                        <FormInput v-model="form.email" :name="$t('Email')" :error="form.errors.email" :type="'text'" :class="'col-span-2'"/>
-                        <FormInput v-model="form.book_a_demo_link" :name="$t('Book a demo link')" :error="form.errors.book_a_demo_link" :type="'url'" :placeholder="'https://example.com'" :class="'col-span-2'"/>
-                    </div>
+        <UiPageHeader :title="$t('General settings')" :subtitle="$t('Configure general account information')" />
 
-
-                    <div class="pt-5">
-                        <h2 class="text-base text-gray-900">{{ $t('Social media accounts') }}</h2>
-                        <p class="text-sm leading-6 mb-5">{{ $t('Add your social media account links') }}</p>
-
-                        <div class="grid gap-6 grid-cols-2 pb-10 border-b md:w-2/3">
-                            <FormInput v-model="form.socials.facebook" :name="'Facebook'" :type="'text'" :class="'col-span-1'"/>
-                            <FormInput v-model="form.socials.twitter" :name="'Twitter'" :type="'text'" :class="'col-span-1'"/>
-                            <FormInput v-model="form.socials.tiktok" :name="'TikTok'" :type="'text'" :class="'col-span-1'"/>
-                            <FormInput v-model="form.socials.snapchat" :name="'Snapchat'" :type="'text'" :class="'col-span-1'"/>
-                            <FormInput v-model="form.socials.slack" :name="'Slack'" :type="'text'" :class="'col-span-1'"/>
-                            <FormInput v-model="form.socials.linkedin" :name="'LinkedIn'" :type="'text'" :class="'col-span-1'"/>
-                        </div>
-                    </div>
-
-                    <!--<div class="pt-5">
-                        <h2 class="text-base text-gray-900">{{ $t('App environment') }}</h2>
-                        <p class="text-sm leading-6 mb-5">{{ $t('Set your app environment') }}</p>
-
-                        <div class="grid gap-6 grid-cols-2 pb-10 border-b md:w-2/3">
-                            <FormSelect v-model="form.app_environment" :name="$t('App environment')" :type="'text'"  :options="options" :error="form.errors.app_environment" :class="'col-span-2'"/>
-                        </div>
-                    </div>-->
-
-                    <div class="pt-5">
-                        <h2 class="text-base text-gray-900">{{ $t('Frontend Settings') }}</h2>
-                        <p class="text-sm leading-6 mb-5">{{ $t('Show/hide the main frontend page') }}</p>
-
-                        <div class="flex gap-x-10 md:w-2/3">
-                            <div class="w-[80%]">
-                                <span>{{ $t('Use the current default frontend') }}</span>
-                                <div class="text-xs text-slate-700 flex items-center">
-                                    <svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                                    <span>{{ $t('Toggle on/off to show/hide the main frontend page') }}</span>
-                                </div>
-                            </div>
-                            <div class="w-[20%] flex justify-end">
-                                <FormToggleSwitch v-model="form.display_frontend"/>
-                            </div>
-                        </div>
-
-                        <div class="grid gap-6 grid-cols-2 pb-10 border-b md:w-2/3 pt-6">
-                            <FormSelect
-                                v-model="form.frontend_variant"
-                                :name="$t('Frontend Variant')"
-                                :options="frontendVariantOptions"
-                                :placeholder="$t('Select option')"
-                                :error="form.errors.frontend_variant"
-                                :class-name="'col-span-2'"
-                            />
-                            <p class="text-xs text-slate-700 col-span-2 -mt-3">
-                                {{ $t('Choose which public-site experience to serve visitors') }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="pt-5">
-                        <h2 class="text-base text-gray-900">{{ $t('Site logo and favicon') }}</h2>
-                        <p class="text-sm leading-6 mb-5">{{ $t('Add your logo and favicon') }}</p>
-
-                        <div class="grid gap-6 grid-cols-2 pb-10 border-b md:w-2/3">
-                            <FormImageLogo v-model="form.logo" :name="$t('Site logo')" :error="form.errors.logo" :label="$t('Upload logo')" :imageUrl="getImageUrl('logo')" :class="'col-span-2'"/>
-                            <FormImageFavicon v-model="form.favicon" :name="$t('Favicon')" :error="form.errors.favicon" :label="$t('Upload logo')" :imageUrl="getImageUrl('favicon')" :class="'col-span-2'"/>
-                        </div>
-                    </div>
-
-                    <div class="mt-6 flex items-center justify-end gap-x-6 md:w-2/3">
-                        <button type="submit"
-                            :class="['inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2', { 'opacity-50': isLoading }]"
-                            :disabled="isLoading"
-                        >
-                            <svg v-if="isLoading" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z" opacity=".5"/><path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"><animateTransform attributeName="transform" dur="1s" from="0 12 12" repeatCount="indefinite" to="360 12 12" type="rotate"/></path></svg>
-                            <span v-else>{{ $t('Save') }}</span>
-                        </button>
-                    </div>
+        <form @submit.prevent="submitForm()" enctype="multipart/form-data" class="mt-6 space-y-6">
+            <UiSectionCard>
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <FormInput v-model="form.company_name" :name="$t('Organization/company name')" :error="form.errors.company_name" :type="'text'" :class="'sm:col-span-2'"/>
+                    <FormInput v-model="form.email" :name="$t('Email')" :error="form.errors.email" :type="'text'" :class="'sm:col-span-2'"/>
+                    <FormInput v-model="form.book_a_demo_link" :name="$t('Book a demo link')" :error="form.errors.book_a_demo_link" :type="'url'" :placeholder="'https://example.com'" :class="'sm:col-span-2'"/>
                 </div>
+            </UiSectionCard>
+
+            <UiSectionCard :title="$t('Social media accounts')" :subtitle="$t('Add your social media account links')">
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <FormInput v-model="form.socials.facebook" :name="'Facebook'" :type="'text'"/>
+                    <FormInput v-model="form.socials.twitter" :name="'Twitter'" :type="'text'"/>
+                    <FormInput v-model="form.socials.tiktok" :name="'TikTok'" :type="'text'"/>
+                    <FormInput v-model="form.socials.snapchat" :name="'Snapchat'" :type="'text'"/>
+                    <FormInput v-model="form.socials.slack" :name="'Slack'" :type="'text'"/>
+                    <FormInput v-model="form.socials.linkedin" :name="'LinkedIn'" :type="'text'"/>
+                </div>
+            </UiSectionCard>
+
+            <UiSectionCard :title="$t('Frontend Settings')" :subtitle="$t('Show/hide the main frontend page')">
+                <div class="gs-toggle-row">
+                    <div class="min-w-0 flex-1">
+                        <p class="gs-toggle-title">{{ $t('Use the current default frontend') }}</p>
+                        <p class="gs-toggle-hint">{{ $t('Toggle on/off to show/hide the main frontend page') }}</p>
+                    </div>
+                    <FormToggleSwitch v-model="form.display_frontend"/>
+                </div>
+
+                <div class="mt-6 grid gap-2 sm:grid-cols-2">
+                    <FormSelect
+                        v-model="form.frontend_variant"
+                        :name="$t('Frontend Variant')"
+                        :options="frontendVariantOptions"
+                        :placeholder="$t('Select option')"
+                        :error="form.errors.frontend_variant"
+                        :class-name="'sm:col-span-2'"
+                    />
+                    <p class="gs-hint sm:col-span-2">
+                        {{ $t('Choose which public-site experience to serve visitors') }}
+                    </p>
+                </div>
+            </UiSectionCard>
+
+            <UiSectionCard :title="$t('Site logo and favicon')" :subtitle="$t('Add your logo and favicon')">
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <FormImageLogo v-model="form.logo" :name="$t('Site logo')" :error="form.errors.logo" :label="$t('Upload logo')" :imageUrl="getImageUrl('logo')"/>
+                    <FormImageFavicon v-model="form.favicon" :name="$t('Favicon')" :error="form.errors.favicon" :label="$t('Upload logo')" :imageUrl="getImageUrl('favicon')"/>
+                </div>
+            </UiSectionCard>
+
+            <div class="flex items-center justify-end">
+                <button type="submit" class="gs-btn gs-btn--solid" :disabled="isLoading">
+                    <svg v-if="isLoading" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z" opacity=".5"/><path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"><animateTransform attributeName="transform" dur="1s" from="0 12 12" repeatCount="indefinite" to="360 12 12" type="rotate"/></path></svg>
+                    <span v-else>{{ $t('Save') }}</span>
+                </button>
             </div>
         </form>
     </AppLayout>
@@ -106,6 +72,8 @@
     import FormInput from '@/Components/FormInput.vue';
     import FormSelect from '@/Components/FormSelect.vue';
     import FormToggleSwitch from '@/Components/FormToggleSwitch.vue';
+    import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
+    import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
     const { t } = useI18n();
 
     const props = defineProps({
@@ -162,3 +130,54 @@
     };
 </script>
 
+<style scoped>
+.gs-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.gs-toggle-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.gs-toggle-hint {
+    margin-top: 0.2rem;
+    font-size: 0.8rem;
+    color: var(--ui-muted);
+}
+
+.gs-hint {
+    font-size: 0.78rem;
+    color: var(--ui-muted);
+}
+
+.gs-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease, opacity 160ms ease;
+}
+
+.gs-btn--solid {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.gs-btn--solid:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+
+.gs-btn--solid:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+</style>

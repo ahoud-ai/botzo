@@ -67,8 +67,22 @@ class Organization extends Model {
                         });
                 });
             })
-            ->when(in_array($subscriptionStatus, ['active', 'trial', 'expired'], true), function ($query) use ($subscriptionStatus) {
+            ->when(in_array($subscriptionStatus, ['active', 'trial', 'expired', 'no_plan'], true), function ($query) use ($subscriptionStatus) {
                 $query->where(function ($subscriptionQuery) use ($subscriptionStatus) {
+                    if ($subscriptionStatus === 'no_plan') {
+                        $subscriptionQuery
+                            ->where(function ($mainQuery) {
+                                $mainQuery->where('organization_type', 'main')
+                                    ->whereDoesntHave('subscription');
+                            })
+                            ->orWhere(function ($branchQuery) {
+                                $branchQuery->where('organization_type', 'branch')
+                                    ->whereDoesntHave('parentOrganization.subscription');
+                            });
+
+                        return;
+                    }
+
                     $subscriptionQuery
                         ->where(function ($mainQuery) use ($subscriptionStatus) {
                             $mainQuery->where('organization_type', 'main')

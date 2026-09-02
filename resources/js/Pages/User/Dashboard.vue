@@ -188,6 +188,8 @@
                     </div>
                 </div>
 
+                <MetaVerificationStepper v-if="isWorkspaceOwner" :meta-verification-request="metaVerificationRequest" />
+
                 <div class="dashboard-trio-grid">
                     <div class="dashboard-panel dashboard-panel--status">
                         <UiSectionCard :title="$t('Workspace status')">
@@ -208,6 +210,24 @@
                                     <span class="dashboard-status-card__icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20"><path fill="currentColor" d="M10 2a4 4 0 0 1 4 4v1.17a3 3 0 0 0 .879 2.122l.293.293A1 1 0 0 1 14.464 11H5.536a1 1 0 0 1-.708-1.707l.293-.293A3 3 0 0 0 6 7.17V6a4 4 0 0 1 4-4Zm0 16a3 3 0 0 0 2.995-2.824L13 15H7a3 3 0 0 0 3 3Z"/></svg>
                                     </span>
+                                </div>
+
+                                <div v-if="showRenewalCountdownCard" class="dashboard-status-card dashboard-status-card--renewal" :style="renewalCountdownStyle">
+                                    <div class="min-w-0">
+                                        <h3 class="dashboard-status-card__title">{{ $t('Time until renewal') }}</h3>
+                                        <p class="dashboard-status-card__desc">{{ renewalCountdownDesc }}</p>
+                                        <Link
+                                            v-if="ownerCanManageBilling"
+                                            href="/subscription"
+                                            class="dashboard-inline-action dashboard-inline-action--primary mt-3"
+                                        >
+                                            <span>{{ $t('Manage subscription') }}</span>
+                                        </Link>
+                                    </div>
+                                    <div class="dashboard-status-card__days">
+                                        <span class="dashboard-status-card__days-value">{{ subscriptionDaysRemaining }}</span>
+                                        <span class="dashboard-status-card__days-label">{{ $t('days') }}</span>
+                                    </div>
                                 </div>
 
                                 <div v-if="showWhatsappSetupCard" data-tour="whatsapp-setup" class="dashboard-status-card dashboard-status-card--success">
@@ -346,6 +366,7 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useWorkspaceAccess } from '@/Composables/useWorkspaceAccess';
 import { useTheme } from '@/Composables/useTheme';
+import MetaVerificationStepper from '@/Components/MetaVerificationStepper.vue';
 
 const { t, locale } = useI18n();
 const { isWorkspaceOwner, isBranchWorkspace, hasInheritedParentAuthority, canViewBilling, hasPermission } = useWorkspaceAccess();
@@ -380,6 +401,10 @@ const props = defineProps({
     },
     setupWhatsapp: Boolean,
     organization: Object,
+    metaVerificationRequest: {
+        type: Object,
+        default: null,
+    },
     campaigns: {
         type: Array,
         default: () => [],
@@ -466,10 +491,43 @@ const ownerCanManageBilling = computed(() => canViewBilling.value && !subscripti
 const showSubscribeButton = computed(() => ownerCanManageBilling.value && ['billing_pending', 'inactive', 'trial_active', 'trial_expired'].includes(subscriptionStateVariant.value));
 const showRenewPlanButton = computed(() => ownerCanManageBilling.value && subscriptionStateVariant.value === 'payment_required');
 
+const subscriptionValidUntilDate = computed(() => {
+    const raw = props.subscription?.valid_until;
+    if (!raw) {
+        return null;
+    }
+
+    const parsed = new Date(String(raw).replace(' ', 'T'));
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+});
+const subscriptionDaysRemaining = computed(() => {
+    if (!subscriptionValidUntilDate.value) {
+        return null;
+    }
+
+    const diffMs = subscriptionValidUntilDate.value.getTime() - Date.now();
+    return Math.ceil(diffMs / 86400000);
+});
+const showRenewalCountdownCard = computed(() => (
+    subscriptionPanelIsHealthy.value
+    && !subscriptionManagedByParent.value
+    && subscriptionDaysRemaining.value !== null
+    && subscriptionDaysRemaining.value >= 0
+));
+const renewalIsUrgent = computed(() => subscriptionDaysRemaining.value !== null && subscriptionDaysRemaining.value <= 7);
+const renewalCountdownStyle = computed(() => ({
+    '--dashboard-status-tone': renewalIsUrgent.value ? 'var(--ui-warning)' : 'var(--ui-success)',
+}));
+const renewalCountdownDesc = computed(() => (
+    subscriptionStateVariant.value === 'trial_active'
+        ? t('Free trial')
+        : (props.subscription?.plan?.name ?? t('Current plan'))
+));
+
 const hasAnyWorkspaceAlert = computed(() => (
     !subscriptionPanelIsHealthy.value || showWhatsappSetupCard.value || teamPromptVisible.value
 ));
-const showWorkspaceReadyState = computed(() => !hasAnyWorkspaceAlert.value);
+const showWorkspaceReadyState = computed(() => !hasAnyWorkspaceAlert.value && !showRenewalCountdownCard.value);
 
 const subscriptionPanelActionHref = computed(() => {
     if (showRenewPlanButton.value) {
@@ -1032,6 +1090,7 @@ const series = computed(() => [
     flex-direction: column;
 }
 
+
 .dashboard-viewall-link {
     display: inline-flex;
     align-items: center;
@@ -1194,6 +1253,32 @@ const series = computed(() => [
     margin-top: 0.2rem;
     font-size: 0.86rem;
     color: var(--ui-muted);
+}
+
+.dashboard-status-card__days {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-width: 3.4rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: 0.65rem;
+    background: color-mix(in srgb, var(--dashboard-status-tone) 14%, transparent);
+}
+
+.dashboard-status-card__days-value {
+    font-size: 1.2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--dashboard-status-tone);
+}
+
+.dashboard-status-card__days-label {
+    margin-top: 0.1rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--dashboard-status-tone);
 }
 
 .dashboard-status-card__icon {

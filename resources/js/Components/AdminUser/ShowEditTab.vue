@@ -32,7 +32,7 @@
                 </div>
 
                 <div class="mt-5 flex justify-end">
-                    <button type="submit" :disabled="form.processing" class="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">
+                    <button type="submit" :disabled="form.processing" class="usr-btn usr-btn--solid">
                         <PencilLine class="h-4 w-4" />
                         {{ form.processing ? $t('Saving...') : $t('Save') }}
                     </button>
@@ -42,7 +42,7 @@
 
         <div class="space-y-6">
             <UiSectionCard :title="$t('Account state')" :subtitle="$t('Suspend or restore sign-in without changing company memberships.')">
-                <div class="rounded-2xl border px-4 py-4 text-sm leading-7" :class="user.status === 'active' ? 'border-amber-200 bg-amber-50 text-amber-950' : 'border-sky-200 bg-sky-50 text-sky-900'">
+                <div class="usr-banner" :class="user.status === 'active' ? 'usr-banner--warning' : 'usr-banner--info'">
                     {{ user.status === 'active'
                         ? $t('Suspending this account blocks future sign-ins without deleting company memberships or branch assignments.')
                         : $t('Restoring this account allows sign-in again and keeps previous company memberships as they are.') }}
@@ -52,8 +52,8 @@
                     <button
                         v-if="canToggleAccountState"
                         type="button"
-                        class="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition"
-                        :class="user.actions?.can_restore_account ? 'bg-sky-600 hover:bg-sky-500' : 'bg-amber-600 hover:bg-amber-500'"
+                        class="usr-btn"
+                        :class="user.actions?.can_restore_account ? 'usr-btn--info' : 'usr-btn--warning'"
                         @click="$emit('open-state-modal')"
                     >
                         <ShieldCheck v-if="user.actions?.can_restore_account" class="h-4 w-4" />
@@ -64,15 +64,15 @@
             </UiSectionCard>
 
             <UiSectionCard :title="$t('Delete platform account')" :subtitle="$t('Use delete only after reviewing ownership and linked memberships.')">
-                <div v-if="canDeleteAccount" class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-4 text-sm leading-7 text-rose-900">
+                <div v-if="canDeleteAccount" class="usr-banner usr-banner--danger">
                     {{ $t('Deleting this account removes the platform user and synchronizes related membership records. Use this only for account-level cleanup.') }}
                 </div>
-                <div v-else class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-7 text-amber-950">
+                <div v-else class="usr-banner usr-banner--warning">
                     {{ $t('Delete is blocked for main organization owners until ownership is transferred.') }}
                 </div>
 
                 <div class="mt-4 flex justify-end">
-                    <button v-if="canDeleteAccount" type="button" class="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-rose-700 transition hover:bg-rose-50" @click="$emit('open-delete-modal')">
+                    <button v-if="canDeleteAccount" type="button" class="usr-btn usr-btn--danger-ghost" @click="$emit('open-delete-modal')">
                         <Trash2 class="h-4 w-4" />
                         {{ $t('Delete') }}
                     </button>
@@ -99,3 +99,90 @@ defineProps({
 
 defineEmits(['submit', 'open-state-modal', 'open-delete-modal']);
 </script>
+
+<style scoped>
+.usr-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, filter 160ms ease, opacity 160ms ease;
+}
+
+.usr-btn--solid {
+    border: 1px solid transparent;
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.usr-btn--solid:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+
+.usr-btn--solid:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.usr-btn--info {
+    border: 1px solid transparent;
+    background: var(--ui-primary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.usr-btn--info:hover {
+    filter: brightness(1.1);
+}
+
+.usr-btn--warning {
+    border: 1px solid transparent;
+    background: var(--ui-warning);
+    color: #1f2937;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.usr-btn--warning:hover {
+    filter: brightness(1.05);
+}
+
+.usr-btn--danger-ghost {
+    border: 1px solid color-mix(in srgb, var(--ui-danger) 40%, var(--ui-border));
+    background: var(--ui-surface);
+    color: var(--ui-danger);
+}
+
+.usr-btn--danger-ghost:hover {
+    background: color-mix(in srgb, var(--ui-danger) 8%, var(--ui-surface));
+}
+
+.usr-banner {
+    border: 1px solid;
+    border-radius: 1rem;
+    padding: 1rem 1.1rem;
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+.usr-banner--info {
+    border-color: color-mix(in srgb, var(--ui-primary) 30%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-primary) 8%, var(--ui-surface));
+    color: var(--ui-text);
+}
+
+.usr-banner--warning {
+    border-color: color-mix(in srgb, var(--ui-warning) 35%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-warning) 10%, var(--ui-surface));
+    color: var(--ui-text);
+}
+
+.usr-banner--danger {
+    border-color: color-mix(in srgb, var(--ui-danger) 35%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-danger) 10%, var(--ui-surface));
+    color: var(--ui-text);
+}
+</style>

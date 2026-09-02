@@ -1,41 +1,21 @@
 <template>
     <AppLayout>
-        <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-            <div>
-                <h2 class="mb-1 text-xl">{{ $t('SEO and tracking settings') }}</h2>
-                <p class="flex items-center text-sm leading-6 text-gray-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/>
-                    </svg>
-                    <span class="ms-1 mt-1">{{ $t('Manage indexing, search appearance, social sharing cards, and tracking tags for the public frontend') }}</span>
-                </p>
-            </div>
+        <UiPageHeader :title="$t('SEO and tracking settings')" :subtitle="$t('Manage indexing, search appearance, social sharing cards, and tracking tags for the public frontend')">
+            <template #actions>
+                <Link href="/admin/settings/frontend" class="seo-btn seo-btn--ghost">{{ $t('Back to frontend management') }}</Link>
+            </template>
+        </UiPageHeader>
 
-            <Link
-                href="/admin/settings/frontend"
-                class="inline-flex items-center rounded-md border border-primary px-3 py-2 text-sm text-primary transition hover:bg-primary hover:text-white"
-            >
-                {{ $t('Back to frontend management') }}
-            </Link>
-        </div>
-
-        <div class="mb-6 rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-900">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <p>{{ $t('These settings apply to the public website pages only. Dashboard and admin pages are excluded from indexing automatically.') }}</p>
-                <div class="flex items-center gap-2 text-xs">
-                    <a href="/robots.txt" target="_blank" class="rounded border border-sky-300 bg-white px-3 py-1 text-sky-800 hover:bg-sky-100">{{ $t('View robots.txt') }}</a>
-                    <a href="/sitemap.xml" target="_blank" class="rounded border border-sky-300 bg-white px-3 py-1 text-sky-800 hover:bg-sky-100">{{ $t('View sitemap.xml') }}</a>
-                </div>
+        <div class="seo-banner mt-6">
+            <p class="min-w-0 flex-1">{{ $t('These settings apply to the public website pages only. Dashboard and admin pages are excluded from indexing automatically.') }}</p>
+            <div class="flex flex-shrink-0 items-center gap-2">
+                <a href="/robots.txt" target="_blank" class="seo-banner-link">{{ $t('View robots.txt') }}</a>
+                <a href="/sitemap.xml" target="_blank" class="seo-banner-link">{{ $t('View sitemap.xml') }}</a>
             </div>
         </div>
 
-        <form class="space-y-8" @submit.prevent="submitForm">
-            <section class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <div class="mb-5 border-b border-gray-100 pb-4">
-                    <h3 class="text-base font-semibold text-gray-900">{{ $t('Search appearance') }}</h3>
-                    <p class="mt-1 text-sm text-gray-600">{{ $t('Define the default title and description shown in search engine results.') }}</p>
-                </div>
-
+        <form class="mt-6 space-y-6" @submit.prevent="submitForm">
+            <UiSectionCard :title="$t('Search appearance')" :subtitle="$t('Define the default title and description shown in search engine results.')">
                 <div class="grid gap-5 lg:grid-cols-2">
                     <FormInput v-model="form.seo_site_name_ar" :name="$t('Site name (Arabic)')" :error="form.errors.seo_site_name_ar" :type="'text'" />
                     <FormInput v-model="form.seo_site_name_en" :name="$t('Site name (English)')" :error="form.errors.seo_site_name_en" :type="'text'" />
@@ -57,27 +37,22 @@
 
                     <FormInput v-model="form.seo_canonical_base_url" :name="$t('Canonical base URL')" :error="form.errors.seo_canonical_base_url" :type="'url'" :placeholder="'https://example.com'" :class="'lg:col-span-2'" />
                 </div>
-            </section>
+            </UiSectionCard>
 
-            <section class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <div class="mb-5 border-b border-gray-100 pb-4">
-                    <h3 class="text-base font-semibold text-gray-900">{{ $t('Indexing and robots') }}</h3>
-                    <p class="mt-1 text-sm text-gray-600">{{ $t('Control whether search engines are allowed to index public pages and follow links.') }}</p>
-                </div>
-
+            <UiSectionCard :title="$t('Indexing and robots')" :subtitle="$t('Control whether search engines are allowed to index public pages and follow links.')">
                 <div class="space-y-4">
-                    <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">{{ $t('Allow indexing') }}</p>
-                            <p class="text-xs text-gray-600">{{ $t('When disabled, robots.txt will block all crawlers from indexing the site.') }}</p>
+                    <div class="seo-toggle-row">
+                        <div class="min-w-0">
+                            <p class="seo-toggle-title">{{ $t('Allow indexing') }}</p>
+                            <p class="seo-toggle-copy">{{ $t('When disabled, robots.txt will block all crawlers from indexing the site.') }}</p>
                         </div>
                         <FormToggleSwitch v-model="form.seo_robots_index" />
                     </div>
 
-                    <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">{{ $t('Allow link following') }}</p>
-                            <p class="text-xs text-gray-600">{{ $t('Adds follow or nofollow to the robots meta tag on public pages.') }}</p>
+                    <div class="seo-toggle-row">
+                        <div class="min-w-0">
+                            <p class="seo-toggle-title">{{ $t('Allow link following') }}</p>
+                            <p class="seo-toggle-copy">{{ $t('Adds follow or nofollow to the robots meta tag on public pages.') }}</p>
                         </div>
                         <FormToggleSwitch v-model="form.seo_robots_follow" />
                     </div>
@@ -90,14 +65,9 @@
                         :showLabel="true"
                     />
                 </div>
-            </section>
+            </UiSectionCard>
 
-            <section class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <div class="mb-5 border-b border-gray-100 pb-4">
-                    <h3 class="text-base font-semibold text-gray-900">{{ $t('Social sharing cards') }}</h3>
-                    <p class="mt-1 text-sm text-gray-600">{{ $t('Control Open Graph and Twitter card content shown when links are shared.') }}</p>
-                </div>
-
+            <UiSectionCard :title="$t('Social sharing cards')" :subtitle="$t('Control Open Graph and Twitter card content shown when links are shared.')">
                 <div class="grid gap-5 lg:grid-cols-2">
                     <FormInput v-model="form.seo_og_title_ar" :name="$t('Open Graph title (Arabic)')" :error="form.errors.seo_og_title_ar" :type="'text'" />
                     <FormInput v-model="form.seo_og_title_en" :name="$t('Open Graph title (English)')" :error="form.errors.seo_og_title_en" :type="'text'" />
@@ -130,36 +100,27 @@
                         />
                     </div>
                 </div>
-            </section>
+            </UiSectionCard>
 
-            <section class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <div class="mb-5 border-b border-gray-100 pb-4">
-                    <h3 class="text-base font-semibold text-gray-900">{{ $t('Verification tags') }}</h3>
-                    <p class="mt-1 text-sm text-gray-600">{{ $t('Add verification tokens for search engines and webmaster tools.') }}</p>
-                </div>
-
+            <UiSectionCard :title="$t('Verification tags')" :subtitle="$t('Add verification tokens for search engines and webmaster tools.')">
                 <div class="grid gap-5 lg:grid-cols-2">
                     <FormInput v-model="form.seo_google_verification" :name="$t('Google site verification token')" :error="form.errors.seo_google_verification" :type="'text'" />
                     <FormInput v-model="form.seo_bing_verification" :name="$t('Bing site verification token')" :error="form.errors.seo_bing_verification" :type="'text'" />
                 </div>
-            </section>
+            </UiSectionCard>
 
-            <section class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <div class="mb-5 border-b border-gray-100 pb-4">
-                    <h3 class="text-base font-semibold text-gray-900">{{ $t('Tracking tags') }}</h3>
-                    <p class="mt-1 text-sm text-gray-600">{{ $t('Set analytics and marketing pixels that should load on the public frontend.') }}</p>
-                    <p class="mt-2 text-xs leading-5 text-gray-500">
-                        {{ $t('Only valid tracking IDs are saved and loaded on public pages.') }}
-                        {{ $t('Accepted formats: numeric Meta pixel ID and TikTok pixel ID.') }}
-                    </p>
-                </div>
+            <UiSectionCard :title="$t('Tracking tags')" :subtitle="$t('Set analytics and marketing pixels that should load on the public frontend.')">
+                <p class="seo-note">
+                    {{ $t('Only valid tracking IDs are saved and loaded on public pages.') }}
+                    {{ $t('Accepted formats: numeric Meta pixel ID and TikTok pixel ID.') }}
+                </p>
 
-                <div class="grid gap-5 lg:grid-cols-2">
+                <div class="mt-4 grid gap-5 lg:grid-cols-2">
                     <FormInput v-model="form.tracking_meta_pixel_id" :name="$t('Meta pixel ID')" :error="form.errors.tracking_meta_pixel_id" :type="'text'" />
                     <FormInput v-model="form.tracking_tiktok_pixel_id" :name="$t('TikTok pixel ID')" :error="form.errors.tracking_tiktok_pixel_id" :type="'text'" />
                 </div>
 
-                <div class="mt-5 grid gap-5 lg:grid-cols-1">
+                <div class="mt-5 grid gap-5">
                     <FormTextArea
                         v-model="form.head_scripts"
                         :name="$t('Additional head scripts')"
@@ -179,23 +140,17 @@
                         :textAreaRows="4"
                     />
                 </div>
-            </section>
+            </UiSectionCard>
 
-            <div class="flex items-center justify-end gap-x-3">
-                <Link
-                    href="/admin/settings/frontend"
-                    class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:border-gray-400 hover:text-gray-900"
-                >
-                    {{ $t('Back') }}
-                </Link>
-                <button
-                    type="submit"
-                    class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm text-white transition hover:opacity-90"
-                    :disabled="form.processing"
-                >
-                    <span v-if="form.processing">{{ $t('Saving...') }}</span>
-                    <span v-else>{{ $t('Save') }}</span>
-                </button>
+            <div class="seo-save-bar">
+                <span class="seo-save-hint">{{ form.isDirty ? $t('You have unsaved changes') : $t('All changes saved') }}</span>
+                <div class="flex items-center gap-x-3">
+                    <Link href="/admin/settings/frontend" class="seo-btn seo-btn--ghost">{{ $t('Back') }}</Link>
+                    <button type="submit" class="seo-btn seo-btn--solid" :disabled="form.processing">
+                        <span v-if="form.processing">{{ $t('Saving...') }}</span>
+                        <span v-else>{{ $t('Save') }}</span>
+                    </button>
+                </div>
             </div>
         </form>
     </AppLayout>
@@ -210,7 +165,10 @@
     import FormSelect from '@/Components/FormSelect.vue';
     import FormTextArea from '@/Components/FormTextArea.vue';
     import FormToggleSwitch from '@/Components/FormToggleSwitch.vue';
+    import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
+    import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
     import AppLayout from '../Layout/App.vue';
+    import { useUnsavedChangesGuard } from '@/Composables/useUnsavedChangesGuard';
 
     const { t } = useI18n();
 
@@ -283,6 +241,8 @@
         remove_seo_share_image: false,
     });
 
+    const { markSubmitting } = useUnsavedChangesGuard(() => form.isDirty, t('You have unsaved changes. Leave this page?'));
+
     const setShareImage = (value) => {
         form.seo_share_image = value;
         form.remove_seo_share_image = false;
@@ -294,8 +254,127 @@
     };
 
     const submitForm = () => {
+        markSubmitting();
         form.post('/admin/settings?type=frontend-seo', {
             preserveScroll: true,
         });
     };
 </script>
+
+<style scoped>
+.seo-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease, background-color 160ms ease, border-color 160ms ease, opacity 160ms ease;
+}
+
+.seo-btn--solid {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.seo-btn--solid:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+
+.seo-btn--solid:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.seo-btn--ghost {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+
+.seo-btn--ghost:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+
+.seo-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: color-mix(in srgb, var(--ui-secondary) 6%, var(--ui-surface));
+    padding: 1rem 1.25rem;
+    font-size: 0.83rem;
+    color: var(--ui-text);
+}
+
+.seo-banner-link {
+    border-radius: 0.6rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 0.35rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ui-secondary);
+    transition: background-color 160ms ease;
+}
+
+.seo-banner-link:hover {
+    background: var(--ui-surface-soft);
+}
+
+.seo-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.85rem 1.05rem;
+}
+
+.seo-toggle-title {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.seo-toggle-copy {
+    margin-top: 0.15rem;
+    font-size: 0.78rem;
+    color: var(--ui-muted);
+}
+
+.seo-note {
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--ui-muted);
+}
+
+.seo-save-bar {
+    position: sticky;
+    bottom: 0.75rem;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--ui-shadow-2);
+}
+
+.seo-save-hint {
+    font-size: 0.8rem;
+    color: var(--ui-muted);
+}
+</style>

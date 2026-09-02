@@ -32,6 +32,10 @@
                 <WhatWeNeed />
                 <TermsAndConditions />
                 <VerificationTimeline :company-config="props.companyConfig" @request-service="showRequestModal = true" />
+
+                <div v-if="isWorkspaceOwner && props.metaVerificationRequest" class="mx-auto max-w-5xl px-4 pb-16 lg:px-8">
+                    <MetaVerificationStepper :meta-verification-request="props.metaVerificationRequest" />
+                </div>
             </div>
         </div>
 
@@ -48,7 +52,10 @@ import WhatWeNeed from "@/Components/MetaVerification/WhatWeNeed.vue";
 import TermsAndConditions from "@/Components/MetaVerification/TermsAndConditions.vue";
 import VerificationTimeline from "@/Components/MetaVerification/VerificationTimeline.vue";
 import RequestVerificationModal from "@/Components/MetaVerification/RequestVerificationModal.vue";
+import MetaVerificationStepper from "@/Components/MetaVerificationStepper.vue";
+import { useWorkspaceAccess } from "@/Composables/useWorkspaceAccess";
 
-const props = defineProps(["companyConfig", "pages"]);
+const props = defineProps(["companyConfig", "pages", "metaVerificationRequest"]);
 const showRequestModal = ref(false);
+const { isWorkspaceOwner } = useWorkspaceAccess();
 </script>

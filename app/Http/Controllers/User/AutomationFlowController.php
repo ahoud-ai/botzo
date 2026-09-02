@@ -36,9 +36,12 @@ class AutomationFlowController extends Controller
         $this->checkPermission('automations.flows.view', $organizationId);
         $readiness = $this->access->readinessReport($organizationId);
 
+        $search = $request->string('search')->toString();
+
         return Inertia::render('User/Automation/Flows/Index', [
             'title' => __('Automations'),
-            'rows' => $this->builder->list($organizationId, $request->string('search')->toString(), $request->string('status')->toString()),
+            'rows' => $this->builder->list($organizationId, $search, $request->string('status')->toString()),
+            'statusCounts' => $this->builder->statusCounts($organizationId, $search),
             'filters' => $request->only(['search', 'status']),
             'flowBuilderEnabled' => true,
             'flowBuilderReadiness' => $readiness,

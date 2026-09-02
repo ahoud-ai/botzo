@@ -98,8 +98,18 @@ class FrontendController extends BaseController
 
     public function metaVerification(Request $request)
     {
+        $metaVerificationRequest = null;
+
+        if (auth()->check()) {
+            $organizationId = session('current_organization');
+            $metaVerificationRequest = \App\Models\MetaVerificationRequest::where('organization_id', $organizationId)
+                ->latest()
+                ->first();
+        }
+
         return Inertia::render($this->resolveFrontendComponent('MetaVerification'), [
             ...$this->basePublicData(),
+            'metaVerificationRequest' => $metaVerificationRequest,
         ]);
     }
 
@@ -150,7 +160,13 @@ class FrontendController extends BaseController
 
     public function storeMetaVerificationRequest(\App\Http\Requests\StoreMetaVerificationRequest $request)
     {
-        \App\Models\MetaVerificationRequest::create($request->validated());
+        $data = $request->validated();
+
+        if (auth()->check()) {
+            $data['organization_id'] = session('current_organization');
+        }
+
+        \App\Models\MetaVerificationRequest::create($data);
 
         return Redirect::back()->with('status', [
             'type' => 'success',

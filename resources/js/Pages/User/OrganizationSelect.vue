@@ -1,46 +1,45 @@
 <template>
-    <div :class="rtlClass">
-        <div class="relative flex min-h-[100svh] w-full bg-[linear-gradient(180deg,#f8fbff_0%,#eef4fb_100%)] tracking-[0.3px]">
-            <div class="absolute end-5 top-5">
+    <div :class="rtlClass" class="orgsel-shell">
+        <div class="orgsel-bg">
+            <div class="orgsel-logout">
                 <Link
                     href="/logout"
                     method="post"
                     as="button"
                     type="button"
-                    class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                    class="orgsel-btn orgsel-btn--ghost"
                 >
                     <LogOut class="h-4 w-4" />
                     <span>{{ $t('Logout') }}</span>
                 </Link>
             </div>
 
-            <div class="flex min-h-[100svh] w-full items-center justify-center px-4 py-16">
-                <div class="w-full max-w-[860px] rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-                    <div class="border-b border-slate-200 pb-6">
-                        <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-700">
-                            <Building2 class="h-5 w-5" />
-                        </div>
-                        <h1 class="mt-4 text-2xl font-semibold text-slate-950">{{ $t('Select organization') }}</h1>
-                        <p class="mt-2 text-sm text-slate-500">
+            <div class="orgsel-center">
+                <div class="orgsel-card ui-fade-up">
+                    <div class="orgsel-header">
+                        <NavBrandMark variant="desktop" />
+                        <h1 class="orgsel-title">{{ $t('Select organization') }}</h1>
+                        <p class="orgsel-subtitle">
                             {{ $t('Continue with the workspace you want to manage now.') }}
                         </p>
                     </div>
 
-                    <div class="mt-6 space-y-3">
+                    <div class="orgsel-list">
                         <button
                             v-for="item in props.organizations"
                             :key="item.organization.uuid"
                             type="button"
-                            class="flex w-full items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-start transition hover:border-slate-300 hover:bg-slate-50"
+                            class="orgsel-item"
+                            :class="{ 'orgsel-item--current': item.access?.isCurrent }"
                             @click="selectOrganization(item.organization.uuid)"
                         >
-                            <div class="flex min-w-0 items-center gap-3">
-                                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-700">
+                            <div class="orgsel-item-main">
+                                <span class="orgsel-item-icon">
                                     <Building2 class="h-5 w-5" />
                                 </span>
                                 <div class="min-w-0">
-                                    <div class="truncate text-sm font-semibold text-slate-950">{{ item.organization.name }}</div>
-                                    <div class="mt-1 text-xs text-slate-500">
+                                    <div class="orgsel-item-name">{{ item.organization.name }}</div>
+                                    <div class="orgsel-item-meta">
                                         <template v-if="item.organization.organization_type === 'branch'">
                                             {{ $t('Branch of') }}: {{ item.organization.parent_organization?.name ?? $t('Parent organization') }}
                                         </template>
@@ -48,25 +47,25 @@
                                             {{ $t('Open workspace') }}
                                         </template>
                                     </div>
-                                    <div class="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-600">
-                                        <span class="rounded-full bg-slate-100 px-2 py-0.5">
+                                    <div class="orgsel-item-chips">
+                                        <span class="orgsel-chip orgsel-chip--neutral">
                                             {{ item.organization.organization_type === 'branch' ? $t('Branch') : $t('Main workspace') }}
                                         </span>
                                         <span
                                             v-if="item.access?.source === 'inherited_parent_owner'"
-                                            class="rounded-full bg-sky-50 px-2 py-0.5 text-sky-700"
+                                            class="orgsel-chip ui-chip-info"
                                         >
                                             {{ $t('Managed from parent') }}
                                         </span>
                                         <span
                                             v-else
-                                            class="rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700"
+                                            class="orgsel-chip ui-chip-success"
                                         >
                                             {{ $t('Direct member') }}
                                         </span>
                                         <span
                                             v-if="item.access?.isCurrent"
-                                            class="rounded-full bg-slate-900 px-2 py-0.5 text-white"
+                                            class="orgsel-chip orgsel-chip--current"
                                         >
                                             {{ $t('Current') }}
                                         </span>
@@ -74,12 +73,12 @@
                                 </div>
                             </div>
 
-                            <component :is="isRtl ? ChevronLeft : ChevronRight" class="h-4 w-4 shrink-0 text-slate-400" />
+                            <component :is="isRtl ? ChevronLeft : ChevronRight" class="orgsel-item-chevron" />
                         </button>
 
                         <button
                             type="button"
-                            class="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-4 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-white disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+                            class="orgsel-create"
                             :disabled="createActionDisabled"
                             @click="openOrganizationModal"
                         >
@@ -88,7 +87,7 @@
                         </button>
                         <div
                             v-if="createActionNotice"
-                            class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+                            class="orgsel-notice"
                         >
                             {{ $t(createActionNotice) }}
                         </div>
@@ -105,6 +104,7 @@
 import { computed, ref } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import { Building2, ChevronLeft, ChevronRight, LogOut, Plus } from 'lucide-vue-next';
+import NavBrandMark from '@/Components/NavBrandMark.vue';
 import OrganizationModal from '@/Components/OrganizationModal.vue';
 import { useRtl } from '@/Composables/useRtl';
 
@@ -178,3 +178,227 @@ const submitForm = async () => {
     });
 };
 </script>
+
+<style scoped>
+.orgsel-shell {
+    min-height: 100svh;
+}
+
+.orgsel-bg {
+    position: relative;
+    display: flex;
+    min-height: 100svh;
+    width: 100%;
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--ui-surface) 94%, var(--ui-primary) 6%), var(--ui-surface) 55%);
+}
+
+.orgsel-logout {
+    position: absolute;
+    inset-inline-end: 1.25rem;
+    top: 1.25rem;
+    z-index: 1;
+}
+
+.orgsel-center {
+    display: flex;
+    min-height: 100svh;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+}
+
+.orgsel-card {
+    width: 100%;
+    max-width: 860px;
+    border-radius: 28px;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    box-shadow: var(--ui-shadow-2);
+    padding: 1.75rem;
+}
+
+@media (min-width: 768px) {
+    .orgsel-card {
+        padding: 2.25rem;
+    }
+}
+
+.orgsel-header {
+    border-bottom: 1px solid var(--ui-border);
+    padding-bottom: 1.5rem;
+}
+
+.orgsel-title {
+    margin-top: 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.orgsel-subtitle {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--ui-muted);
+}
+
+.orgsel-list {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.orgsel-item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: 1.1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 1rem 1.25rem;
+    text-align: start;
+    transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+.orgsel-item:hover {
+    border-color: var(--ui-secondary);
+    box-shadow: var(--ui-shadow-2);
+    transform: translateY(-2px);
+}
+
+.orgsel-item--current {
+    border-color: color-mix(in srgb, var(--ui-secondary) 45%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-secondary) 5%, var(--ui-surface));
+}
+
+.orgsel-item-main {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.orgsel-item-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    height: 2.75rem;
+    width: 2.75rem;
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--ui-secondary) 14%, transparent);
+    color: var(--ui-secondary);
+}
+
+.orgsel-item-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.orgsel-item-meta {
+    margin-top: 0.15rem;
+    font-size: 0.78rem;
+    color: var(--ui-muted);
+}
+
+.orgsel-item-chips {
+    margin-top: 0.55rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.orgsel-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.15rem 0.55rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.orgsel-chip--neutral {
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+    color: var(--ui-muted);
+}
+
+.orgsel-chip--current {
+    background: var(--ui-secondary);
+    color: #fff;
+}
+
+.orgsel-item-chevron {
+    height: 1rem;
+    width: 1rem;
+    flex-shrink: 0;
+    color: var(--ui-muted);
+}
+
+.orgsel-create {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 1.1rem;
+    border: 1.5px dashed var(--ui-border-strong);
+    background: var(--ui-surface-soft);
+    padding: 1rem 1.25rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ui-text);
+    transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.orgsel-create:hover:not(:disabled) {
+    border-color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 6%, var(--ui-surface-soft));
+}
+
+.orgsel-create:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.orgsel-notice {
+    border-radius: 0.9rem;
+    border: 1px solid color-mix(in srgb, var(--ui-warning) 35%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-warning) 10%, var(--ui-surface));
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: color-mix(in srgb, var(--ui-warning) 80%, var(--ui-text));
+}
+
+.orgsel-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.85rem;
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.orgsel-btn--ghost {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-muted);
+}
+
+.orgsel-btn--ghost:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+    color: var(--ui-text);
+}
+</style>

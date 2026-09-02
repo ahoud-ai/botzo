@@ -298,6 +298,44 @@ h2 {
     padding-bottom: 8px !important;
 }
 
+.ql-toolbar.ql-snow {
+    border-color: var(--ui-border);
+    background: var(--ui-surface-soft);
+    border-radius: var(--ui-radius-md) var(--ui-radius-md) 0 0;
+}
+
+.ql-container.ql-snow {
+    border-color: var(--ui-border);
+    border-radius: 0 0 var(--ui-radius-md) var(--ui-radius-md);
+}
+
+.ql-editor {
+    min-height: 260px;
+    color: var(--ui-text);
+    background: var(--ui-surface);
+}
+
+.ql-editor.ql-blank::before {
+    color: var(--ui-muted);
+}
+
+.dark .ql-snow .ql-stroke {
+    stroke: var(--ui-muted);
+}
+
+.dark .ql-snow .ql-fill {
+    fill: var(--ui-muted);
+}
+
+.dark .ql-snow .ql-picker {
+    color: var(--ui-muted);
+}
+
+.dark .ql-snow .ql-picker-options {
+    background: var(--ui-surface);
+    border-color: var(--ui-border);
+}
+
 .main-gradient {
     background: linear-gradient(rgba(229, 107, 38, 0.11), rgba(255, 167, 35, 0.11), rgba(255, 199, 0, 0.11));
     background-size: 100% 100%;
@@ -3002,5 +3040,251 @@ body {
 
 .driver-popover.botzo-tour-popover .driver-popover-arrow-side-bottom {
     border-top-color: var(--ui-surface) !important;
+}
+
+/* Sidebar navigation (shared) — single source of truth for both the client
+   dashboard sidebar and the admin panel sidebar, so a style change here
+   applies to both automatically. Values are taken from the client sidebar,
+   which is the reference implementation. */
+.ui-sidebar-header {
+    border-bottom: 1px solid var(--ui-border);
+}
+
+.ui-sidebar-header--compact {
+    border-bottom: none;
+}
+
+.ui-sidebar-collapse-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.6rem;
+    color: var(--ui-muted);
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 160ms ease, color 160ms ease;
+}
+
+.ui-sidebar-collapse-btn:hover {
+    background: color-mix(in srgb, #fff 86%, var(--ui-secondary) 14%);
+    color: var(--ui-secondary);
+}
+
+.dark .ui-sidebar-collapse-btn:hover {
+    background: color-mix(in srgb, var(--ui-bg) 80%, var(--ui-secondary) 20%);
+    color: var(--ui-secondary);
+}
+
+.ui-sidebar-section-label {
+    padding: 0 0.6rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ui-muted);
+    opacity: 0.75;
+    max-height: 1.5rem;
+    transition: opacity 160ms ease, max-height 220ms ease, margin 220ms ease;
+}
+
+.ui-sidebar-section-label--spaced {
+    margin-top: 0.35rem;
+}
+
+.ui-sidebar-section-label--collapsed {
+    opacity: 0;
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.ui-sidebar-divider {
+    border: none;
+    border-top: 1px solid var(--ui-border);
+    opacity: 0.7;
+    max-height: 2rem;
+    margin: 0.9rem 0;
+    transition: opacity 160ms ease, max-height 220ms ease, margin 220ms ease;
+}
+
+.ui-sidebar-divider--hidden {
+    opacity: 0;
+    max-height: 0;
+    margin: 0;
+    overflow: hidden;
+    border-top-width: 0;
+}
+
+.ui-sidebar-item {
+    position: relative;
+    color: var(--ui-text);
+    background: transparent;
+    transition: background-color 160ms ease, color 160ms ease, box-shadow 200ms ease;
+}
+
+.ui-sidebar-item:hover {
+    background: var(--ui-surface-soft) !important;
+    color: var(--ui-text) !important;
+    box-shadow:
+        0 10px 22px -18px rgba(15, 23, 42, 0.35),
+        inset 0 0 0 1px var(--ui-border-strong);
+}
+
+.ui-sidebar-item.ui-sidebar-item--active {
+    background: color-mix(in srgb, var(--ui-secondary) 18%, transparent) !important;
+    color: var(--ui-secondary) !important;
+    font-weight: 600;
+}
+
+.ui-sidebar-item--active::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: -0.3rem;
+    top: 0.3rem;
+    bottom: 0.3rem;
+    width: 3px;
+    border-radius: 999px;
+    background: var(--ui-secondary);
+}
+
+.ui-sidebar-item a {
+    transition: transform 120ms ease;
+}
+
+.ui-sidebar-item:active a {
+    transform: scale(0.98);
+}
+
+.ui-sidebar-icon-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    flex-shrink: 0;
+    border-radius: 0.65rem;
+    color: var(--ui-muted);
+    background: color-mix(in srgb, var(--ui-secondary) 8%, transparent);
+    transition: background-color 160ms ease, color 160ms ease, transform 200ms ease, box-shadow 200ms ease;
+}
+
+.ui-sidebar-item:hover .ui-sidebar-icon-chip {
+    background: var(--ui-surface);
+    color: var(--ui-text);
+    transform: scale(1.08);
+    box-shadow: 0 4px 10px -4px rgba(15, 23, 42, 0.28);
+}
+
+.ui-sidebar-item--active .ui-sidebar-icon-chip {
+    background: var(--ui-secondary);
+    color: #fff;
+}
+
+.ui-sidebar-item--active:hover .ui-sidebar-icon-chip {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: 0 6px 14px -6px color-mix(in srgb, var(--ui-secondary) 70%, transparent);
+}
+
+.ui-sidebar-icon-chip--dot::after {
+    content: "";
+    position: absolute;
+    top: -2px;
+    inset-inline-end: -2px;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 999px;
+    background: var(--ui-warning);
+    border: 2px solid var(--ui-surface);
+}
+
+.ui-sidebar-item-label {
+    font-weight: 500;
+    display: inline-block;
+    max-width: 12rem;
+    opacity: 1;
+    transition: opacity 160ms ease, max-width 220ms ease, margin 220ms ease;
+}
+
+.ui-sidebar-item-label--collapsed {
+    opacity: 0;
+    max-width: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.ui-sidebar-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    padding: 0 0.45rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+.ui-sidebar-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0 0.75rem 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--ui-border);
+}
+
+.ui-sidebar-utility-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ui-sidebar-profile-dropdown {
+    display: block !important;
+    width: 100%;
+}
+
+.ui-sidebar-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+}
+
+.ui-sidebar-profile-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    border-radius: 999px;
+    overflow: hidden;
+    color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 16%, transparent);
+}
+
+.ui-sidebar-profile-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+
+.ui-sidebar-logout-item {
+    color: var(--ui-danger);
+}
+
+.ui-sidebar-logout-item.ui-dropdown-item-active {
+    background: color-mix(in srgb, var(--ui-danger) 12%, transparent);
+    color: var(--ui-danger);
 }
 

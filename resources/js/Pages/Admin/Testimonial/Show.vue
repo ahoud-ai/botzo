@@ -1,91 +1,75 @@
 <template>
     <AppLayout>
         <div class="ui-page ui-fade-up ui-page-frame ui-text-main min-h-full">
-            <div class="flex justify-between">
-                <div>
-                    <h1 v-if="props.testimonial === null" class="text-xl mb-1">{{ $t('Create review') }}</h1>
-                    <h1 v-else class="text-xl mb-1">{{ $t('Update review') }}</h1>
-                    <p class="mb-6 flex items-center text-sm leading-6 text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                        <span v-if="props.testimonial === null" class="ms-1 mt-1">{{ $t('Create review') }}</span>
-                        <span v-else class="ms-1 mt-1">{{ $t('Update review') }}</span>
-                    </p>
-                </div>
-                <div>
-                    <Link href="/admin/testimonials" class="rounded-md bg-indigo-600 px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $t('Back') }}</Link>
-                </div>
-            </div>
+            <UiPageHeader
+                :title="props.testimonial === null ? $t('Create review') : $t('Update review')"
+                :subtitle="props.testimonial === null ? $t('Create review') : $t('Update review')"
+            >
+                <template #actions>
+                    <Link href="/admin/testimonials" class="tst-btn tst-btn--solid">{{ $t('Back') }}</Link>
+                </template>
+            </UiPageHeader>
 
-            <form @submit.prevent="submitForm()" class="bg-white border py-5 px-5 rounded-[0.5rem]" enctype="multipart/form-data">
-                <div class="sm:flex border-b py-5">
-                    <div class="hidden sm:block sm:w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Reviewer image') }}</h1>
+            <form @submit.prevent="submitForm()" class="mt-6 space-y-6" enctype="multipart/form-data">
+                <UiSectionCard :title="$t('Reviewer image')">
+                    <FormImage
+                        v-model="form.image"
+                        :name="'Image'"
+                        :error="form.errors.image"
+                        :label="$t('Upload image')"
+                        :imageUrl="previewImageUrl"
+                        :fallbackImageUrl="defaultAvatar"
+                    />
+                </UiSectionCard>
+
+                <UiSectionCard :title="$t('Name')">
+                    <div class="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+                        <FormInput v-model="form.name_ar" :name="$t('Name (Arabic)')" :error="form.errors.name_ar" :type="'text'"/>
+                        <FormInput v-model="form.name_en" :name="$t('Name (English)')" :error="form.errors.name_en" :type="'text'"/>
                     </div>
-                    <div class="sm:w-[60%] sm:flex gap-x-6">
-                        <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
-                            <FormImage
-                                v-model="form.image"
-                                :name="'Image'"
-                                :error="form.errors.image"
-                                :label="$t('Upload image')"
-                                :imageUrl="previewImageUrl"
-                                :fallbackImageUrl="defaultAvatar"
-                                :class="'sm:col-span-6'"
-                            />
+                </UiSectionCard>
+
+                <UiSectionCard :title="$t('Position')">
+                    <div class="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+                        <FormInput v-model="form.position_ar" :name="$t('Position (Arabic)')" :error="form.errors.position_ar" :type="'text'"/>
+                        <FormInput v-model="form.position_en" :name="$t('Position (English)')" :error="form.errors.position_en" :type="'text'"/>
+                    </div>
+                </UiSectionCard>
+
+                <UiSectionCard :title="$t('Review')">
+                    <div class="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+                        <FormTextArea v-model="form.review_ar" :name="$t('Review (Arabic)')" :error="form.errors.review_ar" :type="'text'" :textAreaRows="4"/>
+                        <FormTextArea v-model="form.review_en" :name="$t('Review (English)')" :error="form.errors.review_en" :type="'text'" :textAreaRows="4"/>
+                    </div>
+                </UiSectionCard>
+
+                <UiSectionCard :title="$t('Rating')">
+                    <div class="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+                        <div>
+                            <label class="ui-form-label">{{ $t('Rating') }}</label>
+                            <div class="tst-star-picker">
+                                <button
+                                    v-for="star in [1, 2, 3, 4, 5]"
+                                    :key="star"
+                                    type="button"
+                                    class="tst-star-btn"
+                                    :class="{ 'tst-star-btn--on': star <= (form.rating ?? 0) }"
+                                    @click="form.rating = star"
+                                >
+                                    <svg width="26" height="26" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="m12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72l3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41l-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18l-1.1 4.72c-.2.86.73 1.54 1.49 1.08z"/>
+                                    </svg>
+                                </button>
+                                <span class="tst-star-value">{{ form.rating ? `${form.rating} / 5` : $t('Select rating') }}</span>
+                            </div>
+                            <div v-if="form.errors.rating" class="ui-form-error mt-2">{{ form.errors.rating }}</div>
                         </div>
+                        <FormSelect v-model="form.status" :options="statusOptions" :error="form.errors.status" :name="$t('Status')" :placeholder="$t('Select status')"/>
                     </div>
-                </div>
+                </UiSectionCard>
 
-                <div class="sm:flex border-b py-5">
-                    <div class="hidden sm:block sm:w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Name') }}</h1>
-                    </div>
-                    <div class="sm:w-[60%] sm:flex gap-x-6">
-                        <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
-                            <FormInput v-model="form.name_ar" :name="$t('Name (Arabic)')" :error="form.errors.name_ar" :type="'text'" :class="'sm:col-span-3'"/>
-                            <FormInput v-model="form.name_en" :name="$t('Name (English)')" :error="form.errors.name_en" :type="'text'" :class="'sm:col-span-3'"/>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sm:flex border-b py-5">
-                    <div class="hidden sm:block sm:w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Position') }}</h1>
-                    </div>
-                    <div class="sm:w-[60%] sm:flex gap-x-6">
-                        <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
-                            <FormInput v-model="form.position_ar" :name="$t('Position (Arabic)')" :error="form.errors.position_ar" :type="'text'" :class="'sm:col-span-3'"/>
-                            <FormInput v-model="form.position_en" :name="$t('Position (English)')" :error="form.errors.position_en" :type="'text'" :class="'sm:col-span-3'"/>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sm:flex border-b py-5">
-                    <div class="hidden sm:block sm:w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Review') }}</h1>
-                    </div>
-                    <div class="sm:w-[60%] sm:flex gap-x-6">
-                        <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
-                            <FormTextArea v-model="form.review_ar" :name="$t('Review (Arabic)')" :error="form.errors.review_ar" :type="'text'" :textAreaRows="4" :class="'sm:col-span-3'"/>
-                            <FormTextArea v-model="form.review_en" :name="$t('Review (English)')" :error="form.errors.review_en" :type="'text'" :textAreaRows="4" :class="'sm:col-span-3'"/>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sm:flex border-b py-5">
-                    <div class="hidden sm:block w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Rating') }}</h1>
-                    </div>
-                    <div class="sm:w-[60%] sm:flex gap-x-6">
-                        <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
-                            <FormSelect v-model="form.rating" :options="ratingOptions" :error="form.errors.rating" :name="''" :class="'sm:col-span-3'" :placeholder="$t('Select rating')"/>
-                            <FormSelect v-model="form.status" :options="statusOptions" :error="form.errors.status" :name="''" :class="'sm:col-span-3'" :placeholder="$t('Select status')"/>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="py-6 flex justify-end">
-                    <button type="submit" class="flex items-center gap-x-4 rounded-md bg-black px-3 py-2 text-sm text-white shadow-sm hover:bg-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                <div class="flex justify-end">
+                    <button type="submit" class="tst-btn tst-btn--solid">
                         {{ $t('Save') }}
                     </button>
                 </div>
@@ -102,6 +86,8 @@
     import FormImage from '@/Components/FormImage.vue';
     import FormTextArea from '@/Components/FormTextArea.vue';
     import FormSelect from '@/Components/FormSelect.vue';
+    import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
+    import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
 
     const { t } = useI18n();
 
@@ -145,14 +131,6 @@
         { value: 1, label: t('Display') },
     ]);
 
-    const ratingOptions = ref([
-        { value: 1, label: '1' },
-        { value: 2, label: '2' },
-        { value: 3, label: '3' },
-        { value: 4, label: '4' },
-        { value: 5, label: '5' },
-    ]);
-
     const submitForm = async () => {
         const isUpdate = props.testimonial !== null;
         const url = isUpdate ? window.location.pathname : '/admin/testimonials';
@@ -165,3 +143,55 @@
         });
     };
 </script>
+
+<style scoped>
+.tst-btn {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease;
+}
+
+.tst-btn--solid {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.tst-btn--solid:hover {
+    filter: brightness(1.05);
+}
+
+.tst-star-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.4rem;
+}
+
+.tst-star-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ui-border-strong);
+    transition: color 140ms ease, transform 140ms ease;
+}
+
+.tst-star-btn:hover {
+    transform: scale(1.12);
+}
+
+.tst-star-btn--on {
+    color: var(--ui-warning);
+}
+
+.tst-star-value {
+    margin-inline-start: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+}
+</style>

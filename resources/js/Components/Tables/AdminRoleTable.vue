@@ -135,15 +135,15 @@
                     <span>{{ item.name }}</span>
                     <span
                         v-if="item.is_system_role"
-                        class="ms-2 inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600"
+                        class="ms-2 inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold ui-chip-neutral"
                     >
                         {{ $t('System Role') }}
                     </span>
                 </TableBodyRowItem>
-                <TableBodyRowItem class="hidden sm:table-cell text-gray-500">
+                <TableBodyRowItem class="hidden sm:table-cell text-[var(--ui-muted)]">
                     {{ item.permissions_count ?? 0 }} {{ $t('permissions') }}
                 </TableBodyRowItem>
-                <TableBodyRowItem class="hidden sm:table-cell text-gray-500">
+                <TableBodyRowItem class="hidden sm:table-cell text-[var(--ui-muted)]">
                     {{ item.members_count ?? 0 }} {{ $t('members') }}
                 </TableBodyRowItem>
                 <TableBodyRowItem v-if="canShowActionsColumn" :position="'last'">

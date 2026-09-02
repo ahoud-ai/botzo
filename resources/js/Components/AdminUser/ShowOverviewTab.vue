@@ -17,31 +17,31 @@
 
         <UiSectionCard :title="$t('Account summary')">
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <div v-for="row in overviewRows" :key="row.label" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <p class="text-xs font-medium text-slate-500">{{ row.label }}</p>
-                    <p class="mt-1 break-words text-sm font-semibold text-slate-900">{{ row.value }}</p>
+                <div v-for="row in overviewRows" :key="row.label" class="usr-tile">
+                    <p class="usr-tile-label">{{ row.label }}</p>
+                    <p class="usr-tile-value break-words">{{ row.value }}</p>
                 </div>
             </div>
 
-            <div class="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-4">
-                <p class="text-xs font-medium text-slate-500">{{ $t('Address details') }}</p>
-                <div v-if="addressLines.length" class="mt-2 space-y-1 text-sm text-slate-700">
+            <div class="usr-tile usr-tile--dashed mt-4">
+                <p class="usr-tile-label">{{ $t('Address details') }}</p>
+                <div v-if="addressLines.length" class="mt-2 space-y-1 text-sm usr-tile-value">
                     <p v-for="line in addressLines" :key="line">{{ line }}</p>
                 </div>
-                <p v-else class="mt-2 text-sm text-slate-500">{{ $t('Not set') }}</p>
+                <p v-else class="mt-2 text-sm usr-muted">{{ $t('Not set') }}</p>
             </div>
         </UiSectionCard>
 
         <UiSectionCard :title="$t('Ownership review')">
             <div class="grid gap-4 lg:grid-cols-2">
-                <article class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                <article class="usr-review-card">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700">
+                        <span class="usr-review-icon usr-review-icon--success">
                             <Crown class="h-5 w-5" />
                         </span>
                         <div>
-                            <h3 class="text-sm font-semibold text-slate-900">{{ $t('Main organization ownership') }}</h3>
-                            <p class="text-xs text-slate-500">{{ user.counts?.main_owned ?? 0 }} {{ $t('organization(s)') }}</p>
+                            <h3 class="usr-review-title">{{ $t('Main organization ownership') }}</h3>
+                            <p class="usr-muted text-xs">{{ user.counts?.main_owned ?? 0 }} {{ $t('organization(s)') }}</p>
                         </div>
                     </div>
 
@@ -49,22 +49,22 @@
                         <span
                             v-for="organization in user.owned_main_organizations"
                             :key="organization.uuid"
-                            class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700"
+                            class="usr-chip ui-chip-success"
                         >
                             {{ organization.name }}
                         </span>
                     </div>
-                    <p v-else class="mt-4 text-sm text-slate-500">{{ $t('No main ownership') }}</p>
+                    <p v-else class="mt-4 text-sm usr-muted">{{ $t('No main ownership') }}</p>
                 </article>
 
-                <article class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                <article class="usr-review-card">
                     <div class="flex items-center gap-3">
-                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+                        <span class="usr-review-icon usr-review-icon--warning">
                             <ShieldAlert class="h-5 w-5" />
                         </span>
                         <div>
-                            <h3 class="text-sm font-semibold text-slate-900">{{ $t('Branch owner anomalies') }}</h3>
-                            <p class="text-xs text-slate-500">{{ user.counts?.branch_owner_anomalies ?? 0 }} {{ $t('workspace(s)') }}</p>
+                            <h3 class="usr-review-title">{{ $t('Branch owner anomalies') }}</h3>
+                            <p class="usr-muted text-xs">{{ user.counts?.branch_owner_anomalies ?? 0 }} {{ $t('workspace(s)') }}</p>
                         </div>
                     </div>
 
@@ -72,21 +72,21 @@
                         <span
                             v-for="organization in user.branch_owner_anomalies"
                             :key="organization.uuid"
-                            class="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700"
+                            class="usr-chip ui-chip-warning"
                         >
                             {{ organization.name }}
                         </span>
                     </div>
-                    <p v-else class="mt-4 text-sm text-slate-500">{{ $t('No branch owner issues') }}</p>
+                    <p v-else class="mt-4 text-sm usr-muted">{{ $t('No branch owner issues') }}</p>
                 </article>
             </div>
         </UiSectionCard>
 
         <UiSectionCard v-if="businessRules.length" :title="$t('Business rules')">
             <div class="grid gap-3 lg:grid-cols-2">
-                <article v-for="rule in businessRules" :key="rule.message" class="rounded-2xl border px-4 py-3 text-sm" :class="rule.level === 'warning' ? 'border-amber-200 bg-amber-50 text-amber-950' : 'border-sky-200 bg-sky-50 text-sky-900'">
+                <article v-for="rule in businessRules" :key="rule.message" class="usr-banner" :class="rule.level === 'warning' ? 'usr-banner--warning' : 'usr-banner--info'">
                     <div class="flex items-start gap-3">
-                        <span class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-2xl" :class="rule.level === 'warning' ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700'">
+                        <span class="usr-banner-icon" :class="rule.level === 'warning' ? 'usr-banner-icon--warning' : 'usr-banner-icon--info'">
                             <AlertTriangle v-if="rule.level === 'warning'" class="h-4 w-4" />
                             <InfoIcon v-else class="h-4 w-4" />
                         </span>
@@ -134,3 +134,117 @@ const addressLines = computed(() => {
     return values.filter((value) => String(value ?? '').trim() !== '');
 });
 </script>
+
+<style scoped>
+.usr-tile {
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.85rem 1rem;
+}
+
+.usr-tile--dashed {
+    border-style: dashed;
+}
+
+.usr-tile-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--ui-muted);
+}
+
+.usr-tile-value {
+    margin-top: 0.3rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.usr-muted {
+    color: var(--ui-muted);
+}
+
+.usr-review-card {
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 1.1rem;
+}
+
+.usr-review-icon {
+    display: inline-flex;
+    height: 2.5rem;
+    width: 2.5rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.9rem;
+}
+
+.usr-review-icon--success {
+    background: color-mix(in srgb, var(--ui-success) 16%, transparent);
+    color: color-mix(in srgb, var(--ui-success) 76%, #0f172a);
+}
+
+.usr-review-icon--warning {
+    background: color-mix(in srgb, var(--ui-warning) 20%, transparent);
+    color: color-mix(in srgb, var(--ui-warning) 78%, #0f172a);
+}
+
+.usr-review-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.usr-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.usr-banner {
+    border: 1px solid;
+    border-radius: 1rem;
+    padding: 0.9rem 1.05rem;
+    font-size: 0.88rem;
+}
+
+.usr-banner--info {
+    border-color: color-mix(in srgb, var(--ui-primary) 30%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-primary) 8%, var(--ui-surface));
+    color: var(--ui-text);
+}
+
+.usr-banner--warning {
+    border-color: color-mix(in srgb, var(--ui-warning) 35%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-warning) 10%, var(--ui-surface));
+    color: var(--ui-text);
+}
+
+.usr-banner-icon {
+    display: inline-flex;
+    height: 2rem;
+    width: 2rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.8rem;
+    margin-top: 0.1rem;
+}
+
+.usr-banner-icon--info {
+    background: color-mix(in srgb, var(--ui-primary) 16%, transparent);
+    color: var(--ui-primary);
+}
+
+.usr-banner-icon--warning {
+    background: color-mix(in srgb, var(--ui-warning) 20%, transparent);
+    color: color-mix(in srgb, var(--ui-warning) 80%, #0f172a);
+}
+</style>

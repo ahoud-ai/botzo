@@ -21,12 +21,12 @@
                     @delete="deleteFlow"
                 />
             </div>
-            <div class="rounded-2xl border border-slate-200 bg-slate-50/60 p-6 text-center lg:hidden">
-                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600">
+            <div class="rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] p-6 text-center lg:hidden">
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-muted)]">
                     <Smartphone class="h-6 w-6" />
                 </div>
-                <div class="mt-4 text-lg font-semibold text-slate-950">{{ $t('Builder editing is available on desktop screens') }}</div>
-                <p class="mt-2 text-sm leading-6 text-slate-500">
+                <div class="mt-4 text-lg font-semibold text-[var(--ui-text)]">{{ $t('Builder editing is available on desktop screens') }}</div>
+                <p class="mt-2 text-sm leading-6 text-[var(--ui-muted)]">
                     {{ $t('Open this flow from a desktop browser to edit the canvas safely.') }}
                 </p>
             </div>
@@ -45,81 +45,81 @@
                 <div :class="workspaceShellClass">
                     <div :class="workspaceGridClass" :style="desktopGridStyle">
                         <aside class="min-h-0 min-w-0 overflow-hidden transition-[opacity] duration-200" :class="isLibraryHidden ? 'pointer-events-none opacity-0' : 'opacity-100'">
-                            <div v-show="!isLibraryHidden" class="flex h-full flex-col overflow-hidden rounded-[22px] border border-slate-200 bg-white">
-                                <div class="border-b border-slate-200 px-3 py-3">
+                            <div v-show="!isLibraryHidden" class="flex h-full flex-col overflow-hidden rounded-[22px] border border-[var(--ui-border)] bg-[var(--flow-panel-bg)]">
+                                <div class="border-b border-[var(--ui-border)] px-3 py-3">
                                 <div class="flex items-center justify-between gap-3">
                                     <div>
-                                        <div class="text-sm font-semibold text-slate-950">{{ $t('Step library') }}</div>
-                                        <div class="mt-1 text-xs text-slate-500">{{ $t('Drag or press + to add') }}</div>
+                                        <div class="text-sm font-semibold text-[var(--ui-text)]">{{ $t('Step library') }}</div>
+                                        <div class="mt-1 text-xs text-[var(--ui-muted)]">{{ $t('Drag or press + to add') }}</div>
                                     </div>
-                                    <span class="inline-flex shrink-0 items-center rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600">
+                                    <span class="inline-flex shrink-0 items-center rounded-full border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-2.5 py-1 text-[11px] font-medium text-[var(--ui-muted)]">
                                         {{ filteredLibrary.length }}
                                     </span>
                                 </div>
-                                <div class="mt-3 flex rounded-xl border border-slate-200 bg-slate-50 p-1">
-                                    <button type="button" class="flex-1 rounded-[10px] px-3 py-1.5 text-sm font-semibold transition" :class="libraryTab === 'messages' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-600'" @click="libraryTab = 'messages'">{{ $t('Messages') }}</button>
-                                    <button type="button" class="flex-1 rounded-[10px] px-3 py-1.5 text-sm font-semibold transition" :class="libraryTab === 'actions' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-600'" @click="libraryTab = 'actions'">{{ $t('Actions') }}</button>
+                                <div class="mt-3 flex rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] p-1">
+                                    <button type="button" class="flex-1 rounded-[10px] px-3 py-1.5 text-sm font-semibold transition" :class="libraryTab === 'messages' ? 'bg-[var(--ui-surface)] text-[var(--ui-text)] shadow-[var(--ui-shadow-1)]' : 'text-[var(--ui-muted)]'" @click="libraryTab = 'messages'">{{ $t('Messages') }}</button>
+                                    <button type="button" class="flex-1 rounded-[10px] px-3 py-1.5 text-sm font-semibold transition" :class="libraryTab === 'actions' ? 'bg-[var(--ui-surface)] text-[var(--ui-text)] shadow-[var(--ui-shadow-1)]' : 'text-[var(--ui-muted)]'" @click="libraryTab = 'actions'">{{ $t('Actions') }}</button>
                                 </div>
                                 <div class="relative mt-3">
-                                    <Search class="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                                    <Search class="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ui-muted)]" />
                                     <input
                                         v-model="librarySearch"
                                         type="text"
-                                        class="w-full rounded-2xl border border-slate-200 bg-slate-50 py-2 pe-4 ps-10 text-sm text-slate-700 outline-none transition focus:border-emerald-300 focus:bg-white"
+                                        class="w-full rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] py-2 pe-4 ps-10 text-sm text-[var(--ui-text)] outline-none transition focus:border-[var(--ui-secondary)] focus:bg-[var(--ui-surface)]"
                                         :placeholder="$t('Search steps')"
                                     />
                                 </div>
                                 </div>
                                 <div class="min-h-0 flex-1 overflow-y-auto px-2 py-2">
                                     <div v-if="filteredLibrary.length" class="space-y-1.5">
-                                        <div v-for="item in filteredLibrary" :key="item.type" draggable="true" class="group flex min-h-[44px] cursor-grab items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-1.5 transition hover:border-slate-300 hover:bg-slate-50 active:cursor-grabbing" @dragstart="startLibraryDrag(item.type, $event)" @dragend="draggingLibraryType = null">
+                                        <div v-for="item in filteredLibrary" :key="item.type" draggable="true" class="group flex min-h-[44px] cursor-grab items-center justify-between rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] px-3 py-1.5 transition hover:border-[var(--ui-border-strong)] hover:bg-[var(--ui-surface-soft)] active:cursor-grabbing" @dragstart="startLibraryDrag(item.type, $event)" @dragend="draggingLibraryType = null">
                                             <div class="flex min-w-0 items-center gap-2.5">
-                                                <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700">
+                                                <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] text-[var(--ui-text)]">
                                                     <component :is="iconFor(item.type)" class="h-4 w-4" />
                                                 </span>
-                                                <div class="truncate text-sm font-medium text-slate-800">{{ labelForLibraryItem(item) }}</div>
+                                                <div class="truncate text-sm font-medium text-[var(--ui-text)]">{{ labelForLibraryItem(item) }}</div>
                                             </div>
                                             <div class="flex shrink-0 items-center gap-1.5">
-                                                <GripVertical class="h-3.5 w-3.5 text-slate-300" />
-                                                <button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-transparent text-sm font-medium text-slate-500 transition hover:border-slate-200 hover:bg-slate-100 hover:text-slate-800" @click.stop="addNodeFromLibrary(item.type)">+</button>
+                                                <GripVertical class="h-3.5 w-3.5 text-[var(--ui-muted)]" />
+                                                <button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-transparent text-sm font-medium text-[var(--ui-muted)] transition hover:border-[var(--ui-border)] hover:bg-[var(--ui-surface-soft)] hover:text-[var(--ui-text)]" @click.stop="addNodeFromLibrary(item.type)">+</button>
                                             </div>
                                         </div>
                                     </div>
-                                    <div v-else class="flex h-full min-h-[160px] items-center justify-center rounded-[24px] border border-dashed border-slate-300 bg-slate-50/80 px-5 text-center">
+                                    <div v-else class="flex h-full min-h-[160px] items-center justify-center rounded-[24px] border border-dashed border-[var(--ui-border-strong)] bg-[color-mix(in_srgb,var(--ui-surface-soft)_80%,transparent)] px-5 text-center">
                                         <div>
-                                            <div class="text-sm font-semibold text-slate-800">{{ $t('No results') }}</div>
+                                            <div class="text-sm font-semibold text-[var(--ui-text)]">{{ $t('No results') }}</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </aside>
-                        <section class="relative min-h-0 min-w-0 overflow-hidden rounded-[22px] border border-slate-200 bg-white">
-                            <div class="flex items-center justify-between gap-4 border-b border-slate-200 px-3.5 py-3">
+                        <section class="relative min-h-0 min-w-0 overflow-hidden rounded-[22px] border border-[var(--ui-border)] bg-[var(--flow-panel-bg)]">
+                            <div class="flex items-center justify-between gap-4 border-b border-[var(--ui-border)] px-3.5 py-3">
                                 <div class="min-w-0">
                                     <div class="flex min-w-0 items-center gap-3">
-                                        <div class="text-sm font-semibold text-slate-950">{{ $t('Canvas') }}</div>
-                                        <span v-if="activeCanvasNode" class="inline-flex min-w-0 items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
+                                        <div class="text-sm font-semibold text-[var(--ui-text)]">{{ $t('Canvas') }}</div>
+                                        <span v-if="activeCanvasNode" class="inline-flex min-w-0 items-center rounded-full border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-3 py-1 text-xs font-medium text-[var(--ui-muted)]">
                                             <span class="truncate">{{ resolvedActiveNodeTitle }}</span>
                                         </span>
                                     </div>
-                                    <div class="mt-1 text-xs text-slate-500">{{ $t('Drag cards from anywhere on the step. Click once to select and click again to edit inside the card.') }}</div>
+                                    <div class="mt-1 text-xs text-[var(--ui-muted)]">{{ $t('Drag cards from anywhere on the step. Click once to select and click again to edit inside the card.') }}</div>
                                 </div>
-                                <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                                <div class="flex flex-wrap items-center gap-2 text-xs text-[var(--ui-muted)]">
                                     <button
                                         type="button"
-                                        class="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                                        class="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] text-[var(--ui-muted)] transition hover:border-[var(--ui-secondary)] hover:text-[var(--ui-text)]"
                                         :title="isLibraryHidden ? $t('Show library') : $t('Hide library')"
                                         @click="toggleLibraryRail()"
                                     >
                                         <component :is="isLibraryHidden ? ChevronsRight : ChevronsLeft" class="h-4 w-4" />
                                     </button>
-                                    <span class="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1">{{ canvasStepLabel }}</span>
-                                    <span v-if="canvasWarningLabel" class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-amber-700">{{ canvasWarningLabel }}</span>
-                                    <span class="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1.5 font-semibold text-slate-600">{{ canvasZoomPercent }}</span>
+                                    <span class="inline-flex items-center rounded-full border border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] px-2.5 py-1">{{ canvasStepLabel }}</span>
+                                    <span v-if="canvasWarningLabel" class="inline-flex items-center rounded-full border border-[color-mix(in_srgb,var(--ui-warning)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-warning)_12%,var(--ui-surface))] px-2.5 py-1 text-[var(--ui-warning)]">{{ canvasWarningLabel }}</span>
+                                    <span class="inline-flex items-center rounded-full border border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] px-2.5 py-1.5 font-semibold text-[var(--ui-muted)]">{{ canvasZoomPercent }}</span>
                                     <button
                                         v-if="activeCanvasNode"
                                         type="button"
-                                        class="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                                        class="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] text-[var(--ui-muted)] transition hover:border-[var(--ui-secondary)] hover:text-[var(--ui-text)]"
                                         :title="$t('Focus step')"
                                         @click="focusActiveNodeInView"
                                     >
@@ -127,7 +127,7 @@
                                     </button>
                                     <button
                                         type="button"
-                                        class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+                                        class="inline-flex items-center gap-1.5 rounded-xl border border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] px-3 py-1.5 text-xs font-semibold text-[var(--ui-muted)] transition hover:border-[var(--ui-secondary)] hover:text-[var(--ui-text)]"
                                         :title="$t('Open the focused studio area only')"
                                         @click="toggleBrowserFullscreen"
                                     >
@@ -136,11 +136,11 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="relative h-[calc(100%-61px)] overflow-hidden bg-[radial-gradient(circle,_rgba(148,163,184,0.22)_1px,_transparent_1px)] [background-size:20px_20px]" @dragover.prevent="handleCanvasDragOver" @drop.prevent="handleCanvasDrop">
+                            <div class="relative h-[calc(100%-61px)] overflow-hidden" @dragover.prevent="handleCanvasDragOver" @drop.prevent="handleCanvasDrop">
                                 <button
                                     v-if="isLibraryHidden"
                                     type="button"
-                                    class="absolute start-3 top-1/2 z-20 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-slate-300 hover:text-slate-900"
+                                    class="absolute start-3 top-1/2 z-20 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-2xl border border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] text-[var(--ui-muted)] shadow-[var(--ui-shadow-1)] transition hover:border-[var(--ui-secondary)] hover:text-[var(--ui-text)]"
                                     :title="$t('Show library')"
                                     @click="toggleLibraryRail(false)"
                                 >
@@ -174,11 +174,29 @@
                                     @pane-click="handlePaneClick"
                                     @viewport-change-end="handleViewportChangeEnd"
                                 >
-                                    <Background pattern-color="rgba(148,163,184,0.28)" :gap="20" />
-                                    <Controls position="bottom-left" class="!rounded-xl !border !border-slate-200 !bg-white !shadow-sm" />
+                                    <Background :pattern-color="canvasGridColor" :gap="20" />
+                                    <Controls position="bottom-left" class="!rounded-xl !border !border-[var(--ui-border)] !bg-[var(--ui-surface)] !shadow-[var(--ui-shadow-1)]" />
                                 </VueFlow>
                             </div>
                         </section>
+                        <aside class="min-h-0 min-w-0 overflow-hidden transition-[opacity] duration-200" :class="isInspectorPanelOpen ? 'opacity-100' : 'pointer-events-none opacity-0'">
+                            <div v-show="isInspectorPanelOpen" class="flex h-full flex-col overflow-hidden rounded-[22px] border border-[var(--ui-border)] bg-[var(--flow-panel-bg)]">
+                                <div class="flex items-center justify-between gap-2 border-b border-[var(--ui-border)] px-3.5 py-3">
+                                    <div class="text-sm font-semibold text-[var(--ui-text)]">{{ $t('Step settings') }}</div>
+                                    <button
+                                        type="button"
+                                        class="nodrag nopan inline-flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] text-[var(--ui-muted)] transition hover:border-[var(--ui-secondary)] hover:text-[var(--ui-text)]"
+                                        :title="$t('Close')"
+                                        @click="closeInspectorPanel"
+                                    >
+                                        <X class="h-4 w-4" />
+                                    </button>
+                                </div>
+                                <div class="min-h-0 flex-1 overflow-y-auto p-3">
+                                    <FlowInspectorPanel :node="focusedCanvasNode" @open-trigger="openTriggerFromPanel" />
+                                </div>
+                            </div>
+                        </aside>
                     </div>
                 </div>
             </div>
@@ -233,7 +251,6 @@
 import '@vue-flow/core/dist/style.css';
 import '@vue-flow/core/dist/theme-default.css';
 import '@vue-flow/controls/dist/style.css';
-import '@vue-flow/minimap/dist/style.css';
 import '@/Components/AutomationFlows/flowBuilderCanvas.css';
 import axios from 'axios';
 import { computed, markRaw, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
@@ -242,10 +259,11 @@ import { useI18n } from 'vue-i18n';
 import { Background } from '@vue-flow/background';
 import { Controls } from '@vue-flow/controls';
 import { VueFlow, applyEdgeChanges, applyNodeChanges } from '@vue-flow/core';
-import { ChevronsLeft, ChevronsRight, GripVertical, Maximize2, Minimize2, Search, Smartphone } from 'lucide-vue-next';
+import { ChevronsLeft, ChevronsRight, GripVertical, Maximize2, Minimize2, Search, Smartphone, X } from 'lucide-vue-next';
 import SettingLayout from './../Layout.vue';
 import FlowCanvasEdge from '@/Components/AutomationFlows/FlowCanvasEdge.vue';
 import FlowCanvasNode from '@/Components/AutomationFlows/FlowCanvasNode.vue';
+import FlowInspectorPanel from '@/Components/AutomationFlows/FlowInspectorPanel.vue';
 import FlowBuilderHeaderCard from '@/Components/AutomationFlows/FlowBuilderHeaderCard.vue';
 import FlowBuilderDangerModals from '@/Components/AutomationFlows/FlowBuilderDangerModals.vue';
 import FlowExitConfirmModal from '@/Components/AutomationFlows/FlowExitConfirmModal.vue';
@@ -327,23 +345,23 @@ const whatsappCompliance = computed(() => props.builder_runtime?.whatsapp_compli
 const builderPolicy = computed(() => props.builder_runtime?.builder_policy || {});
 const defaultViewport = computed(() => currentViewport.value || { x: 0, y: 0, zoom: 1 });
 const canvasZoomPercent = computed(() => `${Math.round((currentViewport.value?.zoom || 1) * 100)}%`);
+const canvasGridColor = computed(() => 'color-mix(in srgb, var(--ui-border-strong) 55%, transparent)');
 const canvasStepLabel = computed(() => `${nodes.value.length} ${t('step(s)')}`);
 const canvasWarningLabel = computed(() => {
     const count = validation.value?.warnings?.length || 0;
     return count ? `${count} ${t('warning(s)')}` : '';
 });
-const minimapNodeColor = (node) => ({
-    trigger: '#0ea5e9', condition: '#7c3aed', send_buttons: '#7c3aed', send_list: '#7c3aed',
-    assign_to_agent: '#0ea5e9', human_handoff: '#f59e0b', handoff_to_ai_assistant: '#f59e0b', end: '#475569',
-}[node?.data?.nodeType] || '#0f766e');
 const workspaceShellClass = computed(() => (isBoardOnlyWindow.value
     ? 'border-0 bg-transparent p-0 shadow-none'
-    : 'rounded-[28px] border border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.98),rgba(241,245,249,0.94))] p-2.5 shadow-sm xl:p-3'));
+    : 'rounded-[28px] border border-[var(--ui-border)] bg-[var(--flow-shell-bg)] p-2.5 shadow-[var(--ui-shadow-1)] xl:p-3'));
 const workspaceGridClass = computed(() => (isBoardOnlyWindow.value
     ? 'grid min-h-[calc(100vh-5.5rem)] gap-4'
     : 'grid gap-2.5 min-h-[640px] lg:min-h-[calc(100vh-12rem)] xl:h-[calc(100vh-11.5rem)]'));
 const leftRailWidth = computed(() => (isLibraryHidden.value ? '0px' : (isBoardOnlyWindow.value ? 'clamp(156px, 11vw, 184px)' : 'clamp(160px, 12vw, 188px)')));
-const desktopGridStyle = computed(() => ({ gridTemplateColumns: `${leftRailWidth.value} minmax(0, 1fr)` }));
+const isInspectorPanelOpen = computed(() => Boolean(focusedNodeId.value));
+const rightPanelWidth = computed(() => (isInspectorPanelOpen.value ? 'clamp(300px, 24vw, 360px)' : '0px'));
+const desktopGridStyle = computed(() => ({ gridTemplateColumns: `${leftRailWidth.value} minmax(0, 1fr) ${rightPanelWidth.value}` }));
+const focusedCanvasNode = computed(() => nodes.value.find((node) => node.id === focusedNodeId.value) || null);
 const isPreviewDockVisible = computed(() => previewModalOpen.value);
 const filteredLibrary = computed(() => {
     const query = librarySearch.value.trim().toLowerCase();
@@ -415,6 +433,18 @@ const toggleLibraryRail = (explicit = null) => {
     markDraftDirty();
     syncCanvasAfterLayoutChange();
 };
+const closeInspectorPanel = () => {
+    collapseInlineNode();
+};
+const openTriggerFromPanel = () => {
+    const triggerNode = nodes.value.find((node) => node.data?.nodeType === 'trigger');
+    if (triggerNode) {
+        focusCanvasNode(triggerNode.id, { refreshPreviewAfter: false, openInline: true, recenter: true });
+    }
+};
+watch(isInspectorPanelOpen, () => {
+    syncCanvasAfterLayoutChange();
+});
 const focusActiveNodeInView = () => {
     const node = activeCanvasNode.value;
     if (!node || !flowInstance.value) {

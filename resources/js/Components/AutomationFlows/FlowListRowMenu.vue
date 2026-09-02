@@ -114,7 +114,7 @@ onBeforeUnmount(() => {
     <div ref="rootRef" class="relative inline-flex">
         <button
             type="button"
-            class="inline-flex rounded-xl border border-slate-200 bg-white p-2 text-slate-500 transition hover:border-slate-300 hover:text-slate-950"
+            class="inline-flex rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] p-2 text-[var(--ui-muted)] transition hover:border-[var(--ui-border-strong)] hover:text-[var(--ui-text)]"
             @click="toggleMenu"
         >
             <MoreVertical class="h-4 w-4" />
@@ -125,18 +125,18 @@ onBeforeUnmount(() => {
         <div
             v-if="menuOpen"
             ref="panelRef"
-            class="ui-layer-dropdown fixed z-[120] w-44 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.12)]"
+            class="ui-layer-dropdown fixed z-[120] w-44 overflow-hidden rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] shadow-[0_18px_60px_color-mix(in_srgb,var(--ui-text)_12%,transparent)]"
             :style="panelStyle"
         >
-            <button type="button" class="flex w-full items-center gap-2 px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50" @click="emitAction('open')">
+            <button type="button" class="flex w-full items-center gap-2 px-4 py-3 text-sm text-[var(--ui-text)] transition hover:bg-[var(--ui-surface-soft)]" @click="emitAction('open')">
                 <Pencil class="h-4 w-4" />
                 <span>{{ $t('Edit') }}</span>
             </button>
-            <button type="button" class="flex w-full items-center gap-2 px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50" @click="emitAction('duplicate')">
+            <button type="button" class="flex w-full items-center gap-2 px-4 py-3 text-sm text-[var(--ui-text)] transition hover:bg-[var(--ui-surface-soft)]" @click="emitAction('duplicate')">
                 <Copy class="h-4 w-4" />
                 <span>{{ $t('Copy') }}</span>
             </button>
-            <button type="button" class="flex w-full items-center gap-2 px-4 py-3 text-sm text-rose-600 transition hover:bg-rose-50" @click="emitAction('delete')">
+            <button type="button" class="flex w-full items-center gap-2 px-4 py-3 text-sm text-[var(--ui-danger)] transition hover:bg-[color-mix(in_srgb,var(--ui-danger)_10%,transparent)]" @click="emitAction('delete')">
                 <Trash2 class="h-4 w-4" />
                 <span>{{ $t('Delete') }}</span>
             </button>
