@@ -10,16 +10,16 @@ const terms = [
 </script>
 
 <template>
-    <section v-reveal class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20">
+    <section v-reveal class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20">
         <div class="flex flex-col items-center gap-8 lg:gap-[72px]">
-            <div class="flex w-full flex-col items-center gap-4 text-center lg:w-[1120px]">
+            <div class="flex w-full flex-col items-center gap-4 text-center lg:w-[1280px]">
                 <SectionBadge :label="$t('Botzo Terms')" />
                 <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
                     {{ $t('Terms and Conditions') }}
                 </h2>
             </div>
 
-            <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:w-[1120px] lg:grid-cols-4">
+            <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:w-[1280px] lg:grid-cols-4">
                 <div
                     v-for="[headingKey, descriptionKey] in terms"
                     :key="headingKey"

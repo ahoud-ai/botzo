@@ -1,7 +1,7 @@
 <template>
     <div :class="rtlClass">
         <!-- Sticky Header -->
-        <header :class="['sticky top-0 ui-layer-content transition-all duration-300', isScrolled ? 'bg-white/80 backdrop-blur-md border-b border-gray-200' : 'bg-white border-b border-gray-200']">
+        <header class="sticky top-0 ui-layer-content bg-white border-b border-gray-200">
             <div class="px-5 md:px-10 lg:px-20 2xl:px-60 py-4">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-8">
@@ -370,7 +370,6 @@
     const tiktokUrl = ref(null);
     const snapchatUrl = ref(null);
     const linkedinUrl = ref(null);
-    const isScrolled = ref(false);
     const showResourcesDropdown = ref(false);
     const showLanguageDropdown = ref(false);
     const showMobileLanguageDropdown = ref(false);
@@ -403,10 +402,6 @@
         }
     };
 
-    const handleScroll = () => {
-        isScrolled.value = window.scrollY > 10;
-    };
-
     // Prevent body scroll when mobile menu is open
     watch(showMobileMenu, (isOpen) => {
         if (isOpen) {
@@ -418,11 +413,9 @@
 
     onMounted(() => {
         parseSocials();
-        window.addEventListener('scroll', handleScroll);
     });
 
     onBeforeUnmount(() => {
-        window.removeEventListener('scroll', handleScroll);
         // Clean up: ensure body scroll is restored
         document.body.style.overflow = '';
     });

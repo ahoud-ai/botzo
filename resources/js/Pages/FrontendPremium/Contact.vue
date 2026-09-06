@@ -1,11 +1,11 @@
 <template>
     <FrontendLayout :companyConfig="props.companyConfig" :pages="props.pages">
         <!-- Hero -->
-        <section class="px-5 md:px-10 lg:px-20 2xl:px-60 pt-32 pb-8 bg-white dark:bg-[#0a0f17]">
+        <section class="px-5 md:px-10 lg:px-20 2xl:px-32 pt-32 pb-8 bg-white dark:bg-[#0a0f17]">
             <div class="flex flex-col items-center gap-4 lg:gap-6">
                 <PageBreadcrumb :current-label="$t('Contact Us')" />
 
-                <div class="flex w-full flex-col items-center gap-3 text-center lg:w-[1120px] lg:gap-4">
+                <div class="flex w-full flex-col items-center gap-3 text-center lg:w-[1280px] lg:gap-4">
                     <SectionBadge :label="$t('Contact Us')" />
                     <h1 class="w-full text-[28px] font-semibold leading-[1.3] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
                         {{ $t('Get in Touch') }}
@@ -18,8 +18,8 @@
         </section>
 
         <!-- Contact options -->
-        <section class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
-            <div class="flex flex-col items-center gap-10 lg:w-[1120px] lg:mx-auto lg:gap-[72px]">
+        <section class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
+            <div class="flex flex-col items-center gap-10 lg:w-[1280px] lg:mx-auto lg:gap-[72px]">
                 <div class="grid w-full grid-cols-1 gap-6 md:grid-cols-3">
                     <!-- Call Us -->
                     <div class="group flex flex-col items-end gap-4 rounded-3xl border border-[#cfd8e3] bg-white p-6 text-right transition-all duration-300 hover:border-[#25d366] hover:shadow-[0_0_0_1px_rgba(37,211,102,0.2),0_18px_30px_rgba(37,211,102,0.12)] dark:border-[#1e2a3a] dark:bg-[#0a0f17]">
@@ -142,9 +142,9 @@
         </section>
 
         <!-- CTA -->
-        <section class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20">
+        <section class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20">
             <div class="flex w-full flex-col items-center gap-6 overflow-hidden rounded-3xl bg-[rgba(37,211,102,0.12)] px-6 py-12 text-center md:px-10 lg:px-20 lg:py-20">
-                <div class="flex w-full flex-col items-center gap-4 lg:w-[1120px] lg:gap-4">
+                <div class="flex w-full flex-col items-center gap-4 lg:w-[1280px] lg:gap-4">
                     <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
                         {{ $t('Ready to Get Started?') }}
                     </h2>

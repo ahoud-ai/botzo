@@ -693,32 +693,15 @@ h2 {
     animation-duration: 22s;
 }
 
+/* "How It Works" uses the same flat white/dark background as the rest of
+   the page at every screen size — no separate decorative mobile treatment. */
 .premium-home-section--steps {
-    background:
-        radial-gradient(960px 340px at -4% -6%, rgba(59, 91, 255, 0.055), transparent 72%),
-        radial-gradient(840px 300px at 104% 8%, rgba(0, 198, 255, 0.05), transparent 74%),
-        linear-gradient(165deg, #f9fcff 0%, #f4f9ff 50%, #f9fcff 100%);
+    background: #ffffff;
 }
 
 .dark .premium-home-section--steps {
-    background:
-        radial-gradient(960px 340px at -4% -6%, rgba(37, 211, 102, 0.05), transparent 72%),
-        radial-gradient(840px 300px at 104% 8%, rgba(59, 130, 246, 0.05), transparent 74%),
-        #0a0f17;
+    background: #0a0f17;
     color: #ffffff;
-}
-
-/* Desktop "How It Works" is a pixel-perfect Figma rebuild with a flat
-   background - the gradient/orbit treatment above stays for the
-   pre-redesign mobile layout only, until its own Figma spec arrives. */
-@media (min-width: 1024px) {
-    .premium-home-section--steps {
-        background: #ffffff;
-    }
-
-    .dark .premium-home-section--steps {
-        background: #0a0f17;
-    }
 }
 
 .premium-brand-lockup {

@@ -172,10 +172,13 @@
     const showPassword = ref(false);
     const hasAttemptedSubmit = ref(false);
 
+    const redirectTo = new URLSearchParams(window.location.search).get('redirect');
+
     const form = useForm({
         email: null,
         password: null,
-        remember: false
+        remember: false,
+        redirect: redirectTo,
     })
 
     const emailRequiredError = computed(() =>

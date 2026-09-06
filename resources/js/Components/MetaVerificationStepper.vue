@@ -1,7 +1,8 @@
 <script setup>
-    import { computed, defineProps } from "vue";
+    import { computed, defineProps, reactive } from "vue";
+    import { useForm } from "@inertiajs/vue3";
     import UiSectionCard from "@/Components/UI/UiSectionCard.vue";
-    import { FileText, PenLine, Wallet, Search, Send, Eye, ShieldCheck } from "lucide-vue-next";
+    import { FileText, PenLine, Wallet, Search, Send, Eye, ShieldCheck, UploadCloud, Paperclip } from "lucide-vue-next";
 
     const props = defineProps({
         metaVerificationRequest: {
@@ -9,6 +10,32 @@
             default: null,
         },
     });
+
+    const pendingDocumentRequests = computed(() =>
+        (props.metaVerificationRequest?.document_requests ?? []).filter((item) => item.status === 'pending')
+    );
+
+    const uploadForms = reactive({});
+
+    const getUploadForm = (documentRequestId) => {
+        if (!uploadForms[documentRequestId]) {
+            uploadForms[documentRequestId] = useForm({ document: null });
+        }
+        return uploadForms[documentRequestId];
+    };
+
+    const onFulfillFileChange = (documentRequestId, event) => {
+        const file = event.target.files[0] ?? null;
+        getUploadForm(documentRequestId).document = file;
+    };
+
+    const submitFulfill = (documentRequestId) => {
+        const form = getUploadForm(documentRequestId);
+        form.post(`/meta-verification-requests/${props.metaVerificationRequest.id}/document-requests/${documentRequestId}/fulfill`, {
+            preserveScroll: true,
+            forceFormData: true,
+        });
+    };
 
     const VERIFICATION_STAGE_META = [
         { key: 'requested', labelKey: 'Requested', icon: FileText },
@@ -19,6 +46,14 @@
         { key: 'meta_reviewing', labelKey: 'Meta reviewing', icon: Eye },
         { key: 'approved', labelKey: 'Approved', icon: ShieldCheck },
     ];
+
+    const lastUpdatedLabel = computed(() => {
+        const value = props.metaVerificationRequest?.updated_at;
+        if (!value) return null;
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return null;
+        return date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    });
 
     const verificationStages = computed(() => {
         const status = props.metaVerificationRequest?.status;
@@ -51,6 +86,39 @@
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6z"/><path d="m9 12 2 2 4-4"/></svg>
                 </span>
             </template>
+
+            <div v-if="pendingDocumentRequests.length" class="mvw-doc-requests">
+                <div v-for="docRequest in pendingDocumentRequests" :key="docRequest.id" class="mvw-doc-request">
+                    <div class="mvw-doc-request-icon"><UploadCloud width="18" height="18" /></div>
+                    <div class="mvw-doc-request-body">
+                        <p class="mvw-doc-request-title">{{ $t('Document needed') }}: {{ docRequest.label }}</p>
+                        <p v-if="docRequest.note" class="mvw-doc-request-note">{{ docRequest.note }}</p>
+
+                        <label :for="`mvw-doc-upload-${docRequest.id}`" class="mvw-doc-upload-btn">
+                            <span v-if="getUploadForm(docRequest.id).document">{{ getUploadForm(docRequest.id).document.name }}</span>
+                            <span v-else>{{ $t('Choose a file') }}</span>
+                        </label>
+                        <input
+                            :id="`mvw-doc-upload-${docRequest.id}`"
+                            type="file"
+                            class="sr-only"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            :disabled="getUploadForm(docRequest.id).processing"
+                            @change="onFulfillFileChange(docRequest.id, $event)"
+                        >
+
+                        <button
+                            type="button"
+                            class="mvw-doc-submit-btn"
+                            :disabled="!getUploadForm(docRequest.id).document || getUploadForm(docRequest.id).processing"
+                            @click="submitFulfill(docRequest.id)"
+                        >
+                            {{ getUploadForm(docRequest.id).processing ? $t('Uploading...') : $t('Upload') }}
+                        </button>
+                        <p v-if="getUploadForm(docRequest.id).errors.document" class="mvw-doc-request-error">{{ getUploadForm(docRequest.id).errors.document }}</p>
+                    </div>
+                </div>
+            </div>
 
             <div v-if="metaVerificationRequest.status === 'approved'" class="mvw-callout mvw-callout--success">
                 <span class="mvw-callout-icon">
@@ -87,6 +155,25 @@
                         <div class="mvw-step-track-fill" :class="stage.trackClass"></div>
                     </div>
                 </template>
+            </div>
+
+            <p v-if="metaVerificationRequest.status !== 'rejected' && metaVerificationRequest.admin_note" class="mvw-admin-note">
+                {{ metaVerificationRequest.admin_note }}
+            </p>
+
+            <p v-if="lastUpdatedLabel" class="mvw-updated-at">{{ $t('Last updated') }}: {{ lastUpdatedLabel }}</p>
+
+            <div v-if="metaVerificationRequest.documents?.length" class="mvw-documents">
+                <p class="mvw-documents-title">{{ $t('Documents you submitted') }}</p>
+                <a
+                    v-for="doc in metaVerificationRequest.documents"
+                    :key="doc.id"
+                    :href="`/meta-verification-requests/${metaVerificationRequest.id}/documents/${doc.id}`"
+                    class="mvw-document-row"
+                >
+                    <Paperclip width="14" height="14" />
+                    <span>{{ doc.label }}</span>
+                </a>
             </div>
         </UiSectionCard>
     </div>
@@ -271,5 +358,140 @@
     color: var(--ui-muted);
     margin: 0.2rem 0 0;
     line-height: 1.6;
+}
+
+.mvw-admin-note {
+    margin-top: 1rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.8rem;
+    background: color-mix(in srgb, var(--ui-secondary) 8%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-secondary) 22%, var(--ui-border));
+    font-size: 0.82rem;
+    color: var(--ui-text);
+    line-height: 1.6;
+}
+
+.mvw-updated-at {
+    margin-top: 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+}
+
+.mvw-doc-requests {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.1rem;
+}
+
+.mvw-doc-request {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    border-radius: 0.9rem;
+    background: color-mix(in srgb, var(--ui-warning) 8%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-warning) 26%, var(--ui-border));
+}
+
+.mvw-doc-request-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.7rem;
+    background: color-mix(in srgb, var(--ui-warning) 18%, transparent);
+    color: var(--ui-warning);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.mvw-doc-request-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.mvw-doc-request-title {
+    font-weight: 800;
+    font-size: 0.86rem;
+    margin: 0 0 0.2rem;
+}
+
+.mvw-doc-request-note {
+    font-size: 0.8rem;
+    color: var(--ui-muted);
+    margin: 0 0 0.6rem;
+    line-height: 1.6;
+}
+
+.mvw-doc-upload-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.8rem;
+    border-radius: 0.6rem;
+    border: 1px dashed var(--ui-border-strong);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ui-text);
+    cursor: pointer;
+    margin-inline-end: 0.5rem;
+    background: var(--ui-surface);
+}
+
+.mvw-doc-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 1rem;
+    border-radius: 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--ui-secondary);
+    border: none;
+    cursor: pointer;
+}
+
+.mvw-doc-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.mvw-doc-request-error {
+    margin: 0.5rem 0 0;
+    font-size: 0.75rem;
+    color: var(--ui-danger);
+}
+
+.mvw-documents {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--ui-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.mvw-documents-title {
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--ui-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.3rem;
+}
+
+.mvw-document-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ui-secondary);
+    width: fit-content;
+}
+
+.mvw-document-row:hover {
+    text-decoration: underline;
 }
 </style>

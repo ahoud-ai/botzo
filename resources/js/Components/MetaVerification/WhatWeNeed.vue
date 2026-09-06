@@ -10,16 +10,16 @@ const requirements = [
 </script>
 
 <template>
-    <section v-reveal class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20">
+    <section v-reveal class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20">
         <div class="flex flex-col items-center gap-8 lg:gap-[72px]">
-            <div class="flex w-full flex-col items-center gap-4 text-center lg:w-[1120px]">
+            <div class="flex w-full flex-col items-center gap-4 text-center lg:w-[1280px]">
                 <SectionBadge :label="$t('What Botzo Needs')" />
                 <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
                     {{ $t('What do we need from you?') }}
                 </h2>
             </div>
 
-            <div class="flex w-full flex-col gap-6 lg:w-[1120px]" dir="ltr">
+            <div class="flex w-full flex-col gap-6 lg:w-[1280px]" dir="ltr">
                 <div
                     v-for="(row, rowIndex) in [requirements.slice(0, 2), requirements.slice(2, 4)]"
                     :key="rowIndex"

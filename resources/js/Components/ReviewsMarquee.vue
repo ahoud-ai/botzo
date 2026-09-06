@@ -1,7 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-
-const props = defineProps({
+defineProps({
     reviews: {
         type: Array,
         default: () => [],
@@ -10,66 +8,21 @@ const props = defineProps({
 
 const initial = (name) => (name || "").trim().charAt(0) || "؟";
 
-// Duplicated so the track can loop seamlessly. The reset distance must be
-// an exact pixel value (card width + gap) * count, not translateX(-50%) of
-// the doubled track: with a flex `gap`, the gap count doesn't split evenly
-// between "half the track" and "one real set", which leaves a half-gap
-// seam at the reset point. The card width also changes across breakpoints
-// (smaller on mobile), so the distance is measured from the live DOM
-// instead of a single hardcoded desktop pixel value — otherwise the loop
-// seam reappears (a visible gap) on any viewport the constant wasn't
-// tuned for.
-const firstCardEl = ref(null);
-const measuredCardWidth = ref(362.667);
-const measuredCardGap = ref(16);
-let resizeObserver = null;
-
-const setFirstCardRef = (el) => {
-    firstCardEl.value = el;
-};
-
-const measure = () => {
-    if (!firstCardEl.value) return;
-    const width = firstCardEl.value.getBoundingClientRect().width;
-    if (width > 0) measuredCardWidth.value = width;
-
-    const track = firstCardEl.value.parentElement;
-    if (track) {
-        const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap);
-        if (!Number.isNaN(gap)) measuredCardGap.value = gap;
-    }
-};
-
-onMounted(() => {
-    measure();
-    if (firstCardEl.value && typeof ResizeObserver !== "undefined") {
-        resizeObserver = new ResizeObserver(() => measure());
-        resizeObserver.observe(firstCardEl.value);
-    }
-});
-
-onBeforeUnmount(() => {
-    resizeObserver?.disconnect();
-});
-
-const loopedReviews = computed(() => [...props.reviews, ...props.reviews]);
-const loopDistance = computed(
-    () => `${(measuredCardWidth.value + measuredCardGap.value) * props.reviews.length}px`
-);
+// Duplicated exactly once so the track can loop with a plain translateX(-50%):
+// spacing between cards is done with a trailing margin on every card (including
+// the last one of each set) instead of flex `gap`, so "one set" is a
+// self-contained, exactly-repeatable unit — no JS measurement of pixel widths
+// needed, and no seam/jump at the reset point on any viewport.
 </script>
 
 <template>
     <div v-if="reviews.length" class="reviews-marquee relative w-full overflow-hidden">
-        <div class="reviews-marquee__fade reviews-marquee__fade--start" aria-hidden="true"></div>
-        <div class="reviews-marquee__fade reviews-marquee__fade--end" aria-hidden="true"></div>
-
-        <div class="reviews-marquee__track" dir="ltr" :style="{ '--loop-distance': loopDistance }">
+        <div class="reviews-marquee__track" dir="ltr">
             <div
-                v-for="(item, index) in loopedReviews"
+                v-for="(item, index) in [...reviews, ...reviews]"
                 :key="index"
-                :ref="index === 0 ? setFirstCardRef : undefined"
                 :aria-hidden="index >= reviews.length ? 'true' : null"
-                class="flex w-[280px] shrink-0 flex-col items-end gap-4 overflow-hidden rounded-3xl border-[0.7px] border-[#cfd8e3] bg-white px-5 py-6 dark:border-[#1e2a3a] dark:bg-[#0a0f17] sm:w-[362.667px] sm:px-[24.7px] sm:py-[32.7px]"
+                class="reviews-marquee__card flex w-[280px] shrink-0 flex-col items-end gap-4 overflow-hidden rounded-3xl border-[0.7px] border-[#cfd8e3] bg-white px-5 py-6 dark:border-[#1e2a3a] dark:bg-[#0a0f17] sm:w-[362.667px] sm:px-[24.7px] sm:py-[32.7px]"
             >
                 <span
                     class="pointer-events-none absolute font-['Georgia',_serif] text-[120px] leading-[120px] text-black opacity-[0.04] dark:text-white"
@@ -115,10 +68,17 @@ const loopDistance = computed(
 .reviews-marquee__track {
     display: flex;
     align-items: stretch;
-    gap: 16px;
     width: max-content;
-    animation: reviews-marquee-scroll 22s linear infinite;
+    animation: reviews-marquee-scroll 50s linear infinite;
     will-change: transform;
+}
+
+.reviews-marquee:hover .reviews-marquee__track {
+    animation-play-state: paused;
+}
+
+.reviews-marquee__card {
+    margin-inline-end: 16px;
 }
 
 @keyframes reviews-marquee-scroll {
@@ -126,34 +86,13 @@ const loopDistance = computed(
         transform: translateX(0);
     }
     to {
-        transform: translateX(calc(-1 * var(--loop-distance)));
+        transform: translateX(-50%);
     }
 }
 
-.reviews-marquee__fade {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: clamp(24px, 6vw, 96px);
-    z-index: 2;
-    pointer-events: none;
-}
-
-.reviews-marquee__fade--start {
-    left: 0;
-    background: linear-gradient(to right, #ffffff, transparent);
-}
-
-.reviews-marquee__fade--end {
-    right: 0;
-    background: linear-gradient(to left, #ffffff, transparent);
-}
-
-.dark .reviews-marquee__fade--start {
-    background: linear-gradient(to right, #0a0f17, transparent);
-}
-
-.dark .reviews-marquee__fade--end {
-    background: linear-gradient(to left, #0a0f17, transparent);
+@media (prefers-reduced-motion: reduce) {
+    .reviews-marquee__track {
+        animation: none;
+    }
 }
 </style>

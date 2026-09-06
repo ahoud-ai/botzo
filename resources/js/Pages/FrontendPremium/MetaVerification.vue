@@ -27,11 +27,11 @@
             </div>
 
             <div class="relative">
-                <VerificationHero @request-service="showRequestModal = true" />
+                <VerificationHero @request-service="handleRequestService" />
                 <WhatItIncludes />
                 <WhatWeNeed />
                 <TermsAndConditions />
-                <VerificationTimeline :company-config="props.companyConfig" @request-service="showRequestModal = true" />
+                <VerificationTimeline :company-config="props.companyConfig" :meta-verification-request="props.metaVerificationRequest" @request-service="handleRequestService" />
 
                 <div v-if="isWorkspaceOwner && props.metaVerificationRequest" class="mx-auto max-w-5xl px-4 pb-16 lg:px-8">
                     <MetaVerificationStepper :meta-verification-request="props.metaVerificationRequest" />
@@ -45,6 +45,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { usePage } from "@inertiajs/vue3";
 import FrontendLayout from "./FrontendLayout.vue";
 import VerificationHero from "@/Components/MetaVerification/VerificationHero.vue";
 import WhatItIncludes from "@/Components/MetaVerification/WhatItIncludes.vue";
@@ -58,4 +59,17 @@ import { useWorkspaceAccess } from "@/Composables/useWorkspaceAccess";
 const props = defineProps(["companyConfig", "pages", "metaVerificationRequest"]);
 const showRequestModal = ref(false);
 const { isWorkspaceOwner } = useWorkspaceAccess();
+const page = usePage();
+
+const handleRequestService = () => {
+    if (!page.props.auth?.user) {
+        window.location.href = `/login?redirect=${encodeURIComponent('/meta-verification')}`;
+        return;
+    }
+    if (!page.props.organization?.id) {
+        window.location.href = '/select-organization';
+        return;
+    }
+    showRequestModal.value = true;
+};
 </script>

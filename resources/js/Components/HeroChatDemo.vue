@@ -98,7 +98,7 @@
 
 <template>
     <div
-        class="relative hidden h-[420px] w-full max-w-[682px] items-start justify-center overflow-hidden rounded-3xl bg-gradient-to-b from-white from-[-40%] to-[#d4ffdf] dark:to-[#25d366] md:flex lg:h-[625px]"
+        class="relative hidden h-[420px] w-full max-w-[950px] items-start justify-center overflow-hidden rounded-3xl bg-gradient-to-b from-white from-[-40%] to-[#d4ffdf] dark:to-[#25d366] md:flex lg:h-[625px]"
     >
         <img
             src="/images/hero/overview-bg-light.png"
@@ -117,7 +117,7 @@
             <TransitionGroup
                 tag="div"
                 name="bubble-in"
-                class="mx-auto flex w-full max-w-[616px] flex-col items-center gap-4 px-4 py-8 transition-opacity duration-300"
+                class="mx-auto flex w-full max-w-[850px] flex-col items-center gap-4 px-4 py-8 transition-opacity duration-300"
                 :class="isClearing ? 'opacity-0' : 'opacity-100'"
             >
                 <div

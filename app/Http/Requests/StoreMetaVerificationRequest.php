@@ -24,10 +24,16 @@ class StoreMetaVerificationRequest extends FormRequest
         return [
             'full_name' => 'required|string|max:191',
             'business_name' => 'required|string|max:191',
+            'legal_company_name' => 'required|string|max:191',
             'commercial_register_number' => 'nullable|string|max:60',
             'phone' => 'required|string|max:30',
+            'whatsapp_number' => 'required|string|max:30',
             'email' => 'required|email|max:191',
+            'website_url' => 'nullable|url|max:255',
             'notes' => 'nullable|string|max:2000',
+            'commercial_register_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'id_proof_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'ownership_proof_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ];
     }
 }

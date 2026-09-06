@@ -8,12 +8,12 @@ defineEmits(["request-service"]);
 
 <template>
     <div class="flex w-full flex-col items-center">
-        <div class="flex w-full max-w-[1120px] px-5 lg:px-0">
+        <div class="flex w-full max-w-[1280px] px-5 lg:px-0">
             <VerificationBreadcrumb />
         </div>
 
         <div class="flex w-full flex-col items-center gap-6 px-5 py-12 md:py-16 lg:py-20">
-            <div class="flex w-full flex-col items-center gap-4 lg:w-[1120px]">
+            <div class="flex w-full flex-col items-center gap-4 lg:w-[1280px]">
                 <SectionBadge :label="$t('Independent Service')" />
 
                 <h1 class="w-full text-center text-[32px] font-semibold leading-[1.3] text-black dark:text-white lg:text-[64px] lg:leading-[1.4]">

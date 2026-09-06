@@ -1,12 +1,12 @@
 <template>
     <FrontendLayout :companyConfig="props.companyConfig" :pages="props.pages">
-        <section class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
+        <section class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
             <div class="flex flex-col items-center gap-8 lg:gap-10">
-                <div class="flex w-full max-w-[1120px]">
+                <div class="flex w-full max-w-[1280px]">
                     <PageBreadcrumb :current-label="pageTitle" />
                 </div>
 
-                <div class="flex w-full flex-col items-center gap-4 text-center lg:w-[1120px]">
+                <div class="flex w-full flex-col items-center gap-4 text-center lg:w-[1280px]">
                     <SectionBadge :label="pageTitle" />
                     <h1 class="w-full text-[28px] font-semibold leading-[1.3] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
                         {{ pageTitle }}
@@ -17,7 +17,7 @@
                 </div>
 
                 <!-- Sectioned layout: table of contents + numbered section cards -->
-                <div v-if="hasSections" class="flex w-full flex-col-reverse items-start gap-6 lg:w-[1120px] lg:flex-row lg:justify-between">
+                <div v-if="hasSections" class="flex w-full flex-col-reverse items-start gap-6 lg:w-[1280px] lg:flex-row lg:justify-between">
                     <div class="flex w-full flex-col items-end gap-6 lg:w-[799px]">
                         <article
                             v-for="(section, index) in sections"
@@ -54,7 +54,7 @@
                 <div
                     v-else
                     dir="auto"
-                    class="page-content w-full text-right lg:w-[1120px]"
+                    class="page-content w-full text-right lg:w-[1280px]"
                     v-html="rawContent"
                 ></div>
             </div>
