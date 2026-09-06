@@ -82,12 +82,32 @@ class AuthController extends BaseController
         $sessionLocale = session('locale', 'en');
         $needsRefresh = $userLanguage !== $sessionLocale;
 
-        $redirectUrl = $this->authenticatedHomePath($user);
+        $redirectUrl = $this->resolvePostLoginRedirect($request) ?? $this->authenticatedHomePath($user);
         if ($needsRefresh) {
-            $redirectUrl .= '?refresh_lang=1';
+            $redirectUrl .= (str_contains($redirectUrl, '?') ? '&' : '?') . 'refresh_lang=1';
         }
 
         return redirect($redirectUrl);
+    }
+
+    /**
+     * Honors an explicit ?redirect=/some/path carried through the login form (e.g. from
+     * a guest bounced to login while trying to submit the Meta Verification request) —
+     * restricted to same-site relative paths to rule out an open redirect.
+     */
+    private function resolvePostLoginRedirect(Request $request): ?string
+    {
+        $redirect = $request->input('redirect');
+
+        if (! is_string($redirect) || $redirect === '') {
+            return null;
+        }
+
+        if (! str_starts_with($redirect, '/') || str_starts_with($redirect, '//')) {
+            return null;
+        }
+
+        return $redirect;
     }
 
     public function handleLogin(StoreUser $request)

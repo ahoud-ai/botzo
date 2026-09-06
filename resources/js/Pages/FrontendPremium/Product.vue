@@ -1,7 +1,7 @@
 <template>
     <FrontendLayout :companyConfig="props.companyConfig" :pages="props.pages">
         <!-- Hero Section -->
-        <section class="premium-page-section premium-page-hero px-5 md:px-10 lg:px-20 pt-32 pb-20 2xl:px-60">
+        <section class="premium-page-section premium-page-hero px-5 md:px-10 lg:px-20 pt-32 pb-20 2xl:px-32">
             <div class="premium-page-hero-grid"></div>
             <div class="premium-page-content max-w-4xl mx-auto text-center">
                 <div class="inline-flex mb-5 premium-page-badge">{{ $t('Product') }}</div>
@@ -29,7 +29,7 @@
         </section>
 
         <!-- Main Features Grid -->
-        <section class="premium-page-section px-5 md:px-10 lg:px-20 py-20 2xl:px-60">
+        <section class="premium-page-section px-5 md:px-10 lg:px-20 py-20 2xl:px-32">
             <div class="premium-page-content max-w-7xl mx-auto">
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Feature 1: WhatsApp Cloud API -->
@@ -121,7 +121,7 @@
         </section>
 
         <!-- Feature Highlights Section -->
-        <section class="premium-page-section px-5 md:px-10 lg:px-20 py-20 2xl:px-60">
+        <section class="premium-page-section px-5 md:px-10 lg:px-20 py-20 2xl:px-32">
             <div class="premium-page-content max-w-7xl mx-auto premium-page-panel p-8 md:p-10">
                 <div class="text-center mb-16">
                     <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -170,7 +170,7 @@
         </section>
 
         <!-- Call to Action Section -->
-        <section class="premium-page-section premium-page-cta px-5 md:px-10 lg:px-20 py-20 2xl:px-60">
+        <section class="premium-page-section premium-page-cta px-5 md:px-10 lg:px-20 py-20 2xl:px-32">
             <div class="premium-page-content max-w-4xl mx-auto text-center">
                 <h2 class="text-3xl md:text-5xl font-semibold text-gray-900 mb-6">
                     {{ $t('Ready to Get Started?') }}

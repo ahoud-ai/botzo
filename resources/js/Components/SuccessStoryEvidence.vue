@@ -8,11 +8,11 @@ const afterReplyRate = 94;
 
 <template>
     <div
-        class="relative flex w-full flex-col items-stretch gap-8 overflow-hidden rounded-3xl border border-[#cfd8e3] bg-[#f7f9fb] p-6 dark:border-[#1e2a3a] dark:bg-[#0d1117] md:p-10 lg:w-[1120px] lg:flex-row lg:items-start lg:justify-between lg:gap-0 lg:p-[49px]"
+        class="relative flex w-full flex-col items-stretch gap-8 overflow-hidden rounded-3xl border border-[#cfd8e3] bg-[#f7f9fb] p-6 dark:border-[#1e2a3a] dark:bg-[#0d1117] md:p-10 lg:w-[1280px] lg:flex-row lg:items-start lg:justify-between lg:gap-0 lg:p-[56px]"
         dir="ltr"
     >
         <!-- Evidence: stat grid + before/after comparison -->
-        <div class="flex w-full flex-col items-stretch gap-6 lg:w-[462.16px]">
+        <div class="flex w-full flex-col items-stretch gap-6 lg:w-[528px]">
             <div class="grid w-full grid-cols-3 gap-3.5 text-center lg:h-[108.8px]" dir="ltr">
                 <div class="col-start-1 border border-[#cfd8e3] dark:border-[#1e2a3a]" :class="statBoxBase">
                     <p class="text-2xl font-semibold leading-[1.4] text-[#2bd46a] lg:text-[40px]">{{ $t('200+') }}</p>
@@ -50,7 +50,7 @@ const afterReplyRate = 94;
         </div>
 
         <!-- Case study details -->
-        <div class="flex w-full flex-col items-end gap-8 text-right lg:w-[539px]">
+        <div class="flex w-full flex-col items-end gap-8 text-right lg:w-[616px]">
             <div class="flex w-full flex-col items-end gap-6">
                 <h3 dir="auto" class="w-full text-2xl font-semibold leading-[1.3] text-black dark:text-white lg:text-[32px] lg:leading-[40.8px]">
                     {{ $t('From delayed replies to round-the-clock sales') }}

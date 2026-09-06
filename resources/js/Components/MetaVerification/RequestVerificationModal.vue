@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, ref, watch } from "vue";
+import { nextTick, reactive, ref, watch } from "vue";
 import { TransitionRoot, TransitionChild, Dialog, DialogPanel } from "@headlessui/vue";
 import { useForm } from "@inertiajs/vue3";
 
@@ -9,27 +9,65 @@ const props = defineProps({
 
 const emit = defineEmits(["close"]);
 
+const DOCUMENT_FIELDS = [
+    { key: "commercial_register_document", label: "Commercial register document" },
+    { key: "id_proof_document", label: "Owner's ID proof" },
+    { key: "ownership_proof_document", label: "Proof of business ownership" },
+];
+
 const form = useForm({
     full_name: "",
     business_name: "",
+    legal_company_name: "",
     commercial_register_number: "",
     phone: "",
+    whatsapp_number: "",
     email: "",
+    website_url: "",
     notes: "",
+    commercial_register_document: null,
+    id_proof_document: null,
+    ownership_proof_document: null,
 });
 
 const submitted = ref(false);
 const firstFieldRef = ref(null);
+const documentFileNames = reactive({
+    commercial_register_document: null,
+    id_proof_document: null,
+    ownership_proof_document: null,
+});
 
 const closeModal = () => {
     emit("close");
 };
 
+const onDocumentChange = (key, event) => {
+    const file = event.target.files[0] ?? null;
+    form[key] = file;
+    documentFileNames[key] = file?.name ?? null;
+};
+
+const onDocumentDrop = (key, event) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0] ?? null;
+    if (!file) return;
+    form[key] = file;
+    documentFileNames[key] = file.name;
+};
+
+const removeDocument = (key) => {
+    form[key] = null;
+    documentFileNames[key] = null;
+};
+
 const submit = () => {
     form.post("/meta-verification-requests", {
         preserveScroll: true,
+        forceFormData: true,
         onSuccess: () => {
             form.reset();
+            DOCUMENT_FIELDS.forEach((field) => { documentFileNames[field.key] = null; });
             submitted.value = true;
         },
     });
@@ -71,7 +109,7 @@ watch(() => props.isOpen, (open) => {
                         leave-from="opacity-100 scale-100 translate-y-0"
                         leave-to="opacity-0 scale-95 translate-y-2"
                     >
-                        <DialogPanel class="w-full max-w-[760px] rounded-3xl border border-[#cfd8e3] bg-white p-8 text-right shadow-2xl transition-all dark:border-[#1e2a3a] dark:bg-[#0a0f17] md:p-10">
+                        <DialogPanel class="max-h-[90vh] w-full max-w-[860px] overflow-y-auto rounded-3xl border border-[#cfd8e3] bg-white p-8 text-right shadow-2xl transition-all dark:border-[#1e2a3a] dark:bg-[#0a0f17] md:p-10">
                             <!-- Success state -->
                             <div v-if="submitted" class="flex flex-col items-center gap-5 py-6 text-center">
                                 <span class="flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(37,211,102,0.12)]">
@@ -140,6 +178,19 @@ watch(() => props.isOpen, (open) => {
                                     </div>
 
                                     <div class="flex flex-col items-end gap-2">
+                                        <label dir="auto" class="w-full text-right text-sm font-medium text-black dark:text-white">{{ $t('Legal company name') }}</label>
+                                        <input
+                                            v-model="form.legal_company_name"
+                                            type="text"
+                                            dir="auto"
+                                            :disabled="form.processing"
+                                            :placeholder="$t('As registered with the Ministry of Commerce')"
+                                            class="h-12 w-full rounded-xl border border-[#cfd8e3] bg-white px-3.5 text-sm text-black placeholder:text-[#8899aa] focus:border-[#25d366] focus:outline-none focus:ring-2 focus:ring-[#25d366]/20 disabled:opacity-60 dark:border-[#1e2a3a] dark:bg-[#0d1117] dark:text-white"
+                                        >
+                                        <p v-if="form.errors.legal_company_name" class="w-full text-xs text-red-500">{{ form.errors.legal_company_name }}</p>
+                                    </div>
+
+                                    <div class="flex flex-col items-end gap-2">
                                         <label dir="auto" class="w-full text-right text-sm font-medium text-black dark:text-white">{{ $t('Phone number') }}</label>
                                         <input
                                             v-model="form.phone"
@@ -150,6 +201,19 @@ watch(() => props.isOpen, (open) => {
                                             class="h-12 w-full rounded-xl border border-[#cfd8e3] bg-white px-3.5 text-right text-sm text-black placeholder:text-[#8899aa] focus:border-[#25d366] focus:outline-none focus:ring-2 focus:ring-[#25d366]/20 disabled:opacity-60 dark:border-[#1e2a3a] dark:bg-[#0d1117] dark:text-white"
                                         >
                                         <p v-if="form.errors.phone" class="w-full text-xs text-red-500">{{ form.errors.phone }}</p>
+                                    </div>
+
+                                    <div class="flex flex-col items-end gap-2">
+                                        <label dir="auto" class="w-full text-right text-sm font-medium text-black dark:text-white">{{ $t('WhatsApp Business number') }}</label>
+                                        <input
+                                            v-model="form.whatsapp_number"
+                                            type="tel"
+                                            dir="ltr"
+                                            :disabled="form.processing"
+                                            placeholder="0112345678"
+                                            class="h-12 w-full rounded-xl border border-[#cfd8e3] bg-white px-3.5 text-right text-sm text-black placeholder:text-[#8899aa] focus:border-[#25d366] focus:outline-none focus:ring-2 focus:ring-[#25d366]/20 disabled:opacity-60 dark:border-[#1e2a3a] dark:bg-[#0d1117] dark:text-white"
+                                        >
+                                        <p v-if="form.errors.whatsapp_number" class="w-full text-xs text-red-500">{{ form.errors.whatsapp_number }}</p>
                                     </div>
 
                                     <div class="flex flex-col items-end gap-2">
@@ -165,6 +229,19 @@ watch(() => props.isOpen, (open) => {
                                         <p v-if="form.errors.email" class="w-full text-xs text-red-500">{{ form.errors.email }}</p>
                                     </div>
 
+                                    <div class="flex flex-col items-end gap-2">
+                                        <label dir="auto" class="w-full text-right text-sm font-medium text-black dark:text-white">{{ $t('Website (optional)') }}</label>
+                                        <input
+                                            v-model="form.website_url"
+                                            type="url"
+                                            dir="ltr"
+                                            :disabled="form.processing"
+                                            placeholder="https://example.com"
+                                            class="h-12 w-full rounded-xl border border-[#cfd8e3] bg-white px-3.5 text-right text-sm text-black placeholder:text-[#8899aa] focus:border-[#25d366] focus:outline-none focus:ring-2 focus:ring-[#25d366]/20 disabled:opacity-60 dark:border-[#1e2a3a] dark:bg-[#0d1117] dark:text-white"
+                                        >
+                                        <p v-if="form.errors.website_url" class="w-full text-xs text-red-500">{{ form.errors.website_url }}</p>
+                                    </div>
+
                                     <div class="col-span-1 flex flex-col items-end gap-2 sm:col-span-2">
                                         <label dir="auto" class="w-full text-right text-sm font-medium text-black dark:text-white">{{ $t('Commercial register number (optional)') }}</label>
                                         <input
@@ -176,6 +253,38 @@ watch(() => props.isOpen, (open) => {
                                             class="h-12 w-full rounded-xl border border-[#cfd8e3] bg-white px-3.5 text-right text-sm text-black placeholder:text-[#8899aa] focus:border-[#25d366] focus:outline-none focus:ring-2 focus:ring-[#25d366]/20 disabled:opacity-60 dark:border-[#1e2a3a] dark:bg-[#0d1117] dark:text-white"
                                         >
                                         <p v-if="form.errors.commercial_register_number" class="w-full text-xs text-red-500">{{ form.errors.commercial_register_number }}</p>
+                                    </div>
+
+                                    <div
+                                        v-for="field in DOCUMENT_FIELDS"
+                                        :key="field.key"
+                                        class="col-span-1 flex flex-col items-end gap-2 sm:col-span-2"
+                                    >
+                                        <label dir="auto" :for="`meta-verification-${field.key}`" class="w-full text-right text-sm font-medium text-black dark:text-white">{{ $t(field.label) }}</label>
+                                        <input
+                                            type="file"
+                                            class="sr-only"
+                                            accept=".pdf,.jpg,.jpeg,.png"
+                                            :id="`meta-verification-${field.key}`"
+                                            :disabled="form.processing"
+                                            @change="onDocumentChange(field.key, $event)"
+                                        >
+                                        <label
+                                            :for="`meta-verification-${field.key}`"
+                                            @dragover.prevent
+                                            @drop="onDocumentDrop(field.key, $event)"
+                                            class="flex w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-[#cfd8e3] bg-white px-3.5 py-5 text-center text-sm text-[#8899aa] transition-colors hover:border-[#25d366] dark:border-[#1e2a3a] dark:bg-[#0d1117]"
+                                        >
+                                            <template v-if="documentFileNames[field.key]">
+                                                <span class="font-medium text-black dark:text-white" dir="ltr">{{ documentFileNames[field.key] }}</span>
+                                                <button type="button" class="text-xs font-semibold text-red-500 hover:underline" @click.prevent="removeDocument(field.key)">{{ $t('Remove') }}</button>
+                                            </template>
+                                            <template v-else>
+                                                <span>{{ $t('Click to upload or drag and drop') }}</span>
+                                                <span class="text-xs">{{ $t('PDF, JPG or PNG · up to 10MB') }}</span>
+                                            </template>
+                                        </label>
+                                        <p v-if="form.errors[field.key]" class="w-full text-xs text-red-500">{{ form.errors[field.key] }}</p>
                                     </div>
 
                                     <div class="col-span-1 flex flex-col items-end gap-2 sm:col-span-2">

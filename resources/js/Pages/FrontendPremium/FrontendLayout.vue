@@ -1,25 +1,11 @@
 <template>
     <div :class="[rtlClass, 'font-ibm-plex-arabic', 'page-enter-anim']">
         <!-- Sticky Header -->
-        <header
-            :class="[
-                'sticky top-0 ui-layer-content border-b transition-[background-color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]',
-                isScrolled
-                    ? 'bg-white/90 dark:bg-[#0a0f17]/90 backdrop-blur-md border-[#cfd8e3] dark:border-white/10 shadow-[0_8px_24px_-16px_rgba(10,15,23,0.25)]'
-                    : 'bg-white dark:bg-[#0a0f17] border-transparent shadow-none',
-            ]"
-        >
-            <div
-                class="px-4 md:px-10 lg:px-20 transition-[padding] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                :class="isScrolled ? 'py-3 lg:py-4' : 'py-6 lg:py-8'"
-            >
+        <header class="sticky top-0 ui-layer-content border-b bg-white dark:bg-[#0a0f17] border-transparent shadow-none">
+            <div class="px-4 md:px-10 lg:px-20 py-6 lg:py-8">
                 <div class="flex justify-between items-center">
                     <!-- Group 1: logo -->
-                    <Link
-                        href="/"
-                        class="premium-brand-lockup shrink-0 origin-center transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                        :class="isScrolled ? 'scale-[0.92]' : 'scale-100'"
-                    >
+                    <Link href="/" class="premium-brand-lockup shrink-0">
                         <NavBrandMark class="hidden lg:block" variant="desktop" />
                         <NavBrandMark class="lg:hidden" variant="mobile" />
                     </Link>
@@ -214,7 +200,7 @@
         <CookieConsentBanner />
 
         <!-- Footer -->
-        <footer id="section7" class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
+        <footer id="section7" class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
             <div class="flex flex-col items-center gap-[72px]">
                 <div class="flex w-full flex-col items-center gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-0" dir="ltr">
                     <!-- More about Botzo -->
@@ -307,7 +293,6 @@
     const authUser = computed(() => page.props.auth?.user ?? null);
 
     const linkedinUrl = ref(null);
-    const isScrolled = ref(false);
     const showResourcesDropdown = ref(false);
     const showMobileLanguageDropdown = ref(false);
     const showMobileMenu = ref(false);
@@ -375,10 +360,6 @@
         { labelKey: 'Contact Us', href: '/contact' },
     ];
 
-    const handleScroll = () => {
-        isScrolled.value = window.scrollY > 10;
-    };
-
     // Prevent body scroll when mobile menu is open. `overflow: hidden` alone
     // doesn't stop touch-scroll on mobile Safari, so the body is pinned with
     // `position: fixed` (offset by the current scroll position) instead, and
@@ -408,11 +389,9 @@
 
     onMounted(() => {
         parseSocials();
-        window.addEventListener('scroll', handleScroll);
     });
 
     onBeforeUnmount(() => {
-        window.removeEventListener('scroll', handleScroll);
         // Clean up: ensure body scroll is restored
         document.body.style.position = '';
         document.body.style.top = '';

@@ -80,7 +80,15 @@ Route::match(['get', 'post'], '/meta-verification/agreement', [App\Http\Controll
 Route::get('/meta-verification/agreement/pdf', [App\Http\Controllers\FrontendController::class, 'metaVerificationAgreementPdf']);
 Route::match(['get', 'post'], '/contact', [App\Http\Controllers\FrontendController::class, 'contact']);
 Route::post('/demo-requests', [App\Http\Controllers\FrontendController::class, 'storeDemoRequest'])->name('demo-requests.store');
-Route::post('/meta-verification-requests', [App\Http\Controllers\FrontendController::class, 'storeMetaVerificationRequest'])->name('meta-verification-requests.store');
+Route::post('/meta-verification-requests', [App\Http\Controllers\FrontendController::class, 'storeMetaVerificationRequest'])
+    ->middleware('auth:user')
+    ->name('meta-verification-requests.store');
+Route::post('/meta-verification-requests/{metaVerificationRequest}/document-requests/{documentRequest}/fulfill', [App\Http\Controllers\FrontendController::class, 'fulfillMetaVerificationDocumentRequest'])
+    ->middleware('auth:user')
+    ->name('meta-verification-requests.fulfill-document');
+Route::get('/meta-verification-requests/{metaVerificationRequest}/documents/{document}', [App\Http\Controllers\FrontendController::class, 'downloadMetaVerificationDocument'])
+    ->middleware('auth:user')
+    ->name('meta-verification-requests.download-document');
 Route::match(['get', 'post'], '/product', [App\Http\Controllers\FrontendController::class, 'product']);
 Route::match(['get', 'post'], '/api-documentation', [App\Http\Controllers\FrontendController::class, 'apiDocumentation']);
 Route::match(['get', 'post'], '/faqs', [App\Http\Controllers\FrontendController::class, 'faqs']);

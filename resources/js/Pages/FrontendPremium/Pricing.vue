@@ -2,11 +2,11 @@
     <FrontendLayout :companyConfig="props.companyConfig" :pages="props.pages">
 
         <!-- Hero Section -->
-        <section class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-60 pt-32 pb-8 bg-white dark:bg-[#0a0f17]">
+        <section class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-32 pt-32 pb-8 bg-white dark:bg-[#0a0f17]">
             <div class="flex flex-col items-center gap-4 lg:gap-6">
                 <SectionBadge :label="$t('Pricing')" />
 
-                <div class="flex w-full flex-col items-center gap-3 text-center lg:w-[1120px] lg:gap-4">
+                <div class="flex w-full flex-col items-center gap-3 text-center lg:w-[1280px] lg:gap-4">
                     <h1 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
                         {{ $t('Plans that fit the size of your business') }}
                     </h1>
@@ -39,7 +39,7 @@
         </section>
 
         <!-- Pricing Section -->
-        <section class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
+        <section class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
             <div class="flex flex-col items-center gap-8 lg:gap-[72px]">
                 <div class="flex w-full flex-col items-center pt-2">
                     <div class="flex w-[240px] items-start rounded-full bg-[rgba(37,211,102,0.12)] p-1" dir="ltr">
@@ -87,9 +87,9 @@
         </section>
 
         <!-- FAQs Section -->
-        <section v-if="props.faqs && props.faqs.data && props.faqs.data.length > 0" class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
+        <section v-if="props.faqs && props.faqs.data && props.faqs.data.length > 0" class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
             <div class="flex flex-col items-center gap-10 lg:gap-[72px]">
-                <div class="flex w-full flex-col items-center gap-3 text-center lg:w-[1120px] lg:gap-4">
+                <div class="flex w-full flex-col items-center gap-3 text-center lg:w-[1280px] lg:gap-4">
                     <SectionBadge :label="$t('FAQs')" />
                     <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
                         {{ $t('Frequently asked questions') }}
@@ -106,9 +106,9 @@
         </section>
 
         <!-- Call to Action Section -->
-        <section class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
+        <section class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
             <div class="flex w-full flex-col items-center gap-6 overflow-hidden rounded-3xl bg-[rgba(37,211,102,0.12)] px-6 py-12 text-center md:px-10 lg:px-20 lg:py-20">
-                <div class="flex w-full flex-col items-center gap-4 lg:w-[1120px] lg:gap-4">
+                <div class="flex w-full flex-col items-center gap-4 lg:w-[1280px] lg:gap-4">
                     <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
                         {{ $t('Ready to Get Started?') }}
                     </h2>

@@ -1,11 +1,11 @@
 <template>
     <FrontendLayout :companyConfig="props.companyConfig" :pages="props.pages">
         <!-- Hero -->
-        <section class="px-5 md:px-10 lg:px-20 2xl:px-60 pt-32 pb-8 bg-white dark:bg-[#0a0f17]">
+        <section class="px-5 md:px-10 lg:px-20 2xl:px-32 pt-32 pb-8 bg-white dark:bg-[#0a0f17]">
             <div class="flex flex-col items-center gap-4 lg:gap-6">
                 <PageBreadcrumb :current-label="$t('API Documentation')" />
 
-                <div class="flex w-full flex-col items-center gap-3 text-center lg:w-[1120px] lg:gap-4">
+                <div class="flex w-full flex-col items-center gap-3 text-center lg:w-[1280px] lg:gap-4">
                     <SectionBadge :label="$t('API Documentation')" />
                     <h1 class="w-full text-[28px] font-semibold leading-[1.3] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
                         {{ $t('Developer API') }} {{ $t('Reference') }}
@@ -18,8 +18,8 @@
         </section>
 
         <!-- Documentation -->
-        <section class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
-            <div class="flex w-full flex-col-reverse items-start gap-6 lg:mx-auto lg:w-[1120px] lg:flex-row lg:justify-between">
+        <section class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
+            <div class="flex w-full flex-col-reverse items-start gap-6 lg:mx-auto lg:w-[1280px] lg:flex-row lg:justify-between">
                 <!-- Main content -->
                 <div class="flex w-full flex-col items-end gap-6 lg:w-[799px]">
                     <!-- Authentication -->

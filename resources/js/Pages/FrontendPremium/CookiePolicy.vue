@@ -1,7 +1,7 @@
 <template>
     <FrontendLayout :companyConfig="props.companyConfig" :pages="props.pages">
         <!-- Hero Section -->
-        <section class="relative px-5 md:px-10 lg:px-20 pt-32 pb-10 2xl:px-60 bg-gradient-section">
+        <section class="relative px-5 md:px-10 lg:px-20 pt-32 pb-10 2xl:px-32 bg-gradient-section">
             <div class="max-w-4xl mx-auto text-center">
                 <h1 class="text-3xl md:text-6xl leading-[1.3] font-semibold mb-6 text-gray-900">
                     {{ $t('Cookie Policy') }}
@@ -13,7 +13,7 @@
         </section>
 
         <!-- Cookie Policy Content -->
-        <section class="px-5 md:px-10 lg:px-20 py-20 2xl:px-60">
+        <section class="px-5 md:px-10 lg:px-20 py-20 2xl:px-32">
             <div class="max-w-4xl mx-auto">
                 <div class="prose prose-lg max-w-none">
                     <!-- Introduction -->

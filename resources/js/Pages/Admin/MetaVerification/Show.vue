@@ -13,15 +13,75 @@
                             <div class="mvr-field-grid">
                                 <div><p class="mvr-field-label">{{ $t('Full name') }}</p><p class="mvr-field-value">{{ record.full_name }}</p></div>
                                 <div><p class="mvr-field-label">{{ $t('Business name') }}</p><p class="mvr-field-value">{{ record.business_name }}</p></div>
+                                <div><p class="mvr-field-label">{{ $t('Legal company name') }}</p><p class="mvr-field-value">{{ record.legal_company_name ?? '—' }}</p></div>
                                 <div><p class="mvr-field-label">{{ $t('Commercial register number') }}</p><p class="mvr-field-value">{{ record.commercial_register_number ?? '—' }}</p></div>
                                 <div><p class="mvr-field-label">{{ $t('Phone') }}</p><p class="mvr-field-value">{{ record.phone }}</p></div>
+                                <div><p class="mvr-field-label">{{ $t('WhatsApp Business number') }}</p><p class="mvr-field-value">{{ record.whatsapp_number ?? '—' }}</p></div>
                                 <div><p class="mvr-field-label">{{ $t('Email') }}</p><p class="mvr-field-value">{{ record.email }}</p></div>
+                                <div>
+                                    <p class="mvr-field-label">{{ $t('Website') }}</p>
+                                    <p class="mvr-field-value">
+                                        <a v-if="record.website_url" :href="record.website_url" target="_blank" rel="noopener noreferrer" class="mvr-org-link">{{ record.website_url }}</a>
+                                        <template v-else>—</template>
+                                    </p>
+                                </div>
                                 <div><p class="mvr-field-label">{{ $t('Date created') }}</p><p class="mvr-field-value">{{ record.created_at }}</p></div>
+                                <div><p class="mvr-field-label">{{ $t('Last updated') }}</p><p class="mvr-field-value">{{ record.updated_at }}</p></div>
                             </div>
                             <div v-if="record.notes" class="mvr-notes">
                                 <p class="mvr-field-label">{{ $t('Notes') }}</p>
                                 <p class="mvr-notes-text">{{ record.notes }}</p>
                             </div>
+                            <div v-if="record.admin_note" class="mvr-notes">
+                                <p class="mvr-field-label">{{ $t('Note sent to customer') }}</p>
+                                <p class="mvr-notes-text">{{ record.admin_note }}</p>
+                            </div>
+                        </UiFormSection>
+
+                        <UiFormSection :title="$t('Documents')">
+                            <div v-if="record.documents?.length" class="mvr-documents-list">
+                                <a
+                                    v-for="doc in record.documents"
+                                    :key="doc.id"
+                                    :href="`/admin/meta-verifications/${record.id}/documents/${doc.id}`"
+                                    class="mvr-document-row"
+                                >
+                                    <Paperclip width="15" height="15" />
+                                    <span>{{ doc.label }}</span>
+                                    <span class="mvr-document-meta">{{ doc.created_at }}</span>
+                                </a>
+                            </div>
+                            <p v-else class="mvr-field-value" style="color: var(--ui-muted); font-weight: 600;">{{ $t('No documents uploaded yet') }}</p>
+                        </UiFormSection>
+
+                        <UiFormSection :title="$t('Document requests')">
+                            <div v-if="record.document_requests?.length" class="mvr-doc-requests-list">
+                                <div v-for="docRequest in record.document_requests" :key="docRequest.id" class="mvr-doc-request-item">
+                                    <div class="mvr-doc-request-item-header">
+                                        <span class="mvr-doc-request-badge" :class="docRequest.status === 'pending' ? 'mvr-doc-request-badge--pending' : 'mvr-doc-request-badge--fulfilled'">
+                                            {{ docRequest.status === 'pending' ? $t('Pending') : $t('Fulfilled') }}
+                                        </span>
+                                        <span class="mvr-doc-request-label">{{ docRequest.label }}</span>
+                                    </div>
+                                    <p v-if="docRequest.note" class="mvr-doc-request-note">{{ docRequest.note }}</p>
+                                    <p class="mvr-doc-request-meta">
+                                        {{ $t('Requested') }} {{ docRequest.created_at }}
+                                        <template v-if="docRequest.requested_by_admin">— {{ docRequest.requested_by_admin.first_name }} {{ docRequest.requested_by_admin.last_name }}</template>
+                                    </p>
+                                    <a
+                                        v-if="docRequest.fulfilled_document"
+                                        :href="`/admin/meta-verifications/${record.id}/documents/${docRequest.fulfilled_document.id}`"
+                                        class="mvr-document-row"
+                                    >
+                                        <Paperclip width="14" height="14" />
+                                        <span>{{ $t('View uploaded document') }}</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <p v-else class="mvr-field-value" style="color: var(--ui-muted); font-weight: 600; margin-bottom: 0.9rem;">{{ $t('No document requests yet') }}</p>
+                            <button type="button" class="mvr-btn mvr-btn--secondary" @click="showRequestDocumentModal = true">
+                                {{ $t('Request additional document') }}
+                            </button>
                         </UiFormSection>
 
                         <UiFormSection :title="$t('Verification stages')">
@@ -74,10 +134,10 @@
                         </UiFormSection>
 
                         <div v-if="!isTerminal" class="mvr-actions">
-                            <button type="button" class="mvr-btn mvr-btn--primary" @click="advance">
+                            <button type="button" class="mvr-btn mvr-btn--primary" :disabled="advanceProcessing || rejectProcessing" @click="showAdvanceModal = true">
                                 {{ $t('Advance to: :stage', { stage: $t(nextStageLabelKey) }) }} ←
                             </button>
-                            <button type="button" class="mvr-btn mvr-btn--danger" @click="showRejectModal = true">
+                            <button type="button" class="mvr-btn mvr-btn--danger" :disabled="advanceProcessing || rejectProcessing" @click="showRejectModal = true">
                                 {{ $t('Reject') }}
                             </button>
                         </div>
@@ -86,11 +146,41 @@
             </div>
         </div>
 
-        <Modal :is-open="showRejectModal" label="Reject request" close-btn @close="showRejectModal = false">
-            <UiFormSection :title="$t('Reject request')" :description="$t('Reason for rejection')">
-                <textarea v-model="rejectReason" class="mvr-textarea" rows="4" :placeholder="$t('Reason for rejection')"></textarea>
+        <Modal :is-open="showAdvanceModal" label="Advance request" close-btn @close="!advanceProcessing && (showAdvanceModal = false)">
+            <UiFormSection :title="$t('Advance to: :stage', { stage: $t(nextStageLabelKey) })" :description="$t('Optional note to send to the customer with this update')">
+                <textarea v-model="advanceNote" class="mvr-textarea" rows="4" :disabled="advanceProcessing" :placeholder="$t('Leave blank to use the default message for this stage')"></textarea>
                 <div class="mvr-modal-actions">
-                    <button type="button" class="mvr-btn mvr-btn--danger" :disabled="!rejectReason" @click="submitReject">{{ $t('Reject') }}</button>
+                    <button type="button" class="mvr-btn mvr-btn--primary" :disabled="advanceProcessing" @click="submitAdvance">{{ $t('Confirm') }}</button>
+                </div>
+            </UiFormSection>
+        </Modal>
+
+        <Modal :is-open="showRejectModal" label="Reject request" close-btn @close="!rejectProcessing && (showRejectModal = false)">
+            <UiFormSection :title="$t('Reject request')" :description="$t('Reason for rejection')">
+                <textarea v-model="rejectReason" class="mvr-textarea" rows="4" :disabled="rejectProcessing" :placeholder="$t('Reason for rejection')"></textarea>
+                <div class="mvr-modal-actions">
+                    <button type="button" class="mvr-btn mvr-btn--danger" :disabled="!rejectReason || rejectProcessing" @click="submitReject">{{ $t('Reject') }}</button>
+                </div>
+            </UiFormSection>
+        </Modal>
+
+        <Modal :is-open="showRequestDocumentModal" label="Request additional document" close-btn @close="showRequestDocumentModal = false">
+            <UiFormSection :title="$t('Request additional document')" :description="$t('The customer will get an upload field on their dashboard and an email with your note')">
+                <div class="mvr-field-stack">
+                    <div>
+                        <p class="mvr-field-label">{{ $t('What document is needed') }}</p>
+                        <input v-model="requestDocumentForm.label" type="text" class="mvr-textarea" :placeholder="$t('e.g. Clearer photo of the commercial register')">
+                        <p v-if="requestDocumentForm.errors.label" class="mvr-doc-request-error">{{ requestDocumentForm.errors.label }}</p>
+                    </div>
+                    <div>
+                        <p class="mvr-field-label">{{ $t('Note to the customer (optional)') }}</p>
+                        <textarea v-model="requestDocumentForm.note" class="mvr-textarea" rows="4" :placeholder="$t('Explain what exactly is needed or why')"></textarea>
+                    </div>
+                </div>
+                <div class="mvr-modal-actions">
+                    <button type="button" class="mvr-btn mvr-btn--primary" :disabled="!requestDocumentForm.label || requestDocumentForm.processing" @click="submitRequestDocument">
+                        {{ $t('Send request') }}
+                    </button>
                 </div>
             </UiFormSection>
         </Modal>
@@ -99,12 +189,12 @@
 
 <script setup>
     import AppLayout from "../Layout/App.vue";
-    import { Link, router } from "@inertiajs/vue3";
+    import { Link, router, useForm } from "@inertiajs/vue3";
     import { computed, defineProps, ref } from "vue";
     import { useI18n } from "vue-i18n";
     import UiFormSection from "@/Components/UI/UiFormSection.vue";
     import Modal from "@/Components/Modal.vue";
-    import { FileText, PenLine, Wallet, Search, Send, Eye, ShieldCheck, XOctagon } from "lucide-vue-next";
+    import { FileText, PenLine, Wallet, Search, Send, Eye, ShieldCheck, XOctagon, Paperclip } from "lucide-vue-next";
 
     const { t } = useI18n();
 
@@ -155,18 +245,51 @@
         };
     }));
 
-    const advance = () => {
-        router.post(`/admin/meta-verifications/${props.record.id}/advance`);
+    const showAdvanceModal = ref(false);
+    const advanceNote = ref('');
+    const advanceProcessing = ref(false);
+
+    const submitAdvance = () => {
+        if (advanceProcessing.value) return;
+        advanceProcessing.value = true;
+        router.post(`/admin/meta-verifications/${props.record.id}/advance`, { note: advanceNote.value }, {
+            onSuccess: () => {
+                showAdvanceModal.value = false;
+                advanceNote.value = '';
+            },
+            onFinish: () => {
+                advanceProcessing.value = false;
+            },
+        });
     };
 
     const showRejectModal = ref(false);
     const rejectReason = ref('');
+    const rejectProcessing = ref(false);
 
     const submitReject = () => {
+        if (rejectProcessing.value) return;
+        rejectProcessing.value = true;
         router.post(`/admin/meta-verifications/${props.record.id}/reject`, { reason: rejectReason.value }, {
             onSuccess: () => {
                 showRejectModal.value = false;
                 rejectReason.value = '';
+            },
+            onFinish: () => {
+                rejectProcessing.value = false;
+            },
+        });
+    };
+
+    const showRequestDocumentModal = ref(false);
+    const requestDocumentForm = useForm({ label: '', note: '' });
+
+    const submitRequestDocument = () => {
+        requestDocumentForm.post(`/admin/meta-verifications/${props.record.id}/request-document`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                showRequestDocumentModal.value = false;
+                requestDocumentForm.reset();
             },
         });
     };
@@ -468,6 +591,18 @@
     background: var(--ui-surface);
 }
 
+.mvr-btn--secondary {
+    color: var(--ui-secondary);
+    border-color: color-mix(in srgb, var(--ui-secondary) 30%, var(--ui-border));
+    background: var(--ui-surface);
+}
+
+.mvr-btn--secondary:hover {
+    transform: translateY(-2px);
+    background: color-mix(in srgb, var(--ui-secondary) 6%, var(--ui-surface));
+    border-color: color-mix(in srgb, var(--ui-secondary) 46%, var(--ui-border));
+}
+
 .mvr-btn--danger:hover {
     transform: translateY(-2px);
     background: color-mix(in srgb, var(--ui-danger) 6%, var(--ui-surface));
@@ -494,6 +629,103 @@
 
 .mvr-modal-actions {
     margin-top: 0.9rem;
+}
+
+.mvr-field-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.mvr-documents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.mvr-document-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ui-secondary);
+    width: fit-content;
+}
+
+.mvr-document-row:hover {
+    text-decoration: underline;
+}
+
+.mvr-document-meta {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+}
+
+.mvr-doc-requests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.mvr-doc-request-item {
+    padding: 0.85rem 1rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+}
+
+.mvr-doc-request-item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.35rem;
+}
+
+.mvr-doc-request-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+}
+
+.mvr-doc-request-badge--pending {
+    color: var(--ui-warning);
+    background: color-mix(in srgb, var(--ui-warning) 16%, transparent);
+}
+
+.mvr-doc-request-badge--fulfilled {
+    color: var(--ui-success);
+    background: color-mix(in srgb, var(--ui-success) 16%, transparent);
+}
+
+.mvr-doc-request-label {
+    font-weight: 800;
+    font-size: 0.85rem;
+}
+
+.mvr-doc-request-note {
+    font-size: 0.8rem;
+    color: var(--ui-muted);
+    margin: 0 0 0.4rem;
+    line-height: 1.6;
+}
+
+.mvr-doc-request-meta {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+    margin: 0 0 0.4rem;
+}
+
+.mvr-doc-request-error {
+    margin: 0.3rem 0 0;
+    font-size: 0.75rem;
+    color: var(--ui-danger);
 }
 
 @media (max-width: 1024px) {

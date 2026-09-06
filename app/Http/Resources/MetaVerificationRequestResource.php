@@ -18,8 +18,12 @@ class MetaVerificationRequestResource extends JsonResource
             'id' => $this->id,
             'full_name' => $this->full_name,
             'business_name' => $this->business_name,
+            'legal_company_name' => $this->legal_company_name,
             'phone' => $this->phone,
+            'whatsapp_number' => $this->whatsapp_number,
             'email' => $this->email,
+            'website_url' => $this->website_url,
+            'documents_count' => $this->whenCounted('documents', fn () => $this->documents_count, 0),
             'status' => $this->status,
             'organization' => $this->whenLoaded('organization', fn () => [
                 'id' => $this->organization->id,

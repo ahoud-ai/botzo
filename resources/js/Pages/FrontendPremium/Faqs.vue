@@ -1,11 +1,11 @@
 <template>
     <FrontendLayout :companyConfig="props.companyConfig" :pages="props.pages">
         <!-- Hero -->
-        <section class="px-5 md:px-10 lg:px-20 2xl:px-60 pt-32 pb-8 bg-white dark:bg-[#0a0f17]">
+        <section class="px-5 md:px-10 lg:px-20 2xl:px-32 pt-32 pb-8 bg-white dark:bg-[#0a0f17]">
             <div class="flex flex-col items-center gap-4 lg:gap-6">
                 <PageBreadcrumb :current-label="$t('FAQs')" />
 
-                <div class="flex w-full flex-col items-center gap-3 text-center lg:w-[1120px] lg:gap-4">
+                <div class="flex w-full flex-col items-center gap-3 text-center lg:w-[1280px] lg:gap-4">
                     <SectionBadge :label="$t('FAQs')" />
                     <h1 class="w-full text-[28px] font-semibold leading-[1.3] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
                         {{ $t('Everything you want to know') }}
@@ -18,14 +18,14 @@
         </section>
 
         <!-- FAQ list -->
-        <section v-if="props.faqs && props.faqs.data && props.faqs.data.length > 0" class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
+        <section v-if="props.faqs && props.faqs.data && props.faqs.data.length > 0" class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
             <div class="flex flex-col items-center gap-10 lg:gap-[72px]">
                 <div class="w-full lg:w-[760px]">
                     <FaqAccordion :items="props.faqs.data" />
                 </div>
 
                 <!-- Still have questions CTA -->
-                <div class="flex w-full flex-col items-center gap-6 overflow-hidden rounded-3xl bg-[rgba(37,211,102,0.12)] px-6 py-12 text-center md:px-10 lg:w-[1120px] lg:py-16">
+                <div class="flex w-full flex-col items-center gap-6 overflow-hidden rounded-3xl bg-[rgba(37,211,102,0.12)] px-6 py-12 text-center md:px-10 lg:w-[1280px] lg:py-16">
                     <div class="flex w-full flex-col items-center gap-3">
                         <h2 class="w-full text-xl font-semibold text-black dark:text-white lg:text-[32px]">{{ $t('Still have questions?') }}</h2>
                         <p dir="auto" class="w-full max-w-[520px] text-sm leading-6 text-[#8899aa] lg:text-base">
@@ -53,7 +53,7 @@
         </section>
 
         <!-- Empty state -->
-        <section v-else class="px-5 md:px-10 lg:px-20 2xl:px-60 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
+        <section v-else class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
             <div class="mx-auto flex w-full flex-col items-center gap-4 rounded-3xl border border-[#cfd8e3] bg-white p-12 text-center dark:border-[#1e2a3a] dark:bg-[#0a0f17] lg:w-[760px]">
                 <svg class="h-12 w-12 text-[#8899aa]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
