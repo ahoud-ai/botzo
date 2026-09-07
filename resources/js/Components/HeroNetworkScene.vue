@@ -33,6 +33,17 @@ let prefersReducedMotion = false;
 
 let dotSprite = null;
 
+// Mouse parallax — the camera eases toward the cursor and drifts back to
+// center on mouse-leave, so the whole scene "follows" the pointer with a
+// slight lag rather than snapping to it (matches botzo.io's own hero).
+const MOUSE_PARALLAX_X = 20;
+const MOUSE_PARALLAX_Y = 13;
+const MOUSE_EASE = 0.09;
+const mouseTarget = { x: 0, y: 0 };
+const mouseCurrent = { x: 0, y: 0 };
+let mouseMoveHandler = null;
+let mouseLeaveHandler = null;
+
 function buildDotSprite() {
   // Points render as hard squares by default in WebGL — a small radial-alpha
   // canvas texture turns them into soft round dots instead, matching the
@@ -129,7 +140,7 @@ function buildNodeNetwork() {
 }
 
 function buildWireframeSphere() {
-  const geometry = new THREE.IcosahedronGeometry(15, 1);
+  const geometry = new THREE.IcosahedronGeometry(11, 1);
   const edges = new THREE.EdgesGeometry(geometry);
   const material = new THREE.LineBasicMaterial({
     color: 0x25d366,
@@ -200,11 +211,20 @@ function resizeToContainer() {
   camera.updateProjectionMatrix();
 }
 
+function updateParallax() {
+  mouseCurrent.x += (mouseTarget.x - mouseCurrent.x) * MOUSE_EASE;
+  mouseCurrent.y += (mouseTarget.y - mouseCurrent.y) * MOUSE_EASE;
+  camera.position.x = mouseCurrent.x * MOUSE_PARALLAX_X;
+  camera.position.y = mouseCurrent.y * -MOUSE_PARALLAX_Y;
+  camera.lookAt(0, 0, 0);
+}
+
 function animate() {
   if (wireframeSphere && !prefersReducedMotion) {
-    wireframeSphere.rotation.y += 0.0022;
-    wireframeSphere.rotation.x += 0.0009;
+    wireframeSphere.rotation.y += 0.004;
+    wireframeSphere.rotation.x += 0.0018;
   }
+  if (!prefersReducedMotion) updateParallax();
   updateNodeNetwork();
   renderer.render(scene, camera);
   animationFrame = requestAnimationFrame(animate);
@@ -236,6 +256,27 @@ function init() {
   themeObserver = new MutationObserver(applyThemeColors);
   themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
+  if (!prefersReducedMotion) {
+    // Listened on window rather than the container: the decorative wrapper
+    // this canvas sits in is `pointer-events-none` (so it never blocks
+    // clicks on the real hero content above it), which means it never
+    // receives its own mouse events either. `mousemove` bubbles from
+    // whatever element the pointer actually hit, so window always sees it.
+    mouseMoveHandler = (event) => {
+      const rect = container.value.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      const y = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+      mouseTarget.x = Math.max(-1.4, Math.min(1.4, x));
+      mouseTarget.y = Math.max(-1.4, Math.min(1.4, y));
+    };
+    mouseLeaveHandler = () => {
+      mouseTarget.x = 0;
+      mouseTarget.y = 0;
+    };
+    window.addEventListener("mousemove", mouseMoveHandler);
+    document.documentElement.addEventListener("mouseleave", mouseLeaveHandler);
+  }
+
   animate();
 }
 
@@ -243,6 +284,8 @@ function dispose() {
   if (animationFrame) cancelAnimationFrame(animationFrame);
   resizeObserver?.disconnect();
   themeObserver?.disconnect();
+  if (mouseMoveHandler) window.removeEventListener("mousemove", mouseMoveHandler);
+  if (mouseLeaveHandler) document.documentElement.removeEventListener("mouseleave", mouseLeaveHandler);
 
   [starPoints, nodePoints, nodeLines, wireframeSphere].forEach((obj) => {
     if (!obj) return;
