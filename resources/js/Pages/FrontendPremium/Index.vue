@@ -190,6 +190,33 @@
                   {{ $t("An AI engine that reads customer intent in a split second, picks the best reply, and phrases it as naturally as your best employee would.") }}
                 </p>
               </div>
+
+              <!-- Mini chat demo — plays out in sync with the chips above -->
+              <div class="mt-2 flex w-full flex-1 flex-col justify-end gap-3 px-1 pb-1" dir="rtl">
+                <div class="flex justify-start">
+                  <div class="max-w-[70%] rounded-2xl rounded-ss-sm border border-black/[0.06] bg-white px-4 py-2.5 shadow-[0_2px_10px_rgba(15,23,42,0.06)] dark:border-white/[0.08] dark:bg-[#22304a] dark:shadow-none">
+                    <p class="text-sm leading-6 text-black dark:text-white" dir="auto">{{ $t("When will my order arrive?") }}</p>
+                  </div>
+                </div>
+                <div class="flex h-9 justify-end">
+                  <div
+                    class="flex items-center gap-1.5 rounded-2xl rounded-ee-sm bg-[#25d366]/[0.14] px-4 py-2.5 transition-all duration-300"
+                    :class="botDemoPhase === 'thinking' ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-1 scale-95 opacity-0'"
+                  >
+                    <span class="bot-demo-dot h-[6px] w-[6px] rounded-full bg-[#25d366]" style="--d: 0s"></span>
+                    <span class="bot-demo-dot h-[6px] w-[6px] rounded-full bg-[#25d366]" style="--d: 0.15s"></span>
+                    <span class="bot-demo-dot h-[6px] w-[6px] rounded-full bg-[#25d366]" style="--d: 0.3s"></span>
+                  </div>
+                </div>
+                <div class="flex justify-end">
+                  <div
+                    class="max-w-[70%] rounded-2xl rounded-ee-sm bg-[#25d366] px-4 py-2.5 shadow-[0_6px_20px_-4px_rgba(37,211,102,0.45)] transition-all duration-500"
+                    :class="botDemoPhase === 'replied' ? 'translate-y-0 scale-100 opacity-100' : 'pointer-events-none translate-y-1.5 scale-95 opacity-0'"
+                  >
+                    <p class="text-sm leading-6 text-[#04130a]" dir="auto">{{ $t("It'll arrive within 24 hours, God willing ✅") }}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -488,6 +515,17 @@ const prefersReducedMotion = () => prefersReducedMotionQuery?.matches ?? false;
 
 const activeChipIndex = ref(0);
 let chipCycleInterval = null;
+
+// Fills the bot-workflow card's empty lower half with a tiny chat demo that
+// mirrors whichever pipeline step is currently highlighted, instead of a
+// second unrelated animation: chip 4 ("Incoming message") = a fresh customer
+// message just arrived, chips 3/2/1 (analysis/decision/generation) = the bot
+// "thinking", chip 0 ("Send") = the reply has gone out.
+const botDemoPhase = computed(() => {
+  if (activeChipIndex.value === 4) return "received";
+  if (activeChipIndex.value === 0) return "replied";
+  return "thinking";
+});
 
 const STAT_TARGET = 31;
 const STAT_COUNT_DURATION = 1500;
@@ -798,10 +836,28 @@ const heroSectionStyle = computed(() => ({
   background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), rgba(37, 211, 102, 0.12), transparent 65%);
 }
 
+.bot-demo-dot {
+  animation: bot-demo-bounce 1.2s ease-in-out var(--d, 0s) infinite;
+}
+
+@keyframes bot-demo-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .botzo-bar,
   .botzo-draw,
-  .botzo-dot {
+  .botzo-dot,
+  .bot-demo-dot {
     animation: none !important;
   }
   .tilt-sheen {
