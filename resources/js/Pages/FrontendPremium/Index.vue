@@ -118,14 +118,17 @@
         <div class="hidden flex-col items-end gap-6 lg:flex lg:w-[1280px]">
           <div class="flex items-center gap-4" dir="ltr">
             <!-- KPI card -->
-            <div class="flex h-[408px] w-[416px] shrink-0 flex-col items-end justify-center gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[var(--surface-1)] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[#0b161a]">
+            <div
+              v-tilt
+              class="tilt-sheen relative flex h-[408px] w-[416px] shrink-0 flex-col items-end justify-center gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[var(--surface-1)] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[#0b161a]"
+            >
               <div class="flex h-[120.8px] w-full items-end justify-center gap-[9px] pt-[0.8px]">
-                <div class="h-[110.39px] flex-1 rounded-t-[6px] bg-[#25d366]"></div>
-                <div class="h-[79.19px] flex-1 rounded-t-[6px] bg-[#25d366]"></div>
-                <div class="h-[88.8px] flex-1 rounded-t-[6px] bg-[#25d366]"></div>
-                <div class="h-[60px] flex-1 rounded-t-[6px] bg-[#25d366]"></div>
-                <div class="h-[69.59px] flex-1 rounded-t-[6px] bg-[#25d366]"></div>
-                <div class="h-[50.39px] flex-1 rounded-t-[6px] bg-[#25d366]"></div>
+                <div class="botzo-bar h-[110.39px] flex-1 rounded-t-[6px] bg-[#25d366]" style="--d: 0s"></div>
+                <div class="botzo-bar h-[79.19px] flex-1 rounded-t-[6px] bg-[#25d366]" style="--d: 0.09s"></div>
+                <div class="botzo-bar h-[88.8px] flex-1 rounded-t-[6px] bg-[#25d366]" style="--d: 0.18s"></div>
+                <div class="botzo-bar h-[60px] flex-1 rounded-t-[6px] bg-[#25d366]" style="--d: 0.27s"></div>
+                <div class="botzo-bar h-[69.59px] flex-1 rounded-t-[6px] bg-[#25d366]" style="--d: 0.36s"></div>
+                <div class="botzo-bar h-[50.39px] flex-1 rounded-t-[6px] bg-[#25d366]" style="--d: 0.45s"></div>
               </div>
               <div class="flex w-full flex-col items-end gap-3">
                 <p
@@ -133,7 +136,7 @@
                   style="background-image: linear-gradient(103deg, #25d366 0%, #3b82f6 100%)"
                   dir="auto"
                 >
-                  ↑ {{ $t("31%") }}
+                  ↑ <span class="tabular-nums" data-count="31">{{ statCountDisplay }}</span>
                 </p>
                 <div class="flex w-full flex-col items-end gap-2 text-right">
                   <h3 class="w-full text-[24px] font-semibold leading-[29.9px] text-black dark:text-white" dir="auto">
@@ -148,18 +151,34 @@
 
             <!-- Bot workflow card -->
             <div
-              class="flex h-[408px] w-[848px] shrink-0 flex-col items-end gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.06),transparent_55%),linear-gradient(var(--surface-1),var(--surface-1))] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.08),transparent_55%),linear-gradient(#0d1f14,#0d1f14)]"
+              v-tilt
+              class="tilt-sheen tilt-sheen--wide relative flex h-[408px] w-[848px] shrink-0 flex-col items-end gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.06),transparent_55%),linear-gradient(var(--surface-1),var(--surface-1))] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.08),transparent_55%),linear-gradient(#0d1f14,#0d1f14)]"
             >
               <div class="flex w-full items-center justify-end" dir="ltr">
                 <template v-for="(step, index) in pipelineSteps" :key="step.key">
                   <div
-                    class="flex shrink-0 items-center rounded-[10px] border border-[#25d366] bg-[#25d366]/[0.06] px-[14px] pb-[8.69px] pt-[8.5px]"
-                    :class="index === pipelineSteps.length - 1 ? 'shadow-[0_0_18px_0_rgba(37,211,102,0.18)]' : ''"
+                    :data-chip="index"
+                    class="flex shrink-0 items-center rounded-[10px] border px-[14px] pb-[8.69px] pt-[8.5px] transition-colors duration-[350ms]"
+                    :class="[
+                      index === pipelineSteps.length - 1 ? 'shadow-[0_0_18px_0_rgba(37,211,102,0.18)]' : '',
+                      index === activeChipIndex
+                        ? 'border-[var(--accent-solid)] bg-[var(--accent-solid)]'
+                        : 'border-[#25d366] bg-[#25d366]/[0.06]',
+                    ]"
                   >
-                    <span class="whitespace-nowrap text-sm leading-6 text-black dark:text-white" dir="auto">{{ $t(step.key) }}</span>
+                    <span
+                      class="whitespace-nowrap text-sm leading-6"
+                      :class="index === activeChipIndex ? 'font-semibold text-white' : 'text-black dark:text-white'"
+                      dir="auto"
+                    >{{ $t(step.key) }}</span>
                   </div>
-                  <div v-if="index < pipelineSteps.length - 1" class="relative mx-[2px] h-[2px] w-[26px] shrink-0 border-t-2 border-dashed border-[#1a2332] dark:border-white">
-                    <span class="absolute top-1/2 h-[5px] w-[5px] -translate-y-1/2 rounded-full bg-[#25d366] shadow-[0_0_8px_0_#25d366]" style="left: 21px"></span>
+                  <div
+                    v-if="index < pipelineSteps.length - 1"
+                    data-flowline
+                    class="botzo-draw relative mx-[2px] h-[2px] w-[26px] shrink-0 border-t-2 border-dashed border-[#1a2332] dark:border-white"
+                    :style="{ '--d': `${index * 0.35}s` }"
+                  >
+                    <span class="botzo-dot absolute top-1/2 h-[5px] w-[5px] -translate-y-1/2 rounded-full bg-[#25d366] shadow-[0_0_8px_0_#25d366]" style="left: 21px"></span>
                   </div>
                 </template>
               </div>
@@ -180,7 +199,8 @@
               v-for="(card, index) in desktopFeatureCards"
               :key="card.titleKey"
               v-reveal="{ delay: index * 100 }"
-              class="group flex h-[274px] w-[416px] shrink-0 -translate-y-0 cursor-default flex-col items-end justify-center overflow-hidden rounded-3xl bg-[var(--surface-1)] p-[24.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 dark:bg-[#0b161a]"
+              v-tilt
+              class="tilt-sheen group relative flex h-[274px] w-[416px] shrink-0 -translate-y-0 cursor-default flex-col items-end justify-center overflow-hidden rounded-3xl bg-[var(--surface-1)] p-[24.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 dark:bg-[#0b161a]"
               :class="card.featured
                 ? 'border-t-2 border-[#25d366] pt-[26px] shadow-[0_0_0_1px_rgba(37,211,102,0.2),0_18px_60px_0_rgba(37,211,102,0.12)] hover:shadow-[0_0_0_1px_rgba(37,211,102,0.35),0_26px_70px_0_rgba(37,211,102,0.22)]'
                 : 'border-[0.7px] border-[#e4ece7] hover:border-[#25d366] hover:shadow-[0_18px_60px_0_rgba(37,211,102,0.12)] dark:border-[#1e2a3a] dark:hover:border-[#25d366]'"
@@ -208,7 +228,8 @@
             v-for="(card, index) in mobileFeatureCards"
             :key="card.titleKey"
             v-reveal="{ delay: index * 90 }"
-            class="group flex h-[225px] w-full cursor-default flex-col items-end justify-center overflow-hidden rounded-2xl bg-[var(--surface-1)] p-[16.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 dark:bg-[#0b161a]"
+            v-tilt
+            class="tilt-sheen group relative flex h-[225px] w-full cursor-default flex-col items-end justify-center overflow-hidden rounded-2xl bg-[var(--surface-1)] p-[16.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 dark:bg-[#0b161a]"
             :class="card.featured
               ? 'border-t-2 border-[#25d366] pt-[18px] shadow-[0_0_0_1px_rgba(37,211,102,0.2),0_18px_60px_0_rgba(37,211,102,0.12)] hover:shadow-[0_0_0_1px_rgba(37,211,102,0.35),0_26px_70px_0_rgba(37,211,102,0.22)]'
               : 'border-[0.7px] border-[#e4ece7] hover:border-[#25d366] hover:shadow-[0_18px_60px_0_rgba(37,211,102,0.12)] dark:border-[#1e2a3a] dark:hover:border-[#25d366]'"
@@ -399,7 +420,7 @@
   </FrontendLayout>
 </template>
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { Link } from "@inertiajs/vue3";
 import FrontendLayout from "./FrontendLayout.vue";
 import HeroChatDemo from "@/Components/HeroChatDemo.vue";
@@ -457,6 +478,103 @@ const pipelineSteps = [
   { key: "Intent analysis" },
   { key: "Incoming message" },
 ];
+
+// Features-section motion: the active pipeline chip cycles on its own timer,
+// independent of the connector-line/dot CSS animations (both pure CSS, no
+// JS needed there). Everything here is torn down on unmount and respects
+// prefers-reduced-motion.
+const prefersReducedMotionQuery = typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+const prefersReducedMotion = () => prefersReducedMotionQuery?.matches ?? false;
+
+const activeChipIndex = ref(0);
+let chipCycleInterval = null;
+
+const STAT_TARGET = 31;
+const STAT_COUNT_DURATION = 1500;
+const STAT_COUNT_REPEAT = 7000;
+const arabicIndicDigits = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+const isArabicLocale = () => typeof document !== "undefined" && document.documentElement.lang === "ar";
+const formatStatValue = (value) => {
+  const rounded = Math.round(value);
+  if (isArabicLocale()) {
+    return String(rounded).replace(/[0-9]/g, (digit) => arabicIndicDigits[digit]) + "٪";
+  }
+  return `${rounded}%`;
+};
+const statCountDisplay = ref(formatStatValue(STAT_TARGET));
+let statCountRAF = null;
+let statCountInterval = null;
+
+function runStatCount() {
+  const start = performance.now();
+  const tick = (now) => {
+    const progress = Math.min((now - start) / STAT_COUNT_DURATION, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    statCountDisplay.value = formatStatValue(eased * STAT_TARGET);
+    if (progress < 1) {
+      statCountRAF = requestAnimationFrame(tick);
+    }
+  };
+  statCountRAF = requestAnimationFrame(tick);
+}
+
+onMounted(() => {
+  if (prefersReducedMotion()) {
+    statCountDisplay.value = formatStatValue(STAT_TARGET);
+    activeChipIndex.value = 0;
+    return;
+  }
+
+  runStatCount();
+  statCountInterval = setInterval(runStatCount, STAT_COUNT_REPEAT);
+
+  chipCycleInterval = setInterval(() => {
+    activeChipIndex.value = (activeChipIndex.value + 1) % pipelineSteps.length;
+  }, 3000);
+});
+
+onUnmounted(() => {
+  if (statCountRAF) cancelAnimationFrame(statCountRAF);
+  if (statCountInterval) clearInterval(statCountInterval);
+  if (chipCycleInterval) clearInterval(chipCycleInterval);
+});
+
+// Pointer-tilt directive for the Features-section cards — perspective tilt
+// on move, a radial sheen following the pointer (driven by --mx/--my/--sheen
+// custom properties consumed by CSS in the scoped <style> below), and a
+// smooth return to flat on leave. Skipped entirely under reduced motion.
+const MAX_TILT_DEG = 5;
+const vTilt = {
+  mounted(el) {
+    if (prefersReducedMotion()) return;
+
+    const handleMove = (event) => {
+      const rect = el.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width;
+      const y = (event.clientY - rect.top) / rect.height;
+      el.classList.add("tilt-active");
+      el.style.setProperty("--mx", `${x * 100}%`);
+      el.style.setProperty("--my", `${y * 100}%`);
+      el.style.setProperty("--sheen", "1");
+      el.style.transform = `perspective(900px) rotateX(${(0.5 - y) * MAX_TILT_DEG}deg) rotateY(${(x - 0.5) * MAX_TILT_DEG}deg)`;
+    };
+    const handleLeave = () => {
+      el.classList.remove("tilt-active");
+      el.style.setProperty("--sheen", "0");
+      el.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg)";
+    };
+
+    el.addEventListener("pointermove", handleMove);
+    el.addEventListener("pointerleave", handleLeave);
+    el.__tiltCleanup = () => {
+      el.removeEventListener("pointermove", handleMove);
+      el.removeEventListener("pointerleave", handleLeave);
+    };
+  },
+  unmounted(el) {
+    el.__tiltCleanup?.();
+  },
+};
 
 const crmCard = {
   icon: "/images/features/crm-icon.svg",
@@ -600,6 +718,94 @@ const heroSectionStyle = computed(() => ({
 @media (prefers-reduced-motion: reduce) {
   .hero-whatsapp-icon {
     animation: none;
+  }
+}
+
+/* Features section motion (id="section2") — bars, connector lines/dot, and
+   pointer-tilt sheen. Only transform/opacity/background/border-color are
+   animated, all colors come from existing tokens/hex already used in this
+   section, and everything rests in its final state under reduced motion. */
+.botzo-bar {
+  transform-origin: bottom;
+  animation: botzo-bar 7s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) infinite;
+}
+
+@keyframes botzo-bar {
+  0%,
+  6% {
+    transform: scaleY(0.14);
+  }
+  30%,
+  86% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(0.14);
+  }
+}
+
+.botzo-draw {
+  transform-origin: right;
+  animation: botzo-draw 3s ease-in-out var(--d, 0s) infinite;
+}
+
+@keyframes botzo-draw {
+  0% {
+    transform: scaleX(0);
+  }
+  45%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.botzo-dot {
+  animation: botzo-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes botzo-dot {
+  0%,
+  100% {
+    transform: scale(1) translateY(-50%);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.5) translateY(-50%);
+    opacity: 1;
+  }
+}
+
+.tilt-sheen {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tilt-sheen.tilt-active {
+  transition: transform 0.12s linear;
+}
+
+.tilt-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 0%), rgba(37, 211, 102, 0.12), transparent 65%);
+  opacity: var(--sheen, 0);
+  transition: opacity 0.35s;
+}
+
+.tilt-sheen--wide::after {
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), rgba(37, 211, 102, 0.12), transparent 65%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .botzo-bar,
+  .botzo-draw,
+  .botzo-dot {
+    animation: none !important;
+  }
+  .tilt-sheen {
+    transition: none !important;
   }
 }
 </style>
