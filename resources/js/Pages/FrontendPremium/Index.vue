@@ -18,25 +18,33 @@
       <div class="pointer-events-none absolute inset-0 hidden overflow-hidden lg:block" aria-hidden="true">
         <HeroNetworkScene />
 
-        <!-- Floating icon badges filling the empty side margins -->
-        <div class="absolute start-8 top-[300px] flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_-8px_rgba(15,23,42,0.18)] dark:bg-[#111a14] dark:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)]">
-          <Phone :size="22" class="text-[#25d366]" />
-        </div>
-        <div class="absolute start-44 top-[500px] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_-8px_rgba(15,23,42,0.18)] dark:bg-[#111a14] dark:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)]">
-          <CheckCheck :size="18" class="text-[#25d366]" />
-        </div>
-        <div class="absolute end-10 top-[400px] flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_-8px_rgba(15,23,42,0.18)] dark:bg-[#111a14] dark:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)]">
-          <Bot :size="26" class="text-[#25d366]" />
-        </div>
-        <div class="absolute end-40 top-[560px] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_-8px_rgba(15,23,42,0.18)] dark:bg-[#111a14] dark:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)]">
-          <Send :size="18" class="text-[#25d366]" />
-        </div>
-        <div class="absolute end-16 top-[260px] flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_-8px_rgba(15,23,42,0.18)] dark:bg-[#111a14] dark:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)]">
-          <Zap :size="16" class="text-[#25d366]" />
-        </div>
-        <div class="absolute start-32 top-[150px] flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_-8px_rgba(15,23,42,0.18)] dark:bg-[#111a14] dark:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)]">
-          <MessageCircle :size="16" class="text-[#25d366]" />
-        </div>
+        <!-- WhatsApp Business-style notification toasts filling the empty
+             side margins — each pops in, holds, fades out, then cycles to
+             its next message and repeats, staggered so they never sync up. -->
+        <HeroNotificationToast
+          class="absolute start-2 top-[130px]"
+          :items="heroToastMessagesA"
+          :delay="0"
+          :duration="5200"
+        />
+        <HeroNotificationToast
+          class="absolute end-2 top-[230px]"
+          :items="heroToastMessagesB"
+          :delay="1300"
+          :duration="5600"
+        />
+        <HeroNotificationToast
+          class="absolute start-1 top-[480px]"
+          :items="heroToastMessagesC"
+          :delay="2600"
+          :duration="5000"
+        />
+        <HeroNotificationToast
+          class="absolute end-1 top-[570px]"
+          :items="heroToastMessagesD"
+          :delay="900"
+          :duration="5400"
+        />
       </div>
 
       <div class="relative z-10 flex flex-col items-center justify-center gap-12 lg:gap-[72px]">
@@ -372,10 +380,10 @@
 <script setup>
 import { ref, computed } from "vue";
 import { Link } from "@inertiajs/vue3";
-import { MessageCircle, Zap, Phone, CheckCheck, Bot, Send } from "lucide-vue-next";
 import FrontendLayout from "./FrontendLayout.vue";
 import HeroChatDemo from "@/Components/HeroChatDemo.vue";
 import HeroNetworkScene from "@/Components/HeroNetworkScene.vue";
+import HeroNotificationToast from "@/Components/HeroNotificationToast.vue";
 import SectionBadge from "@/Components/SectionBadge.vue";
 import HowItWorksStepLayout from "@/Components/HowItWorksStepLayout.vue";
 import HowItWorksStepLayoutMobile from "@/Components/HowItWorksStepLayoutMobile.vue";
@@ -386,6 +394,26 @@ import BookDemoModal from "@/Components/BookDemoModal.vue";
 import FaqAccordion from "@/Components/FaqAccordion.vue";
 
 const showBookDemoModal = ref(false);
+
+// Content each hero notification toast cycles through — static copy, not
+// translated, since these are decorative WhatsApp-message mockups rather
+// than real UI strings.
+const heroToastMessagesA = [
+  { name: "سارة العتيبي", message: "متاح توصيل الطلب النهارده؟", time: "الآن", color: "#25d366" },
+  { name: "سارة العتيبي", message: "تمام، هطلب حالاً 👍", time: "2 د", color: "#25d366" },
+];
+const heroToastMessagesB = [
+  { name: "Botzo", message: "تم الرد التلقائي على 12 عميل", time: "الآن", color: "#0d83da" },
+  { name: "Botzo", message: "جاري تجهيز عرض السعر...", time: "1 د", color: "#0d83da" },
+];
+const heroToastMessagesC = [
+  { name: "خالد المطيري", message: "شكراً جزيلاً على السرعة!", time: "3 د", color: "#f59e0b" },
+  { name: "خالد المطيري", message: "الطلب وصل، تقييمي 5 نجوم ⭐", time: "5 د", color: "#f59e0b" },
+];
+const heroToastMessagesD = [
+  { name: "نورة القحطاني", message: "ممكن أعرف مواعيد التوصيل؟", time: "الآن", color: "#8b5cf6" },
+  { name: "نورة القحطاني", message: "تم تأكيد الطلب ✅", time: "2 د", color: "#8b5cf6" },
+];
 
 const props = defineProps([
   "addons",
