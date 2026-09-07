@@ -45,6 +45,27 @@
           :delay="900"
           :duration="5400"
         />
+
+        <!-- Real WhatsApp badges floating alongside the network, distinct
+             from the notification toasts above. -->
+        <img
+          src="/images/footer/whatsapp-icon.svg"
+          alt=""
+          class="hero-whatsapp-icon absolute start-24 top-[360px] h-12 w-12 drop-shadow-[0_10px_22px_rgba(37,211,102,0.35)]"
+          style="animation-delay: 0s"
+        />
+        <img
+          src="/images/footer/whatsapp-icon.svg"
+          alt=""
+          class="hero-whatsapp-icon absolute end-32 top-[420px] h-9 w-9 drop-shadow-[0_10px_22px_rgba(37,211,102,0.35)]"
+          style="animation-delay: 1.4s"
+        />
+        <img
+          src="/images/footer/whatsapp-icon.svg"
+          alt=""
+          class="hero-whatsapp-icon absolute start-16 top-[500px] h-8 w-8 drop-shadow-[0_10px_22px_rgba(37,211,102,0.35)]"
+          style="animation-delay: 0.7s"
+        />
       </div>
 
       <div class="relative z-10 flex flex-col items-center justify-center gap-12 lg:gap-[72px]">
@@ -560,3 +581,25 @@ const heroSectionStyle = computed(() => ({
   backgroundRepeat: "no-repeat",
 }));
 </script>
+
+<style scoped>
+.hero-whatsapp-icon {
+  animation: hero-whatsapp-float 4.5s ease-in-out infinite;
+}
+
+@keyframes hero-whatsapp-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-whatsapp-icon {
+    animation: none;
+  }
+}
+</style>
