@@ -337,9 +337,8 @@
     <section
       id="contact-cta"
       v-reveal
-      class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20"
     >
-      <div class="flex w-full flex-col items-center gap-6 overflow-hidden rounded-3xl bg-[var(--accent-solid)] px-6 py-12 text-center dark:bg-[rgba(37,211,102,0.12)] md:px-10 lg:px-20 lg:py-20">
+      <div class="flex w-full flex-col items-center gap-6 bg-[var(--accent-solid)] px-6 py-12 text-center dark:bg-[rgba(37,211,102,0.12)] md:px-10 lg:px-20 lg:py-20">
         <div class="flex w-full flex-col items-center gap-4 lg:w-[1280px] lg:gap-4">
           <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-white dark:text-white lg:text-[46px] lg:leading-[56px]">
             {{ $t("Contact the Botzo team") }}
