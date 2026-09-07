@@ -250,7 +250,13 @@
 
       <div class="relative flex flex-col items-center gap-8 lg:gap-[72px]">
         <div class="flex w-full flex-col items-center gap-3 text-center lg:gap-4">
-          <SectionBadge :label="$t('Success story')" />
+          <!-- This band is always the dark "anchor" ground (in both themes), so
+               the badge is forced onto its own dark: styling regardless of the
+               site's real theme — otherwise its light-mode glass look (meant
+               for a light ground) washes out here. -->
+          <div class="dark">
+            <SectionBadge :label="$t('Success story')" />
+          </div>
           <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-[#e9eef5] dark:text-white lg:w-[1280px] lg:text-[46px] lg:leading-[56px]">
             {{ $t("How did Nora increase her store's sales 3x in 60 days?") }}
           </h2>
