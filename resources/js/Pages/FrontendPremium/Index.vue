@@ -2,15 +2,31 @@
   <FrontendLayout :companyConfig="props.companyConfig" :pages="props.pages">
     <section
       id="section1"
+      ref="heroSection"
       class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-32 py-8 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]"
     >
       <div class="pointer-events-none absolute inset-0 hidden overflow-hidden lg:block" aria-hidden="true">
-        <div
-          class="absolute inset-0 opacity-[0.8] dark:opacity-[0.65]"
-          style="background-image: radial-gradient(rgba(37,211,102,0.22) 1.5px, transparent 1.5px); background-size: 22px 22px;"
-        ></div>
-        <div class="hero-glow hero-glow--a absolute start-10 top-40 h-[420px] w-[420px] rounded-full bg-[#25d366]/[0.30] blur-[130px] dark:bg-[#25d366]/[0.26]"></div>
-        <div class="hero-glow hero-glow--b absolute end-10 bottom-40 h-[300px] w-[300px] rounded-full bg-[#25d366]/[0.20] blur-[130px] dark:bg-[#25d366]/[0.18]"></div>
+        <canvas ref="networkCanvas" class="absolute inset-0 h-full w-full"></canvas>
+
+        <!-- Floating icon badges filling the empty side margins -->
+        <div class="absolute start-8 top-[300px] flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_-8px_rgba(15,23,42,0.18)] dark:bg-[#111a14] dark:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)]">
+          <Phone :size="22" class="text-[#25d366]" />
+        </div>
+        <div class="absolute start-44 top-[500px] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_-8px_rgba(15,23,42,0.18)] dark:bg-[#111a14] dark:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)]">
+          <CheckCheck :size="18" class="text-[#25d366]" />
+        </div>
+        <div class="absolute end-10 top-[400px] flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_-8px_rgba(15,23,42,0.18)] dark:bg-[#111a14] dark:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)]">
+          <Bot :size="26" class="text-[#25d366]" />
+        </div>
+        <div class="absolute end-40 top-[560px] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_-8px_rgba(15,23,42,0.18)] dark:bg-[#111a14] dark:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)]">
+          <Send :size="18" class="text-[#25d366]" />
+        </div>
+        <div class="absolute end-16 top-[260px] flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_-8px_rgba(15,23,42,0.18)] dark:bg-[#111a14] dark:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)]">
+          <Zap :size="16" class="text-[#25d366]" />
+        </div>
+        <div class="absolute start-32 top-[150px] flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_-8px_rgba(15,23,42,0.18)] dark:bg-[#111a14] dark:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)]">
+          <MessageCircle :size="16" class="text-[#25d366]" />
+        </div>
       </div>
 
       <div class="relative z-10 flex flex-col items-center justify-center gap-12 lg:gap-[72px]">
@@ -26,8 +42,7 @@
 
           <button
             type="button"
-            class="flex h-[54px] w-[246px] shrink-0 items-center justify-center gap-2 rounded-2xl px-8 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.04] hover:shadow-[0_12px_30px_-8px_rgba(37,211,102,0.55)] active:scale-[0.98]"
-            style="background-image: linear-gradient(139deg, #25d366 0%, #1db954 100%)"
+            class="flex h-[54px] w-[246px] shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#25d366] px-8 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.04] hover:shadow-[0_12px_30px_-8px_rgba(37,211,102,0.55)] active:scale-[0.98]"
             @click="showBookDemoModal = true"
           >
             <span class="whitespace-nowrap text-base font-semibold leading-5 text-[#04130a]">{{ $t("Book a demo") }}</span>
@@ -331,8 +346,9 @@
   </FrontendLayout>
 </template>
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { Link } from "@inertiajs/vue3";
+import { MessageCircle, Zap, Phone, CheckCheck, Bot, Send } from "lucide-vue-next";
 import FrontendLayout from "./FrontendLayout.vue";
 import HeroChatDemo from "@/Components/HeroChatDemo.vue";
 import SectionBadge from "@/Components/SectionBadge.vue";
@@ -345,6 +361,131 @@ import BookDemoModal from "@/Components/BookDemoModal.vue";
 import FaqAccordion from "@/Components/FaqAccordion.vue";
 
 const showBookDemoModal = ref(false);
+
+// Interactive particle-network background for the hero — desktop only, matches
+// the decorative layer's own `hidden lg:block`. Nodes drift slowly and link to
+// nearby nodes and to the cursor; colors are re-read every frame so it adapts
+// instantly when the site theme toggles, without restarting the effect.
+const heroSection = ref(null);
+const networkCanvas = ref(null);
+let networkAnimationFrame = null;
+let networkNodes = [];
+const networkMouse = { x: null, y: null };
+let networkResizeObserver = null;
+let networkMouseMoveHandler = null;
+let networkMouseLeaveHandler = null;
+
+const NETWORK_NODE_COUNT = 140;
+const NETWORK_LINK_DISTANCE = 150;
+const NETWORK_MOUSE_RADIUS = 190;
+
+function startNetworkEffect() {
+  const canvas = networkCanvas.value;
+  const section = heroSection.value;
+  if (!canvas || !section || !window.matchMedia("(min-width: 1024px)").matches) return;
+
+  const ctx = canvas.getContext("2d");
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const resizeCanvas = () => {
+    const rect = section.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+  };
+  resizeCanvas();
+
+  networkNodes = Array.from({ length: NETWORK_NODE_COUNT }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    vx: (Math.random() - 0.5) * 1.2,
+    vy: (Math.random() - 0.5) * 1.2,
+  }));
+
+  networkMouseMoveHandler = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    networkMouse.x = event.clientX - rect.left;
+    networkMouse.y = event.clientY - rect.top;
+  };
+  networkMouseLeaveHandler = () => {
+    networkMouse.x = null;
+    networkMouse.y = null;
+  };
+  section.addEventListener("mousemove", networkMouseMoveHandler);
+  section.addEventListener("mouseleave", networkMouseLeaveHandler);
+
+  networkResizeObserver = new ResizeObserver(resizeCanvas);
+  networkResizeObserver.observe(section);
+
+  const draw = () => {
+    const isDark = document.documentElement.classList.contains("dark");
+    const nodeAlpha = isDark ? 0.55 : 0.65;
+    const linkAlpha = isDark ? 0.22 : 0.3;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Nodes drift freely and bounce off the edges — the mouse never moves them
+    // (that used to let repeated hovering permanently drag nodes into one spot,
+    // leaving the rest of the canvas empty). Reactivity instead comes purely
+    // from the connecting lines drawn to the cursor below, which cost nothing
+    // to keep even coverage.
+    if (!prefersReducedMotion) {
+      for (const node of networkNodes) {
+        node.x += node.vx;
+        node.y += node.vy;
+        if (node.x <= 0 || node.x >= canvas.width) node.vx *= -1;
+        if (node.y <= 0 || node.y >= canvas.height) node.vy *= -1;
+      }
+    }
+
+    for (let i = 0; i < networkNodes.length; i++) {
+      for (let j = i + 1; j < networkNodes.length; j++) {
+        const dist = Math.hypot(networkNodes[i].x - networkNodes[j].x, networkNodes[i].y - networkNodes[j].y);
+        if (dist < NETWORK_LINK_DISTANCE) {
+          ctx.strokeStyle = `rgba(37,211,102,${linkAlpha * (1 - dist / NETWORK_LINK_DISTANCE)})`;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(networkNodes[i].x, networkNodes[i].y);
+          ctx.lineTo(networkNodes[j].x, networkNodes[j].y);
+          ctx.stroke();
+        }
+      }
+
+      if (networkMouse.x !== null) {
+        const dist = Math.hypot(networkNodes[i].x - networkMouse.x, networkNodes[i].y - networkMouse.y);
+        if (dist < NETWORK_MOUSE_RADIUS) {
+          ctx.strokeStyle = `rgba(37,211,102,${Math.min(linkAlpha * 2.2 * (1 - dist / NETWORK_MOUSE_RADIUS), 0.5)})`;
+          ctx.beginPath();
+          ctx.moveTo(networkNodes[i].x, networkNodes[i].y);
+          ctx.lineTo(networkMouse.x, networkMouse.y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    ctx.fillStyle = `rgba(37,211,102,${nodeAlpha})`;
+    for (const node of networkNodes) {
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    networkAnimationFrame = requestAnimationFrame(draw);
+  };
+
+  draw();
+}
+
+function stopNetworkEffect() {
+  if (networkAnimationFrame) cancelAnimationFrame(networkAnimationFrame);
+  networkResizeObserver?.disconnect();
+  if (heroSection.value && networkMouseMoveHandler) {
+    heroSection.value.removeEventListener("mousemove", networkMouseMoveHandler);
+    heroSection.value.removeEventListener("mouseleave", networkMouseLeaveHandler);
+  }
+}
+
+onMounted(startNetworkEffect);
+onUnmounted(stopNetworkEffect);
 
 const props = defineProps([
   "addons",
@@ -491,30 +632,3 @@ const heroSectionStyle = computed(() => ({
   backgroundRepeat: "no-repeat",
 }));
 </script>
-
-<style scoped>
-.hero-glow {
-    animation: heroGlowPulse 9s ease-in-out infinite;
-}
-
-.hero-glow--b {
-    animation-delay: 3.5s;
-}
-
-@keyframes heroGlowPulse {
-    0%, 100% {
-        opacity: 0.85;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.08);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .hero-glow {
-        animation: none;
-    }
-}
-</style>
