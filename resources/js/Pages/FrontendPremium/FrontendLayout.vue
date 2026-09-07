@@ -2,7 +2,7 @@
     <div :class="[rtlClass, 'font-ibm-plex-arabic', 'page-enter-anim']">
         <!-- Sticky Header -->
         <header class="sticky top-0 ui-layer-content border-b bg-white/90 backdrop-blur-md dark:bg-[#0a0f17] border-[var(--line)] dark:border-transparent shadow-none">
-            <div class="px-4 md:px-10 lg:px-20 py-6 lg:py-8">
+            <div class="px-5 md:px-10 lg:px-20 2xl:px-32 py-6 lg:py-8">
                 <div class="flex justify-between items-center">
                     <!-- Group 1: logo -->
                     <Link href="/" class="premium-brand-lockup shrink-0">
