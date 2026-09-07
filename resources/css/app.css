@@ -693,8 +693,9 @@ h2 {
     animation-duration: 22s;
 }
 
-/* "How It Works" uses the same flat white/dark background as the rest of
-   the page at every screen size — no separate decorative mobile treatment. */
+/* "How It Works" dot-grid texture. Same 18px geometry in both themes — only
+   the dot's own color changes (a colored dot on near-black reads as noise;
+   a low white alpha reads as texture instead). */
 .premium-home-section--steps {
     background-color: var(--surface-1);
     background-image: radial-gradient(var(--pat-dot) 1px, transparent 1px);
@@ -702,7 +703,9 @@ h2 {
 }
 
 .dark .premium-home-section--steps {
-    background: #0a0f17;
+    background-color: #0a0f17;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 18px 18px;
     color: #ffffff;
 }
 
@@ -755,14 +758,42 @@ h2 {
     color: #ffffff;
 }
 
-/* Dashed section divider — light mode only, matches dark mode's own flat
-   section boundaries (no rule there), so this has no .dark counterpart. */
+/* Dashed section divider. Same dash rhythm/geometry in both themes — only
+   the gradient's end color and opacity shift (dark reads it at full
+   strength since nothing else on that ground competes with it). */
 .section-rule {
-    height: 1px;
+    height: 2px;
     background-image: var(--divider);
     -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 9px, transparent 9px 19px);
     mask-image: repeating-linear-gradient(90deg, #000 0 9px, transparent 9px 19px);
     opacity: 0.75;
+}
+
+.dark .section-rule {
+    background-image: linear-gradient(90deg, #0d83da 0%, #0d92f3 100%);
+    opacity: 1;
+}
+
+/* Corner glow — same 520px radial, same position, on the hero and the
+   case-study band. Dark gets a larger, brighter version (+20% radius, ~70%
+   more alpha) since equal-alpha green reads dimmer against a dark ground. */
+.corner-glow {
+    background-image: radial-gradient(circle, rgba(37, 211, 102, 0.13) 0%, rgba(37, 211, 102, 0) 70%);
+}
+
+.dark .corner-glow {
+    background-image: radial-gradient(circle, rgba(37, 211, 102, 0.22) 0%, rgba(37, 211, 102, 0) 70%);
+}
+
+/* Hero background fade — same "ends lighter" cue in both themes: white
+   fading to the quiet ground in light, near-black fading to the card tint
+   in dark. */
+.hero-fade {
+    background-image: linear-gradient(180deg, #ffffff 0%, #ffffff 40%, var(--surface-1) 100%);
+}
+
+.dark .hero-fade {
+    background-image: linear-gradient(180deg, #0a0f17 0%, #0a0f17 40%, #0b161a 100%);
 }
 
 .premium-brand-lockup {

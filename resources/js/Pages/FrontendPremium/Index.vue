@@ -5,15 +5,10 @@
       ref="heroSection"
       class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-32 py-8 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]"
     >
-      <div
-        class="pointer-events-none absolute inset-0 dark:hidden"
-        style="background-image: linear-gradient(180deg, #ffffff 0%, #ffffff 40%, var(--surface-1) 100%);"
-        aria-hidden="true"
-      ></div>
+      <div class="pointer-events-none absolute inset-0 hero-fade" aria-hidden="true"></div>
 
       <div
-        class="pointer-events-none absolute -top-20 end-0 h-[520px] w-[520px] dark:hidden"
-        style="background-image: radial-gradient(circle, rgba(37,211,102,0.13) 0%, rgba(37,211,102,0) 70%);"
+        class="pointer-events-none absolute -top-20 end-0 h-[520px] w-[520px] corner-glow dark:h-[624px] dark:w-[624px]"
         aria-hidden="true"
       ></div>
 
@@ -91,7 +86,7 @@
         <div class="hidden flex-col items-end gap-6 lg:flex lg:w-[1280px]">
           <div class="flex items-center gap-4" dir="ltr">
             <!-- KPI card -->
-            <div class="flex h-[408px] w-[416px] shrink-0 flex-col items-end justify-center gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[var(--surface-1)] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[#0a0f17]">
+            <div class="flex h-[408px] w-[416px] shrink-0 flex-col items-end justify-center gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[var(--surface-1)] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[#0b161a]">
               <div class="flex h-[120.8px] w-full items-end justify-center gap-[9px] pt-[0.8px]">
                 <div class="h-[110.39px] flex-1 rounded-t-[6px] bg-[#25d366]"></div>
                 <div class="h-[79.19px] flex-1 rounded-t-[6px] bg-[#25d366]"></div>
@@ -121,7 +116,7 @@
 
             <!-- Bot workflow card -->
             <div
-              class="flex h-[408px] w-[848px] shrink-0 flex-col items-end gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.06),transparent_55%),linear-gradient(var(--surface-1),var(--surface-1))] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.08),transparent_55%),linear-gradient(#0a0f17,#0a0f17)]"
+              class="flex h-[408px] w-[848px] shrink-0 flex-col items-end gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.06),transparent_55%),linear-gradient(var(--surface-1),var(--surface-1))] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.08),transparent_55%),linear-gradient(#0d1f14,#0d1f14)]"
             >
               <div class="flex w-full items-center justify-end" dir="ltr">
                 <template v-for="(step, index) in pipelineSteps" :key="step.key">
@@ -153,7 +148,7 @@
               v-for="(card, index) in desktopFeatureCards"
               :key="card.titleKey"
               v-reveal="{ delay: index * 100 }"
-              class="group flex h-[274px] w-[416px] shrink-0 -translate-y-0 cursor-default flex-col items-end justify-center overflow-hidden rounded-3xl bg-[var(--surface-1)] p-[24.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 dark:bg-[#0a0f17]"
+              class="group flex h-[274px] w-[416px] shrink-0 -translate-y-0 cursor-default flex-col items-end justify-center overflow-hidden rounded-3xl bg-[var(--surface-1)] p-[24.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 dark:bg-[#0b161a]"
               :class="card.featured
                 ? 'border-t-2 border-[#25d366] pt-[26px] shadow-[0_0_0_1px_rgba(37,211,102,0.2),0_18px_60px_0_rgba(37,211,102,0.12)] hover:shadow-[0_0_0_1px_rgba(37,211,102,0.35),0_26px_70px_0_rgba(37,211,102,0.22)]'
                 : 'border-[0.7px] border-[#e4ece7] hover:border-[#25d366] hover:shadow-[0_18px_60px_0_rgba(37,211,102,0.12)] dark:border-[#1e2a3a] dark:hover:border-[#25d366]'"
@@ -181,7 +176,7 @@
             v-for="(card, index) in mobileFeatureCards"
             :key="card.titleKey"
             v-reveal="{ delay: index * 90 }"
-            class="group flex h-[225px] w-full cursor-default flex-col items-end justify-center overflow-hidden rounded-2xl bg-[var(--surface-1)] p-[16.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 dark:bg-[#0a0f17]"
+            class="group flex h-[225px] w-full cursor-default flex-col items-end justify-center overflow-hidden rounded-2xl bg-[var(--surface-1)] p-[16.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 dark:bg-[#0b161a]"
             :class="card.featured
               ? 'border-t-2 border-[#25d366] pt-[18px] shadow-[0_0_0_1px_rgba(37,211,102,0.2),0_18px_60px_0_rgba(37,211,102,0.12)] hover:shadow-[0_0_0_1px_rgba(37,211,102,0.35),0_26px_70px_0_rgba(37,211,102,0.22)]'
               : 'border-[0.7px] border-[#e4ece7] hover:border-[#25d366] hover:shadow-[0_18px_60px_0_rgba(37,211,102,0.12)] dark:border-[#1e2a3a] dark:hover:border-[#25d366]'"
@@ -243,11 +238,10 @@
     <section
       id="success-story"
       v-reveal
-      class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-[var(--surface-anchor)] dark:bg-[#0a0f17]"
+      class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-[var(--surface-anchor)] dark:bg-[#0f5c2e]"
     >
       <div
-        class="pointer-events-none absolute -top-20 end-0 h-[520px] w-[520px] dark:hidden"
-        style="background-image: radial-gradient(circle, rgba(22,163,74,0.13) 0%, rgba(22,163,74,0) 70%);"
+        class="pointer-events-none absolute -top-20 end-0 h-[520px] w-[520px] corner-glow dark:h-[624px] dark:w-[624px]"
         aria-hidden="true"
       ></div>
 
@@ -262,7 +256,7 @@
       </div>
     </section>
 
-    <div class="section-rule dark:hidden" aria-hidden="true"></div>
+    <div class="section-rule" aria-hidden="true"></div>
 
     <section
       id="section5"
@@ -284,7 +278,7 @@
       </div>
     </section>
 
-    <div class="section-rule dark:hidden" aria-hidden="true"></div>
+    <div class="section-rule" aria-hidden="true"></div>
 
     <PricingSection :plans="props.plans" :addons="props.addons" :currency="props.currency">
       <template #banner>
@@ -316,7 +310,7 @@
       </template>
     </PricingSection>
 
-    <div v-if="homeFaqs.length > 0" class="section-rule dark:hidden" aria-hidden="true"></div>
+    <div v-if="homeFaqs.length > 0" class="section-rule" aria-hidden="true"></div>
 
     <!-- FAQs Section -->
     <section
@@ -345,7 +339,7 @@
       </div>
     </section>
 
-    <div class="section-rule dark:hidden" aria-hidden="true"></div>
+    <div class="section-rule" aria-hidden="true"></div>
 
     <!-- Contact Us Section -->
     <section

@@ -22,7 +22,7 @@ const orderedPlans = computed(() => orderPlansByTier(props.plans, billingPeriod.
         v-if="orderedPlans.length"
         id="pricing"
         v-reveal
-        class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-[var(--surface-2)] dark:bg-[#0a0f17]"
+        class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-[var(--surface-2)] dark:bg-[#0d1f14]"
     >
         <div class="flex flex-col items-center gap-8 lg:gap-[72px]">
             <div class="flex w-full flex-col items-center gap-4 lg:w-[1280px] lg:gap-4">
