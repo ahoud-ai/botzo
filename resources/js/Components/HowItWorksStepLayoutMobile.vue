@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from "vue";
+import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 
 // Continuous step-cycling animation for "How it works" (mobile layout).
 // One active step at a time (bright/scaled/glowing), the other two dimmed.
@@ -25,6 +25,54 @@ const step3 = reactive({ replyRateDisplay: "٠٪", conversionsDisplay: "٠٪" })
 
 const prefersReducedMotionQuery = typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
 const prefersReducedMotion = () => prefersReducedMotionQuery?.matches ?? false;
+
+const arrow1On = computed(() => active.value >= 1 || forceArrowsDrawn.value);
+const arrow2On = computed(() => active.value >= 2 || forceArrowsDrawn.value);
+
+// Traveling dot along each arrow — a persistent RAF loop (independent of the
+// step-cycling timers above) so it keeps a steady 2.2s period regardless of
+// which step is active; only its opacity is gated on whether that arrow is
+// currently "on". Uses getPointAtLength, which needs a real <path> element,
+// hence the static "9 9" dash staying on the path itself (never animated —
+// the reveal comes from the clip-path wipe on the surrounding <rect> instead,
+// which is what lets the dash pattern stay intact while still hiding/showing
+// the arrow, unlike animating stroke-dashoffset against a short dasharray).
+const arrow1Path = ref(null);
+const arrow2Path = ref(null);
+const arrow1Dot = ref(null);
+const arrow2Dot = ref(null);
+let dotAnimationFrame = null;
+const DOT_PERIOD = 2200;
+
+function startDotLoop() {
+  const len1 = arrow1Path.value?.getTotalLength() ?? 0;
+  const len2 = arrow2Path.value?.getTotalLength() ?? 0;
+
+  const tick = (time) => {
+    const p = (time % DOT_PERIOD) / DOT_PERIOD;
+
+    if (arrow1On.value && arrow1Path.value && arrow1Dot.value) {
+      const point = arrow1Path.value.getPointAtLength(len1 * p);
+      arrow1Dot.value.setAttribute("cx", point.x);
+      arrow1Dot.value.setAttribute("cy", point.y);
+      arrow1Dot.value.style.opacity = String(Math.sin(p * Math.PI));
+    } else if (arrow1Dot.value) {
+      arrow1Dot.value.style.opacity = "0";
+    }
+
+    if (arrow2On.value && arrow2Path.value && arrow2Dot.value) {
+      const point = arrow2Path.value.getPointAtLength(len2 * p);
+      arrow2Dot.value.setAttribute("cx", point.x);
+      arrow2Dot.value.setAttribute("cy", point.y);
+      arrow2Dot.value.style.opacity = String(Math.sin(p * Math.PI));
+    } else if (arrow2Dot.value) {
+      arrow2Dot.value.style.opacity = "0";
+    }
+
+    dotAnimationFrame = requestAnimationFrame(tick);
+  };
+  dotAnimationFrame = requestAnimationFrame(tick);
+}
 
 let runToken = 0;
 const timeouts = new Set();
@@ -141,6 +189,7 @@ onMounted(() => {
     return;
   }
   runStep(0);
+  startDotLoop();
 });
 
 onUnmounted(() => {
@@ -149,6 +198,7 @@ onUnmounted(() => {
   timeouts.clear();
   rafs.forEach((id) => cancelAnimationFrame(id));
   rafs.clear();
+  if (dotAnimationFrame) cancelAnimationFrame(dotAnimationFrame);
 });
 
 const nodeState = (index) => (step2.revealed > index ? "hw-node--revealed" : "hw-node--hidden");
@@ -169,11 +219,11 @@ const stubState = (index) => (step2.revealed > index ? "hw-stub--drawn" : "");
           <h3 dir="auto" class="text-xl font-semibold leading-[25px] text-white">
             1-{{ $t("Connect WhatsApp Business") }}
           </h3>
-          <p class="mt-1.5 text-sm leading-6 text-[#8899aa]">
+          <p class="mt-1.5 text-sm leading-6 text-[#b9cfc2]">
             {{ $t("Connect your number via official WhatsApp in minutes, with zero technical hassle.") }}
           </p>
         </div>
-        <div class="hw-float hw-float--1 mx-auto w-full max-w-[319px]">
+        <div class="hw-float hw-float--1 mx-auto w-full max-w-[319px]" :class="{ 'hw-float--dim': active !== 0 }">
           <div class="flex w-full flex-col items-start gap-3 rounded-2xl bg-black p-4">
             <div class="w-full">
               <p class="text-right text-xs leading-[18px] text-[#8899aa]">{{ $t("Mobile number") }}</p>
@@ -208,9 +258,22 @@ const stubState = (index) => (step2.revealed > index ? "hw-stub--drawn" : "");
       </div>
     </div>
 
-    <div class="hw-arrow-band" :class="{ 'hw-arrow-band--drawn': active >= 1 || forceArrowsDrawn }">
-      <svg viewBox="0 0 200 74" preserveAspectRatio="none" class="hw-arrow-svg">
-        <path class="hw-arrow-path" d="M 48 4 C 88 4 98 66 150 66" />
+    <div class="hw-arrow-band">
+      <svg viewBox="0 0 200 74" preserveAspectRatio="none" class="hw-arrow-svg" overflow="visible">
+        <defs>
+          <clipPath id="hw-clip-1" clipPathUnits="userSpaceOnUse">
+            <rect
+              x="0" y="-20" width="200" height="114"
+              class="hw-clip-rect"
+              :class="{ 'hw-clip-rect--on': arrow1On }"
+              style="transform-origin: 0px 0px"
+            />
+          </clipPath>
+        </defs>
+        <g clip-path="url(#hw-clip-1)">
+          <path ref="arrow1Path" class="hw-arrow-path" d="M 48 4 C 88 4 98 66 150 66" />
+        </g>
+        <circle ref="arrow1Dot" r="3.4" fill="#25d366" style="opacity: 0" />
       </svg>
     </div>
 
@@ -226,11 +289,11 @@ const stubState = (index) => (step2.revealed > index ? "hw-stub--drawn" : "");
           <h3 dir="auto" class="text-xl font-semibold leading-[25px] text-white">
             2-{{ $t("Design smart replies without code") }}
           </h3>
-          <p class="mt-1.5 text-sm leading-6 text-[#8899aa]">
+          <p class="mt-1.5 text-sm leading-6 text-[#b9cfc2]">
             {{ $t("Build flows with drag-and-drop, without writing a single line of code.") }}
           </p>
         </div>
-        <div class="hw-float hw-float--2 w-full">
+        <div class="hw-float hw-float--2 w-full" :class="{ 'hw-float--dim': active !== 1 }">
           <div class="flex w-full flex-col items-center gap-0 rounded-2xl bg-black px-6 py-8">
             <div class="hw-node" :class="nodeState(0)">
               <span>👋</span>
@@ -257,9 +320,22 @@ const stubState = (index) => (step2.revealed > index ? "hw-stub--drawn" : "");
       </div>
     </div>
 
-    <div class="hw-arrow-band" :class="{ 'hw-arrow-band--drawn': active >= 2 || forceArrowsDrawn }">
-      <svg viewBox="0 0 200 74" preserveAspectRatio="none" class="hw-arrow-svg hw-arrow-svg--flip">
-        <path class="hw-arrow-path" d="M 150 4 C 110 4 100 66 48 66" />
+    <div class="hw-arrow-band">
+      <svg viewBox="0 0 200 74" preserveAspectRatio="none" class="hw-arrow-svg" overflow="visible">
+        <defs>
+          <clipPath id="hw-clip-2" clipPathUnits="userSpaceOnUse">
+            <rect
+              x="0" y="-20" width="200" height="114"
+              class="hw-clip-rect"
+              :class="{ 'hw-clip-rect--on': arrow2On }"
+              style="transform-origin: 200px 0px"
+            />
+          </clipPath>
+        </defs>
+        <g clip-path="url(#hw-clip-2)">
+          <path ref="arrow2Path" class="hw-arrow-path" d="M 150 4 C 110 4 100 66 48 66" />
+        </g>
+        <circle ref="arrow2Dot" r="3.4" fill="#25d366" style="opacity: 0" />
       </svg>
     </div>
 
@@ -275,11 +351,11 @@ const stubState = (index) => (step2.revealed > index ? "hw-stub--drawn" : "");
           <h3 dir="auto" class="text-xl font-semibold leading-[25px] text-white">
             3-{{ $t("Monitor and improve") }}
           </h3>
-          <p class="mt-1.5 text-sm leading-6 text-[#8899aa]">
+          <p class="mt-1.5 text-sm leading-6 text-[#b9cfc2]">
             {{ $t("A real-time analytics dashboard reveals what's working and what needs improvement.") }}
           </p>
         </div>
-        <div class="hw-float hw-float--3 w-full">
+        <div class="hw-float hw-float--3 w-full" :class="{ 'hw-float--dim': active !== 2 }">
           <div class="flex w-full flex-col items-end rounded-2xl bg-black p-[22px]">
             <p class="w-full text-right text-sm leading-[21px] text-white">{{ $t("Overview") }}</p>
             <div class="mt-4 flex w-full items-start gap-[10px]" dir="ltr">
@@ -341,14 +417,13 @@ const stubState = (index) => (step2.revealed > index ? "hw-stub--drawn" : "");
   border-radius: 24px;
   padding: 24px;
   width: 100%;
-  transition: background 0.6s, border-color 0.6s, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s, box-shadow 0.6s;
+  transition: background 0.6s, border-color 0.6s, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s;
 }
 
 .hw-card--active {
   background: #0d2114;
   border: 1px solid rgba(37, 211, 102, 0.34);
   transform: scale(1);
-  opacity: 1;
   box-shadow: 0 30px 60px -40px rgba(37, 211, 102, 0.55);
 }
 
@@ -356,7 +431,6 @@ const stubState = (index) => (step2.revealed > index ? "hw-stub--drawn" : "");
   background: #0b1a11;
   border: 1px solid rgba(255, 255, 255, 0.07);
   transform: scale(0.985);
-  opacity: 0.72;
   box-shadow: none;
 }
 
@@ -417,11 +491,17 @@ const stubState = (index) => (step2.revealed > index ? "hw-stub--drawn" : "");
 
 .hw-eyebrow {
   font-size: 11.5px;
-  color: #7a8f82;
+  color: #a8bdb0;
 }
 
 .hw-float {
   animation: hw-float ease-in-out infinite;
+  opacity: 1;
+  transition: opacity 0.6s;
+}
+
+.hw-float--dim {
+  opacity: 0.62;
 }
 
 .hw-float--1 {
@@ -586,12 +666,20 @@ const stubState = (index) => (step2.revealed > index ? "hw-stub--drawn" : "");
   stroke-width: 2.2;
   stroke-linecap: round;
   stroke-dasharray: 9 9;
-  stroke-dashoffset: 400;
-  transition: stroke-dashoffset 1.1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.hw-arrow-band--drawn .hw-arrow-path {
-  stroke-dashoffset: 0;
+/* The reveal is a clip-path wipe, not stroke-dashoffset: with a short "9 9"
+   dash repeating along the whole path, animating dashoffset only shifts the
+   dash phase — it never actually hides any of the path, so the arrow would
+   stay visible the entire time. Scaling this clip rect from 0 keeps the dash
+   pattern intact while genuinely hiding/revealing the arrow. */
+.hw-clip-rect {
+  transform: scaleX(0);
+  transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hw-clip-rect--on {
+  transform: scaleX(1);
 }
 
 .hw-bar {
@@ -641,7 +729,7 @@ const stubState = (index) => (step2.revealed > index ? "hw-stub--drawn" : "");
   .hw-verify-row,
   .hw-node,
   .hw-stub,
-  .hw-arrow-path,
+  .hw-clip-rect,
   .hw-bar,
   .hw-dot {
     animation: none !important;
