@@ -158,17 +158,22 @@
                 <template v-for="(step, index) in pipelineSteps" :key="step.key">
                   <div
                     :data-chip="index"
-                    class="flex shrink-0 items-center rounded-[10px] border px-[14px] pb-[8.69px] pt-[8.5px] transition-colors duration-[350ms]"
-                    :class="[
-                      index === pipelineSteps.length - 1 ? 'shadow-[0_0_18px_0_rgba(37,211,102,0.18)]' : '',
-                      index === activeChipIndex
-                        ? 'border-[var(--accent-solid)] bg-[var(--accent-solid)]'
-                        : 'border-[#25d366] bg-[#25d366]/[0.06]',
-                    ]"
+                    class="flex shrink-0 items-center gap-[6px] rounded-[10px] border px-[14px] pb-[8.69px] pt-[8.5px] transition-colors duration-[350ms]"
+                    :class="index === activeChipIndex
+                      ? 'border-[#25d366] bg-[#25d366] shadow-[0_0_18px_0_rgba(37,211,102,0.35)]'
+                      : 'border-[#cfd8e3] bg-white dark:border-[#1e2a3a] dark:bg-[#25d366]/[0.06]'"
                   >
+                    <component
+                      :is="step.icon"
+                      :size="14"
+                      class="shrink-0"
+                      :class="[
+                        index === activeChipIndex ? [step.activeAnim, 'text-[#04130a]'] : 'text-[#445566] dark:text-[#8899aa]',
+                      ]"
+                    />
                     <span
                       class="whitespace-nowrap text-sm leading-6"
-                      :class="index === activeChipIndex ? 'font-semibold text-white' : 'text-black dark:text-white'"
+                      :class="index === activeChipIndex ? 'font-semibold text-[#04130a]' : 'text-[#445566] dark:text-white'"
                       dir="auto"
                     >{{ $t(step.key) }}</span>
                   </div>
@@ -194,7 +199,7 @@
               <!-- Mini chat demo — plays out in sync with the chips above -->
               <div class="mt-2 flex w-full flex-1 flex-col justify-end gap-3 px-1 pb-1" dir="rtl">
                 <div class="flex justify-start">
-                  <div class="max-w-[70%] rounded-2xl rounded-ss-sm border border-black/[0.06] bg-white px-4 py-2.5 shadow-[0_2px_10px_rgba(15,23,42,0.06)] dark:border-white/[0.08] dark:bg-[#22304a] dark:shadow-none">
+                  <div class="max-w-[70%] rounded-2xl rounded-ss-sm border border-[#dbe4e0] bg-[#eef2f0] px-4 py-2.5 shadow-[0_2px_10px_rgba(15,23,42,0.05)] dark:border-white/[0.08] dark:bg-[#22304a] dark:shadow-none">
                     <p class="text-sm leading-6 text-black dark:text-white" dir="auto">{{ $t("When will my order arrive?") }}</p>
                   </div>
                 </div>
@@ -449,6 +454,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { Link } from "@inertiajs/vue3";
+import { MessageCircle, ScanLine, GitBranch, Sparkles, Send as SendIcon } from "lucide-vue-next";
 import FrontendLayout from "./FrontendLayout.vue";
 import HeroChatDemo from "@/Components/HeroChatDemo.vue";
 import HeroNetworkScene from "@/Components/HeroNetworkScene.vue";
@@ -499,11 +505,11 @@ const props = defineProps([
 ]);
 
 const pipelineSteps = [
-  { key: "Send" },
-  { key: "Reply generation" },
-  { key: "Decision making" },
-  { key: "Intent analysis" },
-  { key: "Incoming message" },
+  { key: "Send", icon: SendIcon, activeAnim: "chip-anim-send" },
+  { key: "Reply generation", icon: Sparkles, activeAnim: "chip-anim-generate" },
+  { key: "Decision making", icon: GitBranch, activeAnim: "chip-anim-decide" },
+  { key: "Intent analysis", icon: ScanLine, activeAnim: "chip-anim-scan" },
+  { key: "Incoming message", icon: MessageCircle, activeAnim: "chip-anim-ping" },
 ];
 
 // Features-section motion: the active pipeline chip cycles on its own timer,
@@ -513,7 +519,7 @@ const pipelineSteps = [
 const prefersReducedMotionQuery = typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
 const prefersReducedMotion = () => prefersReducedMotionQuery?.matches ?? false;
 
-const activeChipIndex = ref(0);
+const activeChipIndex = ref(4);
 let chipCycleInterval = null;
 
 // Fills the bot-workflow card's empty lower half with a tiny chat demo that
@@ -559,15 +565,18 @@ function runStatCount() {
 onMounted(() => {
   if (prefersReducedMotion()) {
     statCountDisplay.value = formatStatValue(STAT_TARGET);
-    activeChipIndex.value = 0;
+    activeChipIndex.value = 4;
     return;
   }
 
   runStatCount();
   statCountInterval = setInterval(runStatCount, STAT_COUNT_REPEAT);
 
+  // Counts DOWN (4→3→2→1→0), matching the natural process order rendered
+  // right-to-left in this dir="ltr" row: Incoming message (4) is rightmost/
+  // first, Send (0) is leftmost/last.
   chipCycleInterval = setInterval(() => {
-    activeChipIndex.value = (activeChipIndex.value + 1) % pipelineSteps.length;
+    activeChipIndex.value = (activeChipIndex.value - 1 + pipelineSteps.length) % pipelineSteps.length;
   }, 3000);
 });
 
@@ -853,11 +862,92 @@ const heroSectionStyle = computed(() => ({
   }
 }
 
+/* Each pipeline chip gets its own signature motion while active, instead of
+   every step reusing the same generic pulse. */
+.chip-anim-ping {
+  animation: chip-anim-ping 1s ease-in-out infinite;
+}
+
+@keyframes chip-anim-ping {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.35);
+  }
+}
+
+.chip-anim-scan {
+  animation: chip-anim-scan 1.4s ease-in-out infinite;
+}
+
+@keyframes chip-anim-scan {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-3px);
+  }
+}
+
+.chip-anim-decide {
+  animation: chip-anim-decide 1.1s ease-in-out infinite;
+}
+
+@keyframes chip-anim-decide {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(18deg);
+  }
+}
+
+.chip-anim-generate {
+  animation: chip-anim-generate 0.9s ease-in-out infinite;
+}
+
+@keyframes chip-anim-generate {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.25) rotate(-12deg);
+    opacity: 0.65;
+  }
+}
+
+.chip-anim-send {
+  animation: chip-anim-send 1s ease-in-out infinite;
+}
+
+@keyframes chip-anim-send {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(3px);
+    opacity: 0.6;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .botzo-bar,
   .botzo-draw,
   .botzo-dot,
-  .bot-demo-dot {
+  .bot-demo-dot,
+  .chip-anim-ping,
+  .chip-anim-scan,
+  .chip-anim-decide,
+  .chip-anim-generate,
+  .chip-anim-send {
     animation: none !important;
   }
   .tilt-sheen {
