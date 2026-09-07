@@ -256,8 +256,6 @@
       </div>
     </section>
 
-    <div class="section-rule" aria-hidden="true"></div>
-
     <section
       id="section5"
       v-reveal
@@ -277,8 +275,6 @@
         <ReviewsMarquee :reviews="props.reviews" />
       </div>
     </section>
-
-    <div class="section-rule" aria-hidden="true"></div>
 
     <PricingSection :plans="props.plans" :addons="props.addons" :currency="props.currency">
       <template #banner>
@@ -310,8 +306,6 @@
       </template>
     </PricingSection>
 
-    <div v-if="homeFaqs.length > 0" class="section-rule" aria-hidden="true"></div>
-
     <!-- FAQs Section -->
     <section
       v-if="homeFaqs.length > 0"
@@ -338,8 +332,6 @@
         </div>
       </div>
     </section>
-
-    <div class="section-rule" aria-hidden="true"></div>
 
     <!-- Contact Us Section -->
     <section

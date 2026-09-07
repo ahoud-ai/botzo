@@ -199,8 +199,6 @@
         <!-- Cookie Consent Banner -->
         <CookieConsentBanner />
 
-        <div class="section-rule" aria-hidden="true"></div>
-
         <!-- Footer -->
         <footer id="section7" class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-[var(--surface-anchor)] dark:bg-[#060a10]">
             <!-- The footer is always the dark "anchor" band (light-mode's one deliberate
