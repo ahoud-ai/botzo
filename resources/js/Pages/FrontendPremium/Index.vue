@@ -266,7 +266,7 @@
     >
       <div class="flex flex-col items-center gap-8 lg:gap-[72px]">
         <div class="flex w-full flex-col items-center gap-3 text-center lg:gap-4">
-          <div class="flex w-full max-w-[420px] items-center gap-4">
+          <div class="flex w-full max-w-[420px] items-center justify-center gap-4">
             <span class="hidden h-px flex-1 bg-[var(--line-strong)] dark:hidden sm:block"></span>
             <SectionBadge :label="$t('What clients say about Botzo')" />
             <span class="hidden h-px flex-1 bg-[var(--line-strong)] dark:hidden sm:block"></span>

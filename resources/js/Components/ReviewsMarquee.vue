@@ -73,10 +73,6 @@ const initial = (name) => (name || "").trim().charAt(0) || "؟";
     will-change: transform;
 }
 
-.reviews-marquee:hover .reviews-marquee__track {
-    animation-play-state: paused;
-}
-
 .reviews-marquee__card {
     margin-inline-end: 16px;
 }
