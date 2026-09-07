@@ -697,7 +697,7 @@ h2 {
    the page at every screen size — no separate decorative mobile treatment. */
 .premium-home-section--steps {
     background-color: var(--surface-1);
-    background-image: radial-gradient(#d8e6dd 1px, transparent 1px);
+    background-image: radial-gradient(var(--pat-dot) 1px, transparent 1px);
     background-size: 18px 18px;
 }
 
@@ -753,6 +753,16 @@ h2 {
 
 .dark .faq-answer strong {
     color: #ffffff;
+}
+
+/* Dashed section divider — light mode only, matches dark mode's own flat
+   section boundaries (no rule there), so this has no .dark counterpart. */
+.section-rule {
+    height: 1px;
+    background-image: var(--divider);
+    -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 9px, transparent 9px 19px);
+    mask-image: repeating-linear-gradient(90deg, #000 0 9px, transparent 9px 19px);
+    opacity: 0.75;
 }
 
 .premium-brand-lockup {
@@ -1458,20 +1468,25 @@ h2 {
        one long flat white sheet. Dark mode keeps its existing flat #0a0f17
        throughout (unchanged), so these have no .dark counterpart — every
        component pairs a var(--surface-*) base class with its own existing
-       dark:bg-[#hex] override. */
+       dark:bg-[#hex] override. Cool neutral ground + green-tinted cards +
+       one bright green accent, matching dark mode's own logic in reverse
+       (dark: cool near-black ground, cards a step lighter/greener). */
     --surface-0: #ffffff;
-    --surface-1: #f4f8f5;
-    --surface-2: #e6f2ea;
-    --surface-anchor: #0d1f16;
-    --line: #e6ede9;
-    --line-strong: #d9e8df;
-    --line-on-mint: #d6e7dc;
+    --surface-1: #f9fafb;
+    --surface-2: #e4f9ec;
+    --surface-anchor: #0a0f17;
+    --line: #e8ecf1;
+    --line-strong: #cbeed9;
+    --line-on-mint: #cbeed9;
     --ink-2: #4a5a52;
     --ink-3: #55665d;
-    --accent-solid: #12833d;
-    --accent-solid-hover: #0b5f2b;
-    --accent-soft: #e6f2ea;
-    --accent-ink: #15803d;
+    --accent: #25d366;
+    --accent-solid: #0c7c3e;
+    --accent-solid-hover: #0a6433;
+    --accent-soft: #e4f9ec;
+    --accent-ink: #0c7c3e;
+    --divider: linear-gradient(90deg, #0d83da 0%, #35a8ff 100%);
+    --pat-dot: #dfe6ee;
 }
 
 .dark {

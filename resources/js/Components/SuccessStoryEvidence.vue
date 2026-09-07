@@ -1,6 +1,6 @@
 <script setup>
 const statBoxBase =
-    "flex flex-col items-center justify-center gap-0 rounded-2xl bg-[#11241a] p-[17px] text-center dark:bg-[#0a0f17]";
+    "flex flex-col items-center justify-center gap-0 rounded-2xl bg-[#0a0f17] p-[17px] text-center dark:bg-[#0a0f17]";
 
 const beforeReplyRate = 13;
 const afterReplyRate = 94;
@@ -8,43 +8,43 @@ const afterReplyRate = 94;
 
 <template>
     <div
-        class="relative flex w-full flex-col items-stretch gap-8 overflow-hidden rounded-3xl border border-[#24402f] bg-[var(--surface-anchor)] p-6 dark:border-[#1e2a3a] dark:bg-[#0d1117] md:p-10 lg:w-[1280px] lg:flex-row lg:items-start lg:justify-between lg:gap-0 lg:p-[56px]"
+        class="relative flex w-full flex-col items-stretch gap-8 overflow-hidden rounded-3xl border border-[#1e2a3a] bg-[#0d1117] p-6 dark:border-[#1e2a3a] dark:bg-[#0d1117] md:p-10 lg:w-[1280px] lg:flex-row lg:items-start lg:justify-between lg:gap-0 lg:p-[56px]"
         dir="ltr"
     >
         <!-- Evidence: stat grid + before/after comparison -->
         <div class="flex w-full flex-col items-stretch gap-6 lg:w-[528px]">
             <div class="grid w-full grid-cols-3 gap-3.5 text-center lg:h-[108.8px]" dir="ltr">
-                <div class="col-start-1 border border-[#24402f] dark:border-[#1e2a3a]" :class="statBoxBase">
-                    <p class="text-2xl font-semibold leading-[1.4] text-[#4ade80] dark:text-[#2bd46a] lg:text-[40px]">{{ $t('200+') }}</p>
-                    <p class="text-sm leading-6 text-[#a7bdb1] dark:text-[#8899aa]">{{ $t('Hours saved/month') }}</p>
+                <div class="col-start-1 border border-[#1e2a3a]" :class="statBoxBase">
+                    <p class="text-2xl font-semibold leading-[1.4] text-[#25d366] lg:text-[40px]">{{ $t('200+') }}</p>
+                    <p class="text-sm leading-6 text-[#9fb0c4]">{{ $t('Hours saved/month') }}</p>
                 </div>
-                <div class="col-start-2 border border-[#24402f] dark:border-[#1a2332]" :class="statBoxBase">
-                    <p class="text-2xl font-semibold leading-[1.4] text-[#4ade80] dark:text-[#2bd46a] lg:text-[40px]">{{ $t('3×') }}</p>
-                    <p class="text-sm leading-6 text-[#a7bdb1] dark:text-[#8899aa]">{{ $t('Sales increase') }}</p>
+                <div class="col-start-2 border border-[#1a2332]" :class="statBoxBase">
+                    <p class="text-2xl font-semibold leading-[1.4] text-[#25d366] lg:text-[40px]">{{ $t('3×') }}</p>
+                    <p class="text-sm leading-6 text-[#9fb0c4]">{{ $t('Sales increase') }}</p>
                 </div>
-                <div class="col-start-3 border border-[#24402f] dark:border-[#1a2332]" :class="statBoxBase">
-                    <p class="text-2xl font-semibold leading-[1.4] text-[#4ade80] dark:text-[#2bd46a] lg:text-[40px]">{{ afterReplyRate }}%</p>
-                    <p class="text-sm leading-6 text-[#a7bdb1] dark:text-[#8899aa]">{{ $t('Reply rate') }}</p>
+                <div class="col-start-3 border border-[#1a2332]" :class="statBoxBase">
+                    <p class="text-2xl font-semibold leading-[1.4] text-[#25d366] lg:text-[40px]">{{ afterReplyRate }}%</p>
+                    <p class="text-sm leading-6 text-[#9fb0c4]">{{ $t('Reply rate') }}</p>
                 </div>
             </div>
 
-            <div class="flex w-full flex-col gap-4 rounded-2xl border border-[#24402f] bg-[#11241a] p-[21px] dark:border-[#1e2a3a] dark:bg-[#0a0f17]">
+            <div class="flex w-full flex-col gap-4 rounded-2xl border border-[#1e2a3a] bg-[#0a0f17] p-[21px]">
                 <div class="flex w-full items-center gap-3" dir="ltr">
-                    <span class="w-[38px] shrink-0 text-sm leading-6 text-[#a7bdb1] dark:text-[#8899aa]">{{ beforeReplyRate }}%</span>
-                    <span class="relative h-3 flex-1 overflow-hidden rounded-lg bg-[#1a3325] dark:bg-[#1a2332]">
-                        <span class="absolute inset-y-0 right-0 rounded-lg bg-[#4ade80] dark:bg-[#2bd46a]" :style="{ left: (100 - beforeReplyRate) + '%' }"></span>
+                    <span class="w-[38px] shrink-0 text-sm leading-6 text-[#9fb0c4]">{{ beforeReplyRate }}%</span>
+                    <span class="relative h-3 flex-1 overflow-hidden rounded-lg bg-[#1a2332]">
+                        <span class="absolute inset-y-0 right-0 rounded-lg bg-[#25d366]" :style="{ left: (100 - beforeReplyRate) + '%' }"></span>
                     </span>
-                    <span class="w-12 shrink-0 text-right text-sm leading-6 text-[#a7bdb1] dark:text-[#8899aa]">{{ $t('Before') }}</span>
+                    <span class="w-12 shrink-0 text-right text-sm leading-6 text-[#9fb0c4]">{{ $t('Before') }}</span>
                 </div>
                 <div class="flex w-full items-center gap-3" dir="ltr">
-                    <span class="w-[38px] shrink-0 text-sm leading-6 text-[#a7bdb1] dark:text-[#8899aa]">{{ afterReplyRate }}%</span>
-                    <span class="relative h-3 flex-1 overflow-hidden rounded-lg bg-[#1a3325] dark:bg-[#1a2332]">
+                    <span class="w-[38px] shrink-0 text-sm leading-6 text-[#9fb0c4]">{{ afterReplyRate }}%</span>
+                    <span class="relative h-3 flex-1 overflow-hidden rounded-lg bg-[#1a2332]">
                         <span
-                            class="absolute inset-y-0 right-0 rounded-lg bg-[#4ade80] shadow-[0px_0px_16px_0px_rgba(74,222,128,0.4)] dark:bg-[#2bd46a] dark:shadow-[0px_0px_16px_0px_rgba(37,211,102,0.4)]"
+                            class="absolute inset-y-0 right-0 rounded-lg bg-[#25d366] shadow-[0px_0px_16px_0px_rgba(37,211,102,0.4)]"
                             :style="{ left: (100 - afterReplyRate) + '%' }"
                         ></span>
                     </span>
-                    <span class="w-12 shrink-0 text-right text-sm leading-6 text-[#a7bdb1] dark:text-[#8899aa]">{{ $t('After') }}</span>
+                    <span class="w-12 shrink-0 text-right text-sm leading-6 text-[#9fb0c4]">{{ $t('After') }}</span>
                 </div>
             </div>
         </div>
@@ -52,25 +52,25 @@ const afterReplyRate = 94;
         <!-- Case study details -->
         <div class="flex w-full flex-col items-end gap-8 text-right lg:w-[616px]">
             <div class="flex w-full flex-col items-end gap-6">
-                <h3 dir="auto" class="w-full text-2xl font-semibold leading-[1.3] text-[#e8f2ec] dark:text-white lg:text-[32px] lg:leading-[40.8px]">
+                <h3 dir="auto" class="w-full text-2xl font-semibold leading-[1.3] text-[#e9eef5] dark:text-white lg:text-[32px] lg:leading-[40.8px]">
                     {{ $t('From delayed replies to round-the-clock sales') }}
                 </h3>
                 <div class="flex w-full flex-col items-end gap-4">
                     <div class="flex w-full flex-col items-end gap-2 pt-1">
                         <p dir="auto" class="text-lg font-medium uppercase leading-[1.4] text-[#25d366]">{{ $t('Context') }}</p>
-                        <p dir="auto" class="w-full text-base leading-6 text-[#a7bdb1] dark:text-[#8899aa]">
+                        <p dir="auto" class="w-full text-base leading-6 text-[#9fb0c4]">
                             {{ $t('A Saudi fashion e-commerce store receiving thousands of daily WhatsApp inquiries, with a limited team.') }}
                         </p>
                     </div>
                     <div class="flex w-full flex-col items-end gap-2">
                         <p dir="auto" class="text-lg font-medium uppercase leading-[1.4] text-[#25d366]">{{ $t('Challenge') }}</p>
-                        <p dir="auto" class="w-full text-base leading-6 text-[#a7bdb1] dark:text-[#8899aa]">
+                        <p dir="auto" class="w-full text-base leading-6 text-[#9fb0c4]">
                             {{ $t('Leads lost overnight, replies delayed for hours, and customers leaving before purchase.') }}
                         </p>
                     </div>
                     <div class="flex w-full flex-col items-end gap-2">
                         <p dir="auto" class="text-lg font-medium uppercase leading-[1.4] text-[#25d366]">{{ $t('Solution') }}</p>
-                        <p dir="auto" class="w-full text-base leading-6 text-[#a7bdb1] dark:text-[#8899aa]">
+                        <p dir="auto" class="w-full text-base leading-6 text-[#9fb0c4]">
                             {{ $t('Deployed Botzo for instant replies, lead qualification, and automatic cart recovery — within a single week.') }}
                         </p>
                     </div>

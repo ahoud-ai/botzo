@@ -23,7 +23,7 @@ const normalizedFeatures = computed(() => props.features.map((feature) => (
     <div
         class="group relative flex w-full max-w-[359px] shrink-0 flex-col rounded-3xl border bg-white p-[25px] transition-all duration-300 dark:bg-[#0a0f17] sm:p-[33px] lg:w-[354px]"
         :class="featured
-            ? 'border-[1.5px] border-[var(--accent)] shadow-[0_0_0_1px_rgba(37,211,102,0.2),0_18px_30px_rgba(37,211,102,0.12)] dark:-translate-y-0 lg:w-[359px] lg:-translate-y-[10px] lg:py-[52px]'
+            ? 'border-[1.5px] border-[var(--accent)] shadow-[0_0_0_4px_rgba(37,211,102,0.12),0_18px_30px_rgba(37,211,102,0.12)] dark:-translate-y-0 dark:shadow-[0_0_0_1px_rgba(37,211,102,0.2),0_18px_30px_rgba(37,211,102,0.12)] lg:w-[359px] lg:-translate-y-[10px] lg:py-[52px]'
             : 'border-[#cfd8e3] hover:border-[#25d366] hover:shadow-[0_0_0_1px_rgba(37,211,102,0.2),0_18px_30px_rgba(37,211,102,0.12)] dark:border-[#1e2a3a]'"
     >
         <span

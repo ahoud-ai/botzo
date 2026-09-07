@@ -11,6 +11,12 @@
         aria-hidden="true"
       ></div>
 
+      <div
+        class="pointer-events-none absolute -top-20 end-0 h-[520px] w-[520px] dark:hidden"
+        style="background-image: radial-gradient(circle, rgba(37,211,102,0.13) 0%, rgba(37,211,102,0) 70%);"
+        aria-hidden="true"
+      ></div>
+
       <div class="pointer-events-none absolute inset-0 hidden overflow-hidden lg:block" aria-hidden="true">
         <canvas ref="networkCanvas" class="absolute inset-0 h-full w-full"></canvas>
 
@@ -248,13 +254,15 @@
       <div class="relative flex flex-col items-center gap-8 lg:gap-[72px]">
         <div class="flex w-full flex-col items-center gap-3 text-center lg:gap-4">
           <SectionBadge :label="$t('Success story')" />
-          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-[#e8f2ec] dark:text-white lg:w-[1280px] lg:text-[46px] lg:leading-[56px]">
+          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-[#e9eef5] dark:text-white lg:w-[1280px] lg:text-[46px] lg:leading-[56px]">
             {{ $t("How did Nora increase her store's sales 3x in 60 days?") }}
           </h2>
         </div>
         <SuccessStoryEvidence />
       </div>
     </section>
+
+    <div class="section-rule dark:hidden" aria-hidden="true"></div>
 
     <section
       id="section5"
@@ -275,6 +283,8 @@
         <ReviewsMarquee :reviews="props.reviews" />
       </div>
     </section>
+
+    <div class="section-rule dark:hidden" aria-hidden="true"></div>
 
     <PricingSection :plans="props.plans" :addons="props.addons" :currency="props.currency">
       <template #banner>
@@ -306,6 +316,8 @@
       </template>
     </PricingSection>
 
+    <div v-if="homeFaqs.length > 0" class="section-rule dark:hidden" aria-hidden="true"></div>
+
     <!-- FAQs Section -->
     <section
       v-if="homeFaqs.length > 0"
@@ -333,6 +345,8 @@
       </div>
     </section>
 
+    <div class="section-rule dark:hidden" aria-hidden="true"></div>
+
     <!-- Contact Us Section -->
     <section
       id="contact-cta"
@@ -354,7 +368,7 @@
           rel="noopener noreferrer"
           class="flex h-[54px] w-[220px] shrink-0 items-center justify-center rounded-2xl bg-white px-8 transition-transform duration-200 hover:scale-[1.03] dark:bg-gradient-to-br dark:from-[#25d366] dark:to-[#1db954]"
         >
-          <span class="whitespace-nowrap text-base font-semibold leading-5 text-[#0b5f2b] dark:text-[#04130a]">{{ $t('Start the conversation') }}</span>
+          <span class="whitespace-nowrap text-base font-semibold leading-5 text-[#0a6433] dark:text-[#04130a]">{{ $t('Start the conversation') }}</span>
         </a>
       </div>
     </section>
@@ -433,11 +447,11 @@ function startNetworkEffect() {
 
   const draw = () => {
     const isDark = document.documentElement.classList.contains("dark");
-    // Light mode re-tints to the --accent shade (22,163,74) instead of the
-    // dark-mode brand green (37,211,102) and reads as texture, not noise —
-    // dark mode's color/alpha values are untouched.
-    const rgb = isDark ? "37,211,102" : "22,163,74";
-    const nodeAlpha = isDark ? 0.55 : 0.35;
+    // Same brand green in both themes (37,211,102) — only the alpha drops in
+    // light mode so the layer reads as texture, not noise. Dark mode's own
+    // values are untouched.
+    const rgb = "37,211,102";
+    const nodeAlpha = isDark ? 0.55 : 0.3;
     const linkAlpha = isDark ? 0.22 : 0.16;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
