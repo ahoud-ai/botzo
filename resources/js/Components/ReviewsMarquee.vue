@@ -22,7 +22,7 @@ const initial = (name) => (name || "").trim().charAt(0) || "؟";
                 v-for="(item, index) in [...reviews, ...reviews]"
                 :key="index"
                 :aria-hidden="index >= reviews.length ? 'true' : null"
-                class="reviews-marquee__card flex w-[280px] shrink-0 flex-col items-end gap-4 overflow-hidden rounded-3xl border-[0.7px] border-[#cfd8e3] bg-white px-5 py-6 dark:border-[#1e2a3a] dark:bg-[#0a0f17] sm:w-[362.667px] sm:px-[24.7px] sm:py-[32.7px]"
+                class="reviews-marquee__card flex w-[280px] shrink-0 flex-col items-end gap-4 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[var(--surface-1)] px-5 py-6 dark:border-[#1e2a3a] dark:bg-[#0a0f17] sm:w-[362.667px] sm:px-[24.7px] sm:py-[32.7px]"
             >
                 <span
                     class="pointer-events-none absolute font-['Georgia',_serif] text-[120px] leading-[120px] text-black opacity-[0.04] dark:text-white"

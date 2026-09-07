@@ -5,6 +5,12 @@
       ref="heroSection"
       class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-32 py-8 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]"
     >
+      <div
+        class="pointer-events-none absolute inset-0 dark:hidden"
+        style="background-image: linear-gradient(180deg, #ffffff 0%, #ffffff 40%, var(--surface-1) 100%);"
+        aria-hidden="true"
+      ></div>
+
       <div class="pointer-events-none absolute inset-0 hidden overflow-hidden lg:block" aria-hidden="true">
         <canvas ref="networkCanvas" class="absolute inset-0 h-full w-full"></canvas>
 
@@ -79,7 +85,7 @@
         <div class="hidden flex-col items-end gap-6 lg:flex lg:w-[1280px]">
           <div class="flex items-center gap-4" dir="ltr">
             <!-- KPI card -->
-            <div class="flex h-[408px] w-[416px] shrink-0 flex-col items-end justify-center gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#cfd8e3] bg-white p-[24.7px] dark:border-[#1e2a3a] dark:bg-[#0a0f17]">
+            <div class="flex h-[408px] w-[416px] shrink-0 flex-col items-end justify-center gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[var(--surface-1)] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[#0a0f17]">
               <div class="flex h-[120.8px] w-full items-end justify-center gap-[9px] pt-[0.8px]">
                 <div class="h-[110.39px] flex-1 rounded-t-[6px] bg-[#25d366]"></div>
                 <div class="h-[79.19px] flex-1 rounded-t-[6px] bg-[#25d366]"></div>
@@ -109,7 +115,7 @@
 
             <!-- Bot workflow card -->
             <div
-              class="flex h-[408px] w-[848px] shrink-0 flex-col items-end gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#cfd8e3] bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.06),transparent_55%),linear-gradient(#fff,#fff)] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.08),transparent_55%),linear-gradient(#0a0f17,#0a0f17)]"
+              class="flex h-[408px] w-[848px] shrink-0 flex-col items-end gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.06),transparent_55%),linear-gradient(var(--surface-1),var(--surface-1))] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.08),transparent_55%),linear-gradient(#0a0f17,#0a0f17)]"
             >
               <div class="flex w-full items-center justify-end" dir="ltr">
                 <template v-for="(step, index) in pipelineSteps" :key="step.key">
@@ -141,10 +147,10 @@
               v-for="(card, index) in desktopFeatureCards"
               :key="card.titleKey"
               v-reveal="{ delay: index * 100 }"
-              class="group flex h-[274px] w-[416px] shrink-0 -translate-y-0 cursor-default flex-col items-end justify-center overflow-hidden rounded-3xl bg-white p-[24.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 dark:bg-[#0a0f17]"
+              class="group flex h-[274px] w-[416px] shrink-0 -translate-y-0 cursor-default flex-col items-end justify-center overflow-hidden rounded-3xl bg-[var(--surface-1)] p-[24.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 dark:bg-[#0a0f17]"
               :class="card.featured
                 ? 'border-t-2 border-[#25d366] pt-[26px] shadow-[0_0_0_1px_rgba(37,211,102,0.2),0_18px_60px_0_rgba(37,211,102,0.12)] hover:shadow-[0_0_0_1px_rgba(37,211,102,0.35),0_26px_70px_0_rgba(37,211,102,0.22)]'
-                : 'border-[0.7px] border-[#cfd8e3] hover:border-[#25d366] hover:shadow-[0_18px_60px_0_rgba(37,211,102,0.12)] dark:border-[#1e2a3a] dark:hover:border-[#25d366]'"
+                : 'border-[0.7px] border-[#e4ece7] hover:border-[#25d366] hover:shadow-[0_18px_60px_0_rgba(37,211,102,0.12)] dark:border-[#1e2a3a] dark:hover:border-[#25d366]'"
             >
               <div class="flex w-full flex-col items-end gap-6">
                 <div class="flex size-12 items-center justify-center rounded-2xl bg-[#2bd46a]/[0.12] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110">
@@ -169,10 +175,10 @@
             v-for="(card, index) in mobileFeatureCards"
             :key="card.titleKey"
             v-reveal="{ delay: index * 90 }"
-            class="group flex h-[225px] w-full cursor-default flex-col items-end justify-center overflow-hidden rounded-2xl bg-white p-[16.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 dark:bg-[#0a0f17]"
+            class="group flex h-[225px] w-full cursor-default flex-col items-end justify-center overflow-hidden rounded-2xl bg-[var(--surface-1)] p-[16.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 dark:bg-[#0a0f17]"
             :class="card.featured
               ? 'border-t-2 border-[#25d366] pt-[18px] shadow-[0_0_0_1px_rgba(37,211,102,0.2),0_18px_60px_0_rgba(37,211,102,0.12)] hover:shadow-[0_0_0_1px_rgba(37,211,102,0.35),0_26px_70px_0_rgba(37,211,102,0.22)]'
-              : 'border-[0.7px] border-[#cfd8e3] hover:border-[#25d366] hover:shadow-[0_18px_60px_0_rgba(37,211,102,0.12)] dark:border-[#1e2a3a] dark:hover:border-[#25d366]'"
+              : 'border-[0.7px] border-[#e4ece7] hover:border-[#25d366] hover:shadow-[0_18px_60px_0_rgba(37,211,102,0.12)] dark:border-[#1e2a3a] dark:hover:border-[#25d366]'"
           >
             <div class="flex w-full flex-col items-end gap-4">
               <div class="flex size-12 items-center justify-center rounded-2xl bg-[#2bd46a]/[0.12] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110">
@@ -231,12 +237,18 @@
     <section
       id="success-story"
       v-reveal
-      class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]"
+      class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-[var(--surface-anchor)] dark:bg-[#0a0f17]"
     >
-      <div class="flex flex-col items-center gap-8 lg:gap-[72px]">
+      <div
+        class="pointer-events-none absolute -top-20 end-0 h-[520px] w-[520px] dark:hidden"
+        style="background-image: radial-gradient(circle, rgba(22,163,74,0.13) 0%, rgba(22,163,74,0) 70%);"
+        aria-hidden="true"
+      ></div>
+
+      <div class="relative flex flex-col items-center gap-8 lg:gap-[72px]">
         <div class="flex w-full flex-col items-center gap-3 text-center lg:gap-4">
           <SectionBadge :label="$t('Success story')" />
-          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:w-[1280px] lg:text-[46px] lg:leading-[56px]">
+          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-[#e8f2ec] dark:text-white lg:w-[1280px] lg:text-[46px] lg:leading-[56px]">
             {{ $t("How did Nora increase her store's sales 3x in 60 days?") }}
           </h2>
         </div>
@@ -251,7 +263,11 @@
     >
       <div class="flex flex-col items-center gap-8 lg:gap-[72px]">
         <div class="flex w-full flex-col items-center gap-3 text-center lg:gap-4">
-          <SectionBadge :label="$t('What clients say about Botzo')" />
+          <div class="flex w-full max-w-[420px] items-center gap-4">
+            <span class="hidden h-px flex-1 bg-[var(--line-strong)] dark:hidden sm:block"></span>
+            <SectionBadge :label="$t('What clients say about Botzo')" />
+            <span class="hidden h-px flex-1 bg-[var(--line-strong)] dark:hidden sm:block"></span>
+          </div>
           <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:w-[1280px] lg:text-[46px] lg:leading-[56px]">
             {{ $t("Thousands of Saudi companies trust us.") }}
           </h2>
@@ -260,41 +276,42 @@
       </div>
     </section>
 
-    <PricingSection :plans="props.plans" :addons="props.addons" :currency="props.currency" />
-
-    <!-- Meta Business Verification Section -->
-    <section
-      id="meta-verification"
-      v-reveal
-      class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20"
-    >
-      <div class="flex w-full flex-col items-center gap-6 overflow-hidden rounded-3xl bg-[rgba(37,211,102,0.12)] px-6 py-12 text-center md:px-10 lg:px-20 lg:py-20">
-        <div class="flex w-full flex-col items-center gap-4 lg:w-[1280px] lg:gap-4">
-          <SectionBadge :label="$t('Independent Service')" />
-          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
-            {{ $t("Meta business account verification") }}
-          </h2>
-          <p class="w-full text-base leading-6 text-[#8899aa] lg:text-[24px] lg:leading-9">
-            {{ $t("We prepare and follow up your Meta business verification request professionally") }}
-          </p>
-        </div>
-        <Link
-          href="/meta-verification"
-          class="flex h-[54px] w-[185px] shrink-0 items-center justify-center gap-2 rounded-2xl px-8 transition-transform duration-200 hover:scale-[1.03]"
-          style="background-image: linear-gradient(131deg, #25d366 0%, #1db954 100%)"
+    <PricingSection :plans="props.plans" :addons="props.addons" :currency="props.currency">
+      <template #banner>
+        <!-- Meta Business Verification — kept as a compact white banner inside the
+             pricing section's ground rather than its own near-empty section. -->
+        <div
+          id="meta-verification"
+          v-reveal
+          class="flex w-full flex-col items-center gap-6 overflow-hidden rounded-3xl bg-white px-6 py-12 text-center dark:bg-[rgba(37,211,102,0.12)] md:px-10 lg:w-[1280px] lg:px-20 lg:py-20"
         >
-          <span class="whitespace-nowrap text-base font-semibold leading-5 text-[#04130a]">{{ $t('Learn More') }}</span>
-          <img src="/images/hero/arrow.svg" class="h-4 w-4 shrink-0 rotate-180 rtl:rotate-0" alt="" aria-hidden="true" />
-        </Link>
-      </div>
-    </section>
+          <div class="flex w-full flex-col items-center gap-4 lg:w-[1280px] lg:gap-4">
+            <SectionBadge :label="$t('Independent Service')" />
+            <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
+              {{ $t("Meta business account verification") }}
+            </h2>
+            <p class="w-full text-base leading-6 text-[#8899aa] lg:text-[24px] lg:leading-9">
+              {{ $t("We prepare and follow up your Meta business verification request professionally") }}
+            </p>
+          </div>
+          <Link
+            href="/meta-verification"
+            class="flex h-[54px] w-[185px] shrink-0 items-center justify-center gap-2 rounded-2xl px-8 transition-transform duration-200 hover:scale-[1.03]"
+            style="background-image: linear-gradient(131deg, #25d366 0%, #1db954 100%)"
+          >
+            <span class="whitespace-nowrap text-base font-semibold leading-5 text-[#04130a]">{{ $t('Learn More') }}</span>
+            <img src="/images/hero/arrow.svg" class="h-4 w-4 shrink-0 rotate-180 rtl:rotate-0" alt="" aria-hidden="true" />
+          </Link>
+        </div>
+      </template>
+    </PricingSection>
 
     <!-- FAQs Section -->
     <section
       v-if="homeFaqs.length > 0"
       id="faqs"
       v-reveal
-      class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20"
+      class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-[var(--surface-1)] dark:bg-[#0a0f17]"
     >
       <div class="flex flex-col items-center gap-8 lg:gap-[72px]">
         <div class="flex w-full flex-col items-center gap-3 text-center lg:gap-4">
@@ -322,12 +339,12 @@
       v-reveal
       class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20"
     >
-      <div class="flex w-full flex-col items-center gap-6 overflow-hidden rounded-3xl bg-[rgba(37,211,102,0.12)] px-6 py-12 text-center md:px-10 lg:px-20 lg:py-20">
+      <div class="flex w-full flex-col items-center gap-6 overflow-hidden rounded-3xl bg-[var(--accent-solid)] px-6 py-12 text-center dark:bg-[rgba(37,211,102,0.12)] md:px-10 lg:px-20 lg:py-20">
         <div class="flex w-full flex-col items-center gap-4 lg:w-[1280px] lg:gap-4">
-          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
+          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-white dark:text-white lg:text-[46px] lg:leading-[56px]">
             {{ $t("Contact the Botzo team") }}
           </h2>
-          <p class="w-full text-base leading-6 text-[#8899aa] lg:text-[24px] lg:leading-9">
+          <p class="w-full text-base leading-6 text-white dark:text-[#8899aa] lg:text-[24px] lg:leading-9">
             {{ $t("We're here to help you automate your WhatsApp communication and grow your business.") }}
           </p>
         </div>
@@ -336,10 +353,9 @@
           :href="props.companyConfig.book_a_demo_link"
           target="_blank"
           rel="noopener noreferrer"
-          class="flex h-[54px] w-[220px] shrink-0 items-center justify-center rounded-2xl px-8 transition-transform duration-200 hover:scale-[1.03]"
-          style="background-image: linear-gradient(135.79deg, #25d366 0%, #1db954 100%)"
+          class="flex h-[54px] w-[220px] shrink-0 items-center justify-center rounded-2xl bg-white px-8 transition-transform duration-200 hover:scale-[1.03] dark:bg-gradient-to-br dark:from-[#25d366] dark:to-[#1db954]"
         >
-          <span class="whitespace-nowrap text-base font-semibold leading-5 text-[#04130a]">{{ $t('Start the conversation') }}</span>
+          <span class="whitespace-nowrap text-base font-semibold leading-5 text-[#0b5f2b] dark:text-[#04130a]">{{ $t('Start the conversation') }}</span>
         </a>
       </div>
     </section>
@@ -418,8 +434,12 @@ function startNetworkEffect() {
 
   const draw = () => {
     const isDark = document.documentElement.classList.contains("dark");
-    const nodeAlpha = isDark ? 0.55 : 0.65;
-    const linkAlpha = isDark ? 0.22 : 0.3;
+    // Light mode re-tints to the --accent shade (22,163,74) instead of the
+    // dark-mode brand green (37,211,102) and reads as texture, not noise —
+    // dark mode's color/alpha values are untouched.
+    const rgb = isDark ? "37,211,102" : "22,163,74";
+    const nodeAlpha = isDark ? 0.55 : 0.35;
+    const linkAlpha = isDark ? 0.22 : 0.16;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -441,7 +461,7 @@ function startNetworkEffect() {
       for (let j = i + 1; j < networkNodes.length; j++) {
         const dist = Math.hypot(networkNodes[i].x - networkNodes[j].x, networkNodes[i].y - networkNodes[j].y);
         if (dist < NETWORK_LINK_DISTANCE) {
-          ctx.strokeStyle = `rgba(37,211,102,${linkAlpha * (1 - dist / NETWORK_LINK_DISTANCE)})`;
+          ctx.strokeStyle = `rgba(${rgb},${linkAlpha * (1 - dist / NETWORK_LINK_DISTANCE)})`;
           ctx.lineWidth = 3;
           ctx.beginPath();
           ctx.moveTo(networkNodes[i].x, networkNodes[i].y);
@@ -453,7 +473,7 @@ function startNetworkEffect() {
       if (networkMouse.x !== null) {
         const dist = Math.hypot(networkNodes[i].x - networkMouse.x, networkNodes[i].y - networkMouse.y);
         if (dist < NETWORK_MOUSE_RADIUS) {
-          ctx.strokeStyle = `rgba(37,211,102,${Math.min(linkAlpha * 2.2 * (1 - dist / NETWORK_MOUSE_RADIUS), 0.5)})`;
+          ctx.strokeStyle = `rgba(${rgb},${Math.min(linkAlpha * 2.2 * (1 - dist / NETWORK_MOUSE_RADIUS), 0.5)})`;
           ctx.beginPath();
           ctx.moveTo(networkNodes[i].x, networkNodes[i].y);
           ctx.lineTo(networkMouse.x, networkMouse.y);
@@ -462,7 +482,7 @@ function startNetworkEffect() {
       }
     }
 
-    ctx.fillStyle = `rgba(37,211,102,${nodeAlpha})`;
+    ctx.fillStyle = `rgba(${rgb},${nodeAlpha})`;
     for (const node of networkNodes) {
       ctx.beginPath();
       ctx.arc(node.x, node.y, 4.5, 0, Math.PI * 2);
