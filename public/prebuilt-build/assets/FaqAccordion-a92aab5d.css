@@ -1,0 +1,29 @@
+
+/* .faq-accordion / .faq-item / .faq-item--open base + dark-mode rules live in
+   app.css (global stylesheet) instead of here — Vue's scoped-CSS handling of
+   a selector that's only partially wrapped in :global() (":global(.dark) .foo")
+   doesn't reliably apply the dark override in this project's build, so the
+   dark-mode background never took effect when those rules lived in this
+   scoped block. Un-scoped rules in app.css avoid that entirely. */
+.faq-answer[data-v-937a2315] p {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.faq-answer[data-v-937a2315] ul,
+.faq-answer[data-v-937a2315] ol {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-inline-start: 1.25rem;
+}
+.faq-answer[data-v-937a2315] strong {
+    font-weight: 600;
+    /* color (black / dark:white) lives in app.css alongside the other
+       .faq-* dark-mode rules — same :global() reliability issue. */
+}
+.faq-answer[data-v-937a2315] a {
+    color: #25d366;
+    text-decoration: underline;
+}
+.faq-answer[data-v-937a2315] a:hover {
+    color: #1db954;
+}
