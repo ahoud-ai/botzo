@@ -36,10 +36,10 @@ const breakpoints = {
             :modules="[Navigation, Autoplay, A11y]"
             :loop="reviews.length > 4"
             :breakpoints="breakpoints"
-            :autoplay="{ delay: 3500, disableOnInteraction: false, pauseOnMouseEnter: true }"
+            :autoplay="{ delay: 2800, disableOnInteraction: false, pauseOnMouseEnter: true }"
             :navigation="{ prevEl: prevButton, nextEl: nextButton }"
-            :speed="500"
-            class="reviews-swiper !overflow-visible"
+            :speed="1200"
+            class="reviews-swiper"
         >
             <SwiperSlide v-for="(item, index) in reviews" :key="index" class="!h-auto">
                 <div
@@ -108,6 +108,13 @@ const breakpoints = {
 <style scoped>
 .reviews-swiper {
     padding-block: 4px;
+}
+
+/* speed is set almost as long as the autoplay delay itself, so with a
+   linear (not eased) transition the cards read as one continuous slow
+   glide rather than a pause-then-snap step. */
+.reviews-swiper :deep(.swiper-wrapper) {
+    transition-timing-function: linear !important;
 }
 
 .reviews-nav-btn:disabled,
