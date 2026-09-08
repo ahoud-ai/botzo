@@ -1,8 +1,9 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from "vue";
+import { Clock, MessageCircle, TrendingUp } from "lucide-vue-next";
 
 const statBoxBase =
-    "flex flex-col items-center justify-center gap-0 rounded-2xl bg-[#0a0f17] p-[17px] text-center dark:bg-[#0a0f17]";
+    "flex flex-col items-center justify-center gap-1 rounded-2xl border border-[#1e2a3a] bg-[#0a0f17] p-[17px] text-center dark:bg-[#0a0f17]";
 
 const HOURS_TARGET = 200;
 const SALES_TARGET = 3;
@@ -83,16 +84,19 @@ onUnmounted(() => {
     >
         <!-- Evidence: stat grid + before/after comparison -->
         <div class="flex w-full flex-col items-stretch gap-6 lg:w-[528px]">
-            <div class="grid w-full grid-cols-3 gap-3.5 text-center lg:h-[108.8px]" dir="ltr">
-                <div class="col-start-1 border border-[#1e2a3a]" :class="statBoxBase">
+            <div class="grid w-full grid-cols-3 gap-3.5 text-center" dir="ltr">
+                <div class="col-start-1" :class="statBoxBase">
+                    <Clock :size="18" class="text-[#25d366]" aria-hidden="true" />
                     <p class="text-2xl font-semibold leading-[1.4] text-[#25d366] tabular-nums lg:text-[40px]">{{ hoursDisplay }}+</p>
                     <p class="text-sm leading-6 text-[#9fb0c4]">{{ $t('Hours saved/month') }}</p>
                 </div>
-                <div class="col-start-2 border border-[#1a2332]" :class="statBoxBase">
+                <div class="col-start-2" :class="statBoxBase">
+                    <TrendingUp :size="18" class="text-[#25d366]" aria-hidden="true" />
                     <p class="text-2xl font-semibold leading-[1.4] text-[#25d366] tabular-nums lg:text-[40px]">{{ salesDisplay }}×</p>
                     <p class="text-sm leading-6 text-[#9fb0c4]">{{ $t('Sales increase') }}</p>
                 </div>
-                <div class="col-start-3 border border-[#1a2332]" :class="statBoxBase">
+                <div class="col-start-3" :class="statBoxBase">
+                    <MessageCircle :size="18" class="text-[#25d366]" aria-hidden="true" />
                     <p class="text-2xl font-semibold leading-[1.4] text-[#25d366] tabular-nums lg:text-[40px]">{{ replyDisplay }}%</p>
                     <p class="text-sm leading-6 text-[#9fb0c4]">{{ $t('Reply rate') }}</p>
                 </div>
