@@ -152,13 +152,13 @@
             <!-- Bot workflow card -->
             <div
               v-tilt
-              class="tilt-sheen tilt-sheen--wide relative flex h-[408px] w-[848px] shrink-0 flex-col items-end gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.06),transparent_55%),linear-gradient(var(--surface-1),var(--surface-1))] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.08),transparent_55%),linear-gradient(#0d1f14,#0d1f14)]"
+              class="tilt-sheen tilt-sheen--wide relative flex h-[408px] w-[848px] shrink-0 flex-col items-end gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.06),transparent_55%),linear-gradient(var(--surface-1),var(--surface-1))] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.1),transparent_55%),linear-gradient(#0b161a,#0b161a)]"
             >
               <div class="flex w-full items-center justify-end" dir="ltr">
                 <template v-for="(step, index) in pipelineSteps" :key="step.key">
                   <div
                     :data-chip="index"
-                    class="flex shrink-0 items-center gap-[6px] rounded-[10px] border px-[14px] pb-[8.69px] pt-[8.5px] transition-colors duration-[350ms]"
+                    class="flex shrink-0 items-center gap-[5px] rounded-[10px] border px-[10px] pb-[8.69px] pt-[8.5px] transition-colors duration-[350ms]"
                     :class="index === activeChipIndex
                       ? 'border-[#25d366] bg-[#25d366] shadow-[0_0_18px_0_rgba(37,211,102,0.35)]'
                       : 'border-[#cfd8e3] bg-white dark:border-[#1e2a3a] dark:bg-[#25d366]/[0.06]'"
@@ -172,7 +172,7 @@
                       ]"
                     />
                     <span
-                      class="whitespace-nowrap text-sm leading-6"
+                      class="whitespace-nowrap text-[13px] leading-6"
                       :class="index === activeChipIndex ? 'font-semibold text-[#04130a]' : 'text-[#445566] dark:text-white'"
                       dir="auto"
                     >{{ $t(step.key) }}</span>
@@ -180,10 +180,10 @@
                   <div
                     v-if="index < pipelineSteps.length - 1"
                     data-flowline
-                    class="botzo-draw relative mx-[2px] h-[2px] w-[26px] shrink-0 border-t-2 border-dashed border-[#1a2332] dark:border-white"
+                    class="botzo-draw relative mx-[2px] h-[2px] w-[18px] shrink-0 border-t-2 border-dashed border-[#1a2332] dark:border-white"
                     :style="{ '--d': `${index * 0.35}s` }"
                   >
-                    <span class="botzo-dot absolute top-1/2 h-[5px] w-[5px] -translate-y-1/2 rounded-full bg-[#25d366] shadow-[0_0_8px_0_#25d366]" style="left: 21px"></span>
+                    <span class="botzo-dot absolute top-1/2 h-[5px] w-[5px] -translate-y-1/2 rounded-full bg-[#25d366] shadow-[0_0_8px_0_#25d366]" style="right: 2px"></span>
                   </div>
                 </template>
               </div>
@@ -238,7 +238,7 @@
                 : 'border-[0.7px] border-[#e4ece7] hover:border-[#25d366] hover:shadow-[0_18px_60px_0_rgba(37,211,102,0.12)] dark:border-[#1e2a3a] dark:hover:border-[#25d366]'"
             >
               <div class="flex w-full flex-col items-end gap-6">
-                <div class="flex size-12 items-center justify-center rounded-2xl bg-[#2bd46a]/[0.12] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110">
+                <div class="flex size-12 items-center justify-center rounded-2xl bg-[#25d366]/[0.12] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110">
                   <img :src="card.icon" class="h-6 w-6" alt="" aria-hidden="true" />
                 </div>
                 <div class="flex w-full flex-col items-end gap-2 text-right">
@@ -267,7 +267,7 @@
               : 'border-[0.7px] border-[#e4ece7] hover:border-[#25d366] hover:shadow-[0_18px_60px_0_rgba(37,211,102,0.12)] dark:border-[#1e2a3a] dark:hover:border-[#25d366]'"
           >
             <div class="flex w-full flex-col items-end gap-4">
-              <div class="flex size-12 items-center justify-center rounded-2xl bg-[#2bd46a]/[0.12] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110">
+              <div class="flex size-12 items-center justify-center rounded-2xl bg-[#25d366]/[0.12] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110">
                 <img :src="card.icon" class="h-6 w-6" alt="" aria-hidden="true" />
               </div>
               <div class="flex w-full flex-col items-end gap-2 text-right">
@@ -624,7 +624,7 @@ const vTilt = {
 };
 
 const crmCard = {
-  icon: "/images/features/crm-icon.svg",
+  icon: "/images/features/contact-icon.svg",
   titleKey: "Built-in CRM",
   descriptionKey: "Every conversation automatically turns into a rich customer card with smart tagging.",
   featured: false,
@@ -636,7 +636,7 @@ const integrationCard = {
   featured: true,
 };
 const campaignsCard = {
-  icon: "/images/features/crm-icon.svg",
+  icon: "/images/features/campaign-icon.svg",
   titleKey: "Bulk campaigns",
   descriptionKey: "Send personalized messages to thousands of customers at once, fully compliant with WhatsApp policies.",
   featured: false,
