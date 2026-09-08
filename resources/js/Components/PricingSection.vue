@@ -78,6 +78,7 @@ const orderedPlans = computed(() => orderPlansByTier(props.plans, billingPeriod.
                     :description="planSubtitle(plan)"
                     :features="planHighlightFeatures(plan)"
                     :button-label="featured ? $t('Subscribe now') : $t('Get Started')"
+                    details-href="/pricing"
                 />
             </div>
 
