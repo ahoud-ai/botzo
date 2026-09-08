@@ -1,12 +1,34 @@
 <script setup>
+import { onMounted, onUnmounted, ref } from "vue";
+
 const cardBase =
     "w-full overflow-hidden rounded-3xl bg-[rgba(37,211,102,0.12)] p-4";
+
+// Cycles which step is "playing" on its own, like a looping demo reel: each
+// step's mockup gets a small in-context animation (checkmark pop, node pulse,
+// bars growing) instead of a heavier custom typing/drawing engine.
+const prefersReducedMotionQuery = typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+const prefersReducedMotion = () => prefersReducedMotionQuery?.matches ?? false;
+
+const activeStep = ref(1);
+let stepCycleInterval = null;
+
+onMounted(() => {
+    if (prefersReducedMotion()) return;
+    stepCycleInterval = setInterval(() => {
+        activeStep.value = (activeStep.value % 3) + 1;
+    }, 3200);
+});
+
+onUnmounted(() => {
+    if (stepCycleInterval) clearInterval(stepCycleInterval);
+});
 </script>
 
 <template>
     <div class="flex w-full flex-col items-center gap-4">
         <!-- Step 1: Connect WhatsApp Business (illustration only, matches provided mobile reference) -->
-        <div v-reveal :class="cardBase">
+        <div v-reveal :class="[cardBase, activeStep === 1 && 'how-it-works-card--active']">
             <div class="flex w-full flex-col items-start gap-3 rounded-2xl bg-white p-4 dark:bg-black">
                 <div class="w-full">
                     <p class="text-right text-xs leading-[18px] text-[#8899aa]">{{ $t('Mobile number') }}</p>
@@ -27,7 +49,7 @@ const cardBase =
                         <p class="text-sm font-bold leading-[21px] text-[#25d366]">{{ $t('Connected') }}</p>
                         <p class="text-[11px] leading-[16.5px] text-[#8899aa]" dir="ltr">Botzo AI مرتبط بواتساب</p>
                     </div>
-                    <div class="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-[#25d366]">
+                    <div :class="['flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-[#25d366]', activeStep === 1 && 'how-it-works-check--pop']">
                         <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M10.8346 3.25L4.8763 9.20833L2.16797 6.5" stroke="white" stroke-width="1.625" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
@@ -37,7 +59,7 @@ const cardBase =
         </div>
 
         <!-- Step 2: Design smart replies without code -->
-        <div v-reveal="{ delay: 80 }" :class="cardBase">
+        <div v-reveal="{ delay: 80 }" :class="[cardBase, activeStep === 2 && 'how-it-works-card--active']">
             <div class="flex w-full flex-col items-end gap-4">
                 <div class="w-full text-right">
                     <h3 dir="auto" class="text-xl font-semibold leading-[25px] text-black dark:text-white">
@@ -70,12 +92,12 @@ const cardBase =
                             <span class="whitespace-nowrap text-xs leading-[18px] text-[#f0f4f8]">{{ $t('Customer question?') }}</span>
                         </div>
                         <div
-                            class="absolute flex items-center gap-[7px] rounded-xl border-2 border-[#25d366] bg-[#131a28] px-4 py-[10px] drop-shadow-[0_0_0_rgba(37,211,102,0.12),0_4px_8px_rgba(37,211,102,0.22)]"
+                            :class="['absolute flex items-center gap-[7px] rounded-xl border-2 border-[#25d366] bg-[#131a28] px-4 py-[10px] drop-shadow-[0_0_0_rgba(37,211,102,0.12),0_4px_8px_rgba(37,211,102,0.22)]', activeStep === 2 && 'how-it-works-node--pulse']"
                             style="left: 95.5px; top: 219.88px"
                         >
                             <span class="text-[13px] font-bold leading-[19.5px] text-[#25d366]">✓</span>
                             <span class="whitespace-nowrap text-xs font-bold leading-[18px] text-[#25d366]">{{ $t('Auto-reply') }}</span>
-                            <span class="h-[7px] w-[7px] shrink-0 rounded-full bg-[#25d366]"></span>
+                            <span :class="['h-[7px] w-[7px] shrink-0 rounded-full bg-[#25d366]', activeStep === 2 && 'how-it-works-dot--ping']"></span>
                         </div>
                         <div
                             class="absolute flex items-center gap-[7px] rounded-xl border-2 border-[#1e2a3a] bg-[#131a28] px-4 py-[10px] drop-shadow-[0px_2px_4px_rgba(0,0,0,0.35)]"
@@ -90,7 +112,7 @@ const cardBase =
         </div>
 
         <!-- Step 3: Monitor and improve -->
-        <div v-reveal="{ delay: 160 }" :class="cardBase">
+        <div v-reveal="{ delay: 160 }" :class="[cardBase, activeStep === 3 && 'how-it-works-card--active']">
             <div class="flex w-full flex-col items-end gap-4">
                 <div class="w-full text-right">
                     <h3 dir="auto" class="text-xl font-semibold leading-[25px] text-black dark:text-white">
@@ -130,13 +152,13 @@ const cardBase =
                         <div class="mt-[18px] w-full">
                             <p class="w-full text-right text-[11px] leading-[16.5px] text-black dark:text-white">{{ $t('Daily conversations') }}</p>
                             <div class="mt-2.5 flex w-full items-end gap-1.5" style="height: 82px">
-                                <div class="min-w-px flex-[39.711] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]" style="height: 44.633px"></div>
-                                <div class="min-w-px flex-[39.719] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]" style="height: 54px"></div>
-                                <div class="min-w-px flex-[39.711] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]" style="height: 41.758px"></div>
-                                <div class="min-w-px flex-[39.719] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]" style="height: 63.359px"></div>
-                                <div class="min-w-px flex-[39.711] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]" style="height: 59.039px"></div>
-                                <div class="min-w-px flex-[39.719] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]" style="height: 67.68px"></div>
-                                <div class="min-w-px flex-[39.711] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]" style="height: 56.875px"></div>
+                                <div :class="['how-it-works-bar min-w-px flex-[39.711] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]', activeStep === 3 && 'how-it-works-bar--grown']" style="height: 44.633px"></div>
+                                <div :class="['how-it-works-bar min-w-px flex-[39.719] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]', activeStep === 3 && 'how-it-works-bar--grown']" style="height: 54px"></div>
+                                <div :class="['how-it-works-bar min-w-px flex-[39.711] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]', activeStep === 3 && 'how-it-works-bar--grown']" style="height: 41.758px"></div>
+                                <div :class="['how-it-works-bar min-w-px flex-[39.719] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]', activeStep === 3 && 'how-it-works-bar--grown']" style="height: 63.359px"></div>
+                                <div :class="['how-it-works-bar min-w-px flex-[39.711] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]', activeStep === 3 && 'how-it-works-bar--grown']" style="height: 59.039px"></div>
+                                <div :class="['how-it-works-bar min-w-px flex-[39.719] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]', activeStep === 3 && 'how-it-works-bar--grown']" style="height: 67.68px"></div>
+                                <div :class="['how-it-works-bar min-w-px flex-[39.711] rounded-t-[4px] rounded-b-[2px] bg-[#25d366]', activeStep === 3 && 'how-it-works-bar--grown']" style="height: 56.875px"></div>
                             </div>
                             <div class="mt-1.5 flex w-full gap-1.5">
                                 <span class="min-w-px flex-[39.711] text-center text-[9px] leading-[13.5px] text-[#445566] dark:text-[#94a3b8]">{{ $t('Sun') }}</span>
@@ -216,6 +238,69 @@ const cardBase =
 
     .howitworks-mobile-scale:has(.howitworks-mobile-scale__box--analytics) {
         height: calc(min(100vw - 112px, 640px) * 330.094 / 360);
+    }
+}
+
+.how-it-works-card--active {
+    box-shadow: 0 0 0 1px rgba(37, 211, 102, 0.35), 0 20px 50px 0 rgba(37, 211, 102, 0.18);
+}
+
+.how-it-works-check--pop {
+    animation: how-it-works-check-pop 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.how-it-works-node--pulse {
+    animation: how-it-works-node-pulse 1.4s ease-in-out infinite;
+}
+
+.how-it-works-dot--ping {
+    animation: how-it-works-dot-ping 1.4s ease-in-out infinite;
+}
+
+.how-it-works-bar {
+    transform: scaleY(0.05);
+    transform-origin: bottom;
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.how-it-works-bar--grown {
+    transform: scaleY(1);
+}
+
+.how-it-works-bar:nth-child(1) { transition-delay: 0ms; }
+.how-it-works-bar:nth-child(2) { transition-delay: 45ms; }
+.how-it-works-bar:nth-child(3) { transition-delay: 90ms; }
+.how-it-works-bar:nth-child(4) { transition-delay: 135ms; }
+.how-it-works-bar:nth-child(5) { transition-delay: 180ms; }
+.how-it-works-bar:nth-child(6) { transition-delay: 225ms; }
+.how-it-works-bar:nth-child(7) { transition-delay: 270ms; }
+
+@keyframes how-it-works-check-pop {
+    0% { transform: scale(0.4); opacity: 0.4; }
+    60% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes how-it-works-node-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.35); }
+    50% { box-shadow: 0 0 0 6px rgba(37, 211, 102, 0); }
+}
+
+@keyframes how-it-works-dot-ping {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.6); opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .how-it-works-check--pop,
+    .how-it-works-node--pulse,
+    .how-it-works-dot--ping {
+        animation: none;
+    }
+
+    .how-it-works-bar {
+        transition: none;
+        transform: scaleY(1);
     }
 }
 </style>
