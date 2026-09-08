@@ -8,21 +8,24 @@ defineProps({
 
 const initial = (name) => (name || "").trim().charAt(0) || "؟";
 
-// Duplicated exactly once so the track can loop with a plain translateX(-50%):
-// spacing between cards is done with a trailing margin on every card (including
-// the last one of each set) instead of flex `gap`, so "one set" is a
-// self-contained, exactly-repeatable unit — no JS measurement of pixel widths
-// needed, and no seam/jump at the reset point on any viewport.
+// Repeated 4x (not just once) so the "first half" / "second half" the
+// translateX(-50%) loop scrolls between are each two full sets wide — wide
+// enough that the same reviewer's card can never appear twice within one
+// viewport at once, even on very large monitors. Spacing between cards is
+// done with a trailing margin on every card (including the last one of each
+// set) instead of flex `gap`, so "one set" is a self-contained,
+// exactly-repeatable unit — no JS measurement of pixel widths needed, and no
+// seam/jump at the reset point on any viewport.
 </script>
 
 <template>
     <div v-if="reviews.length" class="reviews-marquee relative w-full overflow-hidden">
         <div class="reviews-marquee__track" dir="ltr">
             <div
-                v-for="(item, index) in [...reviews, ...reviews]"
+                v-for="(item, index) in [...reviews, ...reviews, ...reviews, ...reviews]"
                 :key="index"
                 :aria-hidden="index >= reviews.length ? 'true' : null"
-                class="reviews-marquee__card flex w-[280px] shrink-0 flex-col items-end gap-4 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[var(--surface-1)] px-5 py-6 dark:border-[#1e2a3a] dark:bg-[#0a0f17] sm:w-[362.667px] sm:px-[24.7px] sm:py-[32.7px]"
+                class="reviews-marquee__card flex w-[280px] shrink-0 flex-col items-end gap-4 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[var(--surface-1)] px-5 py-6 dark:border-[#1e2a3a] dark:bg-[#0a0f17] sm:w-[284px] sm:px-6 sm:py-7"
             >
                 <span
                     class="pointer-events-none absolute font-['Georgia',_serif] text-[120px] leading-[120px] text-black opacity-[0.04] dark:text-white"
@@ -69,7 +72,7 @@ const initial = (name) => (name || "").trim().charAt(0) || "؟";
     display: flex;
     align-items: stretch;
     width: max-content;
-    animation: reviews-marquee-scroll 50s linear infinite;
+    animation: reviews-marquee-scroll 80s linear infinite;
     will-change: transform;
 }
 
