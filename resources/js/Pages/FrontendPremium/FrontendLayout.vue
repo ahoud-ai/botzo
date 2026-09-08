@@ -1,8 +1,8 @@
 <template>
     <div :class="[rtlClass, 'font-ibm-plex-arabic', 'page-enter-anim']">
         <!-- Sticky Header -->
-        <header class="sticky top-0 ui-layer-content border-b bg-white dark:bg-[#0a0f17] border-transparent shadow-none">
-            <div class="px-4 md:px-10 lg:px-20 py-6 lg:py-8">
+        <header class="sticky top-0 ui-layer-content border-b bg-white/90 backdrop-blur-md dark:bg-[#0a0f17] border-[var(--line)] dark:border-transparent shadow-none">
+            <div class="px-5 md:px-10 lg:px-20 2xl:px-32 py-6 lg:py-8">
                 <div class="flex justify-between items-center">
                     <!-- Group 1: logo -->
                     <Link href="/" class="premium-brand-lockup shrink-0">
@@ -200,8 +200,14 @@
         <CookieConsentBanner />
 
         <!-- Footer -->
-        <footer id="section7" class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]">
-            <div class="flex flex-col items-center gap-[72px]">
+        <footer id="section7" class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-[var(--surface-anchor)] dark:bg-[#060a10]">
+            <!-- The footer is always the dark "anchor" band (light-mode's one deliberate
+                 dark section per the color-rhythm spec), so its content is locked to the
+                 site's existing dark-mode look via a forced `dark` class here — this
+                 activates every dark: utility already used below (text, borders,
+                 NavBrandMark's dark-theme logo variant) regardless of the real site theme,
+                 without having to hand-duplicate each of those colors. -->
+            <div class="dark flex flex-col items-center gap-[72px]">
                 <div class="flex w-full flex-col items-center gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-0" dir="ltr">
                     <!-- More about Botzo -->
                     <div class="flex w-full flex-col items-end gap-[18px] text-right lg:w-[229.56px]">

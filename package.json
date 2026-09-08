@@ -62,6 +62,7 @@
         "radix-vue": "^1.9.8",
         "socket.io-client": "^4.8.0",
         "tailwind-merge": "^2.5.4",
+        "three": "^0.160.0",
         "vue": "^3.2.36",
         "vue-i18n": "^11.2.8",
         "vue-loader": "^17.2.2",

@@ -98,7 +98,7 @@
 
 <template>
     <div
-        class="relative hidden h-[420px] w-full max-w-[950px] items-start justify-center overflow-hidden rounded-3xl bg-gradient-to-b from-white from-[-40%] to-[#d4ffdf] dark:to-[#25d366] md:flex lg:h-[625px]"
+        class="relative hidden h-[420px] w-full max-w-[950px] items-start justify-center overflow-hidden rounded-3xl bg-[var(--surface-0)] shadow-[0_40px_80px_-50px_rgba(13,31,22,0.5)] dark:bg-gradient-to-b dark:from-white dark:from-[-40%] dark:to-[#25d366] dark:shadow-none md:flex lg:h-[625px]"
     >
         <img
             src="/images/hero/overview-bg-light.png"

@@ -693,15 +693,91 @@ h2 {
     animation-duration: 22s;
 }
 
-/* "How It Works" uses the same flat white/dark background as the rest of
-   the page at every screen size — no separate decorative mobile treatment. */
+/* "How It Works" dot-grid texture. Same 18px geometry in both themes — only
+   the dot's own color changes (a colored dot on near-black reads as noise;
+   a low white alpha reads as texture instead). */
 .premium-home-section--steps {
-    background: #ffffff;
+    background-color: var(--surface-1);
+    background-image: radial-gradient(var(--pat-dot) 1px, transparent 1px);
+    background-size: 18px 18px;
 }
 
 .dark .premium-home-section--steps {
-    background: #0a0f17;
+    background-color: #0a0f17;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 18px 18px;
     color: #ffffff;
+}
+
+/* FaqAccordion.vue — light mode: one unified white container with 1px
+   dividers between items. Dark mode: each item is its own separately
+   bordered/rounded/spaced box (the pre-existing look, restored exactly). */
+.faq-accordion {
+    border-radius: 1rem;
+    border: 1px solid #cfd8e3;
+    background: var(--surface-0);
+    overflow: hidden;
+}
+
+.faq-item {
+    border-bottom: 1px solid #eef3f0;
+}
+
+.faq-item:last-child {
+    border-bottom: none;
+}
+
+.faq-item--open {
+    border-color: #25d366;
+}
+
+.dark .faq-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border: none;
+    background: transparent;
+    overflow: visible;
+}
+
+.dark .faq-item {
+    border: 1px solid #1e2a3a;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.dark .faq-item--open {
+    border-color: #25d366;
+}
+
+.faq-answer strong {
+    color: #000000;
+}
+
+.dark .faq-answer strong {
+    color: #ffffff;
+}
+
+/* Corner glow — same 520px radial, same position, on the hero and the
+   case-study band. Dark gets a larger, brighter version (+20% radius, ~70%
+   more alpha) since equal-alpha green reads dimmer against a dark ground. */
+.corner-glow {
+    background-image: radial-gradient(circle, rgba(37, 211, 102, 0.13) 0%, rgba(37, 211, 102, 0) 70%);
+}
+
+.dark .corner-glow {
+    background-image: radial-gradient(circle, rgba(37, 211, 102, 0.22) 0%, rgba(37, 211, 102, 0) 70%);
+}
+
+/* Hero background fade — same "ends lighter" cue in both themes: white
+   fading to the quiet ground in light, near-black fading to the card tint
+   in dark. */
+.hero-fade {
+    background-image: linear-gradient(180deg, #ffffff 0%, #ffffff 40%, var(--surface-1) 100%);
+}
+
+.dark .hero-fade {
+    background-image: linear-gradient(180deg, #0a0f17 0%, #0a0f17 40%, #0b161a 100%);
 }
 
 .premium-brand-lockup {
@@ -1401,6 +1477,30 @@ h2 {
     --ui-layer-dropdown: 65;
     --ui-layer-drawer: 75;
     --ui-layer-modal: 95;
+
+    /* Public marketing site (FrontendPremium) — light-mode-only surface
+       ladder used to alternate section grounds so the page doesn't read as
+       one long flat white sheet. Dark mode keeps its existing flat #0a0f17
+       throughout (unchanged), so these have no .dark counterpart — every
+       component pairs a var(--surface-*) base class with its own existing
+       dark:bg-[#hex] override. Cool neutral ground + green-tinted cards +
+       one bright green accent, matching dark mode's own logic in reverse
+       (dark: cool near-black ground, cards a step lighter/greener). */
+    --surface-0: #ffffff;
+    --surface-1: #f9fafb;
+    --surface-2: #e4f9ec;
+    --surface-anchor: #0a0f17;
+    --line: #e8ecf1;
+    --line-strong: #cbeed9;
+    --line-on-mint: #cbeed9;
+    --ink-2: #4a5a52;
+    --ink-3: #55665d;
+    --accent: #25d366;
+    --accent-solid: #0c7c3e;
+    --accent-solid-hover: #0a6433;
+    --accent-soft: #e4f9ec;
+    --accent-ink: #0c7c3e;
+    --pat-dot: #dfe6ee;
 }
 
 .dark {

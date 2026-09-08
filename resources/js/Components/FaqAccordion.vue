@@ -9,12 +9,12 @@ const selected = ref(null);
 </script>
 
 <template>
-    <div class="flex w-full flex-col items-end gap-4">
+    <div class="faq-accordion flex w-full flex-col items-end">
         <div
             v-for="(item, index) in items"
             :key="index"
-            class="w-full overflow-hidden rounded-2xl border border-[#cfd8e3] bg-white transition-colors dark:border-[#1e2a3a] dark:bg-[#0a0f17]"
-            :class="selected === index + 1 ? 'border-[#25d366]' : ''"
+            class="faq-item w-full overflow-hidden transition-colors"
+            :class="selected === index + 1 ? 'faq-item--open' : ''"
         >
             <button
                 type="button"
@@ -43,6 +43,13 @@ const selected = ref(null);
 </template>
 
 <style scoped>
+/* .faq-accordion / .faq-item / .faq-item--open base + dark-mode rules live in
+   app.css (global stylesheet) instead of here — Vue's scoped-CSS handling of
+   a selector that's only partially wrapped in :global() (":global(.dark) .foo")
+   doesn't reliably apply the dark override in this project's build, so the
+   dark-mode background never took effect when those rules lived in this
+   scoped block. Un-scoped rules in app.css avoid that entirely. */
+
 .faq-answer :deep(p) {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
@@ -57,11 +64,8 @@ const selected = ref(null);
 
 .faq-answer :deep(strong) {
     font-weight: 600;
-    color: #000000;
-}
-
-:global(.dark) .faq-answer :deep(strong) {
-    color: #ffffff;
+    /* color (black / dark:white) lives in app.css alongside the other
+       .faq-* dark-mode rules — same :global() reliability issue. */
 }
 
 .faq-answer :deep(a) {
