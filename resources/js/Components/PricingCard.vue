@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from "vue";
+import { Link } from "@inertiajs/vue3";
 
 const props = defineProps({
     topLabel: { type: String, required: true },
@@ -9,6 +10,7 @@ const props = defineProps({
     features: { type: Array, default: () => [] },
     buttonLabel: { type: String, required: true },
     featured: { type: Boolean, default: false },
+    detailsHref: { type: String, default: "" },
 });
 
 // Accepts either plain strings (always "available") or { label, available }
@@ -89,6 +91,17 @@ const normalizedFeatures = computed(() => props.features.map((feature) => (
             >
                 <span dir="auto">{{ buttonLabel }}</span>
             </a>
+
+            <Link
+                v-if="detailsHref"
+                :href="detailsHref"
+                class="flex h-11 w-full items-center justify-center gap-1.5 rounded-2xl px-8 text-sm font-semibold text-[#0e6b35] transition-colors hover:text-[#25d366] dark:text-[#25d366] dark:hover:text-[#3ee27e]"
+            >
+                <span dir="auto">{{ $t('Learn more') }}</span>
+                <svg class="h-4 w-4 rtl:-scale-x-100" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </Link>
         </div>
     </div>
 </template>
