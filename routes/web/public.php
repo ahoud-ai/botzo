@@ -84,6 +84,7 @@ Route::match(['get', 'post'], '/pages/{slug}', [App\Http\Controllers\FrontendCon
 Route::match(['get', 'post'], '/privacy', [App\Http\Controllers\FrontendController::class, 'privacy']);
 Route::redirect('/tos', '/terms-of-service', 301);
 Route::match(['get', 'post'], '/terms-of-service', [App\Http\Controllers\FrontendController::class, 'termsOfService']);
+Route::match(['get', 'post'], '/data-deletion', [App\Http\Controllers\FrontendController::class, 'dataDeletion']);
 Route::get('/sitemap.xml', [App\Http\Controllers\FrontendSeoController::class, 'sitemap']);
 Route::match(['get', 'post'], '/campaign-send', [App\Http\Controllers\FrontendController::class, 'campaignSend'])
     ->middleware('authorize.campaign.dispatch')

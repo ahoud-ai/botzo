@@ -161,6 +161,16 @@ class FrontendController extends BaseController
         );
     }
 
+    public function dataDeletion(Request $request)
+    {
+        return $this->renderLegalPage(
+            $request,
+            ['data-deletion', 'data-deletion-instructions'],
+            __('Data Deletion Instructions'),
+            $this->fallbackDataDeletionContent()
+        );
+    }
+
     private function renderLegalPage(Request $request, array $slugCandidates, string $title, string $fallbackContent)
     {
         $pages = Page::get();
@@ -178,12 +188,16 @@ class FrontendController extends BaseController
         return Inertia::render($this->resolveFrontendComponent('Dynamic'), [
             ...$this->basePublicData(),
             'page' => [
-                'id' => null,
-                'name' => $title,
-                'display_name' => $title,
-                'slug' => $slugCandidates[0] ?? null,
-                'content' => $fallbackContent,
-                'localized_content' => $fallbackContent,
+                'data' => [
+                    'id' => null,
+                    'name' => $title,
+                    'display_name' => $title,
+                    'slug' => $slugCandidates[0] ?? null,
+                    'content' => $fallbackContent,
+                    'display_content' => $fallbackContent,
+                    'localized_content' => $fallbackContent,
+                    'updated_at' => null,
+                ],
             ],
         ]);
     }
@@ -239,6 +253,35 @@ class FrontendController extends BaseController
             '<p>You must not use the service for spam, abusive messaging, unlawful content, or activity that could harm the platform or users.</p>',
             '<h2>Contact</h2>',
             '<p>If you have questions about these terms, please contact us through the contact page.</p>',
+        ]);
+    }
+
+    private function fallbackDataDeletionContent(): string
+    {
+        if (app()->getLocale() === 'ar') {
+            return implode('', [
+                '<p>توضح هذه الصفحة كيفية طلب حذف بياناتك الشخصية من منصة بوتزو، بما في ذلك البيانات المرتبطة بحساب واتساب بزنس المتصل بالمنصة.</p>',
+                '<h2>كيفية تقديم طلب الحذف</h2>',
+                '<p>يمكنك تقديم طلب حذف بياناتك من خلال <a href="/contact">صفحة التواصل معنا</a>، مع توضيح أنك تطلب حذف البيانات وذكر البريد الإلكتروني أو رقم الحساب المرتبط بحسابك على المنصة.</p>',
+                '<h2>ما الذي يتم حذفه</h2>',
+                '<p>عند تأكيد الطلب، نقوم بحذف بيانات حسابك، إعدادات واتساب المرتبطة به، وسجلّ المحادثات وجهات الاتصال المخزّنة داخل المنصة، باستثناء أي بيانات يلزم الاحتفاظ بها للأغراض المحاسبية أو النظامية وفق الأنظمة السعودية المعمول بها.</p>',
+                '<h2>المدة الزمنية</h2>',
+                '<p>نلتزم بمعالجة طلبات الحذف خلال مدة أقصاها 30 يومًا من تاريخ تأكيد الطلب والتحقق من هوية صاحب الحساب.</p>',
+                '<h2>التواصل</h2>',
+                '<p>لأي استفسار عن حذف البيانات، يمكنك التواصل معنا من <a href="/contact">صفحة التواصل</a>.</p>',
+            ]);
+        }
+
+        return implode('', [
+            '<p>This page explains how to request deletion of your personal data from the Botzo platform, including data associated with any WhatsApp Business account connected to it.</p>',
+            '<h2>How to request deletion</h2>',
+            '<p>You can request deletion of your data through our <a href="/contact">Contact page</a>. Please state that you are requesting data deletion and include the email or account identifier associated with your Botzo account.</p>',
+            '<h2>What gets deleted</h2>',
+            '<p>Once your request is confirmed, we delete your account data, the associated WhatsApp settings, and the conversation history and contacts stored inside the platform, except for data we are required to retain for accounting or legal purposes under applicable Saudi regulations.</p>',
+            '<h2>Timeframe</h2>',
+            '<p>We process deletion requests within a maximum of 30 days from the date the request is confirmed and the account owner\'s identity is verified.</p>',
+            '<h2>Contact</h2>',
+            '<p>For any questions about data deletion, please reach out through our <a href="/contact">Contact page</a>.</p>',
         ]);
     }
 
