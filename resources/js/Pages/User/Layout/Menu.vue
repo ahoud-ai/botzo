@@ -119,7 +119,7 @@
 
         <div v-if="!menuIconsOnly" class="ui-sidebar-utility-row">
             <ThemeToggle />
-            <LangToggle :languages="languages" :currentLanguage="currentLanguage" />
+            <LangToggle :languages="languages" :currentLanguage="currentLanguage" :drop-up="true" />
         </div>
         <div v-else class="mb-2 flex flex-col items-center gap-2">
             <ThemeToggle />

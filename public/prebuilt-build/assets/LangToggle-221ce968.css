@@ -1,0 +1,17 @@
+
+.lang-toggle-btn[data-v-39e935b1] {
+    color: var(--ui-text);
+}
+.lang-toggle-btn[data-v-39e935b1]:hover {
+    background: var(--ui-surface-soft);
+}
+.lang-toggle-menu[data-v-39e935b1] {
+    border-color: var(--ui-border);
+    background: var(--ui-surface);
+}
+.lang-toggle-item[data-v-39e935b1] {
+    color: var(--ui-text);
+}
+.lang-toggle-item[data-v-39e935b1]:hover {
+    background: var(--ui-surface-soft);
+}
