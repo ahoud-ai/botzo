@@ -1,0 +1,468 @@
+
+.chat-scroll[data-v-7c1e5a94] {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+}
+.chat-scroll[data-v-7c1e5a94]::-webkit-scrollbar {
+        display: none;
+}
+.bubble-in-enter-active[data-v-7c1e5a94] {
+        animation: bubbleIn-7c1e5a94 0.32s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+@keyframes bubbleIn-7c1e5a94 {
+from {
+            opacity: 0;
+            transform: scale(0.86) translateY(8px);
+}
+to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+}
+}
+.typing-dot[data-v-7c1e5a94] {
+        animation: dotBounce-7c1e5a94 1.1s ease-in-out infinite;
+}
+.typing-dot--2[data-v-7c1e5a94] {
+        animation-delay: 0.15s;
+}
+.typing-dot--3[data-v-7c1e5a94] {
+        animation-delay: 0.3s;
+}
+@keyframes dotBounce-7c1e5a94 {
+0%, 60%, 100% {
+            transform: translateY(0);
+            opacity: 0.5;
+}
+30% {
+            transform: translateY(-5px);
+            opacity: 1;
+}
+}
+@media (prefers-reduced-motion: reduce) {
+.bubble-in-enter-active[data-v-7c1e5a94] {
+            animation: none;
+}
+.typing-dot[data-v-7c1e5a94] {
+            animation: none;
+            opacity: 0.8;
+}
+}
+
+.notification-toast[data-v-ff63f4fc] {
+  animation-name: toast-cycle-ff63f4fc;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+@keyframes toast-cycle-ff63f4fc {
+0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+}
+8% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+70% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+85%,
+  100% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+}
+}
+@media (prefers-reduced-motion: reduce) {
+.notification-toast[data-v-ff63f4fc] {
+    animation: none;
+    opacity: 1;
+    transform: none;
+}
+}
+
+.how-it-works-card--active[data-v-91afeba0] {
+    box-shadow: 0 0 0 1px rgba(37, 211, 102, 0.35), 0 26px 70px 0 rgba(37, 211, 102, 0.22);
+}
+.how-it-works-check--pop[data-v-91afeba0] {
+    animation: how-it-works-check-pop-91afeba0 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.how-it-works-node--pulse[data-v-91afeba0] {
+    animation: how-it-works-node-pulse-91afeba0 1.4s ease-in-out infinite;
+}
+.how-it-works-dot--ping[data-v-91afeba0] {
+    animation: how-it-works-dot-ping-91afeba0 1.4s ease-in-out infinite;
+}
+.how-it-works-bar[data-v-91afeba0] {
+    transform: scaleY(0.05);
+    transform-origin: bottom;
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.how-it-works-bar--grown[data-v-91afeba0] {
+    transform: scaleY(1);
+}
+.how-it-works-bar[data-v-91afeba0]:nth-child(1) { transition-delay: 0ms;
+}
+.how-it-works-bar[data-v-91afeba0]:nth-child(2) { transition-delay: 45ms;
+}
+.how-it-works-bar[data-v-91afeba0]:nth-child(3) { transition-delay: 90ms;
+}
+.how-it-works-bar[data-v-91afeba0]:nth-child(4) { transition-delay: 135ms;
+}
+.how-it-works-bar[data-v-91afeba0]:nth-child(5) { transition-delay: 180ms;
+}
+.how-it-works-bar[data-v-91afeba0]:nth-child(6) { transition-delay: 225ms;
+}
+.how-it-works-bar[data-v-91afeba0]:nth-child(7) { transition-delay: 270ms;
+}
+@keyframes how-it-works-check-pop-91afeba0 {
+0% { transform: scale(0.4); opacity: 0.4;
+}
+60% { transform: scale(1.15); opacity: 1;
+}
+100% { transform: scale(1); opacity: 1;
+}
+}
+@keyframes how-it-works-node-pulse-91afeba0 {
+0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.35);
+}
+50% { box-shadow: 0 0 0 6px rgba(37, 211, 102, 0);
+}
+}
+@keyframes how-it-works-dot-ping-91afeba0 {
+0%, 100% { transform: scale(1); opacity: 1;
+}
+50% { transform: scale(1.6); opacity: 0.5;
+}
+}
+@media (prefers-reduced-motion: reduce) {
+.how-it-works-check--pop[data-v-91afeba0],
+    .how-it-works-node--pulse[data-v-91afeba0],
+    .how-it-works-dot--ping[data-v-91afeba0] {
+        animation: none;
+}
+.how-it-works-bar[data-v-91afeba0] {
+        transition: none;
+        transform: scaleY(1);
+}
+}
+
+/* Reuses the exact desktop illustration markup at native pixel size, then
+   scales the whole block down to fit the mobile card width fluidly - this
+   avoids re-deriving every absolute px value for a second, narrower layout. */
+.howitworks-mobile-scale[data-v-2db740de] {
+    position: relative;
+    overflow: hidden;
+    width: calc(100vw - 40px - 32px);
+}
+@media (min-width: 768px) {
+.howitworks-mobile-scale[data-v-2db740de] {
+        width: calc(100vw - 80px - 32px);
+}
+}
+.howitworks-mobile-scale__box[data-v-2db740de] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: top left;
+}
+.howitworks-mobile-scale__box--flowchart[data-v-2db740de] {
+    width: 427px;
+    height: 307px;
+    transform: scale(calc(min(100vw - 72px, 640px) / 427px));
+}
+.howitworks-mobile-scale__box--analytics[data-v-2db740de] {
+    width: 360px;
+    height: 330.094px;
+    transform: scale(calc(min(100vw - 72px, 640px) / 360px));
+}
+@media (min-width: 768px) {
+.howitworks-mobile-scale__box--flowchart[data-v-2db740de] {
+        transform: scale(calc(min(100vw - 112px, 640px) / 427px));
+}
+.howitworks-mobile-scale__box--analytics[data-v-2db740de] {
+        transform: scale(calc(min(100vw - 112px, 640px) / 360px));
+}
+}
+
+/* Reserve the scaled footprint's actual height so no blank space is left below. */
+.howitworks-mobile-scale[data-v-2db740de]:has(.howitworks-mobile-scale__box--flowchart) {
+    height: calc(min(100vw - 72px, 640px) * 307 / 427);
+}
+.howitworks-mobile-scale[data-v-2db740de]:has(.howitworks-mobile-scale__box--analytics) {
+    height: calc(min(100vw - 72px, 640px) * 330.094 / 360);
+}
+@media (min-width: 768px) {
+.howitworks-mobile-scale[data-v-2db740de]:has(.howitworks-mobile-scale__box--flowchart) {
+        height: calc(min(100vw - 112px, 640px) * 307 / 427);
+}
+.howitworks-mobile-scale[data-v-2db740de]:has(.howitworks-mobile-scale__box--analytics) {
+        height: calc(min(100vw - 112px, 640px) * 330.094 / 360);
+}
+}
+.how-it-works-card--active[data-v-2db740de] {
+    box-shadow: 0 0 0 1px rgba(37, 211, 102, 0.35), 0 20px 50px 0 rgba(37, 211, 102, 0.18);
+}
+.how-it-works-check--pop[data-v-2db740de] {
+    animation: how-it-works-check-pop-2db740de 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.how-it-works-node--pulse[data-v-2db740de] {
+    animation: how-it-works-node-pulse-2db740de 1.4s ease-in-out infinite;
+}
+.how-it-works-dot--ping[data-v-2db740de] {
+    animation: how-it-works-dot-ping-2db740de 1.4s ease-in-out infinite;
+}
+.how-it-works-bar[data-v-2db740de] {
+    transform: scaleY(0.05);
+    transform-origin: bottom;
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.how-it-works-bar--grown[data-v-2db740de] {
+    transform: scaleY(1);
+}
+.how-it-works-bar[data-v-2db740de]:nth-child(1) { transition-delay: 0ms;
+}
+.how-it-works-bar[data-v-2db740de]:nth-child(2) { transition-delay: 45ms;
+}
+.how-it-works-bar[data-v-2db740de]:nth-child(3) { transition-delay: 90ms;
+}
+.how-it-works-bar[data-v-2db740de]:nth-child(4) { transition-delay: 135ms;
+}
+.how-it-works-bar[data-v-2db740de]:nth-child(5) { transition-delay: 180ms;
+}
+.how-it-works-bar[data-v-2db740de]:nth-child(6) { transition-delay: 225ms;
+}
+.how-it-works-bar[data-v-2db740de]:nth-child(7) { transition-delay: 270ms;
+}
+@keyframes how-it-works-check-pop-2db740de {
+0% { transform: scale(0.4); opacity: 0.4;
+}
+60% { transform: scale(1.15); opacity: 1;
+}
+100% { transform: scale(1); opacity: 1;
+}
+}
+@keyframes how-it-works-node-pulse-2db740de {
+0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.35);
+}
+50% { box-shadow: 0 0 0 6px rgba(37, 211, 102, 0);
+}
+}
+@keyframes how-it-works-dot-ping-2db740de {
+0%, 100% { transform: scale(1); opacity: 1;
+}
+50% { transform: scale(1.6); opacity: 0.5;
+}
+}
+@media (prefers-reduced-motion: reduce) {
+.how-it-works-check--pop[data-v-2db740de],
+    .how-it-works-node--pulse[data-v-2db740de],
+    .how-it-works-dot--ping[data-v-2db740de] {
+        animation: none;
+}
+.how-it-works-bar[data-v-2db740de] {
+        transition: none;
+        transform: scaleY(1);
+}
+}
+
+.reviews-swiper[data-v-338cd7f4] {
+    padding-block: 4px;
+}
+
+/* speed is set almost as long as the autoplay delay itself, so with a
+   linear (not eased) transition the cards read as one continuous slow
+   glide rather than a pause-then-snap step. */
+.reviews-swiper[data-v-338cd7f4] .swiper-wrapper {
+    transition-timing-function: linear !important;
+}
+.reviews-nav-btn[data-v-338cd7f4]:disabled,
+.reviews-nav-btn.swiper-button-disabled[data-v-338cd7f4] {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
+}
+
+.hero-whatsapp-icon[data-v-52d86997] {
+  animation: hero-whatsapp-float-52d86997 4.5s ease-in-out infinite;
+}
+@keyframes hero-whatsapp-float-52d86997 {
+0%,
+  100% {
+    transform: translateY(0);
+}
+50% {
+    transform: translateY(-10px);
+}
+}
+@media (prefers-reduced-motion: reduce) {
+.hero-whatsapp-icon[data-v-52d86997] {
+    animation: none;
+}
+}
+
+/* Features section motion (id="section2") — bars, connector lines/dot, and
+   pointer-tilt sheen. Only transform/opacity/background/border-color are
+   animated, all colors come from existing tokens/hex already used in this
+   section, and everything rests in its final state under reduced motion. */
+.botzo-bar[data-v-52d86997] {
+  transform-origin: bottom;
+  animation: botzo-bar-52d86997 7s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) infinite;
+}
+@keyframes botzo-bar-52d86997 {
+0%,
+  6% {
+    transform: scaleY(0.14);
+}
+30%,
+  86% {
+    transform: scaleY(1);
+}
+100% {
+    transform: scaleY(0.14);
+}
+}
+.botzo-draw[data-v-52d86997] {
+  transform-origin: right;
+  animation: botzo-draw-52d86997 3s ease-in-out var(--d, 0s) infinite;
+}
+@keyframes botzo-draw-52d86997 {
+0% {
+    transform: scaleX(0);
+}
+45%,
+  100% {
+    transform: scaleX(1);
+}
+}
+.botzo-dot[data-v-52d86997] {
+  animation: botzo-dot-52d86997 2.4s ease-in-out infinite;
+}
+@keyframes botzo-dot-52d86997 {
+0%,
+  100% {
+    transform: scale(1) translateY(-50%);
+    opacity: 0.5;
+}
+50% {
+    transform: scale(1.5) translateY(-50%);
+    opacity: 1;
+}
+}
+.tilt-sheen[data-v-52d86997] {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.tilt-sheen.tilt-active[data-v-52d86997] {
+  transition: transform 0.12s linear;
+}
+.tilt-sheen[data-v-52d86997]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 0%), rgba(37, 211, 102, 0.12), transparent 65%);
+  opacity: var(--sheen, 0);
+  transition: opacity 0.35s;
+}
+.tilt-sheen--wide[data-v-52d86997]::after {
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), rgba(37, 211, 102, 0.12), transparent 65%);
+}
+.bot-demo-dot[data-v-52d86997] {
+  animation: bot-demo-bounce-52d86997 1.2s ease-in-out var(--d, 0s) infinite;
+}
+@keyframes bot-demo-bounce-52d86997 {
+0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+}
+30% {
+    transform: translateY(-3px);
+    opacity: 1;
+}
+}
+
+/* Each pipeline chip gets its own signature motion while active, instead of
+   every step reusing the same generic pulse. */
+.chip-anim-ping[data-v-52d86997] {
+  animation: chip-anim-ping-52d86997 1s ease-in-out infinite;
+}
+@keyframes chip-anim-ping-52d86997 {
+0%,
+  100% {
+    transform: scale(1);
+}
+50% {
+    transform: scale(1.35);
+}
+}
+.chip-anim-scan[data-v-52d86997] {
+  animation: chip-anim-scan-52d86997 1.4s ease-in-out infinite;
+}
+@keyframes chip-anim-scan-52d86997 {
+0%,
+  100% {
+    transform: translateX(0);
+}
+50% {
+    transform: translateX(-3px);
+}
+}
+.chip-anim-decide[data-v-52d86997] {
+  animation: chip-anim-decide-52d86997 1.1s ease-in-out infinite;
+}
+@keyframes chip-anim-decide-52d86997 {
+0%,
+  100% {
+    transform: rotate(0deg);
+}
+50% {
+    transform: rotate(18deg);
+}
+}
+.chip-anim-generate[data-v-52d86997] {
+  animation: chip-anim-generate-52d86997 0.9s ease-in-out infinite;
+}
+@keyframes chip-anim-generate-52d86997 {
+0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+}
+50% {
+    transform: scale(1.25) rotate(-12deg);
+    opacity: 0.65;
+}
+}
+.chip-anim-send[data-v-52d86997] {
+  animation: chip-anim-send-52d86997 1s ease-in-out infinite;
+}
+@keyframes chip-anim-send-52d86997 {
+0%,
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+}
+50% {
+    transform: translateX(3px);
+    opacity: 0.6;
+}
+}
+@media (prefers-reduced-motion: reduce) {
+.botzo-bar[data-v-52d86997],
+  .botzo-draw[data-v-52d86997],
+  .botzo-dot[data-v-52d86997],
+  .bot-demo-dot[data-v-52d86997],
+  .chip-anim-ping[data-v-52d86997],
+  .chip-anim-scan[data-v-52d86997],
+  .chip-anim-decide[data-v-52d86997],
+  .chip-anim-generate[data-v-52d86997],
+  .chip-anim-send[data-v-52d86997] {
+    animation: none !important;
+}
+.tilt-sheen[data-v-52d86997] {
+    transition: none !important;
+}
+}
