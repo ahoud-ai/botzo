@@ -33,9 +33,27 @@
     const params = ref({
         id: props.filters?.id,
         search: props.filters?.search,
+        group: props.filters?.group ?? null,
         page: props.filters?.page
     });
-    
+
+    const groupPalette = ['#155dfc', 'var(--ui-warning)', '#7c3aed', 'var(--ui-secondary)'];
+    const groupColor = (uuid) => {
+        if (!Array.isArray(props.contactGroups)) {
+            return groupPalette[0];
+        }
+        const index = props.contactGroups.findIndex((group) => group.uuid === uuid);
+        return groupPalette[index >= 0 ? index % groupPalette.length : 0];
+    };
+
+    const applyGroup = (uuid) => {
+        params.value.group = uuid;
+        params.value.page = null;
+        runSearch();
+    };
+
+    const replyWindowOpen = (contact) => contact?.reply_context?.reply_window_open === true;
+
     const isOpenModal = ref(false);
     const isExportModalOpen = ref(false);
     const isAssignGroupModalOpen = ref(false);
@@ -269,27 +287,46 @@
             </span>
         </div>
     </div>
-    <div class="flex justify-between px-4 border-b">
+    <div v-if="type === 'contact' && contactGroups?.length" class="contact-group-filters">
+        <button
+            type="button"
+            class="contact-group-pill"
+            :class="{ 'contact-group-pill--active': !params.group }"
+            @click="applyGroup(null)"
+        >{{ $t('All groups') }}</button>
+        <button
+            v-for="group in contactGroups"
+            :key="group.uuid"
+            type="button"
+            class="contact-group-pill"
+            :class="{ 'contact-group-pill--active': params.group === group.uuid }"
+            :style="{ '--pill-color': groupColor(group.uuid) }"
+            @click="applyGroup(group.uuid)"
+        >
+            <span class="dot"></span>{{ group.name }}
+        </button>
+    </div>
+    <div class="flex px-4 border-b border-slate-100 dark:border-white/10">
+        <Link href="/contacts" class="contact-tab" :class="{ 'contact-tab--active': $page.url.startsWith('/contacts') }">{{ $t('All contacts') }}</Link>
+        <Link href="/contact-groups" class="contact-tab" :class="{ 'contact-tab--active': $page.url.startsWith('/contact-groups') }">{{ $t('Groups') }}</Link>
+    </div>
+    <div class="flex justify-between items-center px-4 py-2 border-b border-slate-100 dark:border-white/10">
         <div class="flex items-center gap-x-2">
-            <label @click="toggleAllCheckboxes($event)" for="myCheckbox" class="cursor-pointer">
-                <div class="w-4 h-4 border border-gray-400 rounded-md flex items-center justify-center" :class="{ 'bg-secondary': bulkCheckbox }">
-                    <svg v-if="bulkCheckbox" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                </div>
+            <label @click="toggleAllCheckboxes($event)" class="contact-checkbox" :class="{ 'contact-checkbox--checked': bulkCheckbox }">
+                <svg v-if="bulkCheckbox" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                </svg>
             </label>
-            <label @click="toggleAllCheckboxes($event)" class="cursor-pointer text-sm">
+            <label @click="toggleAllCheckboxes($event)" class="cursor-pointer text-[13px] font-medium text-slate-600 dark:text-slate-400">
                 <span v-if="selectedCount == 0">{{ $t('Select all') }} ({{ selectedCount }})</span>
                 <span v-else-if="selectedCount > 0">{{ selectedCount }} {{ $t('selected') }}</span>
             </label>
         </div>
         <div>
             <div class="flex justify-end">
-                <Dropdown v-if="type === 'contact' && (canImport || canExport || canDelete || canEdit)" :align="'right'" class="mt-2">
-                    <button type="submit" class="inline-flex w-full justify-center rounded-md text-sm font-medium text-black hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-                        <span class="hover:shadow-md bg-slate-50 rounded-full w-[fit-content] p-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path fill="black" d="M8 2.5a1.22 1.22 0 0 1 1.25 1.17A1.21 1.21 0 0 1 8 4.84a1.21 1.21 0 0 1-1.25-1.17A1.22 1.22 0 0 1 8 2.5m0 8.66a1.17 1.17 0 1 1-1.25 1.17A1.21 1.21 0 0 1 8 11.16m0-4.33a1.17 1.17 0 1 1 0 2.34a1.17 1.17 0 1 1 0-2.34"/></svg>
-                        </span>
+                <Dropdown v-if="type === 'contact' && (canImport || canExport || canDelete || canEdit)" :align="'right'">
+                    <button type="submit" class="contact-toolbar-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 16 16"><path fill="currentColor" d="M8 2.5a1.22 1.22 0 0 1 1.25 1.17A1.21 1.21 0 0 1 8 4.84a1.21 1.21 0 0 1-1.25-1.17A1.22 1.22 0 0 1 8 2.5m0 8.66a1.17 1.17 0 1 1-1.25 1.17A1.21 1.21 0 0 1 8 11.16m0-4.33a1.17 1.17 0 1 1 0 2.34a1.17 1.17 0 1 1 0-2.34"/></svg>
                     </button>
                     <template #items>
                         <DropdownItemGroup>
@@ -304,54 +341,56 @@
             </div>
         </div>
     </div>
-    <div class="min-h-[2.75rem]">
-        <div class="flex justify-between text-sm border-b">
-            <Link href="/contacts" class="pt-3 w-1/2 text-center pb-1 hover:bg-slate-50" :class="{ 'bg-gray-50 border-b-2 border-slate-700': $page.url.startsWith('/contacts') }">{{ $t('All contacts') }}</Link>
-            <Link href="/contact-groups" class="pt-3 w-1/2 text-center pb-1 hover:bg-slate-50" :class="{ 'bg-gray-50 border-b-2 border-slate-700': $page.url.startsWith('/contact-groups') }">{{ $t('Groups') }}</Link>
-        </div>
-    </div>
     <div class="flex-grow min-h-0 overflow-y-auto" ref="scrollContainer">
-            <div v-if="type === 'contact'" @click="getRow(contact.uuid)" class="flex min-w-0 items-start gap-3 hover:bg-gray-50 cursor-pointer px-4 py-3 border-b" :class="contact.isChecked ? 'bg-gray-50' : ''" v-for="(contact, index) in rows.data" :key="index">
-            <div class="shrink-0 pt-1">
-                <label @click.stop="toggleCheckbox(contact.uuid)" for="myCheckbox" class="cursor-pointer">
-                    <div class="w-4 h-4 border border-gray-400 rounded-md flex items-center justify-center" :class="{ 'bg-secondary': contact.isChecked }">
-                        <svg v-if="contact.isChecked" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </div>
+            <div v-if="type === 'contact'" @click="getRow(contact.uuid)" class="contact-row" :class="{ 'contact-row--checked': contact.isChecked }" v-for="(contact, index) in rows.data" :key="index">
+            <div class="shrink-0">
+                <label @click.stop="toggleCheckbox(contact.uuid)" class="contact-checkbox" :class="{ 'contact-checkbox--checked': contact.isChecked }">
+                    <svg v-if="contact.isChecked" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                    </svg>
                 </label>
             </div>
-            <div class="shrink-0">
-                <img v-if="contact.avatar" class="rounded-full h-12 w-12 object-cover" :src="contact.avatar" alt="">
-                <div v-else class="rounded-full bg-secondary/10 text-secondary flex justify-center items-center h-12 w-12">{{ contact.first_name?.substring(0, 1) }}</div>
+            <div class="shrink-0 contact-avatar-wrap">
+                <img v-if="contact.avatar" class="contact-avatar-img rounded-full h-14 w-14 object-cover" :src="contact.avatar" alt="">
+                <div v-else class="contact-avatar-fallback rounded-full flex justify-center items-center h-14 w-14 text-lg font-bold">{{ contact.first_name?.substring(0, 1) }}</div>
+                <span class="contact-wa-dot" :class="{ 'contact-wa-dot--open': replyWindowOpen(contact) }" :title="replyWindowOpen(contact) ? $t('Reply window open') : $t('Reply window closed')">
+                    <span v-if="replyWindowOpen(contact)" class="contact-wa-dot-pulse"></span>
+                </span>
             </div>
             <div class="min-w-0 flex-1">
-                <h3 class="truncate">{{ contact?.full_name }}</h3>
-                <p class="text-slate-500 text-xs truncate">{{ contact.formatted_phone_number }}</p>
+                <h3 class="truncate text-[15px] font-semibold text-[var(--ui-text)]">{{ contact?.full_name }}</h3>
+                <div class="contact-row-meta">
+                    <span class="contact-row-phone" dir="ltr">{{ contact.formatted_phone_number }}</span>
+                    <span
+                        v-for="group in contact.contact_groups?.slice(0, 1)"
+                        :key="group.uuid"
+                        class="contact-group-chip"
+                        :style="{ '--chip-color': groupColor(group.uuid) }"
+                    >{{ group.name }}</span>
+                    <span v-if="contact.contact_groups?.length > 1" class="contact-group-chip contact-group-chip--muted">+{{ contact.contact_groups.length - 1 }}</span>
+                </div>
             </div>
-            <div class="shrink-0 pt-1">
-                <svg v-if="contact.is_favorite" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#FFD700" d="M9.153 5.408C10.42 3.136 11.053 2 12 2c.947 0 1.58 1.136 2.847 3.408l.328.588c.36.646.54.969.82 1.182c.28.213.63.292 1.33.45l.636.144c2.46.557 3.689.835 3.982 1.776c.292.94-.546 1.921-2.223 3.882l-.434.507c-.476.557-.715.836-.822 1.18c-.107.345-.071.717.001 1.46l.066.677c.253 2.617.38 3.925-.386 4.506c-.766.582-1.918.051-4.22-1.009l-.597-.274c-.654-.302-.981-.452-1.328-.452c-.347 0-.674.15-1.328.452l-.596.274c-2.303 1.06-3.455 1.59-4.22 1.01c-.767-.582-.64-1.89-.387-4.507l.066-.676c.072-.744.108-1.116 0-1.46c-.106-.345-.345-.624-.821-1.18l-.434-.508c-1.677-1.96-2.515-2.941-2.223-3.882c.293-.941 1.523-1.22 3.983-1.776l.636-.144c.699-.158 1.048-.237 1.329-.45c.28-.213.46-.536.82-1.182z"/></svg>
+            <div class="shrink-0">
+                <svg v-if="contact.is_favorite" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="#f5b400" d="M9.153 5.408C10.42 3.136 11.053 2 12 2c.947 0 1.58 1.136 2.847 3.408l.328.588c.36.646.54.969.82 1.182c.28.213.63.292 1.33.45l.636.144c2.46.557 3.689.835 3.982 1.776c.292.94-.546 1.921-2.223 3.882l-.434.507c-.476.557-.715.836-.822 1.18c-.107.345-.071.717.001 1.46l.066.677c.253 2.617.38 3.925-.386 4.506c-.766.582-1.918.051-4.22-1.009l-.597-.274c-.654-.302-.981-.452-1.328-.452c-.347 0-.674.15-1.328.452l-.596.274c-2.303 1.06-3.455 1.59-4.22 1.01c-.767-.582-.64-1.89-.387-4.507l.066-.676c.072-.744.108-1.116 0-1.46c-.106-.345-.345-.624-.821-1.18l-.434-.508c-1.677-1.96-2.515-2.941-2.223-3.882c.293-.941 1.523-1.22 3.983-1.776l.636-.144c.699-.158 1.048-.237 1.329-.45c.28-.213.46-.536.82-1.182z"/></svg>
             </div>
         </div>
-        <div v-else-if="type === 'group'" @click="getRow(row.uuid)" class="flex min-w-0 items-start gap-3 hover:bg-gray-50 cursor-pointer px-4 py-3 border-b" :class="row.isChecked ? 'bg-gray-50' : ''" v-for="(row, key) in rows.data" :key="key">
+        <div v-else-if="type === 'group'" @click="getRow(row.uuid)" class="contact-row" :class="{ 'contact-row--checked': row.isChecked }" v-for="(row, key) in rows.data" :key="key">
             <div class="shrink-0 pt-1">
-                <label @click.stop="toggleCheckbox(row.uuid)" for="myCheckbox" class="cursor-pointer">
-                    <div class="w-4 h-4 border border-gray-400 rounded-md flex items-center justify-center" :class="{ 'bg-secondary': row.isChecked }">
-                        <svg v-if="row.isChecked" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </div>
+                <label @click.stop="toggleCheckbox(row.uuid)" class="contact-checkbox" :class="{ 'contact-checkbox--checked': row.isChecked }">
+                    <svg v-if="row.isChecked" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                    </svg>
                 </label>
             </div>
             <div class="shrink-0">
-                <div class="rounded-full bg-secondary/10 text-secondary flex justify-center items-center h-12 w-12 capitalize">{{ row.name.substring(0, 1) }}</div>
+                <div class="rounded-full bg-secondary/10 text-secondary flex justify-center items-center h-11 w-11 font-semibold capitalize">{{ row.name.substring(0, 1) }}</div>
             </div>
             <div class="min-w-0 flex-1 flex items-center">
-                <h3 class="truncate">{{ row.name }}</h3>
+                <h3 class="truncate text-[15px] font-semibold text-[var(--ui-text)]">{{ row.name }}</h3>
             </div>
         </div>
     </div>
-    <div class="border-t bg-white px-4 py-3">
+    <div class="border-t border-slate-100 dark:border-white/10 px-4 py-3">
         <Pagination :pagination="rows.meta"/>
     </div>
     <ContactImportModal :type="type" v-model:modelValue="isOpenModal"/>
@@ -366,7 +405,7 @@
                 :error="assignGroupForm.errors.group_uuid"
             />
 
-            <div v-if="contactGroupOptions.length === 0" class="text-sm text-slate-500 mt-2">
+            <div v-if="contactGroupOptions.length === 0" class="text-sm text-slate-500 dark:text-slate-400 mt-2">
                 {{ $t('No groups available. Please create a group first.') }}
             </div>
             <div v-if="assignGroupForm.errors.uuids" class="ui-form-error mt-2">
@@ -374,12 +413,12 @@
             </div>
 
             <div class="mt-5 flex items-center justify-end gap-x-3">
-                <button type="button" class="inline-flex justify-center rounded-md border border-transparent bg-slate-200 px-4 py-2 text-sm text-slate-700 hover:bg-slate-300" @click="closeAssignGroupModal">
+                <button type="button" class="contact-modal-btn contact-modal-btn--ghost" @click="closeAssignGroupModal">
                     {{ $t('Cancel') }}
                 </button>
                 <button
                     type="button"
-                    class="inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+                    class="contact-modal-btn contact-modal-btn--solid"
                     :disabled="assignGroupForm.processing || contactGroupOptions.length === 0"
                     @click="assignSelectedToGroup"
                 >
@@ -390,4 +429,266 @@
     </Modal>
     </div>
 </template>
+
+<style scoped>
+.contact-tab {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem 0.5rem 0.65rem;
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: var(--ui-muted);
+    border-bottom: 2px solid transparent;
+    transition: color 160ms ease, border-color 160ms ease;
+}
+
+.contact-tab:hover {
+    color: var(--ui-text);
+}
+
+.contact-tab--active {
+    color: var(--ui-text);
+    font-weight: 600;
+    border-bottom-color: var(--ui-secondary);
+}
+
+.contact-checkbox {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 0.35rem;
+    border: 1.5px solid var(--ui-border-strong);
+    cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.contact-checkbox--checked {
+    background: var(--ui-secondary);
+    border-color: var(--ui-secondary);
+}
+
+.contact-toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 999px;
+    color: var(--ui-muted);
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 160ms ease, color 160ms ease;
+}
+
+.contact-toolbar-btn:hover {
+    background: var(--ui-surface-soft);
+    color: var(--ui-text);
+}
+
+.contact-row {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.9rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--ui-border);
+    transition: background-color 160ms ease;
+}
+
+.contact-row:hover {
+    background: var(--ui-surface-soft);
+}
+
+.contact-row--checked {
+    background: color-mix(in srgb, var(--ui-secondary) 8%, var(--ui-surface));
+}
+
+.contact-row--checked::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.6rem;
+    bottom: 0.6rem;
+    width: 3px;
+    border-radius: 999px;
+    background: var(--ui-secondary);
+}
+
+.contact-avatar-wrap {
+    position: relative;
+}
+
+.contact-avatar-img {
+    box-shadow: 0 0 0 3px var(--ui-surface-soft), 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.contact-avatar-fallback {
+    color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 16%, var(--ui-surface-soft));
+    box-shadow: 0 0 0 3px var(--ui-surface-soft), 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.contact-wa-dot {
+    position: absolute;
+    bottom: 0;
+    inset-inline-end: 0;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 50%;
+    border: 2.5px solid var(--ui-surface);
+    background: var(--ui-muted);
+    opacity: 0.5;
+}
+
+.contact-wa-dot--open {
+    background: var(--ui-success);
+    opacity: 1;
+}
+
+.contact-wa-dot-pulse {
+    position: absolute;
+    inset: -2.5px;
+    border-radius: inherit;
+    border: 1.5px solid var(--ui-success);
+    opacity: 0;
+    animation: contact-wa-pulse 2.2s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .contact-wa-dot-pulse { animation: none; }
+}
+
+@keyframes contact-wa-pulse {
+    0% { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.7); }
+}
+
+.contact-row-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+    overflow: hidden;
+}
+
+.contact-row-phone {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    color: var(--ui-muted);
+    unicode-bidi: isolate;
+}
+
+.contact-group-chip {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.16rem 0.5rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--chip-color, var(--ui-muted)) 14%, transparent);
+    color: var(--chip-color, var(--ui-muted));
+    max-width: 6rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.contact-group-chip--muted {
+    background: var(--ui-surface-soft);
+    color: var(--ui-muted);
+}
+
+.contact-group-filters {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding: 0.7rem 1rem 0;
+    scrollbar-width: none;
+}
+
+.contact-group-filters::-webkit-scrollbar {
+    display: none;
+}
+
+.contact-group-pill {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+    color: var(--ui-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.contact-group-pill .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--pill-color, var(--ui-muted));
+}
+
+.contact-group-pill:hover {
+    color: var(--ui-text);
+    border-color: var(--ui-border-strong);
+}
+
+.contact-group-pill--active {
+    background: var(--ui-secondary);
+    border-color: var(--ui-secondary);
+    color: #fff;
+}
+
+.contact-group-pill--active .dot {
+    background: #fff;
+}
+
+.contact-modal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.65rem;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, filter 160ms ease;
+}
+
+.contact-modal-btn--ghost {
+    color: var(--ui-text);
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+}
+
+.contact-modal-btn--ghost:hover {
+    background: var(--ui-border);
+}
+
+.contact-modal-btn--solid {
+    color: #fff;
+    background: var(--ui-secondary);
+    border: 1px solid var(--ui-secondary);
+}
+
+.contact-modal-btn--solid:hover {
+    filter: brightness(1.05);
+}
+
+.contact-modal-btn--solid:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: none;
+}
+</style>
   

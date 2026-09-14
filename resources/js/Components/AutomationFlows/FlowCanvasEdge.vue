@@ -4,7 +4,7 @@
     <EdgeLabelRenderer>
         <div class="pointer-events-none absolute z-[8]" :style="labelStyle">
             <div
-                class="flow-canvas-edge-badge pointer-events-auto inline-flex items-center gap-1.5 rounded-full border shadow-[0_10px_24px_rgba(15,23,42,0.10)]"
+                class="flow-canvas-edge-badge pointer-events-auto inline-flex items-center gap-1.5 rounded-full border shadow-[0_10px_24px_color-mix(in_srgb,var(--ui-text)_10%,transparent)]"
                 :class="[badgeClass, showLabel ? 'px-2.5 py-1.5' : 'px-1.5 py-1.5', selected ? 'scale-[1.02]' : '']"
             >
                 <span v-if="showLabel" class="max-w-[128px] truncate text-[10px] font-semibold">{{ data?.branchLabel }}</span>
@@ -67,8 +67,8 @@ const labelStyle = computed(() => ({
     transform: `translate(-50%, -50%) translate(${labelX.value}px, ${labelY.value}px)`,
 }));
 const showLabel = computed(() => Boolean(props.data?.showLabel && props.data?.branchLabel));
-const badgeClass = computed(() => props.data?.badgeClass || 'border-slate-200 bg-white/95 text-slate-700');
-const actionClass = computed(() => props.data?.actionClass || 'border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-900');
+const badgeClass = computed(() => props.data?.badgeClass || 'border-[var(--ui-border)] bg-[color-mix(in_srgb,var(--ui-surface)_95%,transparent)] text-[var(--ui-text)]');
+const actionClass = computed(() => props.data?.actionClass || 'border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-muted)] hover:border-[var(--ui-border-strong)] hover:text-[var(--ui-text)]');
 
 const insertStep = () => {
     props.data?.onInsertNode?.(props.id, 'send_text');

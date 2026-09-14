@@ -49,15 +49,15 @@
                     leave-to="opacity-0 scale-95"
                 >
                     <DialogPanel
-                    class="w-full max-w-md transform overflow-visible rounded-2xl bg-white/90 text-start align-middle shadow-2xl transition-all border border-slate-200 backdrop-blur-md"
+                    class="w-full max-w-md transform overflow-visible rounded-2xl bg-white/90 dark:bg-[#0d1420] text-start align-middle shadow-2xl transition-all border border-slate-200 dark:border-white/10 backdrop-blur-md"
                     >
-                    <div v-if="props.showHeader != false" class="flex justify-between items-center bg-white/80 px-4 py-3 rounded-t-2xl border-b border-slate-200">
-                        <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900">
+                    <div v-if="props.showHeader != false" class="flex justify-between items-center bg-white/80 dark:bg-transparent px-4 py-3 rounded-t-2xl border-b border-slate-200 dark:border-white/10">
+                        <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900 dark:text-white">
                             {{ props.label ? t(props.label) : '' }}
                         </DialogTitle>
 
-                        <span @click="closeModal" v-if="closeBtn === true" class="bg-slate-100 rounded-full p-1 hover:shadow cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="black" stroke-linecap="round" stroke-linejoin="round" d="M17 7L7 17M7 7l10 10"/></svg>
+                        <span @click="closeModal" v-if="closeBtn === true" class="bg-slate-100 dark:bg-white/10 rounded-full p-1 hover:shadow dark:hover:bg-white/15 cursor-pointer transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" class="text-slate-700 dark:text-slate-200" stroke-linecap="round" stroke-linejoin="round" d="M17 7L7 17M7 7l10 10"/></svg>
                         </span>
                     </div>
                     <div class="px-4 pb-4 overflow-visible rounded-b-2xl" :class="props.showHeader == false ? 'rounded-t-2xl' : ''">

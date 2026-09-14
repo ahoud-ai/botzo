@@ -1,0 +1,115 @@
+
+.role-form-btn[data-v-83b2f82c] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 0.7rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, filter 160ms ease;
+}
+.role-form-btn--ghost[data-v-83b2f82c] {
+    color: var(--ui-text);
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+}
+.role-form-btn--ghost[data-v-83b2f82c]:hover {
+    background: var(--ui-border);
+}
+.role-form-btn--solid[data-v-83b2f82c] {
+    color: #fff;
+    background: var(--ui-secondary);
+    border: none;
+}
+.role-form-btn--solid[data-v-83b2f82c]:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+.role-form-btn--solid[data-v-83b2f82c]:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+.role-locked-banner[data-v-83b2f82c] {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+    padding: 0.85rem 1.1rem;
+    border-radius: var(--ui-radius-md);
+    background: color-mix(in srgb, var(--ui-warning) 12%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-warning) 30%, var(--ui-border));
+    color: color-mix(in srgb, var(--ui-warning) 75%, var(--ui-text));
+    font-size: 0.88rem;
+}
+.role-locked-banner svg[data-v-83b2f82c] {
+    flex-shrink: 0;
+    color: var(--ui-warning);
+}
+.role-name-card[data-v-83b2f82c] {
+    margin-bottom: 1.25rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--ui-radius-md);
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+}
+.role-module-icon[data-v-83b2f82c] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.7rem;
+    color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 12%, transparent);
+}
+.role-select-all-btn[data-v-83b2f82c] {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--ui-secondary);
+    margin-top: -0.5rem;
+    margin-bottom: 0.5rem;
+    transition: opacity 160ms ease;
+}
+.role-select-all-btn[data-v-83b2f82c]:hover {
+    opacity: 0.75;
+}
+.role-permission-row[data-v-83b2f82c] {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    padding: 0.4rem 0.5rem;
+    border-radius: 0.55rem;
+    transition: background-color 140ms ease;
+}
+.role-permission-row[data-v-83b2f82c]:hover {
+    background: var(--ui-surface-soft);
+}
+.role-permission-row--disabled[data-v-83b2f82c] {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+.role-checkbox[data-v-83b2f82c] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 0.35rem;
+    border: 1.5px solid var(--ui-border-strong);
+    color: #fff;
+    transition: background-color 160ms ease, border-color 160ms ease;
+}
+.role-checkbox--checked[data-v-83b2f82c] {
+    background: var(--ui-secondary);
+    border-color: var(--ui-secondary);
+}
+.role-permission-label[data-v-83b2f82c] {
+    font-size: 0.88rem;
+    color: var(--ui-text);
+    cursor: pointer;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+            user-select: none;
+}

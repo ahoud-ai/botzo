@@ -67,6 +67,22 @@
                             <span class="ui-workspace-empty-kicker">{{ $t('Chats') }}</span>
                             <h2 class="ui-workspace-empty-title">{{ $t('Select chat') }}</h2>
                             <p class="ui-workspace-empty-description">{{ $t('Choose a conversation from the list to review messages, ticket status, and send a reply from one place.') }}</p>
+
+                            <div class="chat-empty-stats">
+                                <div class="chat-empty-stat">
+                                    <span class="chat-empty-stat__value">{{ rowCount }}</span>
+                                    <span class="chat-empty-stat__label">{{ $t('Chats') }}</span>
+                                </div>
+                                <div class="chat-empty-stat">
+                                    <span class="chat-empty-stat__value">{{ unreadCount }}</span>
+                                    <span class="chat-empty-stat__label">{{ $t('Unread Messages') }}</span>
+                                </div>
+                            </div>
+
+                            <div class="ui-workspace-empty-actions">
+                                <Link href="/chats?unread=1" class="ui-workspace-empty-primary">{{ $t('Unread Messages') }}</Link>
+                                <Link v-if="canCreateContact" href="/contacts/add" class="ui-workspace-empty-secondary">{{ $t('Add contact') }}</Link>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -82,7 +98,7 @@
 <script setup>
     import AppLayout from "./../Layout/App.vue";
     import { default as axios } from 'axios';
-    import { router, usePage } from '@inertiajs/vue3';
+    import { Link, router, usePage } from '@inertiajs/vue3';
     import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
     import CampaignForm from '@/Components/CampaignForm.vue';
     import ChatForm from '@/Components/ChatComponents/ChatForm.vue';
@@ -144,6 +160,8 @@
     const chatThread = ref(props.chatThread);
     const contact = ref(props.contact);
     const canReply = computed(() => hasPermission('chats.reply'));
+    const canCreateContact = computed(() => hasPermission('contacts.create'));
+    const unreadCount = computed(() => Number(page.props?.unreadMessages ?? 0));
     const selectedRowContact = computed(() => {
         if (!contact.value?.uuid || !Array.isArray(rows.value?.data)) {
             return null;
@@ -476,3 +494,37 @@
         }
     });
 </script>
+
+<style scoped>
+.chat-empty-stats {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1.25rem;
+}
+
+.chat-empty-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    padding-inline: 1.5rem;
+}
+
+.chat-empty-stat:not(:last-child) {
+    border-inline-end: 1px solid var(--ui-border);
+}
+
+.chat-empty-stat__value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--ui-text);
+}
+
+.chat-empty-stat__label {
+    font-size: 0.82rem;
+    color: var(--ui-muted);
+}
+</style>

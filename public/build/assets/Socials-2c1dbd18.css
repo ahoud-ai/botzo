@@ -1,0 +1,38 @@
+
+.sc-toggle-row[data-v-2be3805a] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.85rem 1.05rem;
+}
+.sc-toggle-label[data-v-2be3805a] {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+.sc-btn[data-v-2be3805a] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease, opacity 160ms ease;
+}
+.sc-btn--solid[data-v-2be3805a] {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.sc-btn--solid[data-v-2be3805a]:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+.sc-btn--solid[data-v-2be3805a]:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}

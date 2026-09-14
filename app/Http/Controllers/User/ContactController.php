@@ -47,13 +47,14 @@ class ContactController extends BaseController
             return $this->downloadTemplate();
         } else {
             $searchTerm = $request->query('search');
+            $groupUuid = $request->query('group');
             $uuid = $request->query('id') ? $request->query('id') : $uuid ;
             $editContact = $request->query('edit') === 'true' ? true : false;
 
-            $contacts = $contactModel->getAllContacts($organizationId, $searchTerm);
+            $contacts = $contactModel->getAllContacts($organizationId, $searchTerm, $groupUuid);
             $rowCount = $contactModel->countContacts($organizationId);
             $contactGroups = $contactModel->getAllContactGroups($organizationId);
-            $contact = Contact::with('contactGroups')
+            $contact = Contact::with(['contactGroups', 'lastInboundChat'])
                 ->where('organization_id', $organizationId)
                 ->where('uuid', $uuid)
                 ->where('deleted_at', null)

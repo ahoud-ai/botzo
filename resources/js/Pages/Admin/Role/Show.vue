@@ -1,67 +1,49 @@
 <template>
     <AppLayout>
         <div class="ui-page ui-fade-up ui-page-frame ui-text-main min-h-full">
-            <div class="md:flex justify-between hidden">
-                <div>
-                    <h1 class="text-xl mb-1">{{ $t(props.title) }}</h1>
-                    <p class="mb-6 flex items-center text-sm leading-6 text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                        <span class="ms-1 mt-1">{{ $t('Create roles for administrative users') }}</span>
-                    </p>
-                </div>
-                <div>
-                    <Link href="/admin/team/roles" class="rounded-md bg-indigo-600 px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $t('Back') }}</Link>
-                </div>
-            </div>
-            <form @submit.prevent="submitForm()" class="bg-white md:border py-5 px-5 rounded-[0.5rem]">
-                <div class="sm:flex border-b py-5">
-                    <div class="sm:w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Name') }}</h1>
+            <UiPageHeader :title="$t(props.title)" :subtitle="$t('Create roles for administrative users')">
+                <template #actions>
+                    <Link href="/admin/team/roles" class="rl-btn rl-btn--ghost">{{ $t('Back') }}</Link>
+                </template>
+            </UiPageHeader>
+
+            <form @submit.prevent="submitForm()" class="mt-6 space-y-6">
+                <UiSectionCard :title="$t('Name')">
+                    <div class="max-w-md">
+                        <FormInput v-model="form.name" :type="'text'" :error="form.errors.name" :class="'w-full'" :labelClass="'mb-0'" :disabled="isSystemRole"/>
+                        <p v-if="isSystemRole" class="rl-note mt-3">
+                            {{ $t('System admin role cannot be modified.') }}
+                        </p>
                     </div>
-                    <div class="sm:w-[60%] sm:flex gap-x-6">
-                        <div class="sm:w-[80%]">
-                            <FormInput v-model="form.name" :type="'text'" :error="form.errors.name" :class="'w-full'" :labelClass="'mb-0'" :disabled="isSystemRole"/>
-                            <p v-if="isSystemRole" class="mt-2 text-xs text-slate-500">
-                                {{ $t('System admin role cannot be modified.') }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex py-5">
-                    <div class="hidden sm:block w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Permissions') }}</h1>
-                        <span class="flex text-xs mt-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                            {{ $t('Choose the appropriate permissions for this role') }}
-                        </span>
-                    </div>
-                    <div class="sm:w-[60%] flex gap-x-6">
-                        <div class="sm:w-[80%]">
-                            <div class="mb-4" v-for="(item, index) in props.modules" :key="index">
-                                <label class="text-sm">{{ $t(toTranslationKey(item.name)) }}</label>
-                                <div class="grid grid-cols-2 sm:grid-cols-3 mt-2">
-                                    <div v-for="value in separateValues(item.actions)" :key="value" class="relative flex mb-2">
-                                        <div class="flex h-6 items-center me-2">
-                                            <input 
-                                                v-model="form.permissions[item.name][value]" 
-                                                :id="'permission['+ item.name + '|' + value + ']'" 
-                                                :name="'permission['+ item.name + '|' + value + ']'"
-                                                type="checkbox" 
-                                                :disabled="isSystemRole"
-                                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                                            >
-                                        </div>
-                                        <div class="text-sm leading-6">
-                                            <label :for="'permission['+ item.name + '|' + value + ']'" class="font-medium text-gray-900">{{ $t(toTranslationKey(value)) }}</label>
-                                        </div>
-                                    </div>
-                                </div>
+                </UiSectionCard>
+
+                <UiSectionCard :title="$t('Permissions')" :subtitle="$t('Choose the appropriate permissions for this role')">
+                    <div class="space-y-5">
+                        <div v-for="(item, index) in props.modules" :key="index" class="rl-module">
+                            <p class="rl-module-title">{{ $t(toTranslationKey(item.name)) }}</p>
+                            <div class="rl-permission-grid">
+                                <label
+                                    v-for="value in separateValues(item.actions)"
+                                    :key="value"
+                                    class="rl-permission-item"
+                                    :class="{ 'rl-permission-item--active': form.permissions[item.name][value], 'rl-permission-item--disabled': isSystemRole }"
+                                >
+                                    <input
+                                        v-model="form.permissions[item.name][value]"
+                                        :name="'permission['+ item.name + '|' + value + ']'"
+                                        type="checkbox"
+                                        :disabled="isSystemRole"
+                                        class="ui-checkbox-input"
+                                    >
+                                    <span>{{ $t(toTranslationKey(value)) }}</span>
+                                </label>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="py-6 flex justify-end">
-                    <button type="submit" :disabled="isSystemRole || form.processing" class="flex items-center gap-x-4 rounded-md bg-black px-3 py-2 text-sm text-white shadow-sm hover:bg-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
+                </UiSectionCard>
+
+                <div class="flex justify-end">
+                    <button type="submit" :disabled="isSystemRole || form.processing" class="rl-btn rl-btn--solid">
                         {{ $t('Save') }}
                     </button>
                 </div>
@@ -74,6 +56,8 @@
     import { computed, onMounted } from 'vue';
     import { Link, useForm } from "@inertiajs/vue3";
     import FormInput from '@/Components/FormInput.vue';
+    import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
+    import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
 
     const props = defineProps({ title: String, role: Object, modules: Object, permissions: Object });
     const isSystemRole = computed(() => String(props.role?.name ?? '').trim().toLowerCase() === 'admin');
@@ -143,3 +127,101 @@
     });
 </script>
 
+<style scoped>
+.rl-btn {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, filter 160ms ease, opacity 160ms ease;
+}
+
+.rl-btn--ghost {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+
+.rl-btn--ghost:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+
+.rl-btn--solid {
+    border: 1px solid transparent;
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.rl-btn--solid:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+
+.rl-btn--solid:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.rl-note {
+    font-size: 0.78rem;
+    color: var(--ui-muted);
+}
+
+.rl-module {
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 1rem 1.1rem;
+}
+
+.rl-module-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--ui-text);
+    margin-bottom: 0.75rem;
+}
+
+.rl-permission-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+}
+
+@media (min-width: 640px) {
+    .rl-permission-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.rl-permission-item {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 0.55rem 0.75rem;
+    font-size: 0.85rem;
+    color: var(--ui-text);
+    cursor: pointer;
+    transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.rl-permission-item:hover {
+    border-color: var(--ui-border-strong);
+}
+
+.rl-permission-item--active {
+    border-color: color-mix(in srgb, var(--ui-secondary) 50%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-secondary) 9%, var(--ui-surface));
+    font-weight: 600;
+}
+
+.rl-permission-item--disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+</style>

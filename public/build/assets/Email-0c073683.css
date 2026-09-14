@@ -1,0 +1,38 @@
+
+.eml-toggle-row[data-v-d7b6f7e2] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.85rem 1.05rem;
+}
+.eml-toggle-label[data-v-d7b6f7e2] {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+.eml-btn[data-v-d7b6f7e2] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease, opacity 160ms ease;
+}
+.eml-btn--solid[data-v-d7b6f7e2] {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.eml-btn--solid[data-v-d7b6f7e2]:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+.eml-btn--solid[data-v-d7b6f7e2]:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}

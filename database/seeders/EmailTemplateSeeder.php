@@ -77,6 +77,20 @@ class EmailTemplateSeeder extends Seeder
                 'updated_by' => 1,
                 'updated_at' => now()
             ],
+            [
+                'name' => 'Meta Verification Status Update',
+                'subject' => 'تحديث حالة طلب توثيق واتساب · WhatsApp Verification Status Update — {{CompanyName}}',
+                'body' => '<p>مرحبًا {{FullName}} · Hello {{FullName}},</p><p>في تحديث جديد على طلب توثيق حساب واتساب بيزنس الخاص بك لدى {{CompanyName}}.<br>Here is an update on your WhatsApp Business verification request with {{CompanyName}}.</p><p style="font-size:17px;font-weight:800;margin:14px 0;">{{Status}}</p><p>{{Note}}</p>',
+                'updated_by' => 1,
+                'updated_at' => now()
+            ],
+            [
+                'name' => 'Meta Verification Document Request',
+                'subject' => 'مطلوب مستند إضافي لطلب التوثيق · Additional document needed — {{CompanyName}}',
+                'body' => '<p>مرحبًا {{FullName}} · Hello {{FullName}},</p><p>فريق {{CompanyName}} محتاج منك مستند إضافي لمتابعة طلب توثيق حساب واتساب بيزنس الخاص بك.<br>The {{CompanyName}} team needs an additional document to continue processing your WhatsApp Business verification request.</p><p style="font-size:17px;font-weight:800;margin:14px 0;">{{Label}}</p><p>{{Note}}</p><p><a href="{{Link}}" style="font-weight:700;">رفع المستند الآن · Upload the document now</a></p>',
+                'updated_by' => 1,
+                'updated_at' => now()
+            ],
         ];
 
         foreach ($templates as $template) {

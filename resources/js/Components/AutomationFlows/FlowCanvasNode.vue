@@ -5,12 +5,12 @@
             id="target"
             type="target"
             :position="Position.Left"
-            class="!h-3.5 !w-3.5 !border-2 !border-white"
+            class="!h-3.5 !w-3.5 !border-2 !border-[var(--ui-surface)]"
             :class="handleClass"
         />
 
         <article
-            class="flow-card-shell relative overflow-visible rounded-[20px] border bg-white shadow-[0_14px_34px_rgba(15,23,42,0.08)] transition-[border-color,box-shadow,opacity,transform] duration-150"
+            class="flow-card-shell relative overflow-visible rounded-[20px] border bg-[var(--ui-surface)] shadow-[0_14px_34px_color-mix(in_srgb,var(--ui-text)_8%,transparent)] transition-[border-color,box-shadow,opacity,transform] duration-150"
             :class="articleClass"
             data-flow-node-card="true"
             data-flow-node-draggable="true"
@@ -39,7 +39,7 @@
                 <div class="space-y-2 px-3 py-3">
                     <div
                         v-if="canvasPreviewText"
-                        class="rounded-[16px] border border-slate-200/80 bg-[linear-gradient(180deg,rgba(248,250,252,0.82),rgba(255,255,255,0.98))] px-2.5 py-2 text-[11px] leading-[1.15rem] text-slate-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]"
+                        class="rounded-[16px] border border-[color-mix(in_srgb,var(--ui-border)_80%,transparent)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--ui-surface-soft)_82%,transparent),color-mix(in_srgb,var(--ui-surface)_98%,transparent))] px-2.5 py-2 text-[11px] leading-[1.15rem] text-[var(--ui-muted)] shadow-[inset_0_1px_0_color-mix(in_srgb,var(--ui-surface)_90%,transparent)]"
                         :class="previewClampClass"
                         data-flow-node-summary="true"
                     >
@@ -55,21 +55,11 @@
                         >
                             {{ metric.label }}
                         </span>
-                        <span v-if="primaryCardIssue" class="inline-flex max-w-full items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[9px] font-semibold text-rose-700">
+                        <span v-if="primaryCardIssue" class="inline-flex max-w-full items-center rounded-full border border-[color-mix(in_srgb,var(--ui-danger)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-danger)_12%,var(--ui-surface))] px-2 py-0.5 text-[9px] font-semibold text-[var(--ui-danger)]">
                             <span class="truncate">{{ primaryCardIssue }}</span>
                         </span>
                     </div>
                 </div>
-            </div>
-
-            <div v-if="isFocused" class="relative z-[2] nopan border-t border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.95),rgba(255,255,255,0.96))] px-3 py-3" data-flow-node-inline-editor="true">
-                <FlowNodeInspectorRenderer
-                    :id="id"
-                    :data="data"
-                    :selected="selected"
-                    variant="inline"
-                    @close-inline="collapseInlineEditor"
-                />
             </div>
         </article>
 
@@ -89,7 +79,7 @@
             :id="handle.id"
             type="source"
             :position="Position.Right"
-            class="!h-3.5 !w-3.5 !border-2 !border-white"
+            class="!h-3.5 !w-3.5 !border-2 !border-[var(--ui-surface)]"
             :class="handleClass"
             :style="{ top: `${handle.top}%` }"
         />
@@ -100,7 +90,6 @@
 import { Handle, Position } from '@vue-flow/core';
 import FlowCanvasNodeHeader from '@/Components/AutomationFlows/FlowCanvasNodeHeader.vue';
 import FlowCanvasNodeMenu from '@/Components/AutomationFlows/FlowCanvasNodeMenu.vue';
-import FlowNodeInspectorRenderer from '@/Components/AutomationFlows/FlowNodeInspectorRenderer.vue';
 import { useFlowCanvasNode } from '@/Components/AutomationFlows/useFlowCanvasNode.js';
 
 const props = defineProps({
@@ -124,7 +113,6 @@ const props = defineProps({
         cardMetrics,
         cardTone,
         canvasPreviewText,
-        collapseInlineEditor,
         displayTitle,
         handleActionPointerDown,
         handleSurfaceClick,
@@ -157,6 +145,6 @@ const props = defineProps({
 }
 
 .flow-card-shell.flow-card-shell-enhanced header {
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    background: linear-gradient(180deg, var(--ui-surface) 0%, var(--ui-surface-soft) 100%);
 }
 </style>

@@ -53,23 +53,11 @@
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td align="left" style="vertical-align:middle;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0">
-                                            <tr>
-                                                <td style="vertical-align:middle;padding-right:12px;">
-                                                    @if(! empty($logoUrl))
-                                                        <img src="{{ $logoUrl }}" alt="{{ $companyName }}" width="46" height="46" style="display:block;width:46px;height:46px;border:0;border-radius:12px;">
-                                                    @else
-                                                        <div style="width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg, {{ $brandGreen }}, {{ $brandCyan }} 45%, {{ $brandPurple }});"></div>
-                                                    @endif
-                                                </td>
-                                                <td style="vertical-align:middle;">
-                                                    <div style="font-size:28px;font-weight:800;letter-spacing:-0.4px;color:{{ $brandInk }};line-height:1;">botzo</div>
-                                                    <div style="font-size:11px;color:#64748B;line-height:1.7;">
-                                                        <span style="color:{{ $brandGreen }};">WhatsApp</span> &amp; <span style="color:{{ $brandBlue }};">Meta</span> Solutions
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
+                                        @if(! empty($logoUrl))
+                                            <img src="{{ $logoUrl }}" alt="{{ $companyName }}" height="44" style="display:block;height:44px;width:auto;border:0;">
+                                        @else
+                                            <div style="font-size:28px;font-weight:800;letter-spacing:-0.4px;color:{{ $brandGreen }};line-height:1;">botzo</div>
+                                        @endif
                                     </td>
                                     <td align="right" style="vertical-align:middle;">
                                         <div style="display:inline-block;border:1px solid #DDE6F0;border-radius:999px;padding:8px 13px;font-size:12px;color:#334155;background:#ffffff;">{{ $badge }}</div>

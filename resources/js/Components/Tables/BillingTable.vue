@@ -24,44 +24,44 @@ const normalizedRows = computed(() => Array.isArray(props.rows?.data) ? props.ro
 <template>
     <div class="space-y-4">
         <template v-if="normalizedRows.length">
-            <div class="overflow-hidden rounded-[1.25rem] border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
+            <div class="ui-table-shell">
                 <div class="hidden overflow-x-auto lg:block">
-                    <table class="min-w-full divide-y divide-slate-200">
-                        <thead class="bg-slate-50">
+                    <table class="ui-table">
+                        <thead>
                             <tr>
-                                <th class="px-5 py-4 text-start text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Date') }}</th>
-                                <th class="px-5 py-4 text-start text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Organization') }}</th>
-                                <th class="px-5 py-4 text-start text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Description') }}</th>
-                                <th class="px-5 py-4 text-start text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Amount') }}</th>
+                                <th class="ui-table-th ui-table-th-first">{{ $t('Date') }}</th>
+                                <th class="ui-table-th">{{ $t('Organization') }}</th>
+                                <th class="ui-table-th">{{ $t('Description') }}</th>
+                                <th class="ui-table-th ui-table-th-last">{{ $t('Amount') }}</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <tr v-for="item in normalizedRows" :key="`${item.uuid ?? item.created_at}-${item.description}-${item.amount}`" class="transition hover:bg-slate-50/80">
-                                <td class="px-5 py-4 align-top text-sm font-medium text-slate-700">{{ item.created_at }}</td>
-                                <td class="px-5 py-4 align-top text-sm font-semibold text-slate-900">{{ item.organization?.name ?? '—' }}</td>
-                                <td class="px-5 py-4 align-top text-sm text-slate-600">{{ item.description ?? '—' }}</td>
-                                <td class="px-5 py-4 align-top text-sm font-semibold text-slate-900">{{ item.amount }}</td>
+                        <tbody>
+                            <tr v-for="item in normalizedRows" :key="`${item.uuid ?? item.created_at}-${item.description}-${item.amount}`">
+                                <td class="ui-table-td ui-table-td-first text-[var(--ui-muted)]">{{ item.created_at }}</td>
+                                <td class="ui-table-td font-bold text-[var(--ui-text)]">{{ item.organization?.name ?? '—' }}</td>
+                                <td class="ui-table-td text-[var(--ui-text)]">{{ item.description ?? '—' }}</td>
+                                <td class="ui-table-td ui-table-td-last font-bold text-[var(--ui-text)]">{{ item.amount }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="divide-y divide-slate-100 lg:hidden">
+                <div class="billing-mobile-list lg:hidden">
                     <article
                         v-for="item in normalizedRows"
                         :key="`${item.uuid ?? item.created_at}-${item.description}-${item.amount}-mobile`"
-                        class="space-y-4 px-4 py-4"
+                        class="billing-mobile-card"
                     >
                         <div class="flex items-start justify-between gap-3">
                             <div>
-                                <p class="text-sm font-semibold text-slate-900">{{ item.organization?.name ?? '—' }}</p>
-                                <p class="mt-1 text-xs text-slate-500">{{ item.created_at }}</p>
+                                <p class="font-bold text-[15px] text-[var(--ui-text)]">{{ item.organization?.name ?? '—' }}</p>
+                                <p class="mt-1 text-xs text-[var(--ui-muted)]">{{ item.created_at }}</p>
                             </div>
-                            <span class="rounded-full bg-primary/8 px-3 py-1 text-xs font-semibold text-primary">{{ item.amount }}</span>
+                            <span class="billing-amount-chip">{{ item.amount }}</span>
                         </div>
-                        <div class="rounded-[1rem] bg-slate-50 px-3 py-3">
-                            <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Description') }}</p>
-                            <p class="mt-1 text-sm text-slate-700">{{ item.description ?? '—' }}</p>
+                        <div class="billing-mobile-field mt-3">
+                            <p class="billing-mobile-field-label">{{ $t('Description') }}</p>
+                            <p class="billing-mobile-field-value">{{ item.description ?? '—' }}</p>
                         </div>
                     </article>
                 </div>
@@ -81,3 +81,45 @@ const normalizedRows = computed(() => Array.isArray(props.rows?.data) ? props.ro
         <Pagination v-if="rows?.meta" :pagination="rows.meta" />
     </div>
 </template>
+
+<style scoped>
+.billing-mobile-card {
+    padding: 1.1rem;
+    border-top: 1px solid var(--ui-border);
+}
+
+.billing-mobile-card:first-child {
+    border-top: none;
+}
+
+.billing-mobile-field {
+    border-radius: var(--ui-radius-sm);
+    background: var(--ui-surface-soft);
+    padding: 0.6rem 0.75rem;
+}
+
+.billing-mobile-field-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ui-muted);
+}
+
+.billing-mobile-field-value {
+    margin-top: 0.25rem;
+    font-size: 0.88rem;
+    color: var(--ui-text);
+}
+
+.billing-amount-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 12%, var(--ui-surface));
+}
+</style>

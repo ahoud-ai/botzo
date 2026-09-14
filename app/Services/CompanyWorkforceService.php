@@ -69,10 +69,11 @@ class CompanyWorkforceService
         $company = $this->currentCompany();
         $this->prepareCompanyContext($company);
         $search = trim((string) $request->query('search', ''));
+        $status = trim((string) $request->query('status', ''));
 
         return [
             'title' => __('Company team'),
-            'rows' => $this->paginateEmployees($company, $search),
+            'rows' => $this->paginateEmployees($company, $search, $status),
             'filters' => $request->all(),
             'workspaces' => $this->workspaceOptions($company),
             'workspaceRoleCatalog' => $this->workspaceRoleCatalog($company),
@@ -804,7 +805,7 @@ class CompanyWorkforceService
         });
     }
 
-    private function paginateEmployees(Organization $company, string $search = ''): LengthAwarePaginator
+    private function paginateEmployees(Organization $company, string $search = '', string $status = ''): LengthAwarePaginator
     {
         $query = OrganizationEmployee::query()
             ->with([
@@ -814,6 +815,10 @@ class CompanyWorkforceService
             ])
             ->where('main_organization_id', $company->id)
             ->whereNull('deleted_at');
+
+        if ($status !== '' && $status !== 'all') {
+            $query->where('status', $status);
+        }
 
         if ($search !== '') {
             $query->where(function ($employeeQuery) use ($search) {
@@ -836,6 +841,7 @@ class CompanyWorkforceService
         return $query
             ->latest('updated_at')
             ->paginate(10)
+            ->withQueryString()
             ->through(function (OrganizationEmployee $employee) {
                 $assignments = $employee->assignments
                     ->sortBy(fn (OrganizationEmployeeAssignment $assignment) => [

@@ -1,5 +1,5 @@
 <template>
-    <header class="relative z-30 rounded-[28px] border border-slate-200/90 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(248,250,252,0.96))] px-4 py-3.5 shadow-sm backdrop-blur">
+    <header class="relative z-30 rounded-[28px] border border-[color-mix(in_srgb,var(--ui-border)_90%,transparent)] bg-[var(--flow-panel-bg)] px-4 py-3.5 shadow-[var(--ui-shadow-1)] backdrop-blur">
         <div class="flex flex-wrap items-center gap-3.5">
             <div class="flex min-w-0 flex-1 items-center gap-3">
                 <AutomationButton
@@ -13,17 +13,17 @@
 
                 <div class="min-w-0 flex-1">
                     <div class="flex min-w-0 flex-wrap items-center gap-2">
-                        <span class="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        <span class="inline-flex items-center rounded-full border border-[var(--ui-border)] bg-[var(--ui-surface)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--ui-muted)]">
                             {{ $t('Journey studio') }}
                         </span>
                         <AutomationStatusBadge :status="draft.status || 'draft'" />
                     </div>
                     <div class="mt-2 flex min-w-0 flex-wrap items-center gap-2">
-                        <h2 class="truncate text-lg font-semibold text-slate-950">{{ draft.name }}</h2>
-                        <span class="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-500">
+                        <h2 class="truncate text-lg font-semibold text-[var(--ui-text)]">{{ draft.name }}</h2>
+                        <span class="inline-flex items-center rounded-full border border-[var(--ui-border)] bg-[var(--ui-surface)] px-2.5 py-1 text-[11px] font-medium text-[var(--ui-muted)]">
                             {{ saveStateLabel }}
                         </span>
-                        <span v-if="validationErrorsCount" class="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-medium text-rose-700">
+                        <span v-if="validationErrorsCount" class="inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--ui-danger)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-danger)_12%,var(--ui-surface))] px-2.5 py-1 text-[11px] font-medium text-[var(--ui-danger)]">
                             <CircleAlert class="h-3.5 w-3.5" />
                             {{ validationErrorsCount }}
                         </span>
@@ -50,24 +50,24 @@
         <div
             v-if="moreOpen"
             ref="menuPanelRef"
-            class="fixed z-[2400] w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.14)]"
+            class="fixed z-[2400] w-64 overflow-hidden rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] shadow-[0_18px_48px_color-mix(in_srgb,var(--ui-text)_14%,transparent)]"
             :style="menuStyle"
         >
-            <button type="button" class="flex w-full items-center px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50" @click="emitMenuAction('run-validation')">{{ $t('Run validation') }}</button>
-            <button type="button" class="flex w-full items-center gap-2 px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50" @click="emitMenuAction('open-meta-editor')">
+            <button type="button" class="flex w-full items-center px-4 py-3 text-sm text-[var(--ui-text)] transition hover:bg-[var(--ui-surface-soft)]" @click="emitMenuAction('run-validation')">{{ $t('Run validation') }}</button>
+            <button type="button" class="flex w-full items-center gap-2 px-4 py-3 text-sm text-[var(--ui-text)] transition hover:bg-[var(--ui-surface-soft)]" @click="emitMenuAction('open-meta-editor')">
                 <PenLine class="h-4 w-4" />
                 {{ $t('Edit') }}
             </button>
-            <button v-if="showOpenStudioAction" type="button" class="flex w-full items-center gap-2 px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50" @click="emitMenuAction('open-studio-window')">
+            <button v-if="showOpenStudioAction" type="button" class="flex w-full items-center gap-2 px-4 py-3 text-sm text-[var(--ui-text)] transition hover:bg-[var(--ui-surface-soft)]" @click="emitMenuAction('open-studio-window')">
                 <ArrowUpRight class="h-4 w-4" />
                 {{ $t('Open studio in new window') }}
             </button>
-            <button type="button" class="flex w-full items-center gap-2 px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50" @click="emitMenuAction('duplicate')">
+            <button type="button" class="flex w-full items-center gap-2 px-4 py-3 text-sm text-[var(--ui-text)] transition hover:bg-[var(--ui-surface-soft)]" @click="emitMenuAction('duplicate')">
                 <Copy class="h-4 w-4" />
                 {{ $t('Duplicate') }}
             </button>
-            <button type="button" class="flex w-full items-center px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50" @click="emitMenuAction('toggle-pause')">{{ draft.status === 'paused' ? $t('Resume publishing') : $t('Pause new runs') }}</button>
-            <button type="button" class="flex w-full items-center px-4 py-3 text-sm text-rose-600 transition hover:bg-rose-50" @click="emitMenuAction('delete')">{{ $t('Delete automation') }}</button>
+            <button type="button" class="flex w-full items-center px-4 py-3 text-sm text-[var(--ui-text)] transition hover:bg-[var(--ui-surface-soft)]" @click="emitMenuAction('toggle-pause')">{{ draft.status === 'paused' ? $t('Resume publishing') : $t('Pause new runs') }}</button>
+            <button type="button" class="flex w-full items-center px-4 py-3 text-sm text-[var(--ui-danger)] transition hover:bg-[color-mix(in_srgb,var(--ui-danger)_10%,transparent)]" @click="emitMenuAction('delete')">{{ $t('Delete automation') }}</button>
         </div>
     </Teleport>
 </template>

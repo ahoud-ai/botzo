@@ -137,6 +137,7 @@ class HandleInertiaRequests extends Middleware
             'languages' => fn () => $resolveSharedSettingsPayload()['languages'],
             'unreadMessages' => fn () => $resolveWorkspacePayload()['unreadMessages'],
             'currentLanguage' => $language,
+            'onboardingTourStatus' => fn () => $user?->onboardingTourStatus(),
             'features' => fn () => [
                 'flowBuilderV2' => $resolveWorkspacePayload()['flowBuilderV2Available'],
             ],

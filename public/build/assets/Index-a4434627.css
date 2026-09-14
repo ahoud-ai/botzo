@@ -1,0 +1,145 @@
+
+.ai-card[data-v-5644dfb2] {
+    border-radius: 22px;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    box-shadow: var(--ui-shadow-1);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+}
+.ai-card-title[data-v-5644dfb2] {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+.ai-card-desc[data-v-5644dfb2] {
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--ui-muted);
+}
+.ai-note[data-v-5644dfb2] {
+    border-radius: 0.85rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.65rem 0.9rem;
+    font-size: 0.78rem;
+    color: var(--ui-muted);
+}
+.ai-warning-note[data-v-5644dfb2] {
+    border-radius: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--ui-warning) 35%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-warning) 12%, var(--ui-surface));
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--ui-warning);
+}
+.ai-subcard[data-v-5644dfb2] {
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 1rem;
+}
+.ai-unsaved-pill[data-v-5644dfb2] {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--ui-warning) 35%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-warning) 12%, var(--ui-surface));
+    padding: 0.25rem 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ui-warning);
+}
+.ai-icon-btn[data-v-5644dfb2] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.25rem;
+    width: 2.25rem;
+    border-radius: 999px;
+    color: var(--ui-muted);
+    transition: background-color 160ms ease, color 160ms ease;
+}
+.ai-icon-btn[data-v-5644dfb2]:hover {
+    background: var(--ui-surface-soft);
+    color: var(--ui-text);
+}
+.ai-btn-primary[data-v-5644dfb2] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 0.75rem;
+    background: var(--ui-primary);
+    color: #fff;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.83rem;
+    font-weight: 600;
+    transition: filter 160ms ease, opacity 160ms ease;
+}
+.ai-btn-primary[data-v-5644dfb2]:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+.ai-btn-primary[data-v-5644dfb2]:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+.ai-btn-ghost[data-v-5644dfb2] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+    padding: 0.5rem 1.1rem;
+    font-size: 0.83rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease;
+}
+.ai-btn-ghost[data-v-5644dfb2]:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+.ai-slider-value[data-v-5644dfb2] {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ui-secondary);
+}
+.ai-range[data-v-5644dfb2] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+         appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--ui-border);
+    outline: none;
+}
+.ai-range[data-v-5644dfb2]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--ui-secondary);
+    border: 3px solid var(--ui-surface);
+    box-shadow: var(--ui-shadow-1);
+    cursor: pointer;
+}
+.ai-range[data-v-5644dfb2]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--ui-secondary);
+    border: 3px solid var(--ui-surface);
+    box-shadow: var(--ui-shadow-1);
+    cursor: pointer;
+}
+.ai-range[data-v-5644dfb2]::-moz-range-track {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--ui-border);
+}

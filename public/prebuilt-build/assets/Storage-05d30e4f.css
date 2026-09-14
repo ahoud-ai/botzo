@@ -1,0 +1,23 @@
+
+.stg-btn[data-v-180d2bb8] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease, opacity 160ms ease;
+}
+.stg-btn--solid[data-v-180d2bb8] {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.stg-btn--solid[data-v-180d2bb8]:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+.stg-btn--solid[data-v-180d2bb8]:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}

@@ -1,0 +1,33 @@
+
+.ticket-form-card[data-v-98b3cd51] .ui-section-body {
+    padding-top: 0.25rem;
+}
+.ticket-form-btn[data-v-98b3cd51] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 0.7rem;
+    padding: 0.6rem 1.2rem;
+}
+.ticket-form-btn--solid[data-v-98b3cd51] {
+    background: var(--ui-secondary);
+    color: #fff;
+    transition: filter 160ms ease;
+}
+.ticket-form-btn--solid[data-v-98b3cd51]:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+.ticket-form-btn--solid[data-v-98b3cd51]:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+}
+.ticket-form-btn--ghost[data-v-98b3cd51] {
+    background: var(--ui-surface-soft);
+    color: var(--ui-text);
+    border: 1px solid var(--ui-border);
+}
+.ticket-form-btn--ghost[data-v-98b3cd51]:hover {
+    background: var(--ui-border);
+}

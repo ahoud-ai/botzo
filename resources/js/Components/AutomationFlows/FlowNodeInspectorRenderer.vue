@@ -1,7 +1,7 @@
 <template>
     <article class="inspector-shell flex flex-col gap-3" :class="[shellClass, uiEnhanced ? 'inspector-shell-enhanced' : '']">
         <header :class="headerClass">
-            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[15px] border text-slate-700" :class="cardTone.iconClass">
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[15px] border text-[var(--ui-text)]" :class="cardTone.iconClass">
                 <component :is="IconComponent" class="h-4 w-4" />
             </span>
 
@@ -10,14 +10,14 @@
                     <span class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]" :class="cardTone.categoryClass">{{ nodeCategoryLabel }}</span>
                     <span v-if="statusBadge" class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold" :class="statusBadge.className">{{ statusBadge.label }}</span>
                 </div>
-                <h3 class="mt-1.5 text-sm font-semibold text-slate-950">{{ displayTitle }}</h3>
-                <p v-if="compactSummary && !isInlineVariant" class="mt-1.5 text-xs leading-5 text-slate-500">{{ compactSummary }}</p>
+                <h3 class="mt-1.5 text-sm font-semibold text-[var(--ui-text)]">{{ displayTitle }}</h3>
+                <p v-if="compactSummary && !isInlineVariant" class="mt-1.5 text-xs leading-5 text-[var(--ui-muted)]">{{ compactSummary }}</p>
             </div>
 
             <button
                 v-if="isInlineVariant"
                 type="button"
-                class="nodrag inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:text-slate-900"
+                class="nodrag inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-muted)] transition hover:border-[var(--ui-border-strong)] hover:text-[var(--ui-text)]"
                 :title="$t('Collapse editor')"
                 @click="$emit('close-inline')"
             >
@@ -39,14 +39,14 @@
             <FlowNodeInspectorExternalActionForm v-else-if="['send_email', 'delay'].includes(nodeType)" />
             <FlowNodeInspectorConditionForm v-else />
 
-            <div v-if="errors.length" class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">
+            <div v-if="errors.length" class="rounded-xl border border-[color-mix(in_srgb,var(--ui-danger)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-danger)_12%,var(--ui-surface))] px-3 py-2 text-xs font-medium text-[var(--ui-danger)]">
                 <ul class="space-y-1">
                     <li v-for="(error, index) in visibleErrors" :key="`${error}-${index}`" class="flex items-start gap-1.5">
                         <span class="mt-0.5 text-[10px]">•</span>
                         <span>{{ error }}</span>
                     </li>
                 </ul>
-                <div v-if="hiddenErrorCount > 0" class="mt-2 text-[11px] font-semibold text-rose-700">{{ hiddenIssuesLabel }}</div>
+                <div v-if="hiddenErrorCount > 0" class="mt-2 text-[11px] font-semibold text-[var(--ui-danger)]">{{ hiddenIssuesLabel }}</div>
             </div>
         </div>
     </article>
@@ -108,38 +108,38 @@ const isInlineVariant = computed(() => props.variant === 'inline');
 const shellClass = computed(() => (
     isInlineVariant.value
         ? 'max-h-[68vh] rounded-[22px] bg-transparent'
-        : 'min-h-full rounded-[20px] border border-slate-200 bg-white p-3'
+        : 'min-h-full rounded-[20px] border border-[var(--ui-border)] bg-[var(--ui-surface)] p-3'
 ));
 const headerClass = computed(() => (
     isInlineVariant.value
-        ? 'flex items-start gap-3 rounded-[18px] border border-slate-200 bg-white px-3 py-2.5 shadow-sm'
-        : 'flex items-start gap-3 rounded-[18px] border border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.92))] px-3.5 py-3.5'
+        ? 'flex items-start gap-3 rounded-[18px] border border-[var(--ui-border)] bg-[var(--ui-surface)] px-3 py-2.5 shadow-[var(--ui-shadow-1)]'
+        : 'flex items-start gap-3 rounded-[18px] border border-[var(--ui-border)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--ui-surface)_98%,transparent),color-mix(in_srgb,var(--ui-surface-soft)_92%,transparent))] px-3.5 py-3.5'
 ));
 const outcomeClass = computed(() => (
     isInlineVariant.value
-        ? 'border-emerald-200 bg-white text-emerald-900'
+        ? 'border-[color-mix(in_srgb,var(--ui-success)_35%,var(--ui-border))] bg-[var(--ui-surface)] text-[var(--ui-success)]'
         : cardTone.value.accentClass
 ));
 const formBodyClass = computed(() => (
     isInlineVariant.value
-        ? 'flow-node-editor-scroll grid max-h-[360px] gap-3 overflow-y-auto rounded-[18px] border border-slate-200 bg-white p-3 pe-1 shadow-sm'
+        ? 'flow-node-editor-scroll grid max-h-[360px] gap-3 overflow-y-auto rounded-[18px] border border-[var(--ui-border)] bg-[var(--ui-surface)] p-3 pe-1 shadow-[var(--ui-shadow-1)]'
         : 'grid gap-3'
 ));
 </script>
 
 <style scoped>
 .inspector-shell.inspector-shell-enhanced :is(input:not([type='checkbox']):not([type='radio']), textarea, select) {
-    border-color: #dbe3ef !important;
-    background-color: #f8fafc !important;
-    color: #0f172a !important;
+    border-color: var(--ui-border) !important;
+    background-color: var(--ui-surface-soft) !important;
+    color: var(--ui-text) !important;
 }
 
 .inspector-shell.inspector-shell-enhanced :is(input:not([type='checkbox']):not([type='radio']), textarea, select)::placeholder {
-    color: #94a3b8 !important;
+    color: var(--ui-muted) !important;
 }
 
 .inspector-shell.inspector-shell-enhanced :is(input:not([type='checkbox']):not([type='radio']), textarea, select):focus {
-    border-color: #0f766e !important;
-    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+    border-color: var(--ui-secondary) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-secondary) 12%, transparent);
 }
 </style>

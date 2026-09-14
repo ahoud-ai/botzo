@@ -1,13 +1,13 @@
 <template>
     <Modal :is-open="open" :label="title" :close-btn="true" @close="$emit('close')">
         <div class="space-y-5 pt-3">
-            <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-900">
+            <div class="rounded-2xl border border-[color-mix(in_srgb,var(--ui-danger)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-danger)_12%,var(--ui-surface))] px-4 py-3 text-sm leading-6 text-[var(--ui-danger)]">
                 {{ message }}
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                <div class="text-sm font-semibold text-slate-900">{{ subject || $t('Automation') }}</div>
-                <div v-if="note" class="mt-1 text-xs leading-5 text-slate-500">{{ note }}</div>
+            <div class="rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-4 py-3">
+                <div class="text-sm font-semibold text-[var(--ui-text)]">{{ subject || $t('Automation') }}</div>
+                <div v-if="note" class="mt-1 text-xs leading-5 text-[var(--ui-muted)]">{{ note }}</div>
             </div>
 
             <div class="flex flex-wrap items-center justify-end gap-3">

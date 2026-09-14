@@ -76,7 +76,7 @@ function resolveText(value) {
                         leave-from="translate-y-0 opacity-100 sm:scale-100"
                         leave-to="translate-y-4 opacity-0 sm:translate-y-0 sm:scale-95"
                     >
-                        <DialogPanel class="relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white text-start shadow-2xl">
+                        <DialogPanel class="relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d1420] text-start shadow-2xl">
                             <div class="h-1.5 bg-gradient-to-r from-sky-500 via-indigo-500 to-rose-500" />
 
                             <div class="px-5 pb-5 pt-5 sm:px-6">
@@ -85,29 +85,29 @@ function resolveText(value) {
                                         :class="[
                                             'mt-0.5 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl border',
                                             icon === 'warning'
-                                                ? 'border-rose-200 bg-rose-50 text-rose-600'
-                                                : 'border-sky-200 bg-sky-50 text-sky-600',
+                                                ? 'border-rose-200 dark:border-rose-500/20 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                                                : 'border-sky-200 dark:border-sky-500/20 bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400',
                                         ]"
                                     >
                                         <ExclamationTriangleIcon class="h-5 w-5" aria-hidden="true" />
                                     </div>
 
                                     <div class="min-w-0 flex-1">
-                                        <DialogTitle as="h3" class="text-base font-semibold text-slate-900">
+                                        <DialogTitle as="h3" class="text-base font-semibold text-slate-900 dark:text-white">
                                             {{ resolveText(props.label) }}
                                         </DialogTitle>
 
-                                        <p v-if="props.description" class="mt-2 text-sm leading-6 text-slate-600">
+                                        <p v-if="props.description" class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
                                             {{ resolveText(props.description) }}
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+                            <div class="flex flex-col-reverse gap-3 border-t border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
                                 <button
                                     type="button"
-                                    class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                                    class="inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 transition hover:bg-slate-100 dark:hover:bg-white/10"
                                     @click="onClose"
                                 >
                                     {{ $t('Cancel') }}

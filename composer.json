@@ -7,9 +7,11 @@
     "require": {
         "php": "^8.2",
         "aws/aws-sdk-php": "^3.372",
+        "barryvdh/laravel-dompdf": "^3.1",
         "dacoto/laravel-env-set": "^2.1",
         "guzzlehttp/guzzle": "^7.10",
         "inertiajs/inertia-laravel": "^2.0",
+        "khaled.alshamaa/ar-php": "^7.0",
         "laravel/framework": "^12.0",
         "laravel/socialite": "^5.23",
         "laravel/tinker": "^2.10.1",

@@ -32,6 +32,7 @@ class TaxService
         $taxrate = $id === null ? new TaxRate() : TaxRate::where('id', $id)->firstOrFail();
         $taxrate->name = $request->name;
         $taxrate->percentage = $request->percentage;
+        $taxrate->status = $request->status ?? $taxrate->status ?? 'active';
         $taxrate->save();
 
         return $taxrate;

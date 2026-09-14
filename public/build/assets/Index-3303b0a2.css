@@ -1,0 +1,18 @@
+
+.rl-btn[data-v-f578a305] {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease;
+}
+.rl-btn--solid[data-v-f578a305] {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.rl-btn--solid[data-v-f578a305]:hover {
+    filter: brightness(1.05);
+}

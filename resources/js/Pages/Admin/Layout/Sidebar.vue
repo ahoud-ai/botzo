@@ -1,8 +1,6 @@
 <template>
-    <aside
-        class="ui-sidebar creative-sidebar hidden h-full min-h-0 w-80 flex-col md:flex"
-    >
-        <Menu :config="props.config" :user="props.user" :organization="props.organization" :organizations="props.organizations"></Menu>
+    <aside class="ui-sidebar creative-sidebar md:flex flex-col h-full min-h-0 hidden relative" :class="menuIconsOnly ? 'w-20' : 'w-80'">
+        <Menu ref="menuRef" :config="props.config" :user="props.user" :organization="props.organization" :organizations="props.organizations"></Menu>
     </aside>
    <!--<aside class="md:flex flex-col h-full w-80 bg-white hidden">
         <div v-if="getValueByKey('logo') === null" class="flex items-center justify-between px-5 pt-5 h-20 mb-4">
@@ -116,19 +114,14 @@
     <ProfileModal :user="props.user" :organization="{}" :isOpen="isOpen" role="admin" @close="closeModal()"/>-->
 </template>
 <script setup>
-    import { defineProps } from "vue";
+    import { defineProps, ref, computed } from "vue";
     import Menu from "./Menu.vue";
 
-    const props = defineProps({
-        user: {
-            type: Object,
-            required: true,
-        },
-        config: {
-            type: Array,
-            required: true
-        }
-    });
+    const props = defineProps(['user', 'organization', 'organizations', 'config']);
+    const menuRef = ref(null);
 
+    const menuIconsOnly = computed(() => {
+        return menuRef.value?.menuIconsOnly ?? false;
+    });
 </script>
 

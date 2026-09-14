@@ -1,110 +1,98 @@
 <template>
     <Head>
         <title>{{ $t('Forgot Password') }} - {{ props.companyConfig?.company_name || 'Botzo' }}</title>
-        <meta name="description" content="Reset your password. We'll send you instructions via email." />
+        <meta name="description" :content="$t('Reset your password. We\'ll send you instructions via email.')" />
     </Head>
-    <div class="min-h-[100svh] bg-white dark:bg-gray-900">
-        <div class="flex flex-col justify-between min-h-[100svh] mx-4 sm:mx-8 md:mx-10">
-            <!-- Top section with logo -->
-            <div class="flex justify-between items-center mt-8 md:mt-10 mb-4">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <Link href="/" class="inline-block">
-                        <img v-if="props.companyConfig && props.companyConfig.logo" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name" class="max-w-[150px] md:max-w-[120px]">
-                        <h1 v-else-if="props.companyConfig?.company_name" class="text-2xl md:text-xl text-gray-900 dark:text-white">{{ props.companyConfig.company_name }}</h1>
-                    </Link>
-                </div>
-                <LangToggle :languages="languages" :currentLanguage="currentLanguage" class="text-gray-600 dark:text-gray-300" />
-            </div>
+    <AuthLayout>
+        <form @submit.prevent="submitForm()" class="flex flex-col gap-6">
+            <!-- Back to login -->
+            <Link href="/login" class="inline-flex w-4 h-4 text-black dark:text-white" :aria-label="$t('Back')">
+                <ArrowRightIcon v-if="isRtl" class="w-4 h-4" />
+                <ArrowLeftIcon v-else class="w-4 h-4" />
+            </Link>
 
-            <!-- Content section -->
-            <div class="flex items-center justify-center mt-0 flex-1">
-                <div class="w-full max-w-[480px]">
-                    <!-- Welcome text -->
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ $t('Reset Password') }}</h1>
-                    <p class="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-8">
-                        {{ $t('We\'ll send you instructions via email.') }}
+            <div class="flex flex-col gap-8">
+                <!-- Title -->
+                <div class="flex flex-col gap-2">
+                    <h1 class="text-2xl font-semibold leading-[29.9px] text-black dark:text-white">{{ $t('Forgot Password') }}!</h1>
+                    <p class="text-lg leading-9 text-[#8899aa]">
+                        {{ $t('Enter your email and we\'ll send you a verification code.') }}
                     </p>
+                </div>
 
-                    <!-- Success message -->
-                    <div v-if="props.flash?.status?.message" 
-                         class="mb-6 p-4 rounded-xl bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-700">
-                        <p class="text-sm text-green-700 dark:text-green-200">
-                            {{ props.flash?.status?.message }}
-                        </p>
-                    </div>
+                <!-- Success message -->
+                <div v-if="props.flash?.status?.message"
+                     class="p-4 rounded-xl bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-700">
+                    <p class="text-sm text-green-700 dark:text-green-200">
+                        {{ props.flash?.status?.message }}
+                    </p>
+                </div>
 
-                    <!-- Form wrapper -->
-                    <form @submit.prevent="submitForm()" class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                {{ $t('Email') }}
-                            </label>
-                            <FormInput 
-                                v-model="form.email" 
-                                type="email"
-                                :error="form.errors.email" 
-                                :placeholder="$t('Enter your email address')"
-                                :class="[
-                                    'block w-full h-12 rounded-xl bg-gray-50 dark:bg-gray-900 transition-colors',
-                                    form.errors.email 
-                                        ? 'border-red-500 dark:border-red-500 focus:ring-red-500 focus:border-red-500' 
-                                        : 'border-gray-200 dark:border-gray-700 focus:ring-primary focus:border-primary'
-                                ]"
-                            />
-                        </div>
-
-                            <button
-                                type="submit"
-                                :disabled="isLoading"
-                                class="relative w-full inline-flex items-center justify-center px-4 py-3.5 bg-primary text-white rounded-xl hover:bg-secondary transition-all duration-200 font-medium shadow-sm hover:shadow-lg disabled:opacity-70">
-                            <span class="flex items-center">
-                                <svg v-if="isLoading" 
-                                     class="animate-spin -ms-1 me-2 h-4 w-4 text-white" 
-                                     xmlns="http://www.w3.org/2000/svg" 
-                                     fill="none" 
-                                     viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                {{ isLoading ? $t('Sending...') : $t('Send password reset link') }}
-                            </span>
-                        </button>
-                    </form>
-
-                    <!-- Login link -->
-                    <div class="text-center pt-8">
-                        <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Remembered password?') }}</span>
-                        <Link href="/login" class="text-sm font-normal underline text-primary hover:text-secondary transition-colors ms-1">
-                            {{ $t('Login here') }}
-                        </Link>
-                    </div>
+                <!-- Email field -->
+                <div class="flex flex-col gap-3">
+                    <label class="block text-base font-semibold text-black dark:text-white">
+                        {{ $t('Email address') }}
+                    </label>
+                    <FormInput
+                        v-model="form.email"
+                        type="email"
+                        :error="form.errors.email || emailRequiredError"
+                        :hide-error="true"
+                        :placeholder="$t('Enter your email')"
+                        :hide-label="true"
+                        :input-class="[
+                            'h-14 !rounded-lg !border !bg-[rgba(0,0,0,0.04)] dark:!bg-[#f0f4f8] !px-4 !py-[18px] text-base !text-gray-900 !placeholder-[#aaaaaa] outline-none transition-all duration-200',
+                            (form.errors.email || emailRequiredError)
+                                ? '!border-red-500 focus:!ring-[3px] focus:!ring-red-500/20'
+                                : '!border-transparent focus:!border-[#25D366] focus:!ring-[3px] focus:!ring-[#25D366]/20 dark:focus:!ring-[#25D366]/30 dark:focus:!shadow-[0_0_16px_-2px_rgba(37,211,102,0.35)]'
+                        ]"/>
+                    <AuthFieldError :message="form.errors.email || emailRequiredError" />
                 </div>
             </div>
 
-            <!-- Spacer -->
-            <div class="flex-1"></div>
-        </div>
-    </div>
+            <button type="submit"
+                :disabled="isLoading"
+                class="relative w-full inline-flex items-center justify-center h-[54px] px-8 bg-[#25D366] text-[#04130a] rounded-2xl hover:brightness-95 transition-all duration-200 font-semibold shadow-sm hover:shadow-lg disabled:opacity-70">
+                <span class="flex items-center">
+                    <svg v-if="isLoading" class="animate-spin -ms-1 me-2 h-4 w-4 text-[#04130a]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {{ isLoading ? $t('Sending...') : $t('Next') }}
+                </span>
+            </button>
+        </form>
+    </AuthLayout>
 </template>
 
 <script setup>
-    import { Head, Link, useForm, usePage } from "@inertiajs/vue3";
+    import { Head, Link, useForm } from "@inertiajs/vue3";
+    import AuthLayout from '@/Components/AuthLayout.vue';
+    import AuthFieldError from '@/Components/AuthFieldError.vue';
     import FormInput from '@/Components/FormInput.vue';
-    import LangToggle from '@/Components/LangToggle.vue';
-    import { defineProps, ref, computed } from 'vue';
+    import { useRtl } from '@/Composables/useRtl';
+    import { computed, defineProps, ref } from 'vue';
+    import { useI18n } from 'vue-i18n';
+    import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/vue/24/outline';
 
     const props = defineProps(['flash', 'config', 'companyConfig']);
-    const page = usePage();
-    const languages = computed(() => page.props.languages);
-    const currentLanguage = computed(() => page.props.currentLanguage);
-
+    const { isRtl } = useRtl();
+    const { t } = useI18n();
     const isLoading = ref(false);
+    const hasAttemptedSubmit = ref(false);
 
     const form = useForm({
         email: null
     })
+
+    const emailRequiredError = computed(() =>
+        hasAttemptedSubmit.value && !form.email ? t('Email address is required.') : null
+    );
+
     const submitForm = async () => {
+        hasAttemptedSubmit.value = true;
+        if (emailRequiredError.value) return;
+
         isLoading.value = true;
         form.post('forgot-password', {
             preserveScroll: true,

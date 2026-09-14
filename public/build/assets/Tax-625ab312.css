@@ -1,0 +1,38 @@
+
+.tax-chip[data-v-3706c061] {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.tax-btn[data-v-80839631] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+.tax-btn--solid[data-v-80839631] {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.tax-btn--solid[data-v-80839631]:hover {
+    filter: brightness(1.05);
+}
+.tax-btn--ghost[data-v-80839631] {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+.tax-btn--ghost[data-v-80839631]:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}

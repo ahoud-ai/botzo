@@ -8,4 +8,5 @@ Route::prefix('admin')->middleware(['web', 'auth:admin'])->group(function () {
     require base_path('routes/web/admin/support.php');
     require base_path('routes/web/admin/settings.php');
     require base_path('routes/web/admin/logs.php');
+    require base_path('routes/web/admin/meta-verifications.php');
 });

@@ -51,6 +51,8 @@ class CampaignResource extends JsonResource
             'delivery_count' => $deliveryCount,
             'read_count' => $readCount,
             'contact_group_count' => $contactGroupCount,
+            'created_at' => $this->created_at,
+            'scheduled_at' => $this->scheduled_at,
             // Add other attributes as needed...
         ];
     }

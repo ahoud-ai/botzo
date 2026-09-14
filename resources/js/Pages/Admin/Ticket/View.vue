@@ -1,81 +1,76 @@
 <template>
     <AppLayout>
         <div class="ui-page ui-fade-up ui-page-frame ui-text-main min-h-full">
-            <div class="flex justify-between mt-8 md:mt-0">
-                <div>
-                    <h1 class="text-xl mb-1">{{ $t('Ticket ref') }}: {{ props.ticket.reference }}</h1>
-                </div>
-                <div>
-                    <Link href="/admin/support" class="flex items-center gap-x-4 rounded-md bg-indigo-600 px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+            <UiPageHeader :title="`${$t('Ticket ref')}: ${props.ticket.reference}`" :subtitle="props.ticket.subject">
+                <template #actions>
+                    <Link href="/admin/support" class="tkt-btn tkt-btn--ghost">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M5.841 5.28a.75.75 0 0 0-1.06-1.06L1.53 7.47L1 8l.53.53l3.25 3.25a.75.75 0 0 0 1.061-1.06l-1.97-1.97H14.25a.75.75 0 0 0 0-1.5H3.871l1.97-1.97Z" clip-rule="evenodd"/></svg>
                         {{ $t('Back') }}
                     </Link>
-                </div>
-            </div>
+                </template>
+            </UiPageHeader>
 
-            <div class="grid grid-cols-2 md:flex gap-x-6 mt-4 md:mt-10">
-                <div class="col-span-2 md:order-1 md:w-[70%]">
-                    <div class="bg-white md:border py-5 md:px-5 rounded-[0.5rem] mb-4 text-sm">
-                        <h1 class="text-xl">{{ $t('Subject') }}: {{ props.ticket.subject }}</h1>
-                        <div class="border border-dashed py-2 px-2 mt-8 bg-slate-100">{{ props.ticket.message }}</div>
-                    </div>
-                    <div v-if="props.ticket.status === 'open' || props.ticket.status === 'pending'" class="bg-white border py-5 px-5 rounded-[0.5rem] mb-4">
+            <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+                <div class="space-y-4">
+                    <UiSectionCard :title="$t('Subject') + ': ' + props.ticket.subject">
+                        <div class="tkt-message-box">{{ props.ticket.message }}</div>
+                    </UiSectionCard>
+
+                    <UiSectionCard v-if="props.ticket.status === 'open' || props.ticket.status === 'pending'" :title="$t('Add comment')">
                         <form @submit.prevent="submitForm()">
-                            <FormTextArea v-model="form.message" :name="$t('Comment')" :type="'text'" :showLabel="true" :error="form.errors.message" :textAreaRows="3" :class="'sm:col-span-6 mb-5'"/>
-                            <button type="submit" class="mb-2 rounded-md bg-black px-3 py-2 text-sm text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">{{ $t('Add comment') }}</button>
+                            <FormTextArea v-model="form.message" :name="$t('Comment')" :type="'text'" :showLabel="true" :error="form.errors.message" :textAreaRows="3" :class="'mb-4'"/>
+                            <button type="submit" class="tkt-btn tkt-btn--solid">{{ $t('Add comment') }}</button>
                         </form>
-                    </div>
+                    </UiSectionCard>
 
-                    <div v-for="(item, index) in props.ticket.comments_with_user" :key="index" class="bg-white border py-5 px-5 rounded-[0.5rem] mb-2">
-                        <div class="flex gap-x-4 text-sm">
-                            <div>
-                                <div class="bg-slate-100 rounded-full h-12 w-12 p-4 flex justify-center items-center">
-                                    {{ getInitials(item.user.first_name, item.user.last_name) }}
+                    <article v-for="(item, index) in props.ticket.comments_with_user" :key="index" class="tkt-comment-card">
+                        <div class="flex gap-x-3.5 text-sm">
+                            <span class="tkt-avatar">
+                                {{ getInitials(item.user.first_name, item.user.last_name) }}
+                            </span>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-baseline gap-x-3">
+                                    <span class="tkt-comment-name">{{ item.user.first_name + ' ' + item.user.last_name }}</span>
+                                    <span class="tkt-comment-date">{{ formatDateTime(item.created_at) }}</span>
                                 </div>
-                            </div>
-                            <div>
-                                <div class="gap-x-4 mb-1">
-                                    <span>{{ item.user.first_name + ' ' + item.user.last_name }}</span>
-                                    <span>{{ formatDateTime(item.created_at) }}</span>
-                                </div>
-                                <div>{{ item.message }}</div>
+                                <div class="tkt-comment-message mt-1">{{ item.message }}</div>
                             </div>
                         </div>
-                    </div>
+                    </article>
                 </div>
-                <div class="col-span-2 w-[100%] md:order-2 md:w-[30%]">
-                    <div class="bg-white md:border md:p-4 text-sm rounded-[0.5rem]">
-                        <div class="bg-slate-100 p-2 rounded mb-2 gap-x-3">
-                            <span>{{ $t('Category') }}:</span>
-                            <span class="capitalize">{{ localizeCategory(props.ticket.category.name) }}</span>
+
+                <div>
+                    <UiSectionCard :title="$t('Ticket details')">
+                        <div class="space-y-3">
+                            <div class="tkt-tile">
+                                <span class="tkt-tile-label">{{ $t('Category') }}</span>
+                                <span class="tkt-chip ui-chip-neutral capitalize">{{ localizeCategory(props.ticket.category.name) }}</span>
+                            </div>
+                            <div class="tkt-tile">
+                                <span class="tkt-tile-label">{{ $t('Status') }}</span>
+                                <span class="tkt-chip capitalize" :class="statusChipClass(props.ticket.status)">{{ localizeStatus(props.ticket.status) }}</span>
+                            </div>
+                            <div class="tkt-tile">
+                                <span class="tkt-tile-label">{{ $t('Priority') }}</span>
+                                <FormSelect v-if="props.ticket.status === 'open' || props.ticket.status === 'pending'" v-model="priority" @update:modelValue="updatePriority" :options="priorityOptions" :class="'w-full mt-2'" :placeholder="$t('Not Set')"/>
+                                <span v-else class="tkt-chip capitalize" :class="priorityChipClass(props.ticket.priority)">{{ localizePriority(props.ticket.priority) }}</span>
+                            </div>
+                            <div class="tkt-tile">
+                                <span class="tkt-tile-label">{{ $t('Assigned to') }}</span>
+                                <FormSelect v-if="props.ticket.status === 'open' || props.ticket.status === 'pending'" v-model="user" @update:modelValue="updateUser" :options="userOptions" :class="'w-full mt-2'" :placeholder="$t('Select User')"/>
+                                <span v-else class="tkt-tile-value">{{ props.ticket?.agent ? props.ticket?.agent?.first_name + ' ' + props.ticket?.agent?.last_name : $t('Not set') }}</span>
+                            </div>
+                            <div class="tkt-tile">
+                                <span class="tkt-tile-label">{{ $t('Date created') }}</span>
+                                <span class="tkt-tile-value">{{ formatDateTime(props.ticket.created_at) }}</span>
+                            </div>
                         </div>
-                        <div class="bg-slate-100 p-2 rounded mb-2 gap-x-3">
-                            <span>{{ $t('Status') }}:</span>
-                            <span class="capitalize">{{ localizeStatus(props.ticket.status) }}</span>
+
+                        <div v-if="props.ticket.status === 'open' || props.ticket.status === 'pending'" class="mt-4 grid grid-cols-2 gap-2">
+                            <button type="button" @click="changeTicketStatus('closed')" class="tkt-btn tkt-btn--ghost justify-center">{{ $t('Close ticket') }}</button>
+                            <button type="button" @click="changeTicketStatus('resolved')" class="tkt-btn tkt-btn--solid justify-center">{{ $t('Mark as resolved') }}</button>
                         </div>
-                        <div class="bg-slate-100 p-2 rounded mb-2 gap-x-3">
-                            <span>{{ $t('Priority') }}:</span>
-                            <span v-if="props.ticket.status === 'open' || props.ticket.status === 'pending'" class="capitalize">
-                                <FormSelect v-model="priority" @update:modelValue="updatePriority" :options="priorityOptions" :class="'w-full'" :placeholder="$t('Not Set')"/>
-                            </span>
-                            <span v-else class="capitalize">{{ localizePriority(props.ticket.priority) }}</span>
-                        </div>
-                        <div class="bg-slate-100 p-2 rounded mb-2 gap-x-3">
-                            <span>{{ $t('Assigned to') }}:</span>
-                            <span v-if="props.ticket.status === 'open' || props.ticket.status === 'pending'" class="capitalize">
-                                <FormSelect v-model="user" @update:modelValue="updateUser" :options="userOptions" :class="'w-full'" :placeholder="$t('Select User')"/>
-                            </span>
-                            <span v-else class="capitalize">{{ props.ticket?.agent ? props.ticket?.agent?.first_name + ' ' + props.ticket?.agent?.last_name : $t('Not set') }}</span>
-                        </div>
-                        <div class="bg-slate-100 p-2 rounded mb-2 gap-x-3">
-                            <span>{{ $t('Date created') }}:</span>
-                            <span>{{ formatDateTime(props.ticket.created_at) }}</span>
-                        </div>
-                        <div v-if="props.ticket.status === 'open' || props.ticket.status === 'pending'" class="flex grid grid-cols-2 gap-x-2 mt-4">
-                            <button type="button" @click="changeTicketStatus('closed')" class="mb-2 rounded-md bg-black px-3 py-2 text-sm text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">{{ $t('Close ticket') }}</button>
-                            <button type="button" @click="changeTicketStatus('resolved')" class="mb-2 rounded-md bg-black px-3 py-2 text-sm text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">{{ $t('Mark as resolved') }}</button>
-                        </div>
-                    </div>
+                    </UiSectionCard>
                 </div>
             </div>
         </div>
@@ -88,7 +83,9 @@
     import { ref, onMounted } from 'vue';
     import { useI18n } from 'vue-i18n';
     import FormSelect from '@/Components/FormSelect.vue';
-    import FormTextArea from '@/Components/FormTextArea.vue';
+    import FormTextArea from '@/Components/FormTextArea.vue';
+    import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
+    import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
     const { t, te } = useI18n();
     const page = usePage();
 
@@ -142,6 +139,35 @@
         return te(rawValue) ? t(rawValue) : rawValue;
     };
 
+    const statusChipClass = (status) => {
+        switch (String(status ?? '').toLowerCase()) {
+            case 'open':
+                return 'ui-chip-info';
+            case 'pending':
+                return 'ui-chip-warning';
+            case 'resolved':
+                return 'ui-chip-success';
+            case 'closed':
+                return 'ui-chip-neutral';
+            default:
+                return 'ui-chip-neutral';
+        }
+    };
+
+    const priorityChipClass = (priorityValue) => {
+        switch (String(priorityValue ?? '').toLowerCase()) {
+            case 'critical':
+            case 'high':
+                return 'ui-chip-danger';
+            case 'medium':
+                return 'ui-chip-warning';
+            case 'low':
+                return 'ui-chip-neutral';
+            default:
+                return 'ui-chip-neutral';
+        }
+    };
+
     const getInitials = (firstName, lastName) => {
       const firstInitial = firstName.charAt(0).toUpperCase();
       const lastInitial = lastName.charAt(0).toUpperCase();
@@ -187,3 +213,120 @@
         userOptions.value = transformUsers(props.users);
     });
 </script>
+
+<style scoped>
+.tkt-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, filter 160ms ease;
+}
+
+.tkt-btn--ghost {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+
+.tkt-btn--ghost:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+
+.tkt-btn--solid {
+    border: 1px solid transparent;
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.tkt-btn--solid:hover {
+    filter: brightness(1.05);
+}
+
+.tkt-message-box {
+    border: 1px dashed var(--ui-border-strong);
+    border-radius: 0.9rem;
+    background: var(--ui-surface-soft);
+    padding: 0.9rem 1.05rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--ui-text);
+    white-space: pre-wrap;
+}
+
+.tkt-comment-card {
+    border-radius: 1.1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 1.1rem;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.tkt-avatar {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--ui-secondary), color-mix(in srgb, var(--ui-secondary) 70%, var(--ui-primary)));
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.tkt-comment-name {
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.tkt-comment-date {
+    font-size: 0.75rem;
+    color: var(--ui-muted);
+}
+
+.tkt-comment-message {
+    color: var(--ui-text);
+    line-height: 1.6;
+}
+
+.tkt-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.75rem 0.9rem;
+}
+
+.tkt-tile-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--ui-muted);
+}
+
+.tkt-tile-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.tkt-chip {
+    display: inline-flex;
+    align-self: start;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+</style>

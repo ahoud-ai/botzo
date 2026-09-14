@@ -1,21 +1,17 @@
 <template>
     <AppLayout>
         <div class="ui-page ui-fade-up ui-page-frame ui-text-main min-h-full">
-            <div class="flex justify-between">
-                <div>
-                    <h1 class="text-xl mb-1">{{ $t('FAQs') }}</h1>
-                    <p class="mb-6 flex items-center text-sm leading-6 text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                        <span class="ms-1 mt-1">{{ $t('View, add, edit or delete frequently asked questions') }}</span>
-                    </p>
-                </div>
-                <div v-if="adminCan('settings', 'frontend')">
-                    <Link href="/admin/faqs/create" type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $t('Add FAQ') }}</Link>
-                </div>
+            <UiPageHeader :title="$t('FAQs')" :subtitle="$t('View, add, edit or delete frequently asked questions')">
+                <template #actions>
+                    <Link v-if="adminCan('settings', 'frontend')" href="/admin/faqs/create" type="button" class="fq-btn fq-btn--solid">
+                        {{ $t('Add FAQ') }}
+                    </Link>
+                </template>
+            </UiPageHeader>
+
+            <div class="mt-6">
+                <FaqTable :rows="props.rows" :filters="props.filters" />
             </div>
-            
-            <!-- Table Component-->
-            <FaqTable :rows="props.rows" :filters="props.filters" />
         </div>
     </AppLayout>
 </template>
@@ -25,9 +21,32 @@
     import { ref } from 'vue';
     import { Link, useForm } from "@inertiajs/vue3";
     import FaqTable from '@/Components/Tables/FaqTable.vue';
+    import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
     import { useAdminPermission } from "@/Composables/useAdminPermission";
 
     const props = defineProps({ title: String, rows: Object, filters: Object });
     const { adminCan } = useAdminPermission();
 </script>
+
+<style scoped>
+.fq-btn {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease;
+}
+
+.fq-btn--solid {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.fq-btn--solid:hover {
+    filter: brightness(1.05);
+}
+</style>
 

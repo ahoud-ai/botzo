@@ -60,6 +60,25 @@ class AutomationFlowBuilderService
             });
     }
 
+    public function statusCounts(int $organizationId, ?string $search = null): array
+    {
+        $counts = AutomationFlow::query()
+            ->where('organization_id', $organizationId)
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->selectRaw('status, count(*) as aggregate')
+            ->groupBy('status')
+            ->pluck('aggregate', 'status');
+
+        return [
+            'draft' => (int) ($counts['draft'] ?? 0),
+            'published' => (int) ($counts['published'] ?? 0),
+            'paused' => (int) ($counts['paused'] ?? 0),
+            'archived' => (int) ($counts['archived'] ?? 0),
+        ];
+    }
+
     public function create(int $organizationId, int $userId, array $payload): AutomationFlow
     {
         $goalPreset = $this->starterTemplates->normalizeGoalPreset(

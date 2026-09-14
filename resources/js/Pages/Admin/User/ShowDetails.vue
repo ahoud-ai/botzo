@@ -1,27 +1,25 @@
 <template>
     <AppLayout>
         <div class="ui-page ui-fade-up ui-page-frame ui-text-main min-h-full">
-            <section class="relative overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60 md:p-8">
-                <div class="absolute inset-x-0 top-0 h-32 bg-[linear-gradient(135deg,rgba(99,102,241,0.10),rgba(14,165,233,0.08),transparent)]" />
+            <section class="usr-hero">
+                <div class="usr-hero-wash"></div>
 
                 <div class="relative flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
                     <div class="flex min-w-0 items-start gap-4">
-                        <div class="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-3 shadow-sm">
-                            <img v-if="user.avatar" class="h-20 w-20 rounded-[1.1rem] object-cover" :src="`/media/${user.avatar}`" :alt="user.full_name">
-                            <div v-else class="flex h-20 w-20 items-center justify-center rounded-[1.1rem] bg-slate-100 text-slate-700">
-                                <UserRound class="h-10 w-10" />
-                            </div>
-                        </div>
+                        <span v-if="!user.avatar" class="usr-hero-avatar">
+                            <UserRound class="h-9 w-9" />
+                        </span>
+                        <img v-else class="usr-hero-avatar-img" :src="`/media/${user.avatar}`" :alt="user.full_name">
 
                         <div class="min-w-0 space-y-4">
                             <div class="flex flex-wrap items-center gap-2">
-                                <h1 class="truncate text-2xl font-semibold text-slate-950">{{ user.full_name }}</h1>
-                                <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium" :class="user.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'">
+                                <h1 class="usr-hero-title truncate">{{ user.full_name }}</h1>
+                                <span class="usr-chip" :class="user.status === 'active' ? 'ui-chip-success' : 'ui-chip-danger'">
                                     <ShieldCheck v-if="user.status === 'active'" class="h-3.5 w-3.5" />
                                     <CircleOff v-else class="h-3.5 w-3.5" />
                                     {{ user.status_label }}
                                 </span>
-                                <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium" :class="user.email_verified ? 'bg-sky-100 text-sky-700' : 'bg-amber-100 text-amber-700'">
+                                <span class="usr-chip" :class="user.email_verified ? 'ui-chip-info' : 'ui-chip-warning'">
                                     <MailCheck v-if="user.email_verified" class="h-3.5 w-3.5" />
                                     <MailQuestion v-else class="h-3.5 w-3.5" />
                                     {{ user.email_verified ? $t('Verified email') : $t('Unverified email') }}
@@ -29,57 +27,57 @@
                             </div>
 
                             <div class="space-y-1">
-                                <p class="text-sm font-medium text-slate-700">{{ user.type?.organization_role_label || user.type?.primary_label }}</p>
-                                <p class="text-sm text-slate-500">{{ user.access_summary || $t('No access') }}</p>
+                                <p class="usr-hero-role">{{ user.type?.organization_role_label || user.type?.primary_label }}</p>
+                                <p class="usr-hero-subtitle">{{ user.access_summary || $t('No access') }}</p>
                             </div>
 
-                            <div class="flex flex-wrap gap-2.5 text-xs text-slate-600">
-                                <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5">
-                                    <Mail class="h-3.5 w-3.5 text-slate-400" />
+                            <div class="flex flex-wrap gap-2.5 text-xs">
+                                <span class="usr-pill">
+                                    <Mail class="h-3.5 w-3.5" />
                                     {{ user.email }}
                                 </span>
-                                <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5">
-                                    <Phone class="h-3.5 w-3.5 text-slate-400" />
+                                <span class="usr-pill">
+                                    <Phone class="h-3.5 w-3.5" />
                                     {{ user.phone || $t('Not set') }}
                                 </span>
                             </div>
 
                             <div class="grid gap-3 sm:grid-cols-3">
-                                <div v-for="item in headerStats" :key="item.label" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                    <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
-                                        <component :is="item.icon" class="h-3.5 w-3.5 text-slate-400" />
-                                        {{ item.label }}
+                                <div v-for="item in headerStats" :key="item.label" class="usr-tile">
+                                    <div class="usr-tile-head">
+                                        <component :is="item.icon" class="h-3.5 w-3.5" />
+                                        <span class="usr-tile-label">{{ item.label }}</span>
                                     </div>
-                                    <p class="mt-1 text-sm font-semibold text-slate-900">{{ item.value }}</p>
+                                    <p class="usr-tile-value">{{ item.value }}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3">
-                        <Link href="/admin/users" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                        <Link href="/admin/users" class="usr-btn usr-btn--ghost">
                             <ArrowLeft class="h-4 w-4" />
                             {{ $t('Back') }}
                         </Link>
-                        <button v-if="canEditAccount" type="button" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50" @click="activeTab = 'edit'">
+                        <button v-if="canEditAccount" type="button" class="usr-btn usr-btn--ghost" @click="activeTab = 'edit'">
                             <PencilLine class="h-4 w-4" />
                             {{ $t('Edit') }}
                         </button>
-                        <button v-if="canToggleAccountState" type="button" class="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition" :class="user.actions?.can_restore_account ? 'bg-sky-600 hover:bg-sky-500' : 'bg-amber-600 hover:bg-amber-500'" @click="isStateModalOpen = true">
+                        <button v-if="canToggleAccountState" type="button" class="usr-btn" :class="user.actions?.can_restore_account ? 'usr-btn--info' : 'usr-btn--warning'" @click="isStateModalOpen = true">
                             <ShieldCheck v-if="user.actions?.can_restore_account" class="h-4 w-4" />
                             <Ban v-else class="h-4 w-4" />
                             {{ user.actions?.can_restore_account ? $t('Restore') : $t('Suspend') }}
                         </button>
-                        <button v-if="canDeleteAccount" type="button" class="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-rose-700 transition hover:bg-rose-50" @click="isDeleteModalOpen = true">
+                        <button v-if="canDeleteAccount" type="button" class="usr-btn usr-btn--danger-ghost" @click="isDeleteModalOpen = true">
                             <Trash2 class="h-4 w-4" />
                             {{ $t('Delete') }}
                         </button>
                     </div>
                 </div>
 
-                <div v-if="primaryBusinessRule" class="relative mt-5 rounded-2xl border px-4 py-3 text-sm" :class="primaryBusinessRule.level === 'warning' ? 'border-amber-200 bg-amber-50 text-amber-950' : 'border-sky-200 bg-sky-50 text-sky-900'">
+                <div v-if="primaryBusinessRule" class="usr-banner relative mt-5" :class="primaryBusinessRule.level === 'warning' ? 'usr-banner--warning' : 'usr-banner--info'">
                     <div class="flex items-start gap-3">
-                        <span class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-2xl" :class="primaryBusinessRule.level === 'warning' ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700'">
+                        <span class="usr-banner-icon" :class="primaryBusinessRule.level === 'warning' ? 'usr-banner-icon--warning' : 'usr-banner-icon--info'">
                             <AlertTriangle v-if="primaryBusinessRule.level === 'warning'" class="h-4 w-4" />
                             <InfoIcon v-else class="h-4 w-4" />
                         </span>
@@ -88,13 +86,13 @@
                 </div>
             </section>
 
-            <section class="mt-6 overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
-                <div class="border-b border-slate-200 px-4 py-4 md:px-6">
-                    <div class="flex flex-wrap gap-2">
-                        <button v-for="tab in tabs" :key="tab.key" type="button" class="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition" :class="activeTab === tab.key ? 'bg-slate-950 text-white shadow-sm' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'" @click="activeTab = tab.key">
+            <section class="usr-panel mt-6">
+                <div class="usr-tabbar">
+                    <div class="usr-filter-group">
+                        <button v-for="tab in tabs" :key="tab.key" type="button" class="usr-filter-pill" :class="{ 'usr-filter-pill--active': activeTab === tab.key }" @click="activeTab = tab.key">
                             <component :is="tab.icon" class="h-4 w-4" />
                             {{ tab.label }}
-                            <span v-if="tab.count !== null" class="rounded-full px-2 py-0.5 text-[11px]" :class="activeTab === tab.key ? 'bg-white/15 text-white' : 'bg-white text-slate-500'">{{ tab.count }}</span>
+                            <span v-if="tab.count !== null" class="usr-tab-count" :class="{ 'usr-tab-count--active': activeTab === tab.key }">{{ tab.count }}</span>
                         </button>
                     </div>
                 </div>
@@ -211,3 +209,281 @@ function toggleAccountState() {
     });
 }
 </script>
+
+<style scoped>
+.usr-hero {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-xl, 1.5rem);
+    background: var(--ui-surface);
+    box-shadow: var(--ui-shadow-1);
+    padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .usr-hero {
+        padding: 2rem;
+    }
+}
+
+.usr-hero-wash {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 8rem;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--ui-secondary) 12%, transparent), color-mix(in srgb, var(--ui-primary) 8%, transparent), transparent);
+    pointer-events: none;
+}
+
+.usr-hero-avatar,
+.usr-hero-avatar-img {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 1.4rem;
+}
+
+.usr-hero-avatar {
+    background: linear-gradient(135deg, var(--ui-secondary), color-mix(in srgb, var(--ui-secondary) 70%, var(--ui-primary)));
+    color: #fff;
+    box-shadow: 0 10px 22px -12px color-mix(in srgb, var(--ui-secondary) 70%, transparent);
+}
+
+.usr-hero-avatar-img {
+    object-fit: cover;
+    border: 1px solid var(--ui-border);
+}
+
+.usr-hero-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--ui-text);
+}
+
+.usr-hero-role {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+
+.usr-hero-subtitle {
+    font-size: 0.85rem;
+    color: var(--ui-muted);
+}
+
+.usr-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.usr-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 999px;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-muted);
+    padding: 0.4rem 0.85rem;
+}
+
+.usr-tile {
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.8rem 0.95rem;
+}
+
+.usr-tile-head {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--ui-muted);
+}
+
+.usr-tile-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--ui-muted);
+}
+
+.usr-tile-value {
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.usr-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, filter 160ms ease;
+}
+
+.usr-btn--ghost {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+
+.usr-btn--ghost:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+
+.usr-btn--info {
+    border: 1px solid transparent;
+    background: var(--ui-primary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.usr-btn--info:hover {
+    filter: brightness(1.1);
+}
+
+.usr-btn--warning {
+    border: 1px solid transparent;
+    background: var(--ui-warning);
+    color: #1f2937;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.usr-btn--warning:hover {
+    filter: brightness(1.05);
+}
+
+.usr-btn--danger-ghost {
+    border: 1px solid color-mix(in srgb, var(--ui-danger) 40%, var(--ui-border));
+    background: var(--ui-surface);
+    color: var(--ui-danger);
+}
+
+.usr-btn--danger-ghost:hover {
+    background: color-mix(in srgb, var(--ui-danger) 8%, var(--ui-surface));
+}
+
+.usr-banner {
+    border: 1px solid;
+    border-radius: 1rem;
+    padding: 1rem 1.1rem;
+}
+
+.usr-banner--info {
+    border-color: color-mix(in srgb, var(--ui-primary) 30%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-primary) 8%, var(--ui-surface));
+    color: var(--ui-text);
+}
+
+.usr-banner--warning {
+    border-color: color-mix(in srgb, var(--ui-warning) 35%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-warning) 10%, var(--ui-surface));
+    color: var(--ui-text);
+}
+
+.usr-banner-icon {
+    display: inline-flex;
+    height: 2rem;
+    width: 2rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.8rem;
+    margin-top: 0.1rem;
+}
+
+.usr-banner-icon--info {
+    background: color-mix(in srgb, var(--ui-primary) 16%, transparent);
+    color: var(--ui-primary);
+}
+
+.usr-banner-icon--warning {
+    background: color-mix(in srgb, var(--ui-warning) 20%, transparent);
+    color: color-mix(in srgb, var(--ui-warning) 80%, #0f172a);
+}
+
+.usr-panel {
+    overflow: hidden;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-xl, 1.5rem);
+    background: var(--ui-surface);
+    box-shadow: var(--ui-shadow-1);
+}
+
+.usr-tabbar {
+    border-bottom: 1px solid var(--ui-border);
+    padding: 1rem 1.25rem;
+}
+
+.usr-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 0.3rem;
+    border-radius: 999px;
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+}
+
+.usr-filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 999px;
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+    background: transparent;
+    border: 1px solid transparent;
+    transition: background-color 160ms ease, color 160ms ease;
+}
+
+.usr-filter-pill:hover {
+    color: var(--ui-text);
+    background: var(--ui-border);
+}
+
+.usr-filter-pill--active {
+    color: #fff;
+    background: linear-gradient(135deg, var(--ui-secondary), color-mix(in srgb, var(--ui-secondary) 78%, var(--ui-primary)));
+    box-shadow: 0 10px 20px -12px color-mix(in srgb, var(--ui-secondary) 60%, rgba(15, 23, 42, 0.5));
+}
+
+.usr-tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.3rem;
+    border-radius: 999px;
+    padding: 0.05rem 0.4rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    background: var(--ui-surface);
+    color: var(--ui-muted);
+}
+
+.usr-tab-count--active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+</style>

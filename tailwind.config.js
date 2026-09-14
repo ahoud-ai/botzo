@@ -13,7 +13,7 @@ module.exports = {
         secondary: 'var(--color-secondary, #008000)',
       },
       fontFamily: {
-        sans: ['Ping AR LT', 'Tajawal', 'Outfit', 'Helvetica', 'Arial', 'sans-serif'],
+        sans: ['IBM Plex Sans Arabic', 'Ping AR LT', 'Tajawal', 'Outfit', 'Helvetica', 'Arial', 'sans-serif'],
         Tajawal: ['Ping AR LT', 'Tajawal', 'Outfit', 'Helvetica', 'Arial', 'sans-serif'],
         Outfit: ['Ping AR LT', 'Tajawal', 'Outfit', 'Helvetica', 'Arial', 'sans-serif'],
       },

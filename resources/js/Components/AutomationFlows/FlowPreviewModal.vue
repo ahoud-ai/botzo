@@ -10,10 +10,10 @@
                 leave-from="opacity-100"
                 leave-to="opacity-0"
             >
-                <div class="fixed inset-0 bg-slate-950/45 backdrop-blur-sm" />
+                <div class="fixed inset-0 ui-layer-modal-backdrop backdrop-blur-sm" />
             </TransitionChild>
 
-            <div class="fixed inset-0 overflow-y-auto">
+            <div class="fixed inset-0 z-[2400] overflow-y-auto">
                 <div class="flex min-h-full items-center justify-center p-3 sm:p-4 xl:p-6">
                     <TransitionChild
                         as="template"
@@ -24,12 +24,12 @@
                         leave-from="opacity-100 scale-100"
                         leave-to="opacity-0 scale-95"
                     >
-                        <DialogPanel class="w-full max-w-[400px] overflow-hidden rounded-[28px] border border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.99),rgba(248,250,252,0.98))] shadow-[0_30px_72px_rgba(15,23,42,0.22)] sm:max-w-[420px] sm:rounded-[30px]">
-                            <div class="flex items-center justify-between gap-4 border-b border-slate-200 bg-white/70 px-4 py-3">
-                                <DialogTitle class="text-[15px] font-semibold text-slate-950 sm:text-base">{{ $t('Mobile preview') }}</DialogTitle>
+                        <DialogPanel class="w-full max-w-[400px] overflow-hidden rounded-[28px] border border-[var(--ui-border-strong)] bg-[var(--ui-surface)] shadow-[0_30px_72px_color-mix(in_srgb,var(--ui-text)_28%,transparent)] sm:max-w-[420px] sm:rounded-[30px]">
+                            <div class="flex items-center justify-between gap-4 border-b border-[var(--ui-border)] bg-[var(--flow-panel-bg)] px-4 py-3">
+                                <DialogTitle class="text-[15px] font-semibold text-[var(--ui-text)] sm:text-base">{{ $t('Mobile preview') }}</DialogTitle>
                                 <button
                                     type="button"
-                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:text-slate-900"
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] text-[var(--ui-muted)] transition hover:border-[var(--ui-secondary)] hover:text-[var(--ui-text)]"
                                     :title="$t('Close')"
                                     @click="$emit('close')"
                                 >

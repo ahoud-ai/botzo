@@ -12,11 +12,11 @@ const props = defineProps({
 const { t } = useI18n();
 
 const classes = computed(() => ({
-    draft: 'border border-amber-200 bg-amber-50 text-amber-700',
-    published: 'border border-emerald-200 bg-emerald-50 text-emerald-700',
-    paused: 'border border-slate-200 bg-slate-100 text-slate-700',
-    archived: 'border border-rose-200 bg-rose-50 text-rose-700',
-}[props.status] || 'border border-slate-200 bg-slate-50 text-slate-700'));
+    draft: 'border border-[color-mix(in_srgb,var(--ui-warning)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-warning)_12%,var(--ui-surface))] text-[var(--ui-warning)]',
+    published: 'border border-[color-mix(in_srgb,var(--ui-success)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-success)_12%,var(--ui-surface))] text-[var(--ui-success)]',
+    paused: 'border border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] text-[var(--ui-muted)]',
+    archived: 'border border-[color-mix(in_srgb,var(--ui-danger)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--ui-danger)_12%,var(--ui-surface))] text-[var(--ui-danger)]',
+}[props.status] || 'border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] text-[var(--ui-muted)]'));
 
 const label = computed(() => ({
     draft: t('Draft'),

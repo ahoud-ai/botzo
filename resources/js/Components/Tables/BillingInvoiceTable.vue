@@ -29,57 +29,57 @@ const props = defineProps({
 const invoiceHref = (uuid) => `${props.viewBasePath}/${uuid}`;
 const printHref = (uuid) => `${props.printBasePath}/${uuid}/print`;
 const downloadHref = (uuid) => props.downloadBasePath ? `${props.downloadBasePath}/${uuid}/download` : null;
-const viewButtonClass = 'inline-flex min-h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300';
-const printButtonClass = 'inline-flex min-h-10 items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
-const downloadButtonClass = 'inline-flex min-h-10 items-center justify-center rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm font-medium text-primary shadow-sm transition hover:bg-primary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
+const viewButtonClass = 'billing-table-btn billing-table-btn--ghost';
+const printButtonClass = 'billing-table-btn billing-table-btn--solid';
+const downloadButtonClass = 'billing-table-btn billing-table-btn--tint';
 
 const statusClass = (label) => {
     const normalized = String(label ?? '').toLowerCase();
 
     if (normalized.includes('paid') || normalized.includes('مغطاة') || normalized.includes('settled') || normalized.includes('مسددة')) {
-        return 'bg-emerald-50 text-emerald-700 ring-emerald-200';
+        return 'ui-chip-success';
     }
 
     if (normalized.includes('pending') || normalized.includes('معلقة')) {
-        return 'bg-amber-50 text-amber-700 ring-amber-200';
+        return 'ui-chip-warning';
     }
 
-    return 'bg-slate-100 text-slate-700 ring-slate-200';
+    return 'ui-chip-neutral';
 };
 </script>
 
 <template>
     <div class="space-y-4">
         <template v-if="rows?.data?.length">
-            <div class="overflow-hidden rounded-[1.25rem] border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
+            <div class="ui-table-shell">
                 <div class="hidden overflow-x-auto xl:block">
-                    <table class="min-w-full divide-y divide-slate-200">
-                        <thead class="bg-slate-50">
+                    <table class="ui-table">
+                        <thead>
                             <tr>
-                                <th class="px-5 py-4 text-start text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Invoice no.') }}</th>
-                                <th class="px-5 py-4 text-start text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Issued at') }}</th>
-                                <th v-if="showOrganization" class="px-5 py-4 text-start text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Organization') }}</th>
-                                <th class="px-5 py-4 text-start text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Plan') }}</th>
-                                <th class="px-5 py-4 text-start text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Total') }}</th>
-                                <th class="px-5 py-4 text-start text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Status') }}</th>
-                                <th class="px-5 py-4 text-start text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Payment method') }}</th>
-                                <th class="px-5 py-4 text-start text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Actions') }}</th>
+                                <th class="ui-table-th ui-table-th-first">{{ $t('Invoice no.') }}</th>
+                                <th class="ui-table-th">{{ $t('Issued at') }}</th>
+                                <th v-if="showOrganization" class="ui-table-th">{{ $t('Organization') }}</th>
+                                <th class="ui-table-th">{{ $t('Plan') }}</th>
+                                <th class="ui-table-th">{{ $t('Total') }}</th>
+                                <th class="ui-table-th">{{ $t('Status') }}</th>
+                                <th class="ui-table-th">{{ $t('Payment method') }}</th>
+                                <th class="ui-table-th ui-table-th-last">{{ $t('Actions') }}</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <tr v-for="item in rows.data" :key="item.uuid" class="transition hover:bg-slate-50/80">
-                                <td class="px-5 py-4 align-top text-sm font-semibold text-slate-900">{{ item.invoice_number }}</td>
-                                <td class="px-5 py-4 align-top text-sm text-slate-600">{{ item.issued_at }}</td>
-                                <td v-if="showOrganization" class="px-5 py-4 align-top text-sm text-slate-700">{{ item.organization_name ?? '—' }}</td>
-                                <td class="px-5 py-4 align-top text-sm text-slate-700">{{ item.plan_name ?? '—' }}</td>
-                                <td class="px-5 py-4 align-top text-sm font-semibold text-slate-900">{{ item.total }}</td>
-                                <td class="px-5 py-4 align-top">
-                                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1" :class="statusClass(item.status_label)">
+                        <tbody>
+                            <tr v-for="item in rows.data" :key="item.uuid">
+                                <td class="ui-table-td ui-table-td-first font-bold text-[15px] text-[var(--ui-text)]">{{ item.invoice_number }}</td>
+                                <td class="ui-table-td text-[var(--ui-muted)]">{{ item.issued_at }}</td>
+                                <td v-if="showOrganization" class="ui-table-td text-[var(--ui-text)]">{{ item.organization_name ?? '—' }}</td>
+                                <td class="ui-table-td text-[var(--ui-text)]">{{ item.plan_name ?? '—' }}</td>
+                                <td class="ui-table-td font-bold text-[var(--ui-text)]">{{ item.total }}</td>
+                                <td class="ui-table-td">
+                                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold" :class="statusClass(item.status_label)">
                                         {{ item.status_label }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-4 align-top text-sm text-slate-700">{{ item.payment_method_label }}</td>
-                                <td class="px-5 py-4 align-top">
+                                <td class="ui-table-td text-[var(--ui-text)]">{{ item.payment_method_label }}</td>
+                                <td class="ui-table-td ui-table-td-last">
                                     <div class="flex flex-wrap gap-2">
                                         <Link :href="invoiceHref(item.uuid)" :class="viewButtonClass">
                                             {{ $t('View') }}
@@ -97,42 +97,42 @@ const statusClass = (label) => {
                     </table>
                 </div>
 
-                <div class="divide-y divide-slate-100 xl:hidden">
+                <div class="billing-mobile-list xl:hidden">
                     <article
                         v-for="item in rows.data"
                         :key="`${item.uuid}-mobile`"
-                        class="space-y-4 px-4 py-4"
+                        class="billing-mobile-card"
                     >
                         <div class="flex flex-wrap items-start justify-between gap-3">
                             <div>
-                                <p class="text-sm font-semibold text-slate-900">{{ item.invoice_number }}</p>
-                                <p class="mt-1 text-xs text-slate-500">{{ item.issued_at }}</p>
+                                <p class="font-bold text-[15px] text-[var(--ui-text)]">{{ item.invoice_number }}</p>
+                                <p class="mt-1 text-xs text-[var(--ui-muted)]">{{ item.issued_at }}</p>
                             </div>
-                            <span class="rounded-full px-3 py-1 text-xs font-semibold ring-1" :class="statusClass(item.status_label)">
+                            <span class="rounded-full px-3 py-1 text-xs font-bold" :class="statusClass(item.status_label)">
                                 {{ item.status_label }}
                             </span>
                         </div>
 
-                        <div class="grid gap-3 sm:grid-cols-2">
-                            <div class="rounded-[1rem] bg-slate-50 px-3 py-3">
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Plan') }}</p>
-                                <p class="mt-1 text-sm font-semibold text-slate-900">{{ item.plan_name ?? '—' }}</p>
+                        <div class="grid gap-3 sm:grid-cols-2 mt-4">
+                            <div class="billing-mobile-field">
+                                <p class="billing-mobile-field-label">{{ $t('Plan') }}</p>
+                                <p class="billing-mobile-field-value">{{ item.plan_name ?? '—' }}</p>
                             </div>
-                            <div class="rounded-[1rem] bg-slate-50 px-3 py-3">
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Total') }}</p>
-                                <p class="mt-1 text-sm font-semibold text-slate-900">{{ item.total }}</p>
+                            <div class="billing-mobile-field">
+                                <p class="billing-mobile-field-label">{{ $t('Total') }}</p>
+                                <p class="billing-mobile-field-value">{{ item.total }}</p>
                             </div>
-                            <div v-if="showOrganization" class="rounded-[1rem] bg-slate-50 px-3 py-3">
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Organization') }}</p>
-                                <p class="mt-1 text-sm font-semibold text-slate-900">{{ item.organization_name ?? '—' }}</p>
+                            <div v-if="showOrganization" class="billing-mobile-field">
+                                <p class="billing-mobile-field-label">{{ $t('Organization') }}</p>
+                                <p class="billing-mobile-field-value">{{ item.organization_name ?? '—' }}</p>
                             </div>
-                            <div class="rounded-[1rem] bg-slate-50 px-3 py-3">
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Payment method') }}</p>
-                                <p class="mt-1 text-sm font-semibold text-slate-900">{{ item.payment_method_label }}</p>
+                            <div class="billing-mobile-field">
+                                <p class="billing-mobile-field-label">{{ $t('Payment method') }}</p>
+                                <p class="billing-mobile-field-value">{{ item.payment_method_label }}</p>
                             </div>
                         </div>
 
-                        <div class="flex flex-wrap gap-2">
+                        <div class="flex flex-wrap gap-2 mt-4">
                             <Link :href="invoiceHref(item.uuid)" :class="viewButtonClass">
                                 {{ $t('View') }}
                             </Link>
@@ -161,3 +161,76 @@ const statusClass = (label) => {
         <Pagination v-if="rows && rows.meta" :pagination="rows.meta" />
     </div>
 </template>
+
+<style scoped>
+.billing-mobile-card {
+    padding: 1.1rem;
+    border-top: 1px solid var(--ui-border);
+}
+
+.billing-mobile-card:first-child {
+    border-top: none;
+}
+
+.billing-mobile-field {
+    border-radius: var(--ui-radius-sm);
+    background: var(--ui-surface-soft);
+    padding: 0.6rem 0.75rem;
+}
+
+.billing-mobile-field-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ui-muted);
+}
+
+.billing-mobile-field-value {
+    margin-top: 0.25rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+
+.billing-table-btn {
+    display: inline-flex;
+    min-height: 2.35rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.6rem;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.83rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, filter 160ms ease;
+}
+
+.billing-table-btn--ghost {
+    color: var(--ui-text);
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+}
+
+.billing-table-btn--ghost:hover {
+    background: var(--ui-border);
+}
+
+.billing-table-btn--solid {
+    color: #fff;
+    background: var(--ui-secondary);
+}
+
+.billing-table-btn--solid:hover {
+    filter: brightness(1.05);
+}
+
+.billing-table-btn--tint {
+    color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 12%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-secondary) 28%, var(--ui-border));
+}
+
+.billing-table-btn--tint:hover {
+    background: color-mix(in srgb, var(--ui-secondary) 18%, var(--ui-surface));
+}
+</style>

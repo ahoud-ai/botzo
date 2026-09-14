@@ -3,6 +3,10 @@ import { createInertiaApp, router } from '@inertiajs/vue3';
 import { createI18n } from 'vue-i18n';
 import axios from 'axios';
 import { resolveMessageByCandidates } from '@/Utils/i18nLookup';
+import { initTheme } from '@/Composables/useTheme';
+import { vReveal } from '@/directives/reveal';
+
+initTheme();
 
 function applyDocumentLocaleDirection(pageProps = {}) {
   const locale = (pageProps.currentLanguage || 'en').toLowerCase();
@@ -51,6 +55,7 @@ function registerDeferredGlobalComponents(app) {
   // after navigating into authenticated screens inside the same SPA session.
   app.component('apexchart', AsyncApexChart);
   app.component('vue-tel-input', AsyncVueTelInput);
+  app.directive('reveal', vReveal);
 }
 
 function createMissingTranslationResolver(getLocaleMessages, fallbackLocale = 'en') {
@@ -223,7 +228,7 @@ createInertiaApp({
   },
   progress: {
     delay: 250,
-    color: '#198754',
+    color: '#25d366',
     includeCSS: true,
     showSpinner: false,
   },

@@ -2,492 +2,283 @@
   <FrontendLayout :companyConfig="props.companyConfig" :pages="props.pages">
     <section
       id="section1"
-      class="premium-home-section premium-home-section--hero premium-home-hero-v2 px-5 md:px-10 lg:px-20 2xl:px-60 relative overflow-hidden"
+      class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-32 py-8 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]"
     >
-      <div class="premium-home-hero-wave" aria-hidden="true"></div>
-      <div class="premium-home-hero-v2-grid">
-        <div class="premium-home-hero-copy premium-home-animate">
-          <div class="premium-home-hero-pill">
-            <span class="premium-home-hero-pill__whatsapp">WhatsApp</span>
-            <span class="premium-home-hero-pill__meta">Meta</span>
-            <span>{{ $t("Integrated WhatsApp and Meta solutions") }}</span>
-          </div>
+      <div class="pointer-events-none absolute inset-0 hero-fade" aria-hidden="true"></div>
 
-          <h1 class="premium-home-hero-title premium-home-hero-title--v2">
-            {{ $t("Smart WhatsApp and Meta solutions") }} <span>{{ $t("that grow your business") }}</span>
-          </h1>
+      <div
+        class="pointer-events-none absolute -top-20 end-0 h-[520px] w-[520px] corner-glow dark:h-[624px] dark:w-[624px]"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="pointer-events-none absolute bottom-0 start-0 h-[420px] w-[420px] corner-glow dark:h-[500px] dark:w-[500px]"
+        aria-hidden="true"
+      ></div>
 
-          <p class="premium-home-hero-subtitle premium-home-hero-subtitle--v2">
-            {{ $t("We give you the tools and expertise to automate customer conversations across") }}
-            <span>WhatsApp</span>
-            {{ $t("and") }}
-            <span>Meta</span>
-            {{ $t("platforms to improve customer experience and increase sales.") }}
-          </p>
+      <div class="pointer-events-none absolute inset-0 hidden overflow-hidden lg:block" aria-hidden="true">
+        <HeroNetworkScene />
 
-          <div class="premium-home-hero-actions">
-            <Link href="/signup" class="premium-home-hero-primary-action premium-home-hero-cta">
-              <span>{{ $t("Start now") }}</span>
-              <svg class="h-5 w-5 rtl:rotate-180" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </Link>
-            <a
-              v-if="props.companyConfig && props.companyConfig.book_a_demo_link"
-              :href="props.companyConfig.book_a_demo_link"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="premium-home-hero-secondary-action premium-home-hero-cta premium-home-hero-cta--secondary"
-            >
-              <span>{{ $t("Book a demo") }}</span>
-              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M8 2v4m8-4v4M3.5 9.5h17M6 4h12a2.5 2.5 0 0 1 2.5 2.5v11A2.5 2.5 0 0 1 18 20H6a2.5 2.5 0 0 1-2.5-2.5v-11A2.5 2.5 0 0 1 6 4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </a>
-            <Link
-              v-else
-              href="/contact"
-              class="premium-home-hero-secondary-action premium-home-hero-cta premium-home-hero-cta--secondary"
-            >
-              <span>{{ $t("Book a demo") }}</span>
-              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M8 2v4m8-4v4M3.5 9.5h17M6 4h12a2.5 2.5 0 0 1 2.5 2.5v11A2.5 2.5 0 0 1 18 20H6a2.5 2.5 0 0 1-2.5-2.5v-11A2.5 2.5 0 0 1 6 4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </Link>
-          </div>
-        </div>
+        <!-- WhatsApp Business-style notification toasts filling the empty
+             side margins — each pops in, holds, fades out, then cycles to
+             its next message and repeats, staggered so they never sync up. -->
+        <HeroNotificationToast
+          class="absolute start-2 top-[130px]"
+          :items="heroToastMessagesA"
+          :delay="0"
+          :duration="5200"
+        />
+        <HeroNotificationToast
+          class="absolute end-2 top-[230px]"
+          :items="heroToastMessagesB"
+          :delay="1300"
+          :duration="5600"
+        />
+        <HeroNotificationToast
+          class="absolute start-1 top-[480px]"
+          :items="heroToastMessagesC"
+          :delay="2600"
+          :duration="5000"
+        />
+        <HeroNotificationToast
+          class="absolute end-1 top-[570px]"
+          :items="heroToastMessagesD"
+          :delay="900"
+          :duration="5400"
+        />
 
-        <div class="premium-home-hero-visual premium-home-animate">
-          <div class="premium-home-hero-channel-stack" aria-hidden="true">
-            <span class="premium-home-channel premium-home-channel--whatsapp">WA</span>
-            <span class="premium-home-channel premium-home-channel--meta">Meta</span>
-            <span class="premium-home-channel premium-home-channel--chat">AI</span>
-          </div>
-
-          <div class="premium-home-dashboard-card">
-            <div class="premium-home-dashboard-top">
-              <span>{{ $t("Dashboard") }}</span>
-              <span>Botozo Admin</span>
-            </div>
-            <div class="premium-home-dashboard-stats">
-              <div>
-                <span>{{ $t("Conversations") }}</span>
-                <strong>128K</strong>
-                <small>+12.5%</small>
-              </div>
-              <div>
-                <span>{{ $t("New customers") }}</span>
-                <strong>24K</strong>
-                <small>+15.3%</small>
-              </div>
-              <div>
-                <span>{{ $t("Response rate") }}</span>
-                <strong>98%</strong>
-                <small>+8.6%</small>
-              </div>
-              <div>
-                <span>{{ $t("Messages") }}</span>
-                <strong>2.5M</strong>
-                <small>+18.7%</small>
-              </div>
-            </div>
-            <div class="premium-home-dashboard-body">
-              <div class="premium-home-chart-card">
-                <div class="premium-home-chart-head">
-                  <span>{{ $t("Conversation performance") }}</span>
-                  <small>{{ $t("Last 7 days") }}</small>
-                </div>
-                <svg viewBox="0 0 420 170" preserveAspectRatio="none" aria-hidden="true">
-                  <defs>
-                    <linearGradient id="heroChartFill" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0%" stop-color="#2f7bff" stop-opacity="0.28" />
-                      <stop offset="100%" stop-color="#2f7bff" stop-opacity="0" />
-                    </linearGradient>
-                  </defs>
-                  <path d="M0 136 C40 118 50 95 86 105 C126 120 132 68 172 82 C213 98 218 38 258 56 C302 77 308 28 350 45 C382 58 394 24 420 30 L420 170 L0 170 Z" fill="url(#heroChartFill)" />
-                  <path d="M0 136 C40 118 50 95 86 105 C126 120 132 68 172 82 C213 98 218 38 258 56 C302 77 308 28 350 45 C382 58 394 24 420 30" fill="none" stroke="#2f7bff" stroke-width="4" stroke-linecap="round" />
-                </svg>
-              </div>
-              <div class="premium-home-channel-list">
-                <span>{{ $t("Connected channels") }}</span>
-                <div>WhatsApp</div>
-                <div>Instagram</div>
-                <div>Messenger</div>
-                <div>Facebook</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="premium-home-phone-card">
-            <div class="premium-home-phone-top">9:41</div>
-            <div class="premium-home-phone-profile">
-              <span></span>
-              <div>
-                <strong>{{ $t("Elegance Store") }}</strong>
-                <small>{{ $t("Online now") }}</small>
-              </div>
-            </div>
-            <div class="premium-home-chat-bubble premium-home-chat-bubble--in">{{ $t("Hello, how can I help you?") }}</div>
-            <div class="premium-home-chat-bubble premium-home-chat-bubble--out">{{ $t("I want to ask about the product price") }}</div>
-            <div class="premium-home-product-preview">
-              <div></div>
-              <strong>{{ $t("SAR 2,999") }}</strong>
-              <span>{{ $t("View product") }}</span>
-            </div>
-          </div>
-        </div>
+        <!-- Real WhatsApp badges floating alongside the network, distinct
+             from the notification toasts above. -->
+        <img
+          src="/images/footer/whatsapp-icon.svg"
+          alt=""
+          class="hero-whatsapp-icon absolute start-24 top-[360px] h-12 w-12 drop-shadow-[0_10px_22px_rgba(37,211,102,0.35)]"
+          style="animation-delay: 0s"
+        />
+        <img
+          src="/images/footer/whatsapp-icon.svg"
+          alt=""
+          class="hero-whatsapp-icon absolute end-32 top-[420px] h-9 w-9 drop-shadow-[0_10px_22px_rgba(37,211,102,0.35)]"
+          style="animation-delay: 1.4s"
+        />
+        <img
+          src="/images/footer/whatsapp-icon.svg"
+          alt=""
+          class="hero-whatsapp-icon absolute start-16 top-[500px] h-8 w-8 drop-shadow-[0_10px_22px_rgba(37,211,102,0.35)]"
+          style="animation-delay: 0.7s"
+        />
       </div>
 
-      <div class="premium-home-hero-feature-row">
-        <article v-for="feature in heroFeatureCards" :key="feature.title" class="premium-home-hero-feature-card">
-          <div class="premium-home-hero-feature-icon" v-html="feature.icon"></div>
-          <h3>{{ $t(feature.title) }}</h3>
-          <p>{{ $t(feature.description) }}</p>
-        </article>
-      </div>
+      <div class="relative z-10 flex flex-col items-center justify-center gap-12 lg:gap-[72px]">
+        <div class="flex w-full flex-col items-center gap-4 lg:w-[598px] lg:gap-6">
+          <div class="flex w-full flex-col items-center gap-2 text-center lg:gap-4">
+            <h1 class="font-semibold text-[24px] leading-[29.9px] text-black dark:text-white lg:text-[64px] lg:leading-[1.4]">
+              {{ $t("WhatsApp works even while you sleep.") }}
+            </h1>
+            <p class="w-full text-base leading-6 text-[#8899aa] lg:text-[24px] lg:leading-9">
+              {{ $t("Turn WhatsApp into a smart sales agent that replies, follows up, and closes deals around the clock.") }}
+            </p>
+          </div>
 
-      <div v-if="showHeroPartners" class="premium-home-hero-partners" aria-disabled="true">
-        <p>{{ $t("Trusted by more than 5,000 companies around the world") }}</p>
+          <button
+            type="button"
+            class="flex h-[54px] w-[246px] shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#25d366] px-8 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.04] hover:shadow-[0_12px_30px_-8px_rgba(37,211,102,0.55)] active:scale-[0.98]"
+            @click="showBookDemoModal = true"
+          >
+            <span class="whitespace-nowrap text-base font-semibold leading-5 text-[#04130a]">{{ $t("Book a demo") }}</span>
+            <img src="/images/hero/arrow.svg" class="h-4 w-4 shrink-0 rotate-180 rtl:rotate-0" alt="" aria-hidden="true" />
+          </button>
+        </div>
+
+        <HeroChatDemo />
       </div>
     </section>
+
+    <BookDemoModal :is-open="showBookDemoModal" @close="showBookDemoModal = false" />
+
     <section
       id="section2"
-      class="premium-home-section premium-home-section--features mt-0 px-5 md:px-10 lg:px-20 py-20 2xl:px-60"
+      v-reveal
+      class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]"
     >
-      <div class="premium-home-orbit-layer" aria-hidden="true">
-        <span class="premium-home-orbit premium-home-orbit--a"></span>
-        <span class="premium-home-orbit premium-home-orbit--b"></span>
-        <span class="premium-home-orbit premium-home-orbit--c"></span>
-      </div>
-      <div class="premium-home-section-content">
-        <div class="flex justify-center mb-2">
-          <div
-            class="bg-primary-opacity-10 text-primary py-1 px-4 inline-block rounded-full mb-6 aos-init aos-animate"
-            data-aos="fade-right"
-            data-aos-duration="1000"
-          >
-            <a href="#">
-              <div class="flex items-center gap-2">
-                <div>{{ $t("Features") }}</div>
-              </div>
-            </a>
-          </div>
-        </div>
-        <div class="flex justify-center">
-          <h2
-            class="text-center text-3xl md:text-5xl font-bold w-full md:w-[10em] capitalize px-4 md:px-0"
-          >
-            {{ $t("Whatsapp messaging done differently") }}
-          </h2>
-        </div>
-        <div class="flex justify-center">
-          <h3
-            class="text-center text-[18px] mt-5 w-full md:w-[33em] px-4 md:px-0"
-          >
-            {{
-              $t(
-                "Elevate your communication game and unlock a host of powerful features tailored to enhance your business's WhatsApp experience:",
-              )
-            }}
-          </h3>
-        </div>
-        <div
-          class="premium-home-feature-shell px-5 md:px-10 py-10 grid lg:grid-cols-2 grid-cols-1 gap-6 items-center mt-14"
-        >
-          <div class="">
-            <img
-              :src="dashboard3Image"
-              :alt="$t('Dashboard')"
-              data-aos="fade-right"
-              data-aos-duration="400"
-              class="aos-init aos-animate"
-              loading="lazy"
-              decoding="async"
-              @error="
-                (event) =>
-                  onManagedImageError(event, '/images/hero/dashboard3.png')
-              "
-            />
-          </div>
-          <div class="lg:ms-24">
-            <div
-              @click="selectedFeature = 1"
-              class="premium-home-accordion-card premium-home-animate bg-white rounded-lg px-2 py-2 mb-5"
-            >
-              <div class="flex justify-between items-center cursor-pointer">
-                <div class="flex items-center gap-x-3">
-                  <div
-                    class="premium-home-icon-badge bg-secondary-opacity-10 rounded-lg flex items-center justify-center h-10 w-10"
-                  >
-                    <svg
-                      class="h-6 w-6 text-secondary"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="1em"
-                      height="1em"
-                      viewBox="0 0 26 26"
-                    >
-                      <g fill="currentColor">
-                        <path
-                          d="M8.05 17.95a1 1 0 1 1 1.414-1.415A5 5 0 0 0 18 13a1 1 0 1 1 2 0a7 7 0 0 1-11.95 4.95"
-                        />
-                        <path
-                          d="M16.559 15.832a1 1 0 1 1-1.11-1.664l3-2a1 1 0 1 1 1.11 1.664z"
-                        />
-                        <path
-                          d="M21.832 15.445a1 1 0 0 1-1.664 1.11l-2-3a1 1 0 1 1 1.664-1.11zm-3.975-7.594a1 1 0 1 1-1.414 1.414a5 5 0 0 0-8.536 3.536a1 1 0 1 1-2 0a7 7 0 0 1 11.95-4.95"
-                        />
-                        <path
-                          d="M9.349 9.969a1 1 0 0 1 1.11 1.664l-3.001 2a1 1 0 1 1-1.11-1.664z"
-                        />
-                        <path
-                          d="M4.075 10.356a1 1 0 1 1 1.664-1.11l2 3a1 1 0 1 1-1.664 1.11z"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          d="M13 24c6.075 0 11-4.925 11-11S19.075 2 13 2S2 6.925 2 13s4.925 11 11 11m0 2c7.18 0 13-5.82 13-13S20.18 0 13 0S0 5.82 0 13s5.82 13 13 13"
-                          clip-rule="evenodd"
-                        />
-                      </g>
-                    </svg>
-                  </div>
-                  <h4 class="font-regular text-gray-800">
-                    {{ $t("Instant connectivity") }}
-                  </h4>
-                </div>
-                <div>
-                  <svg
-                    v-if="selectedFeature != 1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="1em"
-                    height="1em"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M16.75 11.989a1.82 1.82 0 0 1-.57 1.36l-6.82 6.1a1.27 1.27 0 0 1-.65.31h-.19a1.3 1.3 0 0 1-.52-.1a1.23 1.23 0 0 1-.54-.47a1.19 1.19 0 0 1-.21-.68v-13a1.2 1.2 0 0 1 .21-.69a1.23 1.23 0 0 1 1.25-.56c.24.039.464.143.65.3l6.76 6.09c.19.162.344.363.45.59c.114.234.175.49.18.75"
-                    />
-                  </svg>
-                  <svg
-                    v-else
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="1em"
-                    height="1em"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M19.696 8.72a1.22 1.22 0 0 1-.3.64l-6.09 6.76a1.85 1.85 0 0 1-.58.46a1.7 1.7 0 0 1-1.42.03a1.75 1.75 0 0 1-.62-.42l-6.1-6.83a1.28 1.28 0 0 1-.31-.64a1.31 1.31 0 0 1 .56-1.26a1.36 1.36 0 0 1 .68-.21h13a1.293 1.293 0 0 1 1.15.76c.081.228.092.476.03.71"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div v-if="selectedFeature === 1" class="mt-2">
-                <p class="text-gray-700 dark:text-gray-300 font-light">
-                  {{
-                    $t(
-                      "Engage with your audience in real-time through the WhatsApp Cloud API, ensuring swift and effective communication",
-                    )
-                  }}.
-                </p>
-              </div>
-            </div>
-
-            <div
-              @click="selectedFeature = 2"
-              class="premium-home-accordion-card premium-home-animate bg-white rounded-lg px-2 py-2 mb-5"
-            >
-              <div class="flex justify-between items-center cursor-pointer">
-                <div class="flex items-center gap-x-3">
-                  <div
-                    class="premium-home-icon-badge bg-secondary-opacity-10 rounded-lg flex items-center justify-center h-10 w-10"
-                  >
-                    <svg
-                      class="h-6 w-6 text-secondary"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="1em"
-                      height="1em"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        fill="currentColor"
-                        d="m8.85 12l1.45-1.45q.3-.3.288-.7t-.288-.7q-.3-.3-.712-.312t-.713.287L6.7 11.3q-.3.3-.3.7t.3.7l2.175 2.175q.3.3.713.288t.712-.313q.275-.3.288-.7t-.288-.7zm6.3 0l-1.45 1.45q-.3.3-.288.7t.288.7q.3.3.713.312t.712-.287L17.3 12.7q.3-.3.3-.7t-.3-.7l-2.175-2.175q-.3-.3-.712-.288t-.713.313q-.275.3-.287.7t.287.7zM5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h4.2q.325-.9 1.088-1.45T12 1q.95 0 1.713.55T14.8 3H19q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21zm0-2h14V5H5zm7-14.75q.325 0 .538-.213t.212-.537q0-.325-.213-.537T12 2.75q-.325 0-.537.213t-.213.537q0 .325.213.538T12 4.25M5 19V5z"
-                      />
-                    </svg>
-                  </div>
-                  <h4 class="font-regular text-gray-800">
-                    {{ $t("Effortless integration") }}
-                  </h4>
-                </div>
-                <div>
-                  <svg
-                    v-if="selectedFeature != 2"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="1em"
-                    height="1em"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M16.75 11.989a1.82 1.82 0 0 1-.57 1.36l-6.82 6.1a1.27 1.27 0 0 1-.65.31h-.19a1.3 1.3 0 0 1-.52-.1a1.23 1.23 0 0 1-.54-.47a1.19 1.19 0 0 1-.21-.68v-13a1.2 1.2 0 0 1 .21-.69a1.23 1.23 0 0 1 1.25-.56c.24.039.464.143.65.3l6.76 6.09c.19.162.344.363.45.59c.114.234.175.49.18.75"
-                    />
-                  </svg>
-                  <svg
-                    v-else
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="1em"
-                    height="1em"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M19.696 8.72a1.22 1.22 0 0 1-.3.64l-6.09 6.76a1.85 1.85 0 0 1-.58.46a1.7 1.7 0 0 1-1.42.03a1.75 1.75 0 0 1-.62-.42l-6.1-6.83a1.28 1.28 0 0 1-.31-.64a1.31 1.31 0 0 1 .56-1.26a1.36 1.36 0 0 1 .68-.21h13a1.293 1.293 0 0 1 1.15.76c.081.228.092.476.03.71"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div v-if="selectedFeature === 2" class="mt-2">
-                <p class="text-gray-700 dark:text-gray-300 font-light">
-                  {{
-                    $t(
-                      "Seamlessly integrate our platform into your systems with user-friendly API documentation and expert support",
-                    )
-                  }}
-                </p>
-              </div>
-            </div>
-
-            <div
-              @click="selectedFeature = 3"
-              class="premium-home-accordion-card premium-home-animate bg-white rounded-lg px-2 py-2 mb-5"
-            >
-              <div class="flex justify-between items-center cursor-pointer">
-                <div class="flex items-center gap-x-3">
-                  <div
-                    class="premium-home-icon-badge bg-secondary-opacity-10 rounded-lg flex items-center justify-center h-10 w-10"
-                  >
-                    <svg
-                      class="h-6 w-6 text-secondary"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="1em"
-                      height="1em"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        fill="currentColor"
-                        d="M9 13V5c0-1.1.9-2 2-2h9c1.1 0 2 .9 2 2v6h-3.43l-1.28-1.74a.14.14 0 0 0-.24 0L15.06 12c-.06.06-.18.07-.24 0l-1.43-1.75a.152.152 0 0 0-.23 0l-2.11 2.66c-.08.09-.01.24.11.24h6.34V15H11c-1.11 0-2-.89-2-2m-3 9v-1H4v1H2V2h2v1h2V2h2.39C7.54 2.74 7 3.8 7 5v8c0 2.21 1.79 4 4 4h4.7c-1.03.83-1.7 2.08-1.7 3.5c0 .53.11 1.03.28 1.5zM4 7h2V5H4zm0 4h2V9H4zm0 4h2v-2H4zm2 4v-2H4v2zm17-6v2h-2v5.5a2.5 2.5 0 0 1-5 0a2.5 2.5 0 0 1 3.5-2.29V13z"
-                      />
-                    </svg>
-                  </div>
-                  <h4 class="font-regular text-gray-800">
-                    {{ $t("Multi-media support") }}
-                  </h4>
-                </div>
-                <div>
-                  <svg
-                    v-if="selectedFeature != 3"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="1em"
-                    height="1em"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M16.75 11.989a1.82 1.82 0 0 1-.57 1.36l-6.82 6.1a1.27 1.27 0 0 1-.65.31h-.19a1.3 1.3 0 0 1-.52-.1a1.23 1.23 0 0 1-.54-.47a1.19 1.19 0 0 1-.21-.68v-13a1.2 1.2 0 0 1 .21-.69a1.23 1.23 0 0 1 1.25-.56c.24.039.464.143.65.3l6.76 6.09c.19.162.344.363.45.59c.114.234.175.49.18.75"
-                    />
-                  </svg>
-                  <svg
-                    v-else
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="1em"
-                    height="1em"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M19.696 8.72a1.22 1.22 0 0 1-.3.64l-6.09 6.76a1.85 1.85 0 0 1-.58.46a1.7 1.7 0 0 1-1.42.03a1.75 1.75 0 0 1-.62-.42l-6.1-6.83a1.28 1.28 0 0 1-.31-.64a1.31 1.31 0 0 1 .56-1.26a1.36 1.36 0 0 1 .68-.21h13a1.293 1.293 0 0 1 1.15.76c.081.228.092.476.03.71"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div v-if="selectedFeature === 3" class="mt-2">
-                <p class="text-gray-700 dark:text-gray-300 font-light">
-                  {{
-                    $t(
-                      "Enrich conversations effortlessly by sharing images, documents, and multimedia content, enhancing your overall communication strategy",
-                    )
-                  }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="grid lg:grid-cols-2 grid-cols-1 gap-6 items-center mt-10">
-          <div
-            class="premium-home-feature-detail premium-home-animate px-5 md:px-10 py-10 order-2 lg:order-1"
-            data-aos="fade-up"
-            data-aos-duration="500"
-          >
-            <div
-              class="premium-home-icon-badge bg-secondary-opacity-10 h-12 w-12 bg-primary-opacity-10 flex items-center justify-center rounded-lg"
-            >
-              <svg
-                class="h-6 w-6 text-secondary"
-                xmlns="http://www.w3.org/2000/svg"
-                width="1em"
-                height="1em"
-                viewBox="0 0 1024 1024"
-              >
-                <path
-                  fill="currentColor"
-                  d="M288 384h448v64H288zm96-128h256v64H384zM131.456 512H384v128h256V512h252.544L721.856 192H302.144zM896 576H704v128H320V576H128v256h768zM275.776 128h472.448a32 32 0 0 1 28.608 17.664l179.84 359.552A32 32 0 0 1 960 519.552V864a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V519.552a32 32 0 0 1 3.392-14.336l179.776-359.552A32 32 0 0 1 275.776 128"
-                />
-              </svg>
-            </div>
-
-            <h1 class="text-xl/tight font-medium mt-6 mb-4">
-              {{ $t("Seamless Bulk and Direct Messaging") }}
-            </h1>
-            <p class="text-gray-500">
-              {{
-                $t(
-                  "Streamline your communication strategy with our platform's dual capabilities. Engage in effortless one-on-one conversations with your contacts while also harnessing the power to execute targeted bulk messaging campaigns",
-                )
-              }}
+      <div class="flex flex-col items-center gap-8 lg:gap-[72px]">
+        <!-- Header -->
+        <div class="flex w-full flex-col items-center gap-3 lg:gap-4">
+          <SectionBadge :label="$t('Features')" />
+          <div class="flex w-full flex-col items-center gap-2 text-center lg:w-[1280px] lg:gap-4">
+            <h2 class="font-semibold text-[22px] leading-[29.9px] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
+              {{ $t("Everything you need to turn WhatsApp into a sales machine") }}
+            </h2>
+            <p class="w-full text-base leading-6 text-[#8899aa] lg:text-[24px] lg:leading-9">
+              {{ $t("Features built to double your sales and cut your work hours.") }}
             </p>
           </div>
+        </div>
 
-          <div
-            class="premium-home-feature-detail premium-home-animate px-5 md:px-10 py-10 order-2 lg:order-1"
-            data-aos="fade-up"
-            data-aos-duration="500"
-          >
+        <!-- Desktop/tablet: KPI + bot-workflow row, then 3 feature cards -->
+        <div class="hidden flex-col items-end gap-6 lg:flex lg:w-[1280px]">
+          <div class="flex items-center gap-4" dir="ltr">
+            <!-- KPI card -->
             <div
-              class="premium-home-icon-badge bg-secondary-opacity-10 h-12 w-12 bg-primary-opacity-10 flex items-center justify-center rounded-lg"
+              v-tilt
+              class="tilt-sheen relative flex h-[408px] w-[416px] shrink-0 flex-col items-end justify-center gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[var(--surface-1)] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[#0b161a]"
             >
-              <svg
-                class="h-6 w-6 text-secondary"
-                xmlns="http://www.w3.org/2000/svg"
-                width="1em"
-                height="1em"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="currentColor"
-                  d="M18.5 10.255c0 .044 0 .089-.003.133A1.537 1.537 0 0 0 17.473 10c-.162 0-.32.025-.473.074V5.75a.75.75 0 0 0-.75-.75h-8.5a.75.75 0 0 0-.75.75v4.505c0 .414.336.75.75.75h8.276l-.01.025l-.003.012l-.45 1.384l-.01.026a1.625 1.625 0 0 1-.019.053H7.75a2.25 2.25 0 0 1-2.25-2.25V5.75A2.25 2.25 0 0 1 7.75 3.5h3.5v-.75a.75.75 0 0 1 .649-.743L12 2a.75.75 0 0 1 .743.649l.007.101l-.001.75h3.5a2.25 2.25 0 0 1 2.25 2.25zm-5.457 3.781l.112-.036H6.254a2.25 2.25 0 0 0-2.25 2.25v.907a3.75 3.75 0 0 0 1.305 2.844c1.563 1.343 3.802 2 6.691 2c2.076 0 3.817-.339 5.213-1.028a1.545 1.545 0 0 1-1.169-1.003l-.004-.012l-.03-.093c-1.086.422-2.42.636-4.01.636c-2.559 0-4.455-.556-5.713-1.638a2.25 2.25 0 0 1-.783-1.706v-.907a.75.75 0 0 1 .75-.75H12v-.003a1.543 1.543 0 0 1 1.031-1.456zM10.999 7.75a1.25 1.25 0 1 0-2.499 0a1.25 1.25 0 0 0 2.499 0m3.243-1.25a1.25 1.25 0 1 1 0 2.499a1.25 1.25 0 0 1 0-2.499m1.847 10.912a2.831 2.831 0 0 0-1.348-.955l-1.377-.448a.544.544 0 0 1 0-1.025l1.377-.448a2.84 2.84 0 0 0 1.76-1.762l.01-.034l.449-1.377a.544.544 0 0 1 1.026 0l.448 1.377a2.837 2.837 0 0 0 1.798 1.796l1.378.448l.027.007a.544.544 0 0 1 0 1.025l-1.378.448a2.839 2.839 0 0 0-1.798 1.796l-.447 1.377a.55.55 0 0 1-.2.263a.544.544 0 0 1-.827-.263l-.448-1.377a2.834 2.834 0 0 0-.45-.848m7.694 3.801l-.765-.248a1.577 1.577 0 0 1-.999-.998l-.249-.765a.302.302 0 0 0-.57 0l-.249.764a1.577 1.577 0 0 1-.983.999l-.766.248a.302.302 0 0 0 0 .57l.766.249a1.576 1.576 0 0 1 .999 1.002l.248.764a.303.303 0 0 0 .57 0l.25-.764a1.575 1.575 0 0 1 .998-.999l.766-.248a.302.302 0 0 0 0-.57z"
-                />
-              </svg>
+              <div class="flex h-[120.8px] w-full items-end justify-center gap-[9px] pt-[0.8px]">
+                <div class="botzo-bar h-[110.39px] flex-1 rounded-t-[6px] bg-[#25d366]" style="--d: 0s"></div>
+                <div class="botzo-bar h-[79.19px] flex-1 rounded-t-[6px] bg-[#25d366]" style="--d: 0.09s"></div>
+                <div class="botzo-bar h-[88.8px] flex-1 rounded-t-[6px] bg-[#25d366]" style="--d: 0.18s"></div>
+                <div class="botzo-bar h-[60px] flex-1 rounded-t-[6px] bg-[#25d366]" style="--d: 0.27s"></div>
+                <div class="botzo-bar h-[69.59px] flex-1 rounded-t-[6px] bg-[#25d366]" style="--d: 0.36s"></div>
+                <div class="botzo-bar h-[50.39px] flex-1 rounded-t-[6px] bg-[#25d366]" style="--d: 0.45s"></div>
+              </div>
+              <div class="flex w-full flex-col items-end gap-3">
+                <p
+                  class="w-full whitespace-nowrap bg-clip-text text-right text-[64px] font-semibold leading-[1.4] text-transparent"
+                  style="background-image: linear-gradient(103deg, #25d366 0%, #3b82f6 100%)"
+                  dir="auto"
+                >
+                  ↑ <span class="tabular-nums" data-count="31">{{ statCountDisplay }}</span>
+                </p>
+                <div class="flex w-full flex-col items-end gap-2 text-right">
+                  <h3 class="w-full text-[24px] font-semibold leading-[29.9px] text-black dark:text-white" dir="auto">
+                    {{ $t("Live statistics") }}
+                  </h3>
+                  <p class="w-full text-base leading-6 text-[#8899aa]" dir="auto">
+                    {{ $t("Track reply rates, conversions, and peak times in a live dashboard that updates every second.") }}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <h1 class="text-xl/tight font-medium mt-6 mb-4">
-              {{ $t("Craft automated responses") }}
-            </h1>
-            <p class="text-gray-500">
-              {{
-                $t(
-                  "Take control of your operational efficiency and streamline your workflow effortlessly with our customizable automated response system. Craft responses tailored to your unique needs, guaranteeing swift message delivery to your audience",
-                )
-              }}
-            </p>
+            <!-- Bot workflow card -->
+            <div
+              v-tilt
+              class="tilt-sheen tilt-sheen--wide relative flex h-[408px] w-[848px] shrink-0 flex-col items-end gap-6 overflow-hidden rounded-3xl border-[0.7px] border-[#e4ece7] bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.06),transparent_55%),linear-gradient(var(--surface-1),var(--surface-1))] p-[24.7px] dark:border-[#1e2a3a] dark:bg-[radial-gradient(circle_at_18%_16%,rgba(37,211,102,0.1),transparent_55%),linear-gradient(#0b161a,#0b161a)]"
+            >
+              <div class="flex w-full items-center justify-end" dir="ltr">
+                <template v-for="(step, index) in pipelineSteps" :key="step.key">
+                  <div
+                    :data-chip="index"
+                    class="flex shrink-0 items-center gap-[5px] rounded-[10px] border px-[10px] pb-[8.69px] pt-[8.5px] transition-colors duration-[350ms]"
+                    :class="index === activeChipIndex
+                      ? 'border-[#25d366] bg-[#25d366] shadow-[0_0_18px_0_rgba(37,211,102,0.35)]'
+                      : 'border-[#cfd8e3] bg-white dark:border-[#1e2a3a] dark:bg-[#25d366]/[0.06]'"
+                  >
+                    <component
+                      :is="step.icon"
+                      :size="14"
+                      class="shrink-0"
+                      :class="[
+                        index === activeChipIndex ? [step.activeAnim, 'text-[#04130a]'] : 'text-[#445566] dark:text-[#8899aa]',
+                      ]"
+                    />
+                    <span
+                      class="whitespace-nowrap text-[13px] leading-6"
+                      :class="index === activeChipIndex ? 'font-semibold text-[#04130a]' : 'text-[#445566] dark:text-white'"
+                      dir="auto"
+                    >{{ $t(step.key) }}</span>
+                  </div>
+                  <div
+                    v-if="index < pipelineSteps.length - 1"
+                    data-flowline
+                    class="botzo-draw relative mx-[2px] h-[2px] w-[18px] shrink-0 border-t-2 border-dashed border-[#1a2332] dark:border-white"
+                    :style="{ '--d': `${index * 0.35}s` }"
+                  >
+                    <span class="botzo-dot absolute top-1/2 h-[5px] w-[5px] -translate-y-1/2 rounded-full bg-[#25d366] shadow-[0_0_8px_0_#25d366]" style="right: 2px"></span>
+                  </div>
+                </template>
+              </div>
+              <div class="flex w-full flex-col items-end gap-2 text-right">
+                <h3 class="w-full text-[24px] font-semibold leading-[29.9px] text-black dark:text-white" dir="auto">
+                  {{ $t("A bot that understands, thinks, and replies") }}
+                </h3>
+                <p class="w-full text-base leading-6 text-[#8899aa]" dir="auto">
+                  {{ $t("An AI engine that reads customer intent in a split second, picks the best reply, and phrases it as naturally as your best employee would.") }}
+                </p>
+              </div>
+
+              <!-- Mini chat demo — plays out in sync with the chips above -->
+              <div class="mt-2 flex w-full flex-1 flex-col justify-end gap-3 px-1 pb-1" dir="rtl">
+                <div class="flex justify-start">
+                  <div class="max-w-[70%] rounded-2xl rounded-ss-sm border border-[#dbe4e0] bg-[#eef2f0] px-4 py-2.5 shadow-[0_2px_10px_rgba(15,23,42,0.05)] dark:border-white/[0.08] dark:bg-[#22304a] dark:shadow-none">
+                    <p class="text-sm leading-6 text-black dark:text-white" dir="auto">{{ $t("When will my order arrive?") }}</p>
+                  </div>
+                </div>
+                <div class="flex h-9 justify-end">
+                  <div
+                    class="flex items-center gap-1.5 rounded-2xl rounded-ee-sm bg-[#25d366]/[0.14] px-4 py-2.5 transition-all duration-300"
+                    :class="botDemoPhase === 'thinking' ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-1 scale-95 opacity-0'"
+                  >
+                    <span class="bot-demo-dot h-[6px] w-[6px] rounded-full bg-[#25d366]" style="--d: 0s"></span>
+                    <span class="bot-demo-dot h-[6px] w-[6px] rounded-full bg-[#25d366]" style="--d: 0.15s"></span>
+                    <span class="bot-demo-dot h-[6px] w-[6px] rounded-full bg-[#25d366]" style="--d: 0.3s"></span>
+                  </div>
+                </div>
+                <div class="flex justify-end">
+                  <div
+                    class="max-w-[70%] rounded-2xl rounded-ee-sm bg-[#25d366] px-4 py-2.5 shadow-[0_6px_20px_-4px_rgba(37,211,102,0.45)] transition-all duration-500"
+                    :class="botDemoPhase === 'replied' ? 'translate-y-0 scale-100 opacity-100' : 'pointer-events-none translate-y-1.5 scale-95 opacity-0'"
+                  >
+                    <p class="text-sm leading-6 text-[#04130a]" dir="auto">{{ $t("It'll arrive within 24 hours, God willing ✅") }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3-card feature row -->
+          <div class="flex items-center gap-4" dir="ltr">
+            <div
+              v-for="(card, index) in desktopFeatureCards"
+              :key="card.titleKey"
+              v-reveal="{ delay: index * 100 }"
+              v-tilt
+              class="tilt-sheen group relative flex h-[274px] w-[416px] shrink-0 -translate-y-0 cursor-default flex-col items-end justify-center overflow-hidden rounded-3xl bg-[var(--surface-1)] p-[24.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 dark:bg-[#0b161a]"
+              :class="card.featured
+                ? 'border-t-2 border-[#25d366] pt-[26px] shadow-[0_0_0_1px_rgba(37,211,102,0.2),0_18px_60px_0_rgba(37,211,102,0.12)] hover:shadow-[0_0_0_1px_rgba(37,211,102,0.35),0_26px_70px_0_rgba(37,211,102,0.22)]'
+                : 'border-[0.7px] border-[#e4ece7] hover:border-[#25d366] hover:shadow-[0_18px_60px_0_rgba(37,211,102,0.12)] dark:border-[#1e2a3a] dark:hover:border-[#25d366]'"
+            >
+              <div class="flex w-full flex-col items-end gap-6">
+                <div class="flex size-12 items-center justify-center rounded-2xl bg-[#25d366]/[0.12] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110">
+                  <img :src="card.icon" class="h-6 w-6" alt="" aria-hidden="true" />
+                </div>
+                <div class="flex w-full flex-col items-end gap-2 text-right">
+                  <h3 class="w-full whitespace-nowrap text-[24px] font-semibold leading-[29.9px] text-black dark:text-white" dir="auto">
+                    {{ $t(card.titleKey) }}
+                  </h3>
+                  <p class="w-full text-base leading-6 text-[#8899aa]" dir="auto">
+                    {{ $t(card.descriptionKey) }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile: 4-card stack -->
+        <div class="flex w-full flex-col items-end gap-3 lg:hidden">
+          <div
+            v-for="(card, index) in mobileFeatureCards"
+            :key="card.titleKey"
+            v-reveal="{ delay: index * 90 }"
+            v-tilt
+            class="tilt-sheen group relative flex h-[225px] w-full cursor-default flex-col items-end justify-center overflow-hidden rounded-2xl bg-[var(--surface-1)] p-[16.7px] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 dark:bg-[#0b161a]"
+            :class="card.featured
+              ? 'border-t-2 border-[#25d366] pt-[18px] shadow-[0_0_0_1px_rgba(37,211,102,0.2),0_18px_60px_0_rgba(37,211,102,0.12)] hover:shadow-[0_0_0_1px_rgba(37,211,102,0.35),0_26px_70px_0_rgba(37,211,102,0.22)]'
+              : 'border-[0.7px] border-[#e4ece7] hover:border-[#25d366] hover:shadow-[0_18px_60px_0_rgba(37,211,102,0.12)] dark:border-[#1e2a3a] dark:hover:border-[#25d366]'"
+          >
+            <div class="flex w-full flex-col items-end gap-4">
+              <div class="flex size-12 items-center justify-center rounded-2xl bg-[#25d366]/[0.12] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110">
+                <img :src="card.icon" class="h-6 w-6" alt="" aria-hidden="true" />
+              </div>
+              <div class="flex w-full flex-col items-end gap-2 text-right">
+                <h3 class="w-full whitespace-nowrap text-lg font-semibold leading-[29.9px] text-black dark:text-white" dir="auto">
+                  {{ $t(card.titleKey) }}
+                </h3>
+                <p class="w-full text-base leading-6 text-[#8899aa]" dir="auto">
+                  {{ $t(card.descriptionKey) }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -495,389 +286,209 @@
 
     <section
       id="section3"
-      class="premium-home-section premium-home-section--steps px-5 md:px-10 lg:px-20 py-20 2xl:px-60"
+      v-reveal
+      class="premium-home-section premium-home-section--steps px-5 md:px-10 lg:px-20 2xl:px-32 lg:py-20"
     >
-      <div class="premium-home-orbit-layer" aria-hidden="true">
-        <span class="premium-home-orbit premium-home-orbit--a"></span>
-        <span class="premium-home-orbit premium-home-orbit--b"></span>
-        <span class="premium-home-orbit premium-home-orbit--c"></span>
+      <!-- Mobile - matches the provided mobile reference screenshot -->
+      <div class="flex flex-col items-center gap-8 py-12 lg:hidden">
+        <div class="flex w-full flex-col items-center gap-3 text-center">
+          <SectionBadge :label="$t('Our process')" />
+          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white">
+            {{ $t("Three steps, and WhatsApp runs on its own.") }}
+          </h2>
+          <p class="w-full text-base leading-6 text-[#8899aa]">
+            {{ $t("Connect, design, launch — no code needed.") }}
+          </p>
+        </div>
+        <HowItWorksStepLayoutMobile />
       </div>
-      <div class="premium-home-section-content">
-        <div class="flex justify-center mb-2">
-          <div
-            class="bg-primary-opacity-10 text-primary py-1 px-4 inline-block rounded-full mb-6 aos-init aos-animate"
-            data-aos="fade-right"
-            data-aos-duration="1000"
-          >
-            <a href="#">
-              <div class="flex items-center gap-2">
-                <div>{{ $t("How it works") }}</div>
-              </div>
-            </a>
+
+      <!-- Desktop - 100% pixel-perfect Figma implementation -->
+      <div class="hidden lg:flex lg:flex-col lg:items-center lg:gap-[72px]">
+        <div class="flex w-full flex-col items-center gap-4">
+          <SectionBadge :label="$t('Our process')" />
+          <div class="flex w-[1280px] flex-col items-center gap-4 text-center">
+            <h2 class="w-full text-[46px] font-semibold leading-[56px] text-black dark:text-white">
+              {{ $t("Three steps, and WhatsApp runs on its own.") }}
+            </h2>
+            <p class="w-full text-[24px] leading-9 text-[#8899aa]">
+              {{ $t("Connect, design, launch — no code needed.") }}
+            </p>
           </div>
         </div>
-        <div class="flex justify-center">
-          <h2
-            class="text-center text-3xl md:text-5xl font-bold w-full md:w-[11em] px-4 md:px-0"
-          >
-            {{ $t("A step-by-step guide to our platform") }}
+        <HowItWorksStepLayout />
+      </div>
+    </section>
+
+    <section
+      id="success-story"
+      v-reveal
+      class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-[var(--surface-anchor)] dark:bg-[#0f5c2e]"
+    >
+      <div
+        class="pointer-events-none absolute -top-20 end-0 h-[520px] w-[520px] corner-glow dark:h-[624px] dark:w-[624px]"
+        aria-hidden="true"
+      ></div>
+
+      <div class="relative flex flex-col items-center gap-8 lg:gap-[72px]">
+        <div class="flex w-full flex-col items-center gap-3 text-center lg:gap-4">
+          <!-- This band is always the dark "anchor" ground (in both themes), so
+               the badge is forced onto its own dark: styling regardless of the
+               site's real theme — otherwise its light-mode glass look (meant
+               for a light ground) washes out here. -->
+          <div class="dark">
+            <SectionBadge :label="$t('Success story')" />
+          </div>
+          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-[#e9eef5] dark:text-white lg:w-[1280px] lg:text-[46px] lg:leading-[56px]">
+            {{ $t("How did Nora increase her store's sales 3x in 60 days?") }}
           </h2>
         </div>
-        <div class="flex justify-center">
-          <h3
-            class="text-center text-[18px] mt-5 w-full md:w-[33em] px-4 md:px-0"
-          >
-            {{
-              $t(
-                "Explore our platform with ease! Sign up, connect your whatsapp account, and start communicating with your customers",
-              )
-            }}
-          </h3>
-        </div>
-        <div
-          class="flex justify-between items-center gap-6 md:gap-4 lg:gap-6 relative flex-col md:flex-row mt-10 py-8"
-        >
-          <img
-            :src="stepArrowRightImage"
-            alt=""
-            class="absolute hidden md:block top-14 right-[22%] w-[100px] lg:right-[25%] xl:right-[23%] xl:top-20 2xl:w-[200px]"
-            loading="lazy"
-            decoding="async"
-            @error="
-              (event) =>
-                onManagedImageError(event, '/images/shapes/stepArrow1.png')
-            "
-          />
-          <img
-            :src="stepArrowLeftImage"
-            alt=""
-            class="absolute hidden md:block top-8 left-[21%] w-[100px] lg:left-[25%] xl:left-[23%] xl:top-20 2xl:w-[200px]"
-            loading="lazy"
-            decoding="async"
-            @error="
-              (event) =>
-                onManagedImageError(event, '/images/shapes/stepArrow2.png')
-            "
-          />
-          <div
-            class="premium-home-step-card premium-home-animate flex justify-center items-center text-center flex-col max-w-[350px]"
-          >
-            <div
-              class="premium-home-step-icon text-secondary bg-white/80 border border-gray-200 rounded-full p-6 lg:p-7 text-3xl lg:text-5xl"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="1em"
-                height="1em"
-                viewBox="0 0 24 24"
-              >
-                <defs>
-                  <mask id="letsIconsUserScanDuotoneLine0">
-                    <g fill="none" stroke-linecap="round">
-                      <path
-                        stroke="silver"
-                        stroke-opacity="0.25"
-                        d="M17.5 3.5h.2c1.791 0 2.687 0 3.244.556c.556.557.556 1.453.556 3.244v.2m-4 13h.2c1.791 0 2.687 0 3.244-.556c.556-.557.556-1.453.556-3.244v-.2m-15-13h-.2c-1.791 0-2.687 0-3.243.556C2.5 4.614 2.5 5.51 2.5 7.3v.2m4 13h-.2c-1.791 0-2.687 0-3.243-.556C2.5 19.387 2.5 18.49 2.5 16.7v-.2"
-                      />
-                      <path
-                        stroke="#fff"
-                        d="M7.215 15.785c.473-.683 1.16-1.26 2.002-1.665A6.448 6.448 0 0 1 12 13.5c.981 0 1.941.216 2.783.62c.842.405 1.53.982 2.002 1.665"
-                      />
-                      <circle cx="12" cy="9" r="2.5" stroke="#fff" />
-                    </g>
-                  </mask>
-                </defs>
-                <path
-                  fill="currentColor"
-                  d="M0 0h24v24H0z"
-                  mask="url(#letsIconsUserScanDuotoneLine0)"
-                />
-              </svg>
-            </div>
-            <h4 class="text-xl font-medium pt-8 pb-6">
-              {{ $t("Create an account") }}
-            </h4>
-            <p class="font-light">
-              {{
-                $t(
-                  "Choose a plan, complete payment securely, then start managing WhatsApp conversations right away.",
-                )
-              }}
-            </p>
-          </div>
-          <div
-            class="premium-home-step-card premium-home-animate flex justify-center items-center text-center flex-col max-w-[350px]"
-          >
-            <div
-              class="premium-home-step-icon text-secondary bg-white/80 border border-gray-200 rounded-full p-6 lg:p-7 text-3xl lg:text-5xl"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="1em"
-                height="1em"
-                viewBox="0 0 48 48"
-              >
-                <path
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M40.47 14.14v-3.21H10.75a3.23 3.23 0 0 0-3.22 3.21h0v18H4v4.94h23.51v-4.95H10.75v-18Z"
-                />
-                <path
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M32.14 17.36A1.61 1.61 0 0 0 30.53 19v16.5a1.61 1.61 0 0 0 1.61 1.6h10.25A1.61 1.61 0 0 0 44 35.49V19a1.61 1.61 0 0 0-1.61-1.61h0Zm8.64 14.77h-7V20.58h7Z"
-                />
-              </svg>
-            </div>
-            <h4 class="text-xl font-medium pt-8 pb-6">
-              {{ $t("Setup your whatsapp instance") }}
-            </h4>
-            <p class="font-light">
-              {{
-                $t(
-                  "Quick and easy setup for your personalized WhatsApp instance. Begin engaging with your contacts in no time",
-                )
-              }}.
-            </p>
-          </div>
-          <div
-            class="premium-home-step-card premium-home-animate flex justify-center items-center text-center flex-col max-w-[350px]"
-          >
-            <div
-              class="premium-home-step-icon text-secondary bg-white/80 border border-gray-200 rounded-full p-6 lg:p-7 text-3xl lg:text-5xl"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="1em"
-                height="1em"
-                viewBox="0 0 48 48"
-              >
-                <path
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M16.8 29.286c-6.247 0-11.3-5.33-11.3-11.893S10.553 5.5 16.8 5.5h11.757c6.247 0 11.3 5.33 11.3 11.893s-5.053 11.893-11.3 11.893z"
-                />
-                <path
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M24.42 34.092v7.252c0 .63-.508 1.156-1.117 1.156a1.096 1.096 0 0 1-.788-.342l-11.02-11.35c-2.159-2.208-3.352-5.23-3.352-8.356c0-6.438 5.053-11.667 11.3-11.667H31.2c6.247 0 11.3 5.23 11.3 11.667s-5.053 11.666-11.3 11.666h-6.78z"
-                />
-              </svg>
-            </div>
-            <h4 class="text-xl font-medium pt-8 pb-6">
-              {{ $t("Start your first campaign") }}
-            </h4>
-            <p class="font-light">
-              {{
-                $t(
-                  "Embark on your journey to success. Initiate your inaugural campaign effortlessly and witness the power of impactful outreach",
-                )
-              }}
-            </p>
-          </div>
-        </div>
+        <SuccessStoryEvidence />
       </div>
     </section>
 
     <section
       id="section5"
-      class="premium-home-section premium-home-section--reviews px-5 md:px-10 lg:px-20 py-20 2xl:px-60"
+      v-reveal
+      class="relative overflow-hidden px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-white dark:bg-[#0a0f17]"
     >
-      <div class="premium-home-orbit-layer" aria-hidden="true">
-        <span class="premium-home-orbit premium-home-orbit--a"></span>
-        <span class="premium-home-orbit premium-home-orbit--b"></span>
-        <span class="premium-home-orbit premium-home-orbit--c"></span>
-      </div>
-      <div class="premium-home-section-content">
-        <div class="flex justify-center mb-2">
-          <div
-            class="bg-primary-opacity-10 text-primary py-1 px-4 inline-block rounded-full mb-6 aos-init aos-animate"
-            data-aos="fade-right"
-            data-aos-duration="1000"
-          >
-            <a href="#">
-              <div class="flex items-center gap-2">
-                <div>{{ $t("Reviews") }}</div>
-              </div>
-            </a>
+      <div class="flex flex-col items-center gap-8 lg:gap-[72px]">
+        <div class="flex w-full flex-col items-center gap-3 text-center lg:gap-4">
+          <div class="flex w-full max-w-[420px] items-center justify-center gap-4">
+            <span class="hidden h-px flex-1 bg-[var(--line-strong)] dark:hidden sm:block"></span>
+            <SectionBadge :label="$t('What clients say about Botzo')" />
+            <span class="hidden h-px flex-1 bg-[var(--line-strong)] dark:hidden sm:block"></span>
           </div>
-        </div>
-        <div class="flex justify-center">
-          <h2
-            class="text-center text-3xl md:text-5xl font-bold w-full md:w-[10em] px-4 md:px-0"
-          >
-            {{ $t("Explore genuine client feedback") }}
+          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:w-[1280px] lg:text-[46px] lg:leading-[56px]">
+            {{ $t("Thousands of Saudi companies trust us.") }}
           </h2>
         </div>
-        <div class="flex justify-center">
-          <h3
-            class="text-center text-[18px] mt-5 w-full md:w-[30em] px-4 md:px-0"
-          >
-            {{
-              $t(
-                "Discover how businesses like yours transformed with our software. Real stories of growth, innovation, and success",
-              )
-            }}
-          </h3>
-        </div>
+        <ReviewsMarquee :reviews="props.reviews" />
+      </div>
+    </section>
+
+    <PricingSection :plans="props.plans" :addons="props.addons" :currency="props.currency">
+      <template #banner>
+        <!-- Meta Business Verification — kept as a compact white banner inside the
+             pricing section's ground rather than its own near-empty section. -->
         <div
-          class="md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 space-y-4 md:space-y-0 mt-20"
+          id="meta-verification"
+          v-reveal
+          class="flex w-full flex-col items-center gap-6 overflow-hidden rounded-3xl bg-white px-6 py-12 text-center dark:bg-[rgba(37,211,102,0.12)] md:px-10 lg:w-[1280px] lg:px-20 lg:py-20"
         >
-          <div
-            v-for="(item, index) in props.reviews"
-            :key="index"
-            class="premium-home-review-card premium-home-animate bg-white rounded-[15px] p-5"
-          >
-            <div class="flex">
-              <svg
-                :class="item.rating >= 1 ? 'ui-text-accent' : 'text-gray-300'"
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="currentColor"
-                  d="M12.86 10.44L11 6.06l-1.86 4.39l-4.75.41L8 14l-1.08 4.63L11 16.17l4.09 2.46L14 14l3.61-3.14zm3.73 10.26L11 17.34L5.42 20.7l1.46-6.35l-4.92-4.28l6.49-.57l2.55-6l2.55 6l6.49.57l-4.92 4.27z"
-                />
-              </svg>
-              <svg
-                :class="item.rating >= 2 ? 'ui-text-accent' : 'text-gray-300'"
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="currentColor"
-                  d="M12.86 10.44L11 6.06l-1.86 4.39l-4.75.41L8 14l-1.08 4.63L11 16.17l4.09 2.46L14 14l3.61-3.14zm3.73 10.26L11 17.34L5.42 20.7l1.46-6.35l-4.92-4.28l6.49-.57l2.55-6l2.55 6l6.49.57l-4.92 4.27z"
-                />
-              </svg>
-              <svg
-                :class="item.rating >= 3 ? 'ui-text-accent' : 'text-gray-300'"
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="currentColor"
-                  d="M12.86 10.44L11 6.06l-1.86 4.39l-4.75.41L8 14l-1.08 4.63L11 16.17l4.09 2.46L14 14l3.61-3.14zm3.73 10.26L11 17.34L5.42 20.7l1.46-6.35l-4.92-4.28l6.49-.57l2.55-6l2.55 6l6.49.57l-4.92 4.27z"
-                />
-              </svg>
-              <svg
-                :class="item.rating >= 4 ? 'ui-text-accent' : 'text-gray-300'"
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="currentColor"
-                  d="M12.86 10.44L11 6.06l-1.86 4.39l-4.75.41L8 14l-1.08 4.63L11 16.17l4.09 2.46L14 14l3.61-3.14zm3.73 10.26L11 17.34L5.42 20.7l1.46-6.35l-4.92-4.28l6.49-.57l2.55-6l2.55 6l6.49.57l-4.92 4.27z"
-                />
-              </svg>
-              <svg
-                :class="item.rating == 5 ? 'ui-text-accent' : 'text-gray-300'"
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="currentColor"
-                  d="M12.86 10.44L11 6.06l-1.86 4.39l-4.75.41L8 14l-1.08 4.63L11 16.17l4.09 2.46L14 14l3.61-3.14zm3.73 10.26L11 17.34L5.42 20.7l1.46-6.35l-4.92-4.28l6.49-.57l2.55-6l2.55 6l6.49.57l-4.92 4.27z"
-                />
-              </svg>
-            </div>
-            <p class="font-light">{{ item.review }}</p>
-            <div class="flex justify-between items-center mt-5 gap-4">
-              <div class="flex items-center gap-3 min-w-0">
-                <img
-                  :src="resolveReviewImage(item.image)"
-                  :alt="item.name || $t('Reviewer')"
-                  class="h-12 w-12 rounded-full object-cover bg-slate-100"
-                  @error="onReviewImageError"
-                />
-                <div class="min-w-0">
-                  <h3 class="font-semibold truncate">{{ item.name }}</h3>
-                  <p class="font-light truncate">{{ item.position }}</p>
-                </div>
-              </div>
-              <div class="shrink-0">
-                <svg
-                  class="text-gray-500/10"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="3em"
-                  height="3em"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M19.417 6.679C20.447 7.773 21 9 21 10.989c0 3.5-2.456 6.637-6.03 8.188l-.893-1.378c3.335-1.804 3.987-4.145 4.248-5.621c-.537.278-1.24.375-1.93.311c-1.804-.167-3.226-1.648-3.226-3.489a3.5 3.5 0 0 1 3.5-3.5c1.073 0 2.1.49 2.748 1.179m-10 0C10.447 7.773 11 9 11 10.989c0 3.5-2.456 6.637-6.03 8.188l-.893-1.378c3.335-1.804 3.987-4.145 4.247-5.621c-.537.278-1.24.375-1.929.311C4.591 12.323 3.17 10.842 3.17 9a3.5 3.5 0 0 1 3.5-3.5c1.073 0 2.1.49 2.748 1.179"
-                  />
-                </svg>
-              </div>
-            </div>
+          <div class="flex w-full flex-col items-center gap-4 lg:w-[1280px] lg:gap-4">
+            <SectionBadge :label="$t('Independent Service')" />
+            <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:text-[46px] lg:leading-[56px]">
+              {{ $t("Meta business account verification") }}
+            </h2>
+            <p class="w-full text-base leading-6 text-[#8899aa] lg:text-[24px] lg:leading-9">
+              {{ $t("We prepare and follow up your Meta business verification request professionally") }}
+            </p>
           </div>
+          <Link
+            href="/meta-verification"
+            class="flex h-[54px] w-[185px] shrink-0 items-center justify-center gap-2 rounded-2xl px-8 transition-transform duration-200 hover:scale-[1.03]"
+            style="background-image: linear-gradient(131deg, #25d366 0%, #1db954 100%)"
+          >
+            <span class="whitespace-nowrap text-base font-semibold leading-5 text-[#04130a]">{{ $t('Learn More') }}</span>
+            <img src="/images/hero/arrow.svg" class="h-4 w-4 shrink-0 rotate-180 rtl:rotate-0" alt="" aria-hidden="true" />
+          </Link>
+        </div>
+      </template>
+    </PricingSection>
+
+    <!-- FAQs Section -->
+    <section
+      v-if="homeFaqs.length > 0"
+      id="faqs"
+      v-reveal
+      class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-[var(--surface-1)] dark:bg-[#0a0f17]"
+    >
+      <div class="flex flex-col items-center gap-8 lg:gap-[72px]">
+        <div class="flex w-full flex-col items-center gap-3 text-center lg:gap-4">
+          <SectionBadge :label="$t('FAQs')" />
+          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-black dark:text-white lg:w-[1280px] lg:text-[46px] lg:leading-[56px]">
+            {{ $t('Everything you want to know') }}
+          </h2>
+        </div>
+        <div class="flex w-full flex-col items-center gap-6 lg:w-[760px]">
+          <FaqAccordion :items="homeFaqs" />
+          <Link
+            v-if="hasMoreFaqs"
+            href="/faqs"
+            class="flex h-12 shrink-0 items-center justify-center rounded-2xl border border-[#1a2332] px-8 transition-colors hover:border-[#25d366] dark:border-white"
+          >
+            <span class="whitespace-nowrap text-sm font-semibold text-black dark:text-white">{{ $t('View all FAQs') }}</span>
+          </Link>
         </div>
       </div>
     </section>
 
-    <!-- Call to Action Section -->
+    <!-- Contact Us Section -->
     <section
-      :style="ctaSectionStyle"
-      class="premium-home-section premium-home-section--cta relative overflow-hidden px-5 md:px-10 lg:px-20 py-20 2xl:px-60 min-h-[420px] md:min-h-[460px] flex items-center"
+      id="contact-cta"
+      v-reveal
     >
-      <div
-        class="premium-home-cta-overlay absolute inset-0 pointer-events-none"
-      ></div>
-      <div
-        class="premium-home-cta-content relative z-10 max-w-4xl mx-auto text-center"
-      >
-        <h2 class="text-3xl md:text-5xl font-semibold text-white mb-6">
-          {{ $t("Ready to Get Started?") }}
-        </h2>
-        <p class="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
-          {{
-            $t(
-              "Join thousands of businesses already using our platform to streamline their communication and grow their customer base.",
-            )
-          }}
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            href="/signup"
-            class="premium-home-cta-primary px-6 py-3 bg-white hover:bg-white/90 text-[#3B5BFF] rounded-xl text-base font-semibold transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
-          >
-            {{ $t("Subscribe now") }}
-          </Link>
-          <a
-            v-if="props.companyConfig && props.companyConfig.book_a_demo_link"
-            :href="props.companyConfig.book_a_demo_link"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="premium-home-cta-secondary px-6 py-3 border-2 border-white/70 hover:border-white text-white hover:text-[#3B5BFF] rounded-xl text-base font-semibold transition-all duration-300 bg-white/10 hover:bg-white"
-          >
-            {{ $t("Book a Demo") }}
-          </a>
+      <div class="flex w-full flex-col items-center gap-6 bg-[var(--accent-solid)] px-6 py-12 text-center dark:bg-[rgba(37,211,102,0.12)] md:px-10 lg:px-20 lg:py-20">
+        <div class="flex w-full flex-col items-center gap-4 lg:w-[1280px] lg:gap-4">
+          <h2 class="w-full text-[22px] font-semibold leading-[29.9px] text-white dark:text-white lg:text-[46px] lg:leading-[56px]">
+            {{ $t("Contact the Botzo team") }}
+          </h2>
+          <p class="w-full text-base leading-6 text-white dark:text-[#8899aa] lg:text-[24px] lg:leading-9">
+            {{ $t("We're here to help you automate your WhatsApp communication and grow your business.") }}
+          </p>
         </div>
+        <a
+          v-if="props.companyConfig && props.companyConfig.book_a_demo_link"
+          :href="props.companyConfig.book_a_demo_link"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex h-[54px] w-[220px] shrink-0 items-center justify-center rounded-2xl bg-white px-8 transition-transform duration-200 hover:scale-[1.03] dark:bg-gradient-to-br dark:from-[#25d366] dark:to-[#1db954]"
+        >
+          <span class="whitespace-nowrap text-base font-semibold leading-5 text-[#0a6433] dark:text-[#04130a]">{{ $t('Start the conversation') }}</span>
+        </a>
       </div>
     </section>
   </FrontendLayout>
 </template>
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { Link } from "@inertiajs/vue3";
+import { MessageCircle, ScanLine, GitBranch, Sparkles, Send as SendIcon } from "lucide-vue-next";
 import FrontendLayout from "./FrontendLayout.vue";
+import HeroChatDemo from "@/Components/HeroChatDemo.vue";
+import HeroNetworkScene from "@/Components/HeroNetworkScene.vue";
+import HeroNotificationToast from "@/Components/HeroNotificationToast.vue";
+import SectionBadge from "@/Components/SectionBadge.vue";
+import HowItWorksStepLayout from "@/Components/HowItWorksStepLayout.vue";
+import HowItWorksStepLayoutMobile from "@/Components/HowItWorksStepLayoutMobile.vue";
+import SuccessStoryEvidence from "@/Components/SuccessStoryEvidence.vue";
+import ReviewsMarquee from "@/Components/ReviewsMarquee.vue";
+import PricingSection from "@/Components/PricingSection.vue";
+import BookDemoModal from "@/Components/BookDemoModal.vue";
+import FaqAccordion from "@/Components/FaqAccordion.vue";
+
+const showBookDemoModal = ref(false);
+
+// Content each hero notification toast cycles through — static copy, not
+// translated, since these are decorative WhatsApp-message mockups rather
+// than real UI strings.
+const heroToastMessagesA = [
+  { name: "سارة العتيبي", message: "متاح توصيل الطلب النهارده؟", time: "الآن", color: "#25d366" },
+  { name: "سارة العتيبي", message: "تمام، هطلب حالاً 👍", time: "2 د", color: "#25d366" },
+];
+const heroToastMessagesB = [
+  { name: "Botzo", message: "تم الرد التلقائي على 12 عميل", time: "الآن", color: "#0d83da" },
+  { name: "Botzo", message: "جاري تجهيز عرض السعر...", time: "1 د", color: "#0d83da" },
+];
+const heroToastMessagesC = [
+  { name: "خالد المطيري", message: "شكراً جزيلاً على السرعة!", time: "3 د", color: "#f59e0b" },
+  { name: "خالد المطيري", message: "الطلب وصل، تقييمي 5 نجوم ⭐", time: "5 د", color: "#f59e0b" },
+];
+const heroToastMessagesD = [
+  { name: "نورة القحطاني", message: "ممكن أعرف مواعيد التوصيل؟", time: "الآن", color: "#8b5cf6" },
+  { name: "نورة القحطاني", message: "تم تأكيد الطلب ✅", time: "2 د", color: "#8b5cf6" },
+];
 
 const props = defineProps([
   "addons",
@@ -892,6 +503,153 @@ const props = defineProps([
   "pages",
   "premiumHomeMedia",
 ]);
+
+const pipelineSteps = [
+  { key: "Send", icon: SendIcon, activeAnim: "chip-anim-send" },
+  { key: "Reply generation", icon: Sparkles, activeAnim: "chip-anim-generate" },
+  { key: "Decision making", icon: GitBranch, activeAnim: "chip-anim-decide" },
+  { key: "Intent analysis", icon: ScanLine, activeAnim: "chip-anim-scan" },
+  { key: "Incoming message", icon: MessageCircle, activeAnim: "chip-anim-ping" },
+];
+
+// Features-section motion: the active pipeline chip cycles on its own timer,
+// independent of the connector-line/dot CSS animations (both pure CSS, no
+// JS needed there). Everything here is torn down on unmount and respects
+// prefers-reduced-motion.
+const prefersReducedMotionQuery = typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+const prefersReducedMotion = () => prefersReducedMotionQuery?.matches ?? false;
+
+const activeChipIndex = ref(4);
+let chipCycleInterval = null;
+
+// Fills the bot-workflow card's empty lower half with a tiny chat demo that
+// mirrors whichever pipeline step is currently highlighted, instead of a
+// second unrelated animation: chip 4 ("Incoming message") = a fresh customer
+// message just arrived, chips 3/2/1 (analysis/decision/generation) = the bot
+// "thinking", chip 0 ("Send") = the reply has gone out.
+const botDemoPhase = computed(() => {
+  if (activeChipIndex.value === 4) return "received";
+  if (activeChipIndex.value === 0) return "replied";
+  return "thinking";
+});
+
+const STAT_TARGET = 31;
+const STAT_COUNT_DURATION = 1500;
+const STAT_COUNT_REPEAT = 7000;
+const arabicIndicDigits = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+const isArabicLocale = () => typeof document !== "undefined" && document.documentElement.lang === "ar";
+const formatStatValue = (value) => {
+  const rounded = Math.round(value);
+  if (isArabicLocale()) {
+    return String(rounded).replace(/[0-9]/g, (digit) => arabicIndicDigits[digit]) + "٪";
+  }
+  return `${rounded}%`;
+};
+const statCountDisplay = ref(formatStatValue(STAT_TARGET));
+let statCountRAF = null;
+let statCountInterval = null;
+
+function runStatCount() {
+  const start = performance.now();
+  const tick = (now) => {
+    const progress = Math.min((now - start) / STAT_COUNT_DURATION, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    statCountDisplay.value = formatStatValue(eased * STAT_TARGET);
+    if (progress < 1) {
+      statCountRAF = requestAnimationFrame(tick);
+    }
+  };
+  statCountRAF = requestAnimationFrame(tick);
+}
+
+onMounted(() => {
+  if (prefersReducedMotion()) {
+    statCountDisplay.value = formatStatValue(STAT_TARGET);
+    activeChipIndex.value = 4;
+    return;
+  }
+
+  runStatCount();
+  statCountInterval = setInterval(runStatCount, STAT_COUNT_REPEAT);
+
+  // Counts DOWN (4→3→2→1→0), matching the natural process order rendered
+  // right-to-left in this dir="ltr" row: Incoming message (4) is rightmost/
+  // first, Send (0) is leftmost/last.
+  chipCycleInterval = setInterval(() => {
+    activeChipIndex.value = (activeChipIndex.value - 1 + pipelineSteps.length) % pipelineSteps.length;
+  }, 3000);
+});
+
+onUnmounted(() => {
+  if (statCountRAF) cancelAnimationFrame(statCountRAF);
+  if (statCountInterval) clearInterval(statCountInterval);
+  if (chipCycleInterval) clearInterval(chipCycleInterval);
+});
+
+// Pointer-tilt directive for the Features-section cards — perspective tilt
+// on move, a radial sheen following the pointer (driven by --mx/--my/--sheen
+// custom properties consumed by CSS in the scoped <style> below), and a
+// smooth return to flat on leave. Skipped entirely under reduced motion.
+const MAX_TILT_DEG = 5;
+const vTilt = {
+  mounted(el) {
+    if (prefersReducedMotion()) return;
+
+    const handleMove = (event) => {
+      const rect = el.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width;
+      const y = (event.clientY - rect.top) / rect.height;
+      el.classList.add("tilt-active");
+      el.style.setProperty("--mx", `${x * 100}%`);
+      el.style.setProperty("--my", `${y * 100}%`);
+      el.style.setProperty("--sheen", "1");
+      el.style.transform = `perspective(900px) rotateX(${(0.5 - y) * MAX_TILT_DEG}deg) rotateY(${(x - 0.5) * MAX_TILT_DEG}deg)`;
+    };
+    const handleLeave = () => {
+      el.classList.remove("tilt-active");
+      el.style.setProperty("--sheen", "0");
+      el.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg)";
+    };
+
+    el.addEventListener("pointermove", handleMove);
+    el.addEventListener("pointerleave", handleLeave);
+    el.__tiltCleanup = () => {
+      el.removeEventListener("pointermove", handleMove);
+      el.removeEventListener("pointerleave", handleLeave);
+    };
+  },
+  unmounted(el) {
+    el.__tiltCleanup?.();
+  },
+};
+
+const crmCard = {
+  icon: "/images/features/contact-icon.svg",
+  titleKey: "Built-in CRM",
+  descriptionKey: "Every conversation automatically turns into a rich customer card with smart tagging.",
+  featured: false,
+};
+const integrationCard = {
+  icon: "/images/features/integration-icon.svg",
+  titleKey: "Effortless integration",
+  descriptionKey: "Integrate our platform seamlessly through a simple API.",
+  featured: true,
+};
+const campaignsCard = {
+  icon: "/images/features/campaign-icon.svg",
+  titleKey: "Bulk campaigns",
+  descriptionKey: "Send personalized messages to thousands of customers at once, fully compliant with WhatsApp policies.",
+  featured: false,
+};
+const analyticsCard = {
+  icon: "/images/features/analytics-icon.svg",
+  titleKey: "Live statistics",
+  descriptionKey: "Track reply rates, conversions, and peak times in a live dashboard that updates every second.",
+  featured: false,
+};
+
+const desktopFeatureCards = [crmCard, integrationCard, campaignsCard];
+const mobileFeatureCards = [crmCard, integrationCard, campaignsCard, analyticsCard];
 
 const getDetail = (value, key) => {
   if (value) {
@@ -917,77 +675,14 @@ const filteredAddons = (item) => {
   }, {});
 };
 
+const homeFaqs = computed(() => (props.faqs?.data ?? []).slice(0, 6));
+const hasMoreFaqs = computed(() => (props.faqs?.data?.length ?? 0) > 6);
+
 const formattedName = computed(() => {
   return (value) => {
     return value.trim().toLowerCase().replace(/\s+/g, "-");
   };
 });
-
-const selectedFeature = ref(1);
-const showHeroPartners = false;
-const heroFeatureCards = [
-  {
-    title: "Conversation automation",
-    description: "Smart replies around the clock to save time and improve the experience.",
-    icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 18.5 3.5 21v-4.2A7 7 0 0 1 2 12.5v-1C2 7.36 5.58 4 10 4h4c4.42 0 8 3.36 8 7.5S18.42 19 14 19h-4c-1.83 0-3.52-.58-5-1.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
-  },
-  {
-    title: "Advanced analytics",
-    description: "Detailed reports and indicators for better data-driven decisions.",
-    icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 20V9m7 11V4m7 16v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M3 20h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
-  },
-  {
-    title: "Customer management",
-    description: "Organize customers and communicate effectively from one platform.",
-    icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 19c0-2.2-1.8-4-4-4H8c-2.2 0-4 1.8-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M10 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm10 8c0-1.9-1.35-3.48-3.14-3.88M15.5 5.25a2.75 2.75 0 0 1 0 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  },
-  {
-    title: "Easy integration",
-    description: "Connect with your favorite tools and workflows with ease.",
-    icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v3m0 12v3m9-9h-3M6 12H3m14.36-5.36-2.12 2.12M8.76 15.24l-2.12 2.12m10.72 0-2.12-2.12M8.76 8.76 6.64 6.64" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/></svg>',
-  },
-  {
-    title: "Security and reliability",
-    description: "High protection and privacy standards for your customer data.",
-    icon: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 20 6v5c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V6l8-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m8.8 12.1 2.1 2.1 4.6-4.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  },
-];
-
-const defaultReviewAvatar = "/images/defaults/review-avatar.svg";
-
-const resolveReviewImage = (imagePath) => {
-  if (!imagePath || typeof imagePath !== "string") {
-    return defaultReviewAvatar;
-  }
-
-  if (
-    imagePath.startsWith("http://") ||
-    imagePath.startsWith("https://") ||
-    imagePath.startsWith("data:") ||
-    imagePath.startsWith("/")
-  ) {
-    return imagePath;
-  }
-
-  return `/storage/${imagePath}`;
-};
-
-const onReviewImageError = (event) => {
-  if (event?.target && event.target.src !== defaultReviewAvatar) {
-    event.target.src = defaultReviewAvatar;
-  }
-};
-
-const onManagedImageError = (event, fallbackPath) => {
-  if (!event?.target) {
-    return;
-  }
-
-  const fallbackUrl = new URL(fallbackPath, window.location.origin).toString();
-  if (event.target.src !== fallbackUrl) {
-    event.target.src = fallbackPath;
-  }
-};
 
 const resolvePremiumHomeImage = (key, fallbackPath) => {
   const configuredPath = props.premiumHomeMedia?.[key];
@@ -1038,34 +733,10 @@ const dashboard2Image = computed(() =>
     "/images/hero/dashboard2.png",
   ),
 );
-const dashboard3Image = computed(() =>
-  resolvePremiumHomeImage(
-    "premium_home_feature_dashboard",
-    "/images/hero/dashboard3.png",
-  ),
-);
-const stepArrowRightImage = computed(() =>
-  resolvePremiumHomeImage(
-    "premium_home_steps_arrow_right",
-    "/images/shapes/stepArrow1.png",
-  ),
-);
-const stepArrowLeftImage = computed(() =>
-  resolvePremiumHomeImage(
-    "premium_home_steps_arrow_left",
-    "/images/shapes/stepArrow2.png",
-  ),
-);
 const heroBackgroundImage = computed(() =>
   resolvePremiumHomeImage(
     "premium_home_hero_background",
     "/images/hero/hero-background-default.svg",
-  ),
-);
-const ctaBackgroundImage = computed(() =>
-  resolvePremiumHomeImage(
-    "premium_home_cta_background",
-    heroBackgroundImage.value,
   ),
 );
 const heroSectionStyle = computed(() => ({
@@ -1074,10 +745,213 @@ const heroSectionStyle = computed(() => ({
   backgroundSize: "cover",
   backgroundRepeat: "no-repeat",
 }));
-const ctaSectionStyle = computed(() => ({
-  backgroundImage: `url(${ctaBackgroundImage.value})`,
-  backgroundSize: "cover",
-  backgroundPosition: "center center",
-  backgroundRepeat: "no-repeat",
-}));
 </script>
+
+<style scoped>
+.hero-whatsapp-icon {
+  animation: hero-whatsapp-float 4.5s ease-in-out infinite;
+}
+
+@keyframes hero-whatsapp-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-whatsapp-icon {
+    animation: none;
+  }
+}
+
+/* Features section motion (id="section2") — bars, connector lines/dot, and
+   pointer-tilt sheen. Only transform/opacity/background/border-color are
+   animated, all colors come from existing tokens/hex already used in this
+   section, and everything rests in its final state under reduced motion. */
+.botzo-bar {
+  transform-origin: bottom;
+  animation: botzo-bar 7s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) infinite;
+}
+
+@keyframes botzo-bar {
+  0%,
+  6% {
+    transform: scaleY(0.14);
+  }
+  30%,
+  86% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(0.14);
+  }
+}
+
+.botzo-draw {
+  transform-origin: right;
+  animation: botzo-draw 3s ease-in-out var(--d, 0s) infinite;
+}
+
+@keyframes botzo-draw {
+  0% {
+    transform: scaleX(0);
+  }
+  45%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.botzo-dot {
+  animation: botzo-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes botzo-dot {
+  0%,
+  100% {
+    transform: scale(1) translateY(-50%);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.5) translateY(-50%);
+    opacity: 1;
+  }
+}
+
+.tilt-sheen {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tilt-sheen.tilt-active {
+  transition: transform 0.12s linear;
+}
+
+.tilt-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 0%), rgba(37, 211, 102, 0.12), transparent 65%);
+  opacity: var(--sheen, 0);
+  transition: opacity 0.35s;
+}
+
+.tilt-sheen--wide::after {
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), rgba(37, 211, 102, 0.12), transparent 65%);
+}
+
+.bot-demo-dot {
+  animation: bot-demo-bounce 1.2s ease-in-out var(--d, 0s) infinite;
+}
+
+@keyframes bot-demo-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+/* Each pipeline chip gets its own signature motion while active, instead of
+   every step reusing the same generic pulse. */
+.chip-anim-ping {
+  animation: chip-anim-ping 1s ease-in-out infinite;
+}
+
+@keyframes chip-anim-ping {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.35);
+  }
+}
+
+.chip-anim-scan {
+  animation: chip-anim-scan 1.4s ease-in-out infinite;
+}
+
+@keyframes chip-anim-scan {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-3px);
+  }
+}
+
+.chip-anim-decide {
+  animation: chip-anim-decide 1.1s ease-in-out infinite;
+}
+
+@keyframes chip-anim-decide {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(18deg);
+  }
+}
+
+.chip-anim-generate {
+  animation: chip-anim-generate 0.9s ease-in-out infinite;
+}
+
+@keyframes chip-anim-generate {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.25) rotate(-12deg);
+    opacity: 0.65;
+  }
+}
+
+.chip-anim-send {
+  animation: chip-anim-send 1s ease-in-out infinite;
+}
+
+@keyframes chip-anim-send {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(3px);
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .botzo-bar,
+  .botzo-draw,
+  .botzo-dot,
+  .bot-demo-dot,
+  .chip-anim-ping,
+  .chip-anim-scan,
+  .chip-anim-decide,
+  .chip-anim-generate,
+  .chip-anim-send {
+    animation: none !important;
+  }
+  .tilt-sheen {
+    transition: none !important;
+  }
+}
+</style>

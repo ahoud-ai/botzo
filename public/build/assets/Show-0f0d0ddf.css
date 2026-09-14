@@ -1,0 +1,153 @@
+
+.emts-layout[data-v-64eaaf1e] {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+@media (min-width: 1100px) {
+.emts-layout[data-v-64eaaf1e] {
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+}
+.emts-preview-card[data-v-64eaaf1e] {
+        position: sticky;
+        top: 1.5rem;
+}
+}
+.emts-btn[data-v-64eaaf1e] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease, background-color 160ms ease, border-color 160ms ease, opacity 160ms ease;
+}
+.emts-btn--solid[data-v-64eaaf1e] {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.emts-btn--solid[data-v-64eaaf1e]:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+.emts-btn--solid[data-v-64eaaf1e]:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+.emts-btn--ghost[data-v-64eaaf1e] {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+.emts-btn--ghost[data-v-64eaaf1e]:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+.emts-tabs[data-v-64eaaf1e] {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--ui-border);
+    padding-bottom: 0.85rem;
+}
+.emts-tab[data-v-64eaaf1e] {
+    border-radius: 0.65rem;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+    background: transparent;
+    transition: background-color 160ms ease, color 160ms ease;
+}
+.emts-tab[data-v-64eaaf1e]:hover {
+    background: var(--ui-surface-soft);
+    color: var(--ui-text);
+}
+.emts-tab--active[data-v-64eaaf1e] {
+    background: var(--ui-secondary);
+    color: #fff;
+}
+.emts-editor-shell[data-v-64eaaf1e] {
+    border-radius: 0.9rem;
+    overflow: hidden;
+}
+.emts-html-textarea[data-v-64eaaf1e] {
+    width: 100%;
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.85rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.83rem;
+    color: var(--ui-text);
+}
+.emts-html-textarea[data-v-64eaaf1e]:focus {
+    outline: none;
+    border-color: var(--ui-secondary);
+}
+.emts-notice[data-v-64eaaf1e] {
+    margin-top: 0.85rem;
+    font-size: 0.8rem;
+}
+.emts-notice--warning[data-v-64eaaf1e] {
+    color: var(--ui-warning);
+}
+.emts-notice--danger[data-v-64eaaf1e] {
+    color: var(--ui-danger);
+}
+.emts-placeholder-list[data-v-64eaaf1e] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.emts-placeholder-chip[data-v-64eaaf1e] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 0.6rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.35rem 0.65rem;
+    font-size: 0.78rem;
+    color: var(--ui-secondary);
+    transition: border-color 160ms ease, background-color 160ms ease;
+}
+.emts-placeholder-chip[data-v-64eaaf1e]:hover {
+    border-color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 10%, transparent);
+}
+.emts-preview-subject[data-v-64eaaf1e] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-bottom: 0.85rem;
+    border-radius: 0.7rem;
+    border: 1px dashed var(--ui-border-strong);
+    background: var(--ui-surface-soft);
+    padding: 0.6rem 0.75rem;
+}
+.emts-preview-label[data-v-64eaaf1e] {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ui-muted);
+}
+.emts-preview-subject-value[data-v-64eaaf1e] {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+.emts-preview-frame[data-v-64eaaf1e] {
+    max-height: 32rem;
+    overflow: auto;
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: var(--ui-text);
+}

@@ -1,121 +1,85 @@
 <template>
-    <div :class="rtlClass">
+    <div :class="[rtlClass, 'font-ibm-plex-arabic', 'page-enter-anim']">
         <!-- Sticky Header -->
-        <header :class="['sticky top-0 ui-layer-content transition-all duration-300', isScrolled ? 'bg-white/80 backdrop-blur-md border-b border-gray-200' : 'bg-white border-b border-gray-200']">
-            <div class="px-5 md:px-10 lg:px-20 2xl:px-60 py-4">
+        <header class="sticky top-0 ui-layer-content border-b bg-white/90 backdrop-blur-md dark:bg-[#0a0f17] border-[var(--line)] dark:border-transparent shadow-none">
+            <div class="px-5 md:px-10 lg:px-20 2xl:px-32 py-6 lg:py-8">
                 <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-8">
-                        <Link href="/" class="premium-brand-lockup">
-                            <template v-if="props.companyConfig && props.companyConfig.logo">
-                                <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
-                                <span class="premium-brand-lockup__text">
-                                    <span class="premium-brand-lockup__name"><span>botoz</span><span class="premium-brand-lockup__accent">o</span></span>
-                                </span>
-                            </template>
-                            <h1 v-else class="text-xl">{{ props.companyConfig?.company_name }}</h1>
-                        </Link>
-                        <div class="hidden lg:flex items-center text-sm gap-x-2">
-                            <Link href="/product" class="cursor-pointer px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :class="page.url === '/product' ? 'bg-gray-100' : ''">{{ $t('Product') }}</Link>
-                            <Link href="/pricing" class="cursor-pointer px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :class="page.url === '/pricing' ? 'bg-gray-100' : ''">{{ $t('Pricing') }}</Link>
-                            <div class="relative" @mouseenter="showResourcesDropdown = true" @mouseleave="showResourcesDropdown = false">
-                                <button type="button" class="cursor-pointer px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1.5">
-                                    {{ $t('Resources') }}
-                                    <svg class="w-4 h-4 transition-transform duration-200" :class="showResourcesDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                </button>
-                                <transition name="dropdown">
-                                    <div v-if="showResourcesDropdown" class="absolute top-full mt-2 bg-white border border-gray-200 rounded-2xl shadow-2xl py-6 px-6 w-[600px] max-w-[90vw] overflow-hidden ui-dropdown-layer ui-dropdown-start">
-                                        <div class="grid grid-cols-2 gap-8">
-                                            <!-- FAQs Column -->
-                                            <div>
-                                                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">{{ $t('Help & Support') }}</h3>
-                                                <Link href="/faqs" class="group block p-3 rounded-lg hover:bg-gray-50 transition-all duration-150 mb-2">
-                                                    <div class="font-medium text-gray-900 group-hover:text-gray-950">{{ $t('FAQs') }}</div>
-                                                    <div class="text-xs text-gray-500 mt-0.5">{{ $t('Find answers to common questions') }}</div>
-                                                </Link>
-                                                <Link href="/api-documentation" class="group block p-3 rounded-lg hover:bg-gray-50 transition-all duration-150">
-                                                    <div class="font-medium text-gray-900 group-hover:text-gray-950">{{ $t('API Documentation') }}</div>
-                                                    <div class="text-xs text-gray-500 mt-0.5">{{ $t('Integrate with our REST API') }}</div>
-                                                </Link>
-                                            </div>
-                                            
-                                            <!-- Pages Column -->
-                                            <div v-if="props.pages && props.pages.length > 0">
-                                                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">{{ $t('Pages') }}</h3>
-                                                <div class="space-y-1">
-                                                    <Link v-for="page in props.pages" :key="page.id" :href="'/pages/' + (page.slug || formattedName(page.name))" class="group block p-3 rounded-lg hover:bg-gray-50 transition-all duration-150">
-                                                        <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">{{ page.display_name || page.name }}</span>
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </transition>
-                            </div>
-                            <Link href="/contact" class="cursor-pointer px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :class="page.url === '/contact' ? 'bg-gray-100' : ''">{{ $t('Contact Us') }}</Link>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end items-center text-md gap-4">
-                        <!-- Mobile Menu Button -->
-                        <button type="button" @click="showMobileMenu = !showMobileMenu" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                            <svg v-if="!showMobileMenu" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <line x1="3" y1="12" x2="21" y2="12"></line>
-                                <line x1="3" y1="18" x2="21" y2="18"></line>
-                            </svg>
-                            <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </button>
-                        
-                        <!-- Language Selector - Desktop -->
-                        <div v-if="page.props.languages && page.props.languages.length > 1" class="hidden md:block relative" @mouseenter="showLanguageDropdown = true" @mouseleave="showLanguageDropdown = false">
-                            <button type="button" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="2" y1="12" x2="22" y2="12"></line>
-                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                                </svg>
-                                <span class="uppercase">{{ currentLanguageCode }}</span>
-                                <svg class="w-4 h-4 transition-transform duration-200" :class="showLanguageDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
+                    <!-- Group 1: logo -->
+                    <Link href="/" class="premium-brand-lockup shrink-0">
+                        <NavBrandMark class="hidden lg:block" variant="desktop" />
+                        <NavBrandMark class="lg:hidden" variant="mobile" />
+                    </Link>
+
+                    <!-- Group 2: desktop nav links -->
+                    <nav class="hidden lg:flex items-center gap-8">
+                        <Link href="/#section2" class="text-base leading-6 text-black dark:text-white hover:opacity-70 transition-opacity">{{ $t('Features') }}</Link>
+                        <Link href="/#section3" class="text-base leading-6 text-black dark:text-white hover:opacity-70 transition-opacity">{{ $t('How it works') }}</Link>
+                        <Link href="/pricing" class="text-base leading-6 text-black dark:text-white hover:opacity-70 transition-opacity" :class="page.url === '/pricing' ? 'font-semibold' : ''">{{ $t('Pricing') }}</Link>
+                        <Link href="/faqs" class="text-base leading-6 text-black dark:text-white hover:opacity-70 transition-opacity" :class="page.url === '/faqs' ? 'font-semibold' : ''">{{ $t('FAQs') }}</Link>
+                        <Link href="/contact" class="text-base leading-6 text-black dark:text-white hover:opacity-70 transition-opacity" :class="page.url === '/contact' ? 'font-semibold' : ''">{{ $t('Contact Us') }}</Link>
+                        <div class="relative" @mouseenter="showResourcesDropdown = true" @mouseleave="showResourcesDropdown = false">
+                            <button type="button" class="flex items-center gap-1 text-base leading-6 text-black dark:text-white hover:opacity-70 transition-opacity">
+                                {{ $t('More') }}
+                                <svg class="w-4 h-4 transition-transform duration-200" :class="showResourcesDropdown ? 'rotate-180' : ''" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M12.5 6L8 10.5L3.5 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </button>
                             <transition name="dropdown">
-                                <div v-if="showLanguageDropdown" class="absolute top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[150px] ui-dropdown-layer ui-dropdown-end">
-                                    <a 
-                                        v-for="language in page.props.languages" 
-                                        :key="language.id" 
-                                        :href="'/language/' + language.code"
-                                        class="block px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
-                                        :class="language.code === currentLanguageCode ? 'bg-gray-50 font-semibold text-primary' : 'text-gray-700'"
+                                <div
+                                    v-if="showResourcesDropdown"
+                                    class="absolute top-full mt-2 flex w-[275px] flex-col items-end gap-2 rounded-2xl border border-[#cfd8e3] bg-white p-4 shadow-2xl dark:border-[#1a2332] dark:bg-[#0a0f17] ui-dropdown-layer ui-dropdown-start"
+                                >
+                                    <Link
+                                        v-for="item in moreDropdownLinks"
+                                        :key="item.href"
+                                        :href="item.href"
+                                        class="flex w-full items-center justify-center rounded-lg p-2 transition-colors hover:border-r hover:border-[#2bd46a] hover:bg-[rgba(37,211,102,0.12)]"
                                     >
-                                        <div class="flex items-center justify-between">
-                                            <span>{{ language.name }}</span>
-                                            <span v-if="language.code === currentLanguageCode" class="text-primary">✓</span>
-                                        </div>
-                                    </a>
+                                        <span dir="auto" class="w-full flex-1 text-right text-base leading-6 text-black dark:text-white">{{ $t(item.labelKey) }}</span>
+                                    </Link>
+                                    <Link
+                                        v-if="isAuthenticated"
+                                        href="/logout"
+                                        method="post"
+                                        as="button"
+                                        type="button"
+                                        class="flex w-full items-center justify-center rounded-lg p-2 transition-colors hover:border-r hover:border-[#2bd46a] hover:bg-[rgba(37,211,102,0.12)]"
+                                    >
+                                        <span dir="auto" class="w-full flex-1 text-right text-base leading-6 text-[#f87171]">{{ $t('Logout') }}</span>
+                                    </Link>
                                 </div>
                             </transition>
                         </div>
-                        
+                    </nav>
+
+                    <!-- Group 3: actions (theme, language, login/dashboard, mobile menu) -->
+                    <div class="flex items-center gap-0 lg:gap-3">
+                        <ThemeToggle />
+                        <LangToggle v-if="page.props.languages && page.props.languages.length > 1" :languages="page.props.languages" :currentLanguage="currentLanguageCode" />
+
                         <template v-if="!isAuthenticated">
-                            <Link href="/login" class="hidden md:inline-block cursor-pointer hover:text-gray-400 border-black">{{ $t('Login') }}</Link>
-                            <a v-if="props.companyConfig && props.companyConfig.book_a_demo_link" :href="props.companyConfig.book_a_demo_link" target="_blank" rel="noopener noreferrer" class="hidden md:inline-block border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 p-2 rounded-lg text-sm w-fit px-6 transition-colors bg-white shadow-md hover:shadow-lg">{{ $t('Book a demo') }}</a>
-                            <Link href="/signup" class="hidden md:inline-block bg-primary hover:bg-secondary text-white p-2 rounded-lg text-sm w-fit px-8">{{ $t('Sign up') }}</Link>
-                            <div class="lg:hidden flex items-center gap-2">
-                                <Link href="/login" class="bg-primary hover:bg-secondary text-white p-2 rounded-lg text-sm flex w-fit px-8">{{ $t('Login') }}</Link>
-                            </div>
+                            <Link href="/login" class="hidden lg:inline-flex h-11 w-[140px] items-center justify-center rounded-xl bg-[#25d366] text-[#04130a] font-semibold text-base leading-5 hover:brightness-95 transition">
+                                {{ $t('Login') }}
+                            </Link>
                         </template>
                         <template v-else>
-                            <Link href="/dashboard" class="hidden md:inline-block bg-primary hover:bg-secondary text-white p-2 rounded-lg text-sm w-fit px-8">{{ $t('Go to Dashboard') }}</Link>
-                            <div class="lg:hidden flex items-center gap-2">
-                                <Link href="/dashboard" class="bg-primary hover:bg-secondary text-white p-2 rounded-lg text-sm flex w-fit px-8">{{ $t('Go to Dashboard') }}</Link>
-                            </div>
+                            <Link href="/dashboard" class="hidden shrink-0 overflow-hidden rounded-full lg:inline-flex lg:h-11 lg:w-11">
+                                <img v-if="authUser && authUser.avatar" :src="'/media/' + authUser.avatar" class="h-full w-full object-cover" alt="">
+                                <span v-else class="flex h-full w-full items-center justify-center bg-[#25d366] text-[#04130a]">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="6" r="4"/><path stroke-linecap="round" d="M19.998 18c.002-.164.002-.331.002-.5c0-2.485-3.582-4.5-8-4.5s-8 2.015-8 4.5S4 22 12 22c2.231 0 3.84-.157 5-.437"/></g></svg>
+                                </span>
+                            </Link>
                         </template>
+
+                        <!-- Mobile Menu Button -->
+                        <button type="button" @click="showMobileMenu = !showMobileMenu" class="lg:hidden inline-flex items-center justify-center w-[18px] h-[18px] text-black dark:text-white shrink-0">
+                            <svg v-if="!showMobileMenu" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M1 2.25H17M1 9H17M1 15.75H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <svg v-else width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M14 4L4 14M4 4L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -126,14 +90,14 @@
             <div v-if="showMobileMenu" class="lg:hidden fixed inset-0 ui-layer-drawer">
                 <!-- Backdrop -->
                 <div class="absolute inset-0 bg-black/50" @click="showMobileMenu = false"></div>
-                
+
                 <!-- Menu Panel -->
-                <div :class="['absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl overflow-y-auto mobile-menu-panel', mobileMenuPanelAnimationClass]">
+                <div ref="mobileMenuPanel" :class="['absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white dark:bg-[#0a0f17] shadow-xl overflow-y-auto mobile-menu-panel', mobileMenuPanelAnimationClass]">
                     <div class="p-6">
                         <!-- Close Button -->
                         <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-lg font-semibold text-gray-900">{{ $t('Menu') }}</h2>
-                            <button type="button" @click="showMobileMenu = false" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                            <h2 class="text-lg font-semibold text-black dark:text-white">{{ $t('Menu') }}</h2>
+                            <button type="button" @click="showMobileMenu = false" class="p-2 rounded-lg text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -143,70 +107,62 @@
 
                         <!-- Navigation Links -->
                         <nav class="space-y-2">
-                            <Link href="/product" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium" :class="page.url === '/product' ? 'bg-gray-100 text-primary' : 'text-gray-700'">
-                                {{ $t('Product') }}
+                            <Link href="/#section2" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium text-black dark:text-white">
+                                {{ $t('Features') }}
                             </Link>
-                            <Link href="/pricing" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium" :class="page.url === '/pricing' ? 'bg-gray-100 text-primary' : 'text-gray-700'">
+                            <Link href="/#section3" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium text-black dark:text-white">
+                                {{ $t('How it works') }}
+                            </Link>
+                            <Link href="/pricing" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium" :class="page.url === '/pricing' ? 'bg-black/5 dark:bg-white/10 text-[#25d366]' : 'text-black dark:text-white'">
                                 {{ $t('Pricing') }}
                             </Link>
-                            
-                            <Link href="/faqs" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium" :class="page.url === '/faqs' ? 'bg-gray-100 text-primary' : 'text-gray-700'">
+                            <Link href="/faqs" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium" :class="page.url === '/faqs' ? 'bg-black/5 dark:bg-white/10 text-[#25d366]' : 'text-black dark:text-white'">
                                 {{ $t('FAQs') }}
                             </Link>
-                            <Link href="/api-documentation" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium" :class="page.url === '/api-documentation' ? 'bg-gray-100 text-primary' : 'text-gray-700'">
+                            <Link href="/api-documentation" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium" :class="page.url === '/api-documentation' ? 'bg-black/5 dark:bg-white/10 text-[#25d366]' : 'text-black dark:text-white'">
                                 {{ $t('API Documentation') }}
                             </Link>
-                            
+
                             <!-- Dynamic Pages -->
-                            <Link 
-                                v-for="pageItem in props.pages" 
-                                :key="pageItem.id" 
-                                :href="'/pages/' + (pageItem.slug || formattedName(pageItem.name))" 
+                            <Link
+                                v-for="pageItem in props.pages"
+                                :key="pageItem.id"
+                                :href="'/pages/' + (pageItem.slug || formattedName(pageItem.name))"
                                 @click="showMobileMenu = false"
-                                class="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium"
-                                :class="page.url === '/pages/' + (pageItem.slug || formattedName(pageItem.name)) ? 'bg-gray-100 text-primary' : 'text-gray-700'"
+                                class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium"
+                                :class="page.url === '/pages/' + (pageItem.slug || formattedName(pageItem.name)) ? 'bg-black/5 dark:bg-white/10 text-[#25d366]' : 'text-black dark:text-white'"
                             >
                                 {{ pageItem.display_name || pageItem.name }}
                             </Link>
-                            
-                            <Link href="/contact" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium" :class="page.url === '/contact' ? 'bg-gray-100 text-primary' : 'text-gray-700'">
+
+                            <Link href="/contact" @click="showMobileMenu = false" class="block px-4 py-3 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors font-medium" :class="page.url === '/contact' ? 'bg-black/5 dark:bg-white/10 text-[#25d366]' : 'text-black dark:text-white'">
                                 {{ $t('Contact Us') }}
                             </Link>
                         </nav>
 
                         <!-- Language Selector (Mobile) -->
-                        <div v-if="page.props.languages && page.props.languages.length > 1" class="mt-6 pt-6 border-t border-gray-200">
+                        <div v-if="page.props.languages && page.props.languages.length > 1" class="mt-6 pt-6 border-t border-[#cfd8e3] dark:border-white/10">
                             <div class="relative">
-                                <button type="button" 
+                                <button type="button"
                                     @click="showMobileLanguageDropdown = !showMobileLanguageDropdown"
-                                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+                                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-[#cfd8e3] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                                 >
-                                    <div class="flex items-center gap-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <line x1="2" y1="12" x2="22" y2="12"></line>
-                                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                                        </svg>
-                                        <span class="font-medium text-gray-900">{{ page.props.languages.find(l => l.code === currentLanguageCode)?.name || currentLanguageCode.toUpperCase() }}</span>
-                                    </div>
-                                    <svg class="w-4 h-4 transition-transform duration-200 text-gray-500" :class="showMobileLanguageDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <span class="font-medium text-black dark:text-white">{{ page.props.languages.find(l => l.code === currentLanguageCode)?.name || currentLanguageCode.toUpperCase() }}</span>
+                                    <svg class="w-4 h-4 transition-transform duration-200 text-gray-500 dark:text-gray-400" :class="showMobileLanguageDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </button>
                                 <transition name="dropdown">
-                                    <div v-if="showMobileLanguageDropdown" class="absolute top-full inset-x-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 max-h-60 overflow-y-auto ui-layer-dropdown">
-                                        <a 
-                                            v-for="language in page.props.languages" 
-                                            :key="language.id" 
+                                    <div v-if="showMobileLanguageDropdown" class="absolute top-full inset-x-0 mt-2 bg-white dark:bg-[#0a0f17] border border-[#cfd8e3] dark:border-white/10 rounded-lg shadow-lg py-2 max-h-60 overflow-y-auto ui-layer-dropdown">
+                                        <a
+                                            v-for="language in page.props.languages"
+                                            :key="language.id"
                                             :href="'/language/' + language.code"
                                             class="block px-4 py-2 text-sm transition-colors"
-                                            :class="language.code === currentLanguageCode ? 'bg-gray-50 font-semibold text-primary' : 'text-gray-700 hover:bg-gray-50'"
+                                            :class="language.code === currentLanguageCode ? 'bg-black/5 dark:bg-white/10 font-semibold text-[#25d366]' : 'text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5'"
                                             @click="showMobileLanguageDropdown = false"
                                         >
-                                            <div class="flex items-center justify-between">
-                                                <span>{{ language.name }}</span>
-                                                <span v-if="language.code === currentLanguageCode" class="text-primary">✓</span>
-                                            </div>
+                                            {{ language.name }}
                                         </a>
                                     </div>
                                 </transition>
@@ -214,20 +170,20 @@
                         </div>
 
                         <!-- Action Buttons (Mobile) -->
-                        <div class="mt-6 pt-6 border-t border-gray-200 space-y-3">
+                        <div class="mt-6 pt-6 border-t border-[#cfd8e3] dark:border-white/10 space-y-3">
                             <template v-if="!isAuthenticated">
-                                <Link href="/login" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 rounded-lg transition-colors font-medium">
+                                <Link href="/login" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 border border-[#cfd8e3] dark:border-white/10 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-colors font-medium">
                                     {{ $t('Login') }}
                                 </Link>
-                                <a v-if="props.companyConfig && props.companyConfig.book_a_demo_link" :href="props.companyConfig.book_a_demo_link" target="_blank" rel="noopener noreferrer" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 rounded-lg transition-colors font-medium bg-white shadow-md">
+                                <a v-if="props.companyConfig && props.companyConfig.book_a_demo_link" :href="props.companyConfig.book_a_demo_link" target="_blank" rel="noopener noreferrer" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 border border-[#cfd8e3] dark:border-white/10 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-colors font-medium">
                                     {{ $t('Book a demo') }}
                                 </a>
-                                <Link href="/signup" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 bg-primary hover:bg-secondary text-white rounded-lg transition-colors font-medium">
+                                <Link href="/signup" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 bg-[#25d366] text-[#04130a] hover:brightness-95 rounded-xl transition font-semibold">
                                     {{ $t('Sign up') }}
                                 </Link>
                             </template>
                             <template v-else>
-                                <Link href="/dashboard" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 bg-primary hover:bg-secondary text-white rounded-lg transition-colors font-medium">
+                                <Link href="/dashboard" @click="showMobileMenu = false" class="block w-full text-center px-4 py-3 bg-[#25d366] text-[#04130a] hover:brightness-95 rounded-xl transition font-semibold">
                                     {{ $t('Go to Dashboard') }}
                                 </Link>
                             </template>
@@ -244,128 +200,87 @@
         <CookieConsentBanner />
 
         <!-- Footer -->
-        <footer id="section7" class="bg-gray-50 border-t border-gray-200 text-gray-700 px-5 md:px-10 lg:px-20 py-16 2xl:px-60">
-            <div class="max-w-7xl mx-auto">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
-                    <!-- Company Info -->
-                    <div class="lg:col-span-3">
-                        <div class="mb-6" v-if="props.companyConfig">
-                            <div class="premium-brand-lockup premium-brand-lockup--footer" v-if="props.companyConfig.logo">
-                                <img class="premium-brand-lockup__mark" :src="'/media/' + props.companyConfig.logo" :alt="props.companyConfig.company_name">
-                                <span class="premium-brand-lockup__text">
-                                    <span class="premium-brand-lockup__name"><span>botoz</span><span class="premium-brand-lockup__accent">o</span></span>
-                                </span>
-                            </div>
-                            <h4 v-else-if="props.companyConfig.company_name" class="text-xl mb-2 text-gray-900 font-bold">{{ props.companyConfig.company_name }}</h4>
-                        </div>
-                        <div v-if="addressLines.length" class="mb-4 space-y-1">
-                            <p v-for="(addressLine, index) in addressLines" :key="`footer-company-address-${index}`" class="text-sm text-gray-600">
-                                {{ addressLine }}
-                            </p>
-                        </div>
-                        <div class="flex gap-x-4">
-                            <a v-if="facebookUrl" :href="facebookUrl" class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-primary hover:border-primary hover:text-white flex items-center justify-center transition-colors text-gray-600">
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95"/></svg>
-                            </a>
-                            <a v-if="twitterUrl" :href="twitterUrl" class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-primary hover:border-primary hover:text-white flex items-center justify-center transition-colors text-gray-600">
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18.244 2H21.5l-7.2 8.23L22.8 22h-6.65l-5.21-6.82L4.97 22H1.71l7.7-8.8L1.2 2h6.82l4.71 6.23zm-1.16 18h1.8L6.22 3.9H4.29z"/></svg>
-                            </a>
-                            <a v-if="linkedinUrl" :href="linkedinUrl" class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-primary hover:border-primary hover:text-white flex items-center justify-center transition-colors text-gray-600">
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 16 16"><path fill="currentColor" d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248c-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586c.173-.431.568-.878 1.232-.878c.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252c-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/></svg>
-                            </a>
-                            <a v-if="tiktokUrl" :href="tiktokUrl" class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-primary hover:border-primary hover:text-white flex items-center justify-center transition-colors text-gray-600">
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.35V2h-3.2v13.3a2.89 2.89 0 1 1-2.89-2.89c.31 0 .61.05.89.14V9.27a6.13 6.13 0 0 0-.89-.07A6.09 6.09 0 1 0 15.82 15V8.27a8.16 8.16 0 0 0 4.77 1.53V6.69z"/></svg>
-                            </a>
-                            <a v-if="snapchatUrl" :href="snapchatUrl" class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-primary hover:border-primary hover:text-white flex items-center justify-center transition-colors text-gray-600">
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7v11l2-2l2 2l3-3l3 3l2-2l2 2V9a7 7 0 0 0-7-7m-3 8a1 1 0 1 1 .01 0zm6 0a1 1 0 1 1 .01 0z"/></svg>
-                            </a>
-                        </div>
-
-                        <div class="mt-4 grid grid-cols-1 gap-2 max-w-[300px]">
-                            <div class="rounded-xl border border-gray-200 bg-white p-2.5 min-h-[84px] flex flex-col items-center justify-center text-center">
-                                <img :src="premiumFooterPaymentMethodsUrl" :alt="$t('Payment methods')" class="h-10 w-full max-w-[220px] object-contain mb-1" @error="handleImageError($event, '/images/defaults/payment-methods-default.svg')">
-                                <p class="text-sm font-medium text-gray-700 leading-5">{{ $t('We offer multiple payment methods') }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Links -->
-                    <div>
-                        <h4 class="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wider">{{ $t('Product') }}</h4>
-                        <ul class="space-y-3">
-                            <li>
-                                <Link href="/#section2" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ $t('Features') }}</Link>
-                            </li>
-                            <li>
-                                <Link href="/pricing" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ $t('Pricing') }}</Link>
-                            </li>
-                            <li>
-                                <Link href="/#section6" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ $t('FAQs') }}</Link>
+        <footer id="section7" class="px-5 md:px-10 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 bg-[var(--surface-anchor)] dark:bg-[#060a10]">
+            <!-- The footer is always the dark "anchor" band (light-mode's one deliberate
+                 dark section per the color-rhythm spec), so its content is locked to the
+                 site's existing dark-mode look via a forced `dark` class here — this
+                 activates every dark: utility already used below (text, borders,
+                 NavBrandMark's dark-theme logo variant) regardless of the real site theme,
+                 without having to hand-duplicate each of those colors. -->
+            <div class="dark flex flex-col items-center gap-[72px]">
+                <div class="flex w-full flex-col items-center gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-0" dir="ltr">
+                    <!-- More about Botzo -->
+                    <div class="flex w-full flex-col items-end gap-[18px] text-right lg:w-[229.56px]">
+                        <h4 dir="auto" class="w-full text-base font-semibold leading-[20px] text-black dark:text-white">{{ $t('More about Botzo') }}</h4>
+                        <ul class="flex w-full flex-col items-end gap-3">
+                            <li v-for="item in footerMoreLinks" :key="item.href">
+                                <Link :href="item.href" dir="auto" class="text-sm leading-6 text-[#8899aa] transition-colors hover:text-[#25d366]">{{ $t(item.labelKey) }}</Link>
                             </li>
                         </ul>
                     </div>
 
-                    <!-- Company Links -->
-                    <div>
-                        <h4 class="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wider">{{ $t('Company') }}</h4>
-                        <ul class="space-y-3">
-                            <li>
-                                <Link href="/contact" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ $t('Contact Us') }}</Link>
-                            </li>
-                            <li>
-                                <Link href="/signup" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ $t('Sign up') }}</Link>
-                            </li>
-                            <li>
-                                <Link href="/login" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ $t('Login') }}</Link>
+                    <!-- Product -->
+                    <div class="flex w-full flex-col items-end gap-[18px] text-right lg:w-[229.56px]">
+                        <h4 dir="auto" class="w-full text-base font-semibold leading-[20px] text-black dark:text-white">{{ $t('Product') }}</h4>
+                        <ul class="flex w-full flex-col items-end gap-3">
+                            <li v-for="item in footerProductLinks" :key="item.href">
+                                <Link :href="item.href" dir="auto" class="text-sm leading-6 text-[#8899aa] transition-colors hover:text-[#25d366]">{{ $t(item.labelKey) }}</Link>
                             </li>
                         </ul>
                     </div>
 
-                    <!-- Pages & Contact -->
-                    <div>
-                        <h4 class="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wider">{{ $t('Pages') }}</h4>
-                        <ul class="space-y-3 mb-6" v-if="props.pages && props.pages.length > 0">
-                            <li v-for="page in props.pages" :key="page.id">
-                                <Link :href="'/pages/' + (page.slug || formattedName(page.name))" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ page.display_name || page.name }}</Link>
-                            </li>
-                        </ul>
-                        <div>
-                            <h4 class="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wider">{{ $t('Contact') }}</h4>
-                            <ul class="space-y-2">
-                                <li v-if="props.companyConfig && props.companyConfig.email">
-                                    <a :href="'mailto:' + props.companyConfig.email" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ props.companyConfig.email }}</a>
-                                </li>
-                                <li v-for="phoneNumber in phoneNumbers" :key="`footer-contact-phone-${phoneNumber}`">
-                                    <a :href="'tel:' + phoneNumber" class="text-gray-600 hover:text-primary transition-colors text-sm">{{ phoneNumber }}</a>
-                                </li>
-                            </ul>
+                    <!-- Logo, tagline, socials -->
+                    <div class="flex w-full flex-col items-end gap-4 lg:w-[367.3px]">
+                        <NavBrandMark variant="desktop" />
+                        <p dir="auto" class="w-full text-right text-sm leading-6 text-[#8899aa]">
+                            {{ $t('WhatsApp automation platform powered by AI for the Saudi market. Make WhatsApp sell for you — 24 hours a day.') }}
+                        </p>
+                        <div class="flex items-center justify-end gap-2 pt-1" dir="ltr">
+                            <a
+                                v-if="whatsappSocialLink"
+                                :href="whatsappSocialLink"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="footer-social-icon footer-social-icon--whatsapp"
+                                aria-label="WhatsApp"
+                            >
+                                <img src="/images/footer/whatsapp-glow.svg" class="footer-social-icon__glow" alt="" aria-hidden="true">
+                                <img src="/images/footer/whatsapp-icon.svg" class="footer-social-icon__mark" alt="" aria-hidden="true">
+                            </a>
+                            <a
+                                :href="linkedinUrl || '#'"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="footer-social-icon footer-social-icon--linkedin"
+                                aria-label="LinkedIn"
+                            >
+                                <img src="/images/footer/linkedin-glow.svg" class="footer-social-icon__glow" alt="" aria-hidden="true">
+                                <img src="/images/footer/linkedin-icon.svg" class="footer-social-icon__mark" alt="" aria-hidden="true">
+                            </a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Business / Tax Disclosure -->
-                <div class="border-t border-gray-200 pt-8 mt-8 text-sm text-gray-600 space-y-1">
-                    <p class="font-medium text-gray-900">{{ businessInfo.name }}</p>
-                    <p>{{ businessInfo.address }}</p>
-                    <p class="flex flex-wrap gap-x-2 gap-y-1">
-                        <span>{{ $t('Phone') }}: <a :href="'tel:' + businessInfo.phone" dir="ltr" class="hover:underline hover:text-primary">{{ businessInfo.phone }}</a></span>
-                        <span class="hidden md:inline">&bull;</span>
-                        <span>{{ $t('Website') }}: <a :href="businessInfo.website" target="_blank" rel="noopener" dir="ltr" class="hover:underline hover:text-primary">{{ businessInfo.website }}</a></span>
-                        <span class="hidden md:inline">&bull;</span>
+                <div class="w-full border-t-[0.5px] border-[#5a6b7e] pt-[28.5px] text-center dark:border-[#94a3b8]">
+                    <p class="text-sm font-medium text-white">{{ businessInfo.name }}</p>
+                    <p class="mt-1 text-sm leading-6 text-[#8899aa]">{{ businessInfo.address }}</p>
+                    <p class="mt-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm leading-6 text-[#8899aa]">
+                        <span>{{ $t('Phone') }}: <a :href="'tel:' + businessInfo.phone" dir="ltr" class="hover:underline hover:text-[#25d366]">{{ businessInfo.phone }}</a></span>
+                        <span>&bull;</span>
+                        <span>{{ $t('Website') }}: <a :href="businessInfo.website" target="_blank" rel="noopener" dir="ltr" class="hover:underline hover:text-[#25d366]">{{ businessInfo.website }}</a></span>
+                        <span>&bull;</span>
                         <span>{{ $t('Tax ID') }}: <span dir="ltr">{{ businessInfo.taxId }}</span></span>
                     </p>
                 </div>
 
-                <!-- Bottom Bar -->
-                <div class="border-t border-gray-200 pt-8 mt-8">
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p class="text-gray-600 text-sm">
-                            {{ $t('Copyright') }} © {{ currentYear }} {{ props.companyConfig?.company_name || '' }}. {{ $t('All rights reserved') }}.
-                        </p>
-                        <Link href="/cookie-policy" class="text-gray-600 hover:text-primary transition-colors text-sm">
-                            {{ $t('Cookie Policy') }}
-                        </Link>
-                    </div>
+                <div class="w-full border-t-[0.5px] border-[#5a6b7e] pt-[28.5px] text-center dark:border-[#94a3b8]">
+                    <p dir="auto" class="text-sm leading-6 text-[#8899aa]">
+                        {{ $t('© {year} Botzo · All rights reserved · Made with ❤ for the Saudi market', { year: currentYear }) }}
+                    </p>
+                    <Link href="/cookie-policy" dir="auto" class="mt-1 inline-block text-sm leading-6 text-[#8899aa] transition-colors hover:text-[#25d366]">
+                        {{ $t('Cookie Policy') }}
+                    </Link>
                 </div>
             </div>
         </footer>
@@ -373,11 +288,13 @@
 </template>
 
 <script setup>
-    import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+    import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
     import { Link, usePage } from "@inertiajs/vue3";
     import { useRtl } from '@/Composables/useRtl';
-    import { useFrontendContactInfo } from '@/Composables/useFrontendContactInfo';
     import CookieConsentBanner from '@/Components/CookieConsentBanner.vue';
+    import NavBrandMark from '@/Components/NavBrandMark.vue';
+    import LangToggle from '@/Components/LangToggle.vue';
+    import ThemeToggle from '@/Components/ThemeToggle.vue';
 
     const props = defineProps(['companyConfig', 'pages']);
 
@@ -402,34 +319,17 @@
         }
     });
 
-    const facebookUrl = ref(null);
-    const twitterUrl = ref(null);
-    const tiktokUrl = ref(null);
-    const snapchatUrl = ref(null);
+    const authUser = computed(() => page.props.auth?.user ?? null);
+
     const linkedinUrl = ref(null);
-    const isScrolled = ref(false);
     const showResourcesDropdown = ref(false);
-    const showLanguageDropdown = ref(false);
     const showMobileLanguageDropdown = ref(false);
     const showMobileMenu = ref(false);
+    const mobileMenuPanel = ref(null);
     const mobileMenuPanelAnimationClass = computed(() => (isRtl.value ? 'mobile-menu-panel-rtl' : 'mobile-menu-panel-ltr'));
     
     const currentLanguageCode = computed(() => {
         return page.props.currentLanguage || 'en';
-    });
-    const companyConfigRef = computed(() => props.companyConfig || {});
-    const { addressLines, phoneNumbers } = useFrontendContactInfo(companyConfigRef, currentLanguageCode);
-    const resolveManagedImageUrl = (value, fallback) => {
-        if (!value || typeof value !== 'string') {
-            return fallback;
-        }
-
-        return value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/')
-            ? value
-            : `/media/${value}`;
-    };
-    const premiumFooterPaymentMethodsUrl = computed(() => {
-        return resolveManagedImageUrl(props.companyConfig?.premium_home_footer_payment_methods, '/images/defaults/payment-methods-default.svg');
     });
 
     const formattedName = computed(() => {
@@ -442,50 +342,168 @@
         if (!props.companyConfig || !props.companyConfig.socials) return;
         try {
             const socialsArray = JSON.parse(props.companyConfig.socials || '{}');
-            facebookUrl.value = socialsArray['facebook'] || null;
-            twitterUrl.value = socialsArray['twitter'] || null;
-            tiktokUrl.value = socialsArray['tiktok'] || null;
-            snapchatUrl.value = socialsArray['snapchat'] || null;
             linkedinUrl.value = socialsArray['linkedin'] || null;
         } catch (error) {
             console.error('Error parsing socials:', error);
         }
     };
 
-    const handleScroll = () => {
-        isScrolled.value = window.scrollY > 10;
+    const whatsappSocialLink = computed(() => props.companyConfig?.book_a_demo_link || null);
+
+    // The static /privacy and /terms-of-service routes only work when the
+    // Page record's `name` column happens to match one of a few guessed
+    // slugs (see FrontendController::renderLegalPage) — when it doesn't,
+    // they silently fall back to generic placeholder content instead of the
+    // real page. Resolving directly against the already-loaded `pages` list
+    // and linking to /pages/{slug} sidesteps that guessing entirely, and
+    // works for pages (like Delete User Data) that have no dedicated route.
+    const resolvePageHref = (candidateNames, fallbackHref) => {
+        const pages = props.pages || [];
+        const match = pages.find((page) => candidateNames.some(
+            (candidate) => candidate.toLowerCase() === (page.name || '').toLowerCase()
+        ));
+        return match ? `/pages/${match.slug}` : fallbackHref;
     };
 
-    const handleImageError = (event, fallback) => {
-        if (!event?.target || event.target.src === `${window.location.origin}${fallback}`) {
-            return;
-        }
+    const moreDropdownLinks = computed(() => [
+        { labelKey: 'WhatsApp Account Verification', href: '/meta-verification' },
+        { labelKey: 'Privacy Policy', href: resolvePageHref(['Privacy Policy', 'privacy-policy'], '/privacy') },
+        { labelKey: 'Terms of Use', href: resolvePageHref(['Terms of Use', 'terms-of-service', 'terms-of-use'], '/terms-of-service') },
+        { labelKey: 'Delete User Data', href: resolvePageHref(['Data Deletion Instructions', 'Data Deletion', 'data-deletion'], '/data-deletion') },
+        { labelKey: 'API Documentation', href: '/api-documentation' },
+    ]);
 
-        event.target.src = fallback;
-    };
+    const footerMoreLinks = computed(() => [
+        { labelKey: 'Privacy Policy', href: resolvePageHref(['Privacy Policy', 'privacy-policy'], '/privacy') },
+        { labelKey: 'WhatsApp Account Verification', href: '/meta-verification' },
+        { labelKey: 'Terms of Use', href: resolvePageHref(['Terms of Use', 'terms-of-service', 'terms-of-use'], '/terms-of-service') },
+        { labelKey: 'Delete User Data', href: resolvePageHref(['Data Deletion Instructions', 'Data Deletion', 'data-deletion'], '/data-deletion') },
+        { labelKey: 'API Documentation', href: '/api-documentation' },
+    ]);
 
-    // Prevent body scroll when mobile menu is open
+    const footerProductLinks = [
+        { labelKey: 'Features', href: '/#section2' },
+        { labelKey: 'Pricing', href: '/pricing' },
+        { labelKey: 'How does it work?', href: '/#section3' },
+        { labelKey: 'FAQs', href: '/faqs' },
+        { labelKey: 'Contact Us', href: '/contact' },
+    ];
+
+    // Prevent body scroll when mobile menu is open. `overflow: hidden` alone
+    // doesn't stop touch-scroll on mobile Safari, so the body is pinned with
+    // `position: fixed` (offset by the current scroll position) instead, and
+    // restored to that same scroll position on close.
+    let mobileMenuScrollY = 0;
     watch(showMobileMenu, (isOpen) => {
         if (isOpen) {
+            mobileMenuScrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${mobileMenuScrollY}px`;
+            document.body.style.left = '0';
+            document.body.style.right = '0';
             document.body.style.overflow = 'hidden';
+            // Always open scrolled to the top, regardless of where it was left last time.
+            nextTick(() => {
+                if (mobileMenuPanel.value) mobileMenuPanel.value.scrollTop = 0;
+            });
         } else {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
             document.body.style.overflow = '';
+            window.scrollTo(0, mobileMenuScrollY);
         }
     });
 
     onMounted(() => {
         parseSocials();
-        window.addEventListener('scroll', handleScroll);
     });
 
     onBeforeUnmount(() => {
-        window.removeEventListener('scroll', handleScroll);
         // Clean up: ensure body scroll is restored
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
         document.body.style.overflow = '';
     });
 </script>
 
 <style scoped>
+.footer-social-icon {
+    position: relative;
+    display: flex;
+    height: 48px;
+    width: 48px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 0.8px solid rgba(216, 216, 216, 0.05);
+    background-image: linear-gradient(135deg, rgba(248, 251, 255, 0.04) 0%, rgba(255, 255, 255, 0) 100%);
+    backdrop-filter: blur(10px);
+    box-shadow: 8px 4px 16px 0px rgba(0, 0, 0, 0.08);
+    transition: transform 200ms ease;
+}
+
+.footer-social-icon::after {
+    content: "";
+    position: absolute;
+    inset: -0.4px;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.footer-social-icon--whatsapp::after {
+    box-shadow: inset 0px 0px 8px 0px rgba(13, 252, 37, 0.32);
+}
+
+.footer-social-icon--linkedin::after {
+    box-shadow: inset 0px 0px 8px 0px rgba(13, 137, 252, 0.32);
+}
+
+.footer-social-icon:hover {
+    transform: translateY(-2px);
+}
+
+.footer-social-icon__glow {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    mix-blend-mode: plus-lighter;
+    pointer-events: none;
+}
+
+.footer-social-icon__mark {
+    position: relative;
+    width: 32px;
+    height: 32px;
+}
+
+.page-enter-anim {
+    animation: pageEnter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-enter-anim {
+        animation: none;
+    }
+}
+
 .dropdown-enter-active,
 .dropdown-leave-active {
     transition: all 0.2s ease-out;

@@ -1,214 +1,162 @@
 <template>
     <AppLayout>
         <div class="ui-page ui-fade-up ui-page-frame ui-text-main min-h-full">
-            <div class="flex justify-between">
-                <div>
-                    <h1 v-if="props.plan === null" class="text-xl mb-1">{{ $t('Create plan') }}</h1>
-                    <h1 v-else class="text-xl mb-1">{{ $t('Update plan') }}</h1>
-                    <p class="mb-6 flex items-center text-sm leading-6 text-gray-600">
+            <UiPageHeader
+                :title="props.plan === null ? $t('Create plan') : $t('Update plan')"
+                :subtitle="$t('Set pricing, limits, and feature access for this subscription tier.')"
+            >
+                <template #actions>
+                    <Link href="/admin/plans" class="pl-btn pl-btn--solid">{{ $t('Back') }}</Link>
+                </template>
+            </UiPageHeader>
+
+            <form @submit.prevent="submitForm()" class="mt-6 space-y-6">
+                <UiSectionCard :title="$t('Name')">
+                    <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6">
+                        <FormInput v-model="form.name_ar" :name="$t('Name (Arabic)')" :error="form.errors.name_ar" :type="'text'" :class="'sm:col-span-3'"/>
+                        <FormInput v-model="form.name_en" :name="$t('Name (English)')" :error="form.errors.name_en" :type="'text'" :class="'sm:col-span-3'"/>
+                        <p class="sm:col-span-6 pl-hint">
+                            {{ $t('If one language is empty, the other plan name will be used automatically.') }}
+                        </p>
+                        <div v-if="form.errors.name" class="sm:col-span-6 ui-form-error">{{ form.errors.name }}</div>
+                    </div>
+                </UiSectionCard>
+
+                <UiSectionCard :title="$t('Status')">
+                    <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6">
+                        <FormSelect v-model="form.status" :options="statusOptions" :error="form.errors.status" :name="$t('Status')" :class="'sm:col-span-3'" :placeholder="$t('Select status')"/>
+                    </div>
+                </UiSectionCard>
+
+                <UiSectionCard :title="$t('Pricing details')">
+                    <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6">
+                        <FormInput v-model="form.price" :name="$t('Price')" :error="form.errors.price" :type="'number'" :class="'sm:col-span-2'"/>
+                        <FormSelect v-model="form.period" :options="periodOptions" :error="form.errors.period" :name="$t('Period')" :class="'sm:col-span-2'" :placeholder="$t('Select period')"/>
+                        <FormInput v-model="form.tier_rank" :name="$t('Plan tier rank')" :error="form.errors.tier_rank" :type="'number'" :class="'sm:col-span-2'"/>
+                        <p class="sm:col-span-6 pl-hint">
+                            {{ $t('Lower ranks are treated as lower plans when deciding upgrades and scheduled downgrades.') }}
+                        </p>
+                    </div>
+                </UiSectionCard>
+
+                <UiSectionCard :title="$t('Plan limit')">
+                    <div class="pl-banner pl-banner--warning mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                        <span v-if="props.plan === null" class="ms-1 mt-1">{{ $t('Create plan') }}</span>
-                        <span v-else class="ms-1 mt-1">{{ $t('Update plan') }}</span>
-                    </p>
-                </div>
-                <div>
-                    <Link href="/admin/plans" class="rounded-md bg-indigo-600 px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $t('Back') }}</Link>
-                </div>
-            </div>
-            <form @submit.prevent="submitForm()" class="bg-white border py-5 px-5 rounded-[0.5rem]">
-                <div class="sm:flex border-b py-5">
-                    <div class="hidden sm:block sm:w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Name') }}</h1>
+                        <p>{{ $t('For unlimited usage, set -1 as the value') }}</p>
                     </div>
-                    <div class="sm:w-[60%] sm:flex gap-x-6">
-                        <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
-                            <FormInput v-model="form.name_ar" :name="$t('Name (Arabic)')" :error="form.errors.name_ar" :type="'text'" :class="'sm:col-span-3'"/>
-                            <FormInput v-model="form.name_en" :name="$t('Name (English)')" :error="form.errors.name_en" :type="'text'" :class="'sm:col-span-3'"/>
-                            <p class="sm:col-span-6 text-xs text-slate-700">
-                                {{ $t('If one language is empty, the other plan name will be used automatically.') }}
-                            </p>
-                            <div v-if="form.errors.name" class="sm:col-span-6 ui-form-error">{{ form.errors.name }}</div>
-                        </div>
+                    <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6">
+                        <FormInput v-model="form.campaign_limit" :name="$t('Campaign limit')" :error="form.errors.campaign_limit" :type="'number'" :class="'sm:col-span-3'"/>
+                        <FormInput v-model="form.message_limit" :name="$t('Message limit')" :error="form.errors.message_limit" :type="'number'" :class="'sm:col-span-3'"/>
+                        <FormInput v-model="form.contacts_limit" :name="$t('Contacts limit')" :error="form.errors.contacts_limit" :type="'number'" :class="'sm:col-span-3'"/>
+                        <FormInput v-model="form.canned_replies_limit" :name="$t('Canned/Automated replies limit')" :error="form.errors.canned_replies_limit" :type="'number'" :class="'sm:col-span-3'"/>
+                        <FormInput v-model="form.team_limit" :name="$t('User limit')" :error="form.errors.team_limit" :type="'number'" :class="'sm:col-span-3'"/>
+                        <p class="sm:col-span-6 pl-hint">
+                            {{ $t('Canned replies and automated replies refer to the same feature.') }}
+                        </p>
                     </div>
-                </div>
-                <div class="sm:flex border-b py-5">
-                    <div class="hidden sm:block sm:w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Status') }}</h1>
+                </UiSectionCard>
+
+                <UiSectionCard :title="$t('Branches limit')" :subtitle="$t('Maximum number of branch organizations allowed under a main organization.')">
+                    <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6">
+                        <FormInput v-model="form.branches_limit" :name="$t('Branches limit')" :error="form.errors.branches_limit" :type="'number'" :class="'sm:col-span-3'"/>
                     </div>
-                    <div class="sm:w-[60%] sm:flex gap-x-6">
-                        <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
-                            <FormSelect v-model="form.status" :options="statusOptions" :error="form.errors.status" :name="$t('Status')" :class="'sm:col-span-6'" :placeholder="$t('Select status')"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="sm:flex border-b py-5">
-                    <div class="hidden sm:block w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Pricing details') }}</h1>
-                    </div>
-                    <div class="sm:w-[60%] sm:flex gap-x-6">
-                        <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
-                            <FormInput v-model="form.price" :name="$t('Price')" :error="form.errors.price" :type="'number'" :class="'sm:col-span-3'"/>
-                            <FormSelect v-model="form.period" :options="periodOptions" :error="form.errors.period" :name="$t('Period')" :class="'sm:col-span-3'" :placeholder="$t('Select period')"/>
-                            <FormInput v-model="form.tier_rank" :name="$t('Plan tier rank')" :error="form.errors.tier_rank" :type="'number'" :class="'sm:col-span-3'"/>
-                            <p class="sm:col-span-6 text-xs text-slate-700">
-                                {{ $t('Lower ranks are treated as lower plans when deciding upgrades and scheduled downgrades.') }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="sm:flex py-5 border-b">
-                    <div class="hidden sm:block w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Plan limit') }}</h1>
-                    </div>
-                    <div class="sm:w-[60%]">
-                        <div class="bg-orange-100 p-2 rounded-md shadow-sm sm:w-[80%] mb-4 flex items-center gap-x-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                            <p class="text-sm leading-6">{{ $t('For unlimited usage, set -1 as the value') }}</p>
-                        </div>
-                        <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
-                            <FormInput v-model="form.campaign_limit" :name="$t('Campaign limit')" :error="form.errors.campaign_limit" :type="'number'" :class="'sm:col-span-3'"/>
-                            <FormInput v-model="form.message_limit" :name="$t('Message limit')" :error="form.errors.message_limit" :type="'number'" :class="'sm:col-span-3'"/>
-                            <FormInput v-model="form.contacts_limit" :name="$t('Contacts limit')" :error="form.errors.contacts_limit" :type="'number'" :class="'sm:col-span-3'"/>
-                            <FormInput v-model="form.canned_replies_limit" :name="$t('Canned/Automated replies limit')" :error="form.errors.canned_replies_limit" :type="'number'" :class="'sm:col-span-3'"/>
-                            <FormInput v-model="form.team_limit" :name="$t('User limit')" :error="form.errors.team_limit" :type="'number'" :class="'sm:col-span-3'"/>
-                            <p class="sm:col-span-6 text-xs text-slate-700">
-                                {{ $t('Canned replies and automated replies refer to the same feature.') }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="sm:flex py-5 border-b">
-                    <div class="hidden sm:block w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Branches limit') }}</h1>
-                        <p class="text-xs text-slate-700">{{ $t('Maximum number of branch organizations allowed under a main organization.') }}</p>
-                    </div>
-                    <div class="sm:w-[60%]">
-                        <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
-                            <FormInput v-model="form.branches_limit" :name="$t('Branches limit')" :error="form.errors.branches_limit" :type="'number'" :class="'sm:col-span-3'"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="sm:flex py-5 border-b">
-                    <div class="hidden sm:block w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Features access') }}</h1>
-                        <p class="text-xs text-slate-700">{{ $t('Select features that are available in this plan') }}</p>
-                    </div>
-                    <div class="sm:w-[60%]">
-                        <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
-                            <div v-for="addon in addons" :key="addon" class="sm:col-span-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <div class="flex items-center justify-between gap-3">
-                                    <div>
-                                        <div class="text-sm font-medium text-slate-900">{{ $t(resolveAddonLabelKey(addon)) }}</div>
-                                        <p class="mt-1 text-xs text-slate-600">{{ $t('Turn on the feature to reveal and save its plan controls below.') }}</p>
-                                    </div>
-                                    <FormToggleSwitch v-model="form.addons[addon]"/>
+                </UiSectionCard>
+
+                <UiSectionCard :title="$t('Features access')" :subtitle="$t('Select features that are available in this plan')">
+                    <div class="grid gap-x-4 gap-y-4 sm:grid-cols-2">
+                        <div v-for="addon in addons" :key="addon" class="pl-tile">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <div class="pl-tile-title">{{ $t(resolveAddonLabelKey(addon)) }}</div>
+                                    <p class="pl-hint mt-1">{{ $t('Turn on the feature to reveal and save its plan controls below.') }}</p>
                                 </div>
+                                <FormToggleSwitch v-model="form.addons[addon]"/>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div v-if="isAddonEnabled('AI Assistant')" class="sm:flex py-5 border-b">
-                    <div class="hidden sm:block w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('AI Assistant controls') }}</h1>
-                        <p class="text-xs text-slate-700">{{ $t('Set AI usage limits and choose whether organizations can use their own key under this plan.') }}</p>
+                </UiSectionCard>
+
+                <UiSectionCard v-if="isAddonEnabled('AI Assistant')" :title="$t('AI Assistant controls')" :subtitle="$t('Set AI usage limits and choose whether organizations can use their own key under this plan.')">
+                    <div class="pl-banner pl-banner--warning mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
+                        <p>{{ $t('For unlimited usage, set -1 as the value') }}</p>
                     </div>
-                    <div class="sm:w-[60%]">
-                        <div class="bg-orange-100 p-2 rounded-md shadow-sm sm:w-[80%] mb-4 flex items-center gap-x-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                            <p class="text-sm leading-6">{{ $t('For unlimited usage, set -1 as the value') }}</p>
-                        </div>
-                        <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
-                            <FormInput v-model="form.ai_text_response_limit" :name="$t('AI Text Response Limit')" :error="form.errors.ai_text_response_limit" :type="'number'" :class="'sm:col-span-3'"/>
-                            <FormInput v-model="form.ai_audio_response_limit" :name="$t('AI Audio Response Limit')" :error="form.errors.ai_audio_response_limit" :type="'number'" :class="'sm:col-span-3'"/>
-                            <FormInput v-model="form.ai_system_key_monthly_quota" :name="$t('AI system key monthly quota')" :error="form.errors.ai_system_key_monthly_quota" :type="'number'" :class="'sm:col-span-3'"/>
-                            <div class="sm:col-span-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <div class="flex items-start justify-between gap-3">
-                                    <div>
-                                        <div class="text-sm font-medium text-slate-900">{{ $t('Allow organization key') }}</div>
-                                        <p class="mt-1 text-xs text-slate-600">{{ $t('Allow each organization on this plan to use its own AI API key.') }}</p>
-                                    </div>
-                                    <FormToggleSwitch v-model="form.ai_organization_key_enabled"/>
+                    <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6">
+                        <FormInput v-model="form.ai_text_response_limit" :name="$t('AI Text Response Limit')" :error="form.errors.ai_text_response_limit" :type="'number'" :class="'sm:col-span-3'"/>
+                        <FormInput v-model="form.ai_audio_response_limit" :name="$t('AI Audio Response Limit')" :error="form.errors.ai_audio_response_limit" :type="'number'" :class="'sm:col-span-3'"/>
+                        <FormInput v-model="form.ai_system_key_monthly_quota" :name="$t('AI system key monthly quota')" :error="form.errors.ai_system_key_monthly_quota" :type="'number'" :class="'sm:col-span-3'"/>
+                        <div class="sm:col-span-3 pl-tile">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <div class="pl-tile-title">{{ $t('Allow organization key') }}</div>
+                                    <p class="pl-hint mt-1">{{ $t('Allow each organization on this plan to use its own AI API key.') }}</p>
                                 </div>
-                                <div v-if="form.errors.ai_organization_key_enabled" class="ui-form-error mt-2">{{ form.errors.ai_organization_key_enabled }}</div>
+                                <FormToggleSwitch v-model="form.ai_organization_key_enabled"/>
+                            </div>
+                            <div v-if="form.errors.ai_organization_key_enabled" class="ui-form-error mt-2">{{ form.errors.ai_organization_key_enabled }}</div>
+                        </div>
+                    </div>
+                    <div v-if="props.enable_ai_billing != 1" class="pl-banner pl-banner--warning mt-4">
+                        <p>{{ $t('AI response quotas are enforced only when AI billing is enabled globally.') }}</p>
+                    </div>
+                </UiSectionCard>
+
+                <UiSectionCard v-if="isAddonEnabled('Flow builder')" :title="$t('Flow Builder limits')">
+                    <div class="pl-banner pl-banner--warning mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
+                        <p>{{ $t('For unlimited usage, set -1 as the value') }}</p>
+                    </div>
+                    <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6">
+                        <FormInput v-model="form.flow_builder_active_flows_limit" :name="$t('Active flows limit')" :error="form.errors.flow_builder_active_flows_limit" :type="'number'" :class="'sm:col-span-3'"/>
+                        <FormInput v-model="form.flow_builder_nodes_per_flow_limit" :name="$t('Nodes per flow limit')" :error="form.errors.flow_builder_nodes_per_flow_limit" :type="'number'" :class="'sm:col-span-3'"/>
+                        <FormInput v-model="form.flow_builder_monthly_runs_limit" :name="$t('Monthly flow runs limit')" :error="form.errors.flow_builder_monthly_runs_limit" :type="'number'" :class="'sm:col-span-3'"/>
+                        <div class="sm:col-span-3">
+                            <div class="pl-tile-title mb-2">{{ $t('Enable advanced Flow Builder nodes') }}</div>
+                            <FormToggleSwitch v-model="form.flow_builder_advanced_enabled"/>
+                            <div v-if="form.errors.flow_builder_advanced_enabled" class="ui-form-error mt-1">{{ form.errors.flow_builder_advanced_enabled }}</div>
+                        </div>
+                    </div>
+                </UiSectionCard>
+
+                <UiSectionCard :title="$t('Custom features')" :subtitle="$t('Add custom plan features outside the built-in system limits.')">
+                    <div class="space-y-3">
+                        <div
+                            v-for="(feature, featureIndex) in form.custom_features"
+                            :key="`custom-feature-${featureIndex}`"
+                            class="pl-tile grid gap-x-6 gap-y-3 sm:grid-cols-6"
+                        >
+                            <FormInput
+                                v-model="feature.text_ar"
+                                :name="$t('Feature text (Arabic)')"
+                                :error="form.errors[`custom_features.${featureIndex}.text_ar`]"
+                                :type="'text'"
+                                :class="'sm:col-span-3'"
+                            />
+                            <FormInput
+                                v-model="feature.text_en"
+                                :name="$t('Feature text (English)')"
+                                :error="form.errors[`custom_features.${featureIndex}.text_en`]"
+                                :type="'text'"
+                                :class="'sm:col-span-3'"
+                            />
+                            <div class="sm:col-span-6 flex justify-end">
+                                <button type="button" class="pl-remove-btn" @click="removeCustomFeature(featureIndex)">
+                                    {{ $t('Remove feature') }}
+                                </button>
                             </div>
                         </div>
-                        <div v-if="props.enable_ai_billing != 1" class="sm:w-[80%] mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-                            {{ $t('AI response quotas are enforced only when AI billing is enabled globally.') }}
-                        </div>
+                        <button type="button" class="pl-btn pl-btn--ghost" @click="addCustomFeature">
+                            {{ $t('Add custom feature') }}
+                        </button>
                     </div>
-                </div>
-                <div v-if="isAddonEnabled('Flow builder')" class="sm:flex py-5 border-b">
-                    <div class="hidden sm:block w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Flow Builder limits') }}</h1>
-                    </div>
-                    <div class="sm:w-[60%]">
-                        <div class="bg-orange-100 p-2 rounded-md shadow-sm sm:w-[80%] mb-4 flex items-center gap-x-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                            <p class="text-sm leading-6">{{ $t('For unlimited usage, set -1 as the value') }}</p>
-                        </div>
-                        <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
-                            <FormInput v-model="form.flow_builder_active_flows_limit" :name="$t('Active flows limit')" :error="form.errors.flow_builder_active_flows_limit" :type="'number'" :class="'sm:col-span-3'"/>
-                            <FormInput v-model="form.flow_builder_nodes_per_flow_limit" :name="$t('Nodes per flow limit')" :error="form.errors.flow_builder_nodes_per_flow_limit" :type="'number'" :class="'sm:col-span-3'"/>
-                            <FormInput v-model="form.flow_builder_monthly_runs_limit" :name="$t('Monthly flow runs limit')" :error="form.errors.flow_builder_monthly_runs_limit" :type="'number'" :class="'sm:col-span-3'"/>
-                            <div class="sm:col-span-3">
-                                <div class="text-sm mb-2">{{ $t('Enable advanced Flow Builder nodes') }}</div>
-                                <FormToggleSwitch v-model="form.flow_builder_advanced_enabled"/>
-                                <div v-if="form.errors.flow_builder_advanced_enabled" class="ui-form-error mt-1">{{ form.errors.flow_builder_advanced_enabled }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="sm:flex py-5 border-b">
-                    <div class="hidden sm:block w-[40%] mb-1">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Custom features') }}</h1>
-                        <p class="text-xs text-slate-700">{{ $t('Add custom plan features outside the built-in system limits.') }}</p>
-                    </div>
-                    <div class="sm:w-[60%]">
-                        <div class="sm:w-[80%] space-y-3">
-                            <div
-                                v-for="(feature, featureIndex) in form.custom_features"
-                                :key="`custom-feature-${featureIndex}`"
-                                class="grid gap-x-6 gap-y-3 sm:grid-cols-6 border border-gray-200 rounded-lg p-3"
-                            >
-                                <FormInput
-                                    v-model="feature.text_ar"
-                                    :name="$t('Feature text (Arabic)')"
-                                    :error="form.errors[`custom_features.${featureIndex}.text_ar`]"
-                                    :type="'text'"
-                                    :class="'sm:col-span-3'"
-                                />
-                                <FormInput
-                                    v-model="feature.text_en"
-                                    :name="$t('Feature text (English)')"
-                                    :error="form.errors[`custom_features.${featureIndex}.text_en`]"
-                                    :type="'text'"
-                                    :class="'sm:col-span-3'"
-                                />
-                                <div class="sm:col-span-6 flex justify-end">
-                                    <button type="button" class="text-xs text-red-600 hover:text-red-700" @click="removeCustomFeature(featureIndex)">
-                                        {{ $t('Remove feature') }}
-                                    </button>
-                                </div>
-                            </div>
-                            <button type="button" class="rounded-md border border-primary text-primary px-3 py-1.5 text-sm hover:bg-primary hover:text-white transition-colors" @click="addCustomFeature">
-                                {{ $t('Add custom feature') }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="py-5 sm:flex">
-                    <div class="w-[40%]">
-                        <h1 class="text-sm text-gray-500 tracking-[0px]">{{ $t('Enable message reception after plan expiration') }}</h1>
-                        <div class="text-xs text-slate-700 flex items-center">
-                            <span>{{ $t('Toggle this setting to allow or block inbound messages when a user\'s subscription plan has ended.') }}</span>
-                        </div>
-                    </div>
-                    <div class="sm:w-[20%] flex items-start">
-                        <FormToggleSwitch v-model="form.receive_messages_after_expiration"/>
-                    </div>
-                </div>
-                <div class="py-6 flex justify-end">
-                    <button type="submit" class="flex items-center gap-x-4 rounded-md bg-black px-3 py-2 text-sm text-white shadow-sm hover:bg-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                </UiSectionCard>
+
+                <UiSectionCard :title="$t('Enable message reception after plan expiration')" :subtitle="$t('Toggle this setting to allow or block inbound messages when a user\'s subscription plan has ended.')">
+                    <FormToggleSwitch v-model="form.receive_messages_after_expiration"/>
+                </UiSectionCard>
+
+                <div class="flex justify-end">
+                    <button type="submit" class="pl-btn pl-btn--solid">
                         {{ $t('Save') }}
                     </button>
                 </div>
@@ -223,7 +171,9 @@
     import FormInput from '@/Components/FormInput.vue';
     import FormSelect from '@/Components/FormSelect.vue';
     import FormToggleSwitch from '@/Components/FormToggleSwitch.vue';
-    import { useI18n } from 'vue-i18n';
+    import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
+    import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
+    import { useI18n } from 'vue-i18n';
     const { t } = useI18n();
 
     const props = defineProps(['title', 'plan', 'addons', 'enable_ai_billing']);
@@ -391,4 +341,77 @@
         });
     };
 </script>
+
+<style scoped>
+.pl-btn {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, filter 160ms ease;
+}
+
+.pl-btn--solid {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.pl-btn--solid:hover {
+    filter: brightness(1.05);
+}
+
+.pl-btn--ghost {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+
+.pl-btn--ghost:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+
+.pl-hint {
+    font-size: 0.78rem;
+    color: var(--ui-muted);
+}
+
+.pl-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.8rem;
+    border: 1px solid color-mix(in srgb, var(--ui-warning) 35%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-warning) 10%, var(--ui-surface));
+    padding: 0.6rem 0.85rem;
+    font-size: 0.85rem;
+    color: var(--ui-text);
+}
+
+.pl-tile {
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.9rem 1rem;
+}
+
+.pl-tile-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.pl-remove-btn {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ui-danger);
+}
+
+.pl-remove-btn:hover {
+    text-decoration: underline;
+}
+</style>
 

@@ -1,0 +1,140 @@
+
+.usage-btn[data-v-2a68c091] {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.7rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, filter 160ms ease;
+}
+.usage-btn--solid[data-v-2a68c091] {
+    color: #fff;
+    background: var(--ui-secondary);
+}
+.usage-btn--solid[data-v-2a68c091]:hover {
+    filter: brightness(1.05);
+}
+.usage-btn--ghost[data-v-2a68c091] {
+    color: var(--ui-text);
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+}
+.usage-btn--ghost[data-v-2a68c091]:hover {
+    background: var(--ui-border);
+}
+.usage-banner[data-v-2a68c091] {
+    margin-bottom: 1rem;
+    padding: 1rem 1.15rem;
+    border-radius: var(--ui-radius-md);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+.usage-banner--info[data-v-2a68c091] {
+    background: color-mix(in srgb, var(--ui-secondary) 8%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-secondary) 20%, var(--ui-border));
+    color: var(--ui-text);
+}
+.usage-banner--warning[data-v-2a68c091] {
+    background: color-mix(in srgb, var(--ui-warning) 12%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-warning) 30%, var(--ui-border));
+    color: color-mix(in srgb, var(--ui-warning) 75%, var(--ui-text));
+}
+.usage-banner--danger[data-v-2a68c091] {
+    background: color-mix(in srgb, var(--ui-danger) 10%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-danger) 28%, var(--ui-border));
+    color: color-mix(in srgb, var(--ui-danger) 75%, var(--ui-text));
+}
+.usage-notice-icon[data-v-2a68c091] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+}
+.usage-notice-icon--danger[data-v-2a68c091] { color: var(--ui-danger);
+}
+.usage-notice-icon--warning[data-v-2a68c091] { color: var(--ui-warning);
+}
+.usage-notice-icon--info[data-v-2a68c091] { color: var(--ui-secondary);
+}
+.usage-metric-card[data-v-2a68c091] {
+    border-radius: var(--ui-radius-md);
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 1.1rem;
+    transition: border-color 200ms ease;
+}
+.usage-metric-card--warning[data-v-2a68c091] {
+    border-color: color-mix(in srgb, var(--ui-warning) 40%, var(--ui-border));
+}
+.usage-metric-card--exceeded[data-v-2a68c091] {
+    border-color: color-mix(in srgb, var(--ui-danger) 45%, var(--ui-border));
+}
+.usage-metric-icon[data-v-2a68c091] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.3rem;
+    height: 2.3rem;
+    border-radius: 0.7rem;
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    color: var(--ui-secondary);
+}
+.usage-metric-icon--warning[data-v-2a68c091] { color: var(--ui-warning);
+}
+.usage-metric-icon--exceeded[data-v-2a68c091] { color: var(--ui-danger);
+}
+.usage-metric-icon--unlimited[data-v-2a68c091] { color: var(--ui-muted);
+}
+.usage-metric-badge[data-v-2a68c091] {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    border-radius: 999px;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 12%, var(--ui-surface));
+}
+.usage-metric-badge--warning[data-v-2a68c091] {
+    color: var(--ui-warning);
+    background: color-mix(in srgb, var(--ui-warning) 15%, var(--ui-surface));
+}
+.usage-metric-badge--exceeded[data-v-2a68c091] {
+    color: var(--ui-danger);
+    background: color-mix(in srgb, var(--ui-danger) 14%, var(--ui-surface));
+}
+.usage-metric-badge--unlimited[data-v-2a68c091] {
+    color: var(--ui-muted);
+    background: var(--ui-surface);
+}
+.usage-metric-percent--warning[data-v-2a68c091] { color: var(--ui-warning);
+}
+.usage-metric-percent--exceeded[data-v-2a68c091] { color: var(--ui-danger);
+}
+.usage-metric-percent--healthy[data-v-2a68c091] { color: var(--ui-secondary);
+}
+.usage-meter-track[data-v-2a68c091] {
+    height: 0.5rem;
+    border-radius: 999px;
+    background: var(--ui-border);
+    overflow: hidden;
+}
+.usage-meter-fill[data-v-2a68c091] {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--ui-secondary);
+    transition: width 500ms ease;
+}
+.usage-meter-fill--warning[data-v-2a68c091] { background: var(--ui-warning);
+}
+.usage-meter-fill--exceeded[data-v-2a68c091] { background: var(--ui-danger);
+}

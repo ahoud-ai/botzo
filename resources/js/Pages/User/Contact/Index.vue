@@ -4,14 +4,14 @@
             <div class="ui-workspace-split ui-workspace-split--contacts h-full">
                 <div class="ui-workspace-pane ui-workspace-sidebar" :class="$page.url === '/contacts/add' || contact ? 'hidden' : 'md:flex'">
                     <div class="px-4 pt-4">
-                        <div class="flex justify-between mt-2">
-                            <div class="flex gap-x-1 text-xl">
-                                <h2>{{ $t('Contacts') }}</h2>
-                                <span class="text-slate-500">{{ props.rowCount }}</span>
+                        <div class="flex justify-between items-center mt-2">
+                            <div class="flex items-baseline gap-x-2">
+                                <h2 class="text-xl font-bold text-[var(--ui-text)]">{{ $t('Contacts') }}</h2>
+                                <span class="contacts-count-pill">{{ props.rowCount }}</span>
                             </div>
                             <div class="flex gap-x-2 items-center">
-                                <Link v-if="canCreate" href="/contacts/add" :title="$t('Add Contact')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><g fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"><path d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12Zm10-8a8 8 0 1 0 0 16a8 8 0 0 0 0-16Z"/><path d="M13 7a1 1 0 1 0-2 0v4H7a1 1 0 1 0 0 2h4v4a1 1 0 1 0 2 0v-4h4a1 1 0 1 0 0-2h-4V7Z"/></g></svg>
+                                <Link v-if="canCreate" href="/contacts/add" :title="$t('Add Contact')" data-tour="contacts-add" class="contacts-add-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"><path d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12Zm10-8a8 8 0 1 0 0 16a8 8 0 0 0 0-16Z"/><path d="M13 7a1 1 0 1 0-2 0v4H7a1 1 0 1 0 0 2h4v4a1 1 0 1 0 2 0v-4h4a1 1 0 1 0 0-2h-4V7Z"/></g></svg>
                                 </Link>
                             </div>
                         </div>
@@ -48,6 +48,39 @@
 
     <ContactImportModal :type="'contact'" v-model:modelValue="isOpenModal"/>
 </template>
+
+<style scoped>
+.contacts-count-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.4rem;
+    height: 1.4rem;
+    padding: 0 0.45rem;
+    border-radius: 999px;
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+    color: var(--ui-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.contacts-add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 999px;
+    color: #fff;
+    background: var(--ui-secondary);
+    transition: filter 160ms ease;
+}
+
+.contacts-add-btn:hover {
+    filter: brightness(1.05);
+}
+</style>
 <script setup>
     import AppLayout from "./../Layout/App.vue";
     import { ref, computed } from 'vue';

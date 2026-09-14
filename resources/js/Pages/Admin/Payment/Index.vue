@@ -1,99 +1,71 @@
 <template>
     <AppLayout>
         <div class="ui-page ui-fade-up ui-page-frame ui-text-main min-h-full space-y-6">
-            <section class="rounded-[1.35rem] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60 md:p-8">
-                <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-                    <div class="max-w-3xl">
-                        <div class="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                            {{ props.activeView === 'invoices' ? $t('Invoice register') : $t('Billing activity') }}
-                        </div>
-                        <h1 class="mt-4 text-2xl font-semibold text-slate-950 md:text-3xl">{{ $t('Billing records') }}</h1>
-                        <p class="mt-3 text-sm leading-7 text-slate-600">
-                            {{ $t('Use simple filters to review invoice documents or accounting activity without duplicated summaries.') }}
-                        </p>
-                    </div>
-
-                    <div class="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 shadow-sm shadow-slate-200/40">
+            <UiPageHeader :title="$t('Billing records')" :subtitle="$t('Use simple filters to review invoice documents or accounting activity without duplicated summaries.')">
+                <template #actions>
+                    <div class="pay-view-toggle">
                         <button
                             type="button"
-                            class="rounded-md px-4 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                            :class="props.activeView === 'invoices' ? 'bg-primary text-white shadow-sm shadow-primary/25' : 'text-slate-600 hover:bg-white'"
+                            class="pay-view-toggle-btn"
+                            :class="{ 'pay-view-toggle-btn--active': props.activeView === 'invoices' }"
                             @click="switchView('invoices')"
                         >
                             {{ $t('Invoices') }}
                         </button>
                         <button
                             type="button"
-                            class="rounded-md px-4 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                            :class="props.activeView === 'activity' ? 'bg-primary text-white shadow-sm shadow-primary/25' : 'text-slate-600 hover:bg-white'"
+                            class="pay-view-toggle-btn"
+                            :class="{ 'pay-view-toggle-btn--active': props.activeView === 'activity' }"
                             @click="switchView('activity')"
                         >
                             {{ $t('Activity') }}
                         </button>
                     </div>
-                </div>
+                </template>
+            </UiPageHeader>
 
-                <form class="mt-6 rounded-[1.15rem] border border-slate-200 bg-slate-50 p-4" @submit.prevent="applyFilters()">
-                    <div class="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(220px,0.85fr)_170px_170px_auto]">
-                        <label class="space-y-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Search') }}</span>
-                            <input
-                                v-model="form.search"
-                                type="text"
-                                class="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm shadow-slate-200/40 transition placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-                                :placeholder="props.activeView === 'invoices' ? $t('Search invoices by number, workspace, or plan') : $t('Search billing activity by workspace or note')"
-                            >
-                        </label>
+            <form class="pay-toolbar" @submit.prevent="applyFilters()">
+                <div class="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(220px,0.85fr)_170px_170px_auto]">
+                    <label class="space-y-2">
+                        <span class="pay-field-label">{{ $t('Search') }}</span>
+                        <input
+                            v-model="form.search"
+                            type="text"
+                            class="pay-field"
+                            :placeholder="props.activeView === 'invoices' ? $t('Search invoices by number, workspace, or plan') : $t('Search billing activity by workspace or note')"
+                        >
+                    </label>
 
-                        <label class="space-y-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Organization') }}</span>
-                            <select
-                                v-model="form.organization_uuid"
-                                class="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm shadow-slate-200/40 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-                            >
-                                <option value="">{{ $t('All organizations') }}</option>
-                                <option v-for="option in props.organizationOptions" :key="option.value" :value="option.value">
-                                    {{ option.label }}
-                                </option>
-                            </select>
-                        </label>
+                    <label class="space-y-2">
+                        <span class="pay-field-label">{{ $t('Organization') }}</span>
+                        <select v-model="form.organization_uuid" class="pay-field">
+                            <option value="">{{ $t('All organizations') }}</option>
+                            <option v-for="option in props.organizationOptions" :key="option.value" :value="option.value">
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </label>
 
-                        <label class="space-y-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Date from') }}</span>
-                            <input
-                                v-model="form.date_from"
-                                type="date"
-                                class="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm shadow-slate-200/40 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-                            >
-                        </label>
+                    <label class="space-y-2">
+                        <span class="pay-field-label">{{ $t('Date from') }}</span>
+                        <input v-model="form.date_from" type="date" class="pay-field">
+                    </label>
 
-                        <label class="space-y-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $t('Date to') }}</span>
-                            <input
-                                v-model="form.date_to"
-                                type="date"
-                                class="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm shadow-slate-200/40 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-                            >
-                        </label>
+                    <label class="space-y-2">
+                        <span class="pay-field-label">{{ $t('Date to') }}</span>
+                        <input v-model="form.date_to" type="date" class="pay-field">
+                    </label>
 
-                        <div class="flex flex-wrap items-end gap-2 xl:justify-end">
-                            <button
-                                type="submit"
-                                class="inline-flex min-h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                            >
-                                {{ $t('Apply filters') }}
-                            </button>
-                            <button
-                                type="button"
-                                class="inline-flex min-h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
-                                @click="resetFilters"
-                            >
-                                {{ $t('Reset') }}
-                            </button>
-                        </div>
+                    <div class="flex flex-wrap items-end gap-2 xl:justify-end">
+                        <button type="submit" class="pay-btn pay-btn--solid">
+                            {{ $t('Apply filters') }}
+                        </button>
+                        <button type="button" class="pay-btn pay-btn--ghost" @click="resetFilters">
+                            {{ $t('Reset') }}
+                        </button>
                     </div>
-                </form>
-            </section>
+                </div>
+            </form>
 
             <UiSectionCard
                 :title="props.activeView === 'invoices' ? $t('Invoice register') : $t('Billing activity')"
@@ -125,6 +97,7 @@ import { router } from '@inertiajs/vue3';
 import AppLayout from './../Layout/App.vue';
 import BillingInvoiceTable from '@/Components/Tables/BillingInvoiceTable.vue';
 import BillingTable from '@/Components/Tables/BillingTable.vue';
+import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
 import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
 
 const props = defineProps({
@@ -216,3 +189,106 @@ const resetFilters = () => {
     applyFilters(form.view);
 };
 </script>
+
+<style scoped>
+.pay-view-toggle {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: 0.9rem;
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+}
+
+.pay-view-toggle-btn {
+    border-radius: 0.65rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+    transition: background-color 160ms ease, color 160ms ease;
+}
+
+.pay-view-toggle-btn:hover {
+    color: var(--ui-text);
+}
+
+.pay-view-toggle-btn--active {
+    background: var(--ui-surface);
+    color: var(--ui-text);
+    box-shadow: var(--ui-shadow-1);
+}
+
+.pay-toolbar {
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-xl, 1.25rem);
+    background: linear-gradient(160deg, color-mix(in srgb, var(--ui-secondary) 5%, var(--ui-surface)), var(--ui-surface));
+    box-shadow: var(--ui-shadow-1);
+}
+
+.pay-field-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ui-muted);
+}
+
+.pay-field {
+    height: 2.75rem;
+    width: 100%;
+    border-radius: 0.8rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding-inline: 1rem;
+    font-size: 0.85rem;
+    color: var(--ui-text);
+    outline: none;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.pay-field::placeholder {
+    color: color-mix(in srgb, var(--ui-text) 48%, transparent);
+}
+
+.pay-field:focus {
+    border-color: color-mix(in srgb, var(--ui-secondary) 40%, var(--ui-border));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-secondary) 12%, transparent);
+}
+
+.pay-btn {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.8rem;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, filter 160ms ease;
+}
+
+.pay-btn--solid {
+    border: 1px solid transparent;
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.pay-btn--solid:hover {
+    filter: brightness(1.05);
+}
+
+.pay-btn--ghost {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+
+.pay-btn--ghost:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+</style>

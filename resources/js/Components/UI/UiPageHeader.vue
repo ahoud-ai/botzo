@@ -18,7 +18,9 @@ const props = defineProps({
 <template>
     <header class="ui-page-header" :class="{ 'ui-page-header-compact': compact }">
         <div>
-            <h1 class="ui-page-title">{{ title }}</h1>
+            <h1 class="ui-page-title">
+                <slot name="title">{{ title }}</slot>
+            </h1>
             <p v-if="subtitle" class="ui-page-subtitle">{{ subtitle }}</p>
         </div>
         <div v-if="$slots.actions" class="ui-page-actions">

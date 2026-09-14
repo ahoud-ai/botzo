@@ -9,11 +9,13 @@ use App\Http\Resources\CampaignResource;
 use App\Http\Resources\CampaignLogResource;
 use App\Models\Campaign;
 use App\Models\CampaignLog;
+use App\Models\Contact;
 use App\Models\ContactField;
 use App\Models\ContactGroup;
 use App\Models\Organization;
 use App\Models\Template;
 use App\Services\CampaignService;
+use App\Services\SubscriptionFeatureUsageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -35,14 +37,16 @@ class CampaignController extends BaseController
         
         if($uuid == null){
             $searchTerm = $request->query('search', '');
-            
+            $status = $request->query('status');
+
             // Get settings once
             $settings = Organization::where('id', $organizationId)->first();
 
-            // Build query with optimized eager loading and counts
-            $query = Campaign::with(['template'])
-                ->where('organization_id', $organizationId)
+            $baseQuery = Campaign::where('organization_id', $organizationId)
                 ->where('deleted_at', null);
+
+            // Build query with optimized eager loading and counts
+            $query = (clone $baseQuery)->with(['template']);
 
             // Add search condition
             if ($searchTerm) {
@@ -54,8 +58,12 @@ class CampaignController extends BaseController
                 });
             }
 
+            if ($status && $status !== 'all') {
+                $query->where('status', $status);
+            }
+
             // Paginate and get campaigns
-            $campaigns = $query->latest()->paginate(10);
+            $campaigns = $query->latest()->paginate(10)->withQueryString();
 
             // Pre-calculate counts for all campaigns in a single query
             $campaignIds = $campaigns->pluck('id');
@@ -73,12 +81,20 @@ class CampaignController extends BaseController
 
             $rows = CampaignResource::collection($campaigns);
 
-            return Inertia::render('User/Campaign/Index', [ 
-                'title'=> __('Campaigns'), 
-                'allowCreate' => true, 
-                'rows' => $rows, 
-                'filters' => request()->all(['search']), 
-                'settings' => $settings 
+            $stats = [
+                'total' => (clone $baseQuery)->count(),
+                'ongoing' => (clone $baseQuery)->where('status', 'ongoing')->count(),
+                'scheduled' => (clone $baseQuery)->where('status', 'scheduled')->count(),
+                'completed' => (clone $baseQuery)->where('status', 'completed')->count(),
+            ];
+
+            return Inertia::render('User/Campaign/Index', [
+                'title'=> __('Campaigns'),
+                'allowCreate' => true,
+                'rows' => $rows,
+                'filters' => request()->all(['search', 'status']),
+                'stats' => $stats,
+                'settings' => $settings
             ]);
         } else if($uuid == 'create'){
             $this->checkPermission('campaigns.add', $organizationId);
@@ -91,11 +107,21 @@ class CampaignController extends BaseController
 
             $data['contactGroups'] = ContactGroup::where('organization_id', $organizationId)
                 ->where('deleted_at', null)
+                ->withCount(['contacts' => function ($query) use ($organizationId) {
+                    $query->where('organization_id', $organizationId)->whereNull('deleted_at');
+                }])
                 ->get();
+
+            $data['totalContacts'] = Contact::where('organization_id', $organizationId)
+                ->whereNull('deleted_at')
+                ->count();
 
             $data['contactFields'] = ContactField::where('organization_id', $organizationId)
                 ->whereNull('deleted_at')
                 ->get(['id', 'uuid', 'name']);
+
+            $data['campaignLimit'] = app(SubscriptionFeatureUsageService::class)
+                ->snapshot($organizationId, 'campaign_limit');
 
             $data['title'] = __('Create campaign');
 
@@ -123,21 +149,46 @@ class CampaignController extends BaseController
                 $data['campaign']['total_failed_count'] = 0;
             }
 
-            $data['filters'] = request()->all(['search']);
+            $data['filters'] = request()->all(['search', 'status']);
 
             $searchTerm = $request->query('search');
+            $logStatus = $request->query('status');
+
+            $logsQuery = CampaignLog::with('contact', 'chat.logs')
+                ->where('campaign_id', $data['campaign']->id)
+                ->where(function ($query) use ($searchTerm) {
+                    $query->whereHas('contact', function ($contactQuery) use ($searchTerm) {
+                        $contactQuery->where('first_name', 'like', '%' . $searchTerm . '%')
+                                     ->orWhere('last_name', 'like', '%' . $searchTerm . '%')
+                                     ->orWhere('phone', 'like', '%' . $searchTerm . '%');
+                    });
+                });
+
+            // Buckets mirror Campaign::sentCount()/deliveryCount()/readCount()/failedCount()
+            // exactly, so the filter matches the same real business rules used elsewhere.
+            if ($logStatus && $logStatus !== 'all') {
+                if ($logStatus === 'pending') {
+                    $logsQuery->whereIn('status', ['pending', 'ongoing', 'retrying']);
+                } elseif ($logStatus === 'failed') {
+                    $logsQuery->where(function ($query) {
+                        $query->where('status', 'failed')
+                            ->orWhere(function ($query) {
+                                $query->where('status', 'success')
+                                    ->whereHas('chat', fn ($chatQuery) => $chatQuery->where('status', 'failed'));
+                            });
+                    });
+                } elseif ($logStatus === 'sent') {
+                    $logsQuery->where('status', 'success')
+                        ->whereHas('chat', fn ($chatQuery) => $chatQuery->whereIn('status', ['accepted', 'sent']));
+                } else {
+                    // 'delivered' or 'read'
+                    $logsQuery->where('status', 'success')
+                        ->whereHas('chat', fn ($chatQuery) => $chatQuery->where('status', $logStatus));
+                }
+            }
+
             $data['rows'] = CampaignLogResource::collection(
-                CampaignLog::with('contact', 'chat.logs')
-                    ->where('campaign_id', $data['campaign']->id)
-                    ->where(function ($query) use ($searchTerm) {
-                        $query->whereHas('contact', function ($contactQuery) use ($searchTerm) {
-                            $contactQuery->where('first_name', 'like', '%' . $searchTerm . '%')
-                                         ->orWhere('last_name', 'like', '%' . $searchTerm . '%')
-                                         ->orWhere('phone', 'like', '%' . $searchTerm . '%');
-                        });
-                    })
-                    ->orderBy('id')
-                    ->paginate(10)
+                $logsQuery->orderBy('id')->paginate(10)->withQueryString()
             );
             $data['title'] = __('View campaign');
 
@@ -169,12 +220,21 @@ class CampaignController extends BaseController
     public function delete($uuid){
         $organizationId = session()->get('current_organization');
         $this->checkPermission('campaigns.delete', $organizationId);
-        
+
         $this->campaignService->destroy($uuid);
 
-        return Redirect::back()->with(
+        // If the delete was triggered from the campaign's own detail page, that page
+        // no longer exists after deletion, so go back there would 404. Send those
+        // requests to the list instead; deletes from the list page keep going "back"
+        // (preserving any active search/status filters) exactly as before.
+        $referer = request()->headers->get('referer', '');
+        $deletedFromDetailPage = str_contains($referer, '/campaigns/' . $uuid);
+
+        $redirect = $deletedFromDetailPage ? Redirect::route('campaigns') : Redirect::back();
+
+        return $redirect->with(
             'status', [
-                'type' => 'success', 
+                'type' => 'success',
                 'message' => __('Row deleted successfully!')
             ]
         );

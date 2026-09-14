@@ -1,71 +1,86 @@
 <template>
     <AppLayout>
         <div class="ui-page ui-fade-up ui-page-frame ui-text-main min-h-full">
-            <div class="flex justify-between mt-8 md:mt-0">
-                <div>
-                    <h2 class="text-xl mb-1">{{ $t('Ticket ref') }}: {{ props.ticket.reference }}</h2>
-                </div>
-                <div>
-                    <Link href="/support" class="flex items-center gap-x-4 rounded-md bg-indigo-600 px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+            <UiPageHeader :title="$t('Ticket ref') + ': ' + props.ticket.reference">
+                <template #actions>
+                    <Link href="/support" class="ticket-view-btn ticket-view-btn--ghost">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M5.841 5.28a.75.75 0 0 0-1.06-1.06L1.53 7.47L1 8l.53.53l3.25 3.25a.75.75 0 0 0 1.061-1.06l-1.97-1.97H24.25a.75.75 0 0 0 0-1.5H3.871l1.97-1.97Z" clip-rule="evenodd"/></svg>
                         {{ $t('Back') }}
                     </Link>
-                </div>
-            </div>
+                </template>
+            </UiPageHeader>
 
-            <div class="grid grid-cols-2 md:flex gap-x-6 mt-4 md:mt-10">
-                <div class="col-span-2 md:order-1 md:w-[70%]">
-                    <div class="bg-white border py-5 px-5 rounded-[0.5rem] mb-4 text-sm">
-                        <h2 class="text-xl">{{ $t('Subject') }}: {{ props.ticket.subject }}</h2>
-                        <div class="border border-dashed py-2 px-2 mt-8 bg-slate-100">{{ props.ticket.message }}</div>
-                    </div>
-                    <div v-if="props.ticket.status === 'open' || props.ticket.status === 'pending'" class="bg-white border py-5 px-5 rounded-[0.5rem] mb-4">
-                        <form @submit.prevent="submitForm()">
-                            <FormTextArea v-model="form.message" :name="$t('Comment')" :type="'text'" :showLabel="true" :error="form.errors.message" :textAreaRows="3" :class="'sm:col-span-6 mb-5'"/>
-                            <button type="submit" class="mb-2 rounded-md bg-black px-3 py-2 text-sm text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">{{ $t('Add comment') }}</button>
+            <div class="grid gap-6 lg:grid-cols-3">
+                <div class="lg:col-span-2 space-y-4">
+                    <UiSectionCard :title="props.ticket.subject">
+                        <div class="ticket-message-box">{{ props.ticket.message }}</div>
+                    </UiSectionCard>
+
+                    <UiSectionCard :title="$t('Conversation')">
+                        <div v-if="orderedComments.length" class="space-y-4">
+                            <div v-for="(item, index) in orderedComments" :key="index" class="ticket-comment">
+                                <div class="ticket-comment-avatar">
+                                    {{ getInitials(item.user?.first_name, item.user?.last_name) }}
+                                </div>
+                                <div class="ticket-comment-body">
+                                    <div class="ticket-comment-meta">
+                                        <span class="ticket-comment-author">{{ item.user?.first_name }} {{ item.user?.last_name }}</span>
+                                        <span class="ticket-comment-date">{{ formatDateTime(item.created_at) }}</span>
+                                    </div>
+                                    <p class="ticket-comment-text">{{ item.message }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <UiEmptyState v-else :title="$t('No comments yet')">
+                            <template #icon>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 11.5a8.38 8.38 0 0 1-.9 3.8a8.5 8.5 0 0 1-7.6 4.7a8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8a8.5 8.5 0 0 1 4.7-7.6a8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg>
+                            </template>
+                        </UiEmptyState>
+
+                        <form v-if="isTicketOpenForReplies" @submit.prevent="submitForm()" class="ticket-comment-form">
+                            <FormTextArea v-model="form.message" :name="$t('Comment')" :type="'text'" :showLabel="true" :error="form.errors.message" :textAreaRows="3" :class="'w-full'"/>
+                            <div class="flex justify-end mt-3">
+                                <button type="submit" class="ticket-view-btn ticket-view-btn--solid" :disabled="form.processing">{{ $t('Add comment') }}</button>
+                            </div>
                         </form>
-                    </div>
-
-                    <div v-for="(item, index) in props.ticket.comments_with_user" :key="index" class="bg-white border py-5 px-5 rounded-[0.5rem] mb-2">
-                        <div class="flex gap-x-4 text-sm">
-                            <div>
-                                <div class="bg-slate-100 rounded-full h-12 w-12 p-4 flex justify-center items-center">
-                                    {{ getInitials(item.user.first_name, item.user.last_name) }}
-                                </div>
-                            </div>
-                            <div>
-                                <div class="gap-x-4 mb-1">
-                                    <span>{{ item.user.first_name + ' ' + item.user.last_name }}</span>
-                                    <span>{{ formatDateTime(item.created_at) }}</span>
-                                </div>
-                                <div>{{ item.message }}</div>
-                            </div>
-                        </div>
-                    </div>
+                    </UiSectionCard>
                 </div>
-                <div class="col-span-2 w-[100%] md:order-2 md:w-[30%]">
-                    <div class="bg-white border p-4 text-sm rounded-[0.5rem]">
-                        <div class="bg-slate-100 p-2 rounded mb-2 gap-x-3">
-                            <span>{{ $t('Category') }}:</span>
-                            <span class="capitalize">{{ localizeCategory(props.ticket.category.name) }}</span>
+
+                <div class="space-y-4">
+                    <UiSectionCard :title="$t('Ticket details')">
+                        <dl class="ticket-meta-list">
+                            <div class="ticket-meta-row">
+                                <dt>{{ $t('Category') }}</dt>
+                                <dd>{{ localizeCategory(props.ticket.category?.name) }}</dd>
+                            </div>
+                            <div class="ticket-meta-row">
+                                <dt>{{ $t('Status') }}</dt>
+                                <dd>
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-bold capitalize" :class="statusChipClass(props.ticket.status)">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+                                        {{ localizeStatus(props.ticket.status) }}
+                                    </span>
+                                </dd>
+                            </div>
+                            <div class="ticket-meta-row">
+                                <dt>{{ $t('Priority') }}</dt>
+                                <dd>
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-bold capitalize" :class="priorityChipClass(props.ticket.priority)">
+                                        {{ localizePriority(props.ticket.priority) }}
+                                    </span>
+                                </dd>
+                            </div>
+                            <div class="ticket-meta-row">
+                                <dt>{{ $t('Date created') }}</dt>
+                                <dd>{{ formatDateTime(props.ticket.created_at) }}</dd>
+                            </div>
+                        </dl>
+
+                        <div v-if="isTicketOpenForReplies" class="ticket-status-actions">
+                            <button type="button" @click="changeTicketStatus('resolved')" class="ticket-view-btn ticket-view-btn--success w-full">{{ $t('Mark as resolved') }}</button>
+                            <button type="button" @click="changeTicketStatus('closed')" class="ticket-view-btn ticket-view-btn--ghost w-full">{{ $t('Close ticket') }}</button>
                         </div>
-                        <div class="bg-slate-100 p-2 rounded mb-2 gap-x-3">
-                            <span>{{ $t('Status') }}:</span>
-                            <span class="capitalize">{{ localizeStatus(props.ticket.status) }}</span>
-                        </div>
-                        <div class="bg-slate-100 p-2 rounded mb-2 gap-x-3">
-                            <span>{{ $t('Priority') }}:</span>
-                            <span class="capitalize">{{ localizePriority(props.ticket.priority) }}</span>
-                        </div>
-                        <div class="bg-slate-100 p-2 rounded mb-2 gap-x-3">
-                            <span>{{ $t('Date created') }}:</span>
-                            <span>{{ formatDateTime(props.ticket.created_at) }}</span>
-                        </div>
-                        <div v-if="props.ticket.status === 'open' || props.ticket.status === 'pending'" class="flex grid grid-cols-2 gap-x-2 mt-4">
-                            <button type="button" @click="changeTicketStatus('closed')" class="mb-2 rounded-md bg-black px-3 py-2 text-sm text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">{{ $t('Close ticket') }}</button>
-                            <button type="button" @click="changeTicketStatus('resolved')" class="mb-2 rounded-md bg-black px-3 py-2 text-sm text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">{{ $t('Mark as resolved') }}</button>
-                        </div>
-                    </div>
+                    </UiSectionCard>
                 </div>
             </div>
         </div>
@@ -74,14 +89,24 @@
 <script setup>
     import AppLayout from './../Layout/App.vue';
     import { Link, router, useForm, usePage } from "@inertiajs/vue3";
+    import { computed } from 'vue';
     import { useI18n } from 'vue-i18n';
     import FormTextArea from '@/Components/FormTextArea.vue';
+    import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
+    import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
+    import UiEmptyState from '@/Components/UI/UiEmptyState.vue';
 
     const { t, te } = useI18n();
     const page = usePage();
     const props = defineProps(['ticket']);
     const form = useForm({
         'message' : null,
+    });
+
+    const isTicketOpenForReplies = computed(() => props.ticket.status === 'open' || props.ticket.status === 'pending');
+
+    const orderedComments = computed(() => {
+        return [...(props.ticket.comments_with_user ?? [])].reverse();
     });
 
     const formatDateTime = (value) => {
@@ -120,11 +145,40 @@
         return te(rawValue) ? t(rawValue) : rawValue;
     };
 
-    const getInitials = (firstName, lastName) => {
-      const firstInitial = firstName.charAt(0).toUpperCase();
-      const lastInitial = lastName.charAt(0).toUpperCase();
+    const statusChipClass = (status) => {
+        switch (String(status ?? '').toLowerCase()) {
+            case 'open':
+                return 'ui-chip-info';
+            case 'pending':
+                return 'ui-chip-warning';
+            case 'resolved':
+                return 'ui-chip-success';
+            case 'closed':
+                return 'ui-chip-neutral';
+            default:
+                return 'ui-chip-neutral';
+        }
+    };
 
-      return `${firstInitial}${lastInitial}`;
+    const priorityChipClass = (priority) => {
+        switch (String(priority ?? '').toLowerCase()) {
+            case 'critical':
+            case 'high':
+                return 'ui-chip-danger';
+            case 'medium':
+                return 'ui-chip-warning';
+            case 'low':
+                return 'ui-chip-neutral';
+            default:
+                return 'ui-chip-neutral';
+        }
+    };
+
+    const getInitials = (firstName, lastName) => {
+      const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : '';
+      const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : '';
+
+      return `${firstInitial}${lastInitial}` || '?';
     }
 
     const submitForm = () => {
@@ -138,3 +192,163 @@
         router.post('/support/' + props.ticket.uuid + '/status', { status: status });
     }
 </script>
+
+<style scoped>
+.ticket-message-box {
+    padding: 0.85rem 1rem;
+    border-radius: 0.7rem;
+    background: var(--ui-surface-soft);
+    border: 1px dashed var(--ui-border);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--ui-text);
+    white-space: pre-wrap;
+}
+
+.ticket-comment {
+    display: flex;
+    gap: 0.85rem;
+}
+
+.ticket-comment-avatar {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ui-secondary);
+}
+
+.ticket-comment-body {
+    flex: 1;
+    min-width: 0;
+    padding: 0.75rem 1rem;
+    border-radius: 0.7rem;
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+}
+
+.ticket-comment-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-bottom: 0.35rem;
+}
+
+.ticket-comment-author {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--ui-text);
+}
+
+.ticket-comment-date {
+    font-size: 0.75rem;
+    color: var(--ui-muted);
+}
+
+.ticket-comment-text {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--ui-text);
+    white-space: pre-wrap;
+}
+
+.ticket-comment-form {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--ui-border);
+}
+
+.ticket-meta-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.ticket-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--ui-border);
+}
+
+.ticket-meta-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.ticket-meta-row dt {
+    font-size: 0.8rem;
+    color: var(--ui-muted);
+    font-weight: 600;
+}
+
+.ticket-meta-row dd {
+    font-size: 0.85rem;
+    color: var(--ui-text);
+    font-weight: 600;
+}
+
+.ticket-status-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--ui-border);
+}
+
+.ticket-view-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 0.7rem;
+    padding: 0.6rem 1.1rem;
+}
+
+.ticket-view-btn--solid {
+    background: var(--ui-secondary);
+    color: #fff;
+    transition: filter 160ms ease;
+}
+
+.ticket-view-btn--solid:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+
+.ticket-view-btn--solid:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+}
+
+.ticket-view-btn--success {
+    background: color-mix(in srgb, var(--ui-success) 16%, transparent);
+    color: var(--ui-success);
+    border: 1px solid color-mix(in srgb, var(--ui-success) 30%, transparent);
+}
+
+.ticket-view-btn--success:hover {
+    background: color-mix(in srgb, var(--ui-success) 24%, transparent);
+}
+
+.ticket-view-btn--ghost {
+    background: var(--ui-surface-soft);
+    color: var(--ui-text);
+    border: 1px solid var(--ui-border);
+}
+
+.ticket-view-btn--ghost:hover {
+    background: var(--ui-border);
+}
+</style>

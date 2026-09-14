@@ -1,27 +1,20 @@
 <template>
     <AppLayout>
-        <div class="flex justify-between">
-            <div>
-                <h2 class="text-xl mb-1">{{ $t('Languages & translations') }}</h2>
-                <p class="mb-6 flex items-center text-sm leading-6 text-gray-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
-                    <span class="ms-1 mt-1">{{ $t('Add, edit & translate languages') }}</span>
-                </p>
-            </div>
-            <div v-if="adminCan('languages', 'create')">
-                <button @click="openModal()" type="button" class="rounded-md bg-indigo-600 px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{ $t('Add language') }}</button>
-            </div>
-        </div>
+        <UiPageHeader :title="$t('Languages & translations')" :subtitle="$t('Add, edit & translate languages')">
+            <template #actions>
+                <button v-if="adminCan('languages', 'create')" @click="openModal()" type="button" class="lng-btn lng-btn--solid">{{ $t('Add language') }}</button>
+            </template>
+        </UiPageHeader>
 
         <!-- Table Component-->
-        <LangTable :rows="props.rows" :defaultLanguage="props.default_language" @edit="openModal" @delete="openAlert" />
+        <LangTable :rows="props.rows" :defaultLanguage="props.default_language" @edit="openModal" class="mt-6" />
 
         <!-- Form Modal Component-->
-        <FormModal 
-            v-model="isOpenFormModal" 
-            :label="label" 
-            :url="formUrl" 
-            :form="form" 
+        <FormModal
+            v-model="isOpenFormModal"
+            :label="label"
+            :url="formUrl"
+            :form="form"
             :formInputs="formInputs"
             :formMethod="formMethod"
             @close="isOpenFormModal = false"
@@ -32,10 +25,9 @@
     import AppLayout from "./../Layout/App.vue";
     import axios from "axios";
     import { ref } from 'vue';
-    import { useForm } from "@inertiajs/vue3";
     import LangTable from '@/Components/Tables/LangTable.vue';
     import FormModal from '@/Components/FormModalModified.vue';
-    import FormSelect from '@/Components/FormSelect.vue';
+    import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
     import { useI18n } from 'vue-i18n';
     import { useAdminPermission } from "@/Composables/useAdminPermission";
     const { t } = useI18n();
@@ -43,8 +35,8 @@
 
     const props = defineProps(['rows', 'config', 'default_language']);
     const isOpenFormModal = ref(false);
-    const label = ref('Add Tax Rate');
-    const formUrl = ref('/admin/tax-rates');
+    const label = ref('Add language');
+    const formUrl = ref('/admin/languages');
     const formMethod = ref('post');
 
     const form = {
@@ -52,11 +44,6 @@
         code: null,
         status: null,
         is_rtl: false,
-    };
-
-    const getValueByKey = (key) => {
-        const found = props.config.find(item => item.key === key);
-        return found ? found.value : '';
     };
 
     const openModal = (key, formData = {}) => {
@@ -131,3 +118,25 @@
     ];
 </script>
 
+<style scoped>
+.lng-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease;
+}
+
+.lng-btn--solid {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.lng-btn--solid:hover {
+    filter: brightness(1.05);
+}
+</style>

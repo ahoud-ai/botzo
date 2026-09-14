@@ -24,6 +24,9 @@ class CustomEmail extends Mailable
     {
         return $this->subject($this->subject)
                     ->view('emails.custom_email_template')
-                    ->with(['body' => $this->body]);
+                    ->with([
+                        'body' => $this->body,
+                        'logoUrl' => asset('images/pdf/botzo-logo-lockup.png'),
+                    ]);
     }
 }

@@ -96,6 +96,47 @@ class FrontendController extends BaseController
         ]);
     }
 
+    public function metaVerification(Request $request)
+    {
+        $metaVerificationRequest = null;
+
+        if (auth()->check()) {
+            $organizationId = session('current_organization');
+            $metaVerificationRequest = \App\Models\MetaVerificationRequest::where('organization_id', $organizationId)
+                ->with(['documents', 'documentRequests'])
+                ->latest()
+                ->first();
+        }
+
+        return Inertia::render($this->resolveFrontendComponent('MetaVerification'), [
+            ...$this->basePublicData(),
+            'metaVerificationRequest' => $metaVerificationRequest,
+        ]);
+    }
+
+    public function metaVerificationAgreement(Request $request)
+    {
+        return Inertia::render($this->resolveFrontendComponent('MetaVerificationAgreement'), [
+            ...$this->basePublicData(),
+        ]);
+    }
+
+    public function metaVerificationAgreementPdf(Request $request)
+    {
+        $locale = app()->getLocale() === 'ar' ? 'ar' : 'en';
+        $path = public_path("documents/meta-verification-agreement-{$locale}.pdf");
+
+        if (! file_exists($path)) {
+            abort(404);
+        }
+
+        $filename = $locale === 'ar'
+            ? 'اتفاقية-خدمة-التحقق-من-الحساب-التجاري-عبر-Meta.pdf'
+            : 'Botzo-Meta-Verification-Service-Agreement.pdf';
+
+        return response()->download($path, $filename);
+    }
+
     public function contact(Request $request)
     {
         if ($request->isMethod('post')) {
@@ -106,6 +147,107 @@ class FrontendController extends BaseController
         }
 
         return Inertia::render($this->resolveFrontendComponent('Contact'), $this->basePublicData());
+    }
+
+    public function storeDemoRequest(\App\Http\Requests\StoreDemoRequest $request)
+    {
+        \App\Models\DemoRequest::create($request->validated());
+
+        return Redirect::back()->with('status', [
+            'type' => 'success',
+            'message' => __('Your request has been received. The team will contact you soon.'),
+        ]);
+    }
+
+    public function storeMetaVerificationRequest(\App\Http\Requests\StoreMetaVerificationRequest $request)
+    {
+        if (! session('current_organization')) {
+            return Redirect::route('user.organization.index');
+        }
+
+        $documentFields = array_column(\App\Models\MetaVerificationDocument::INITIAL_DOCUMENT_TYPES, 'field');
+        $data = $request->safe()->except($documentFields);
+
+        $data['organization_id'] = session('current_organization');
+        $data['status'] = \App\Models\MetaVerificationRequest::STATUS_REQUESTED;
+
+        $metaVerificationRequest = \App\Models\MetaVerificationRequest::create($data);
+
+        foreach (\App\Models\MetaVerificationDocument::INITIAL_DOCUMENT_TYPES as $type => $meta) {
+            $file = $request->file($meta['field']);
+
+            $metaVerificationRequest->documents()->create([
+                'document_type' => $type,
+                'label' => $meta['label'],
+                'path' => $file->store('meta-verification-documents'),
+                'original_name' => $file->getClientOriginalName(),
+                'uploaded_by' => 'customer',
+            ]);
+        }
+
+        return Redirect::back()->with('status', [
+            'type' => 'success',
+            'message' => __('Your request has been received. The team will contact you soon.'),
+        ]);
+    }
+
+    public function fulfillMetaVerificationDocumentRequest(
+        \App\Http\Requests\FulfillMetaVerificationDocumentRequest $request,
+        \App\Models\MetaVerificationRequest $metaVerificationRequest,
+        \App\Models\MetaVerificationDocumentRequest $documentRequest
+    ) {
+        $ownsRequest = $metaVerificationRequest->organization_id
+            && (int) $metaVerificationRequest->organization_id === (int) session('current_organization');
+
+        if (! $ownsRequest || (int) $documentRequest->meta_verification_request_id !== $metaVerificationRequest->id) {
+            abort(404);
+        }
+
+        if (! $documentRequest->isPending()) {
+            return Redirect::back()->with('status', [
+                'type' => 'error',
+                'message' => __('This document request has already been fulfilled.'),
+            ]);
+        }
+
+        $file = $request->file('document');
+
+        $document = $metaVerificationRequest->documents()->create([
+            'document_type' => \App\Models\MetaVerificationDocument::TYPE_ADDITIONAL,
+            'label' => $documentRequest->label,
+            'path' => $file->store('meta-verification-documents'),
+            'original_name' => $file->getClientOriginalName(),
+            'uploaded_by' => 'customer',
+        ]);
+
+        $documentRequest->update([
+            'status' => \App\Models\MetaVerificationDocumentRequest::STATUS_FULFILLED,
+            'fulfilled_document_id' => $document->id,
+            'fulfilled_at' => now(),
+        ]);
+
+        return Redirect::back()->with('status', [
+            'type' => 'success',
+            'message' => __('Document uploaded successfully. Our team will review it shortly.'),
+        ]);
+    }
+
+    public function downloadMetaVerificationDocument(
+        \App\Models\MetaVerificationRequest $metaVerificationRequest,
+        \App\Models\MetaVerificationDocument $document
+    ) {
+        $ownsRequest = $metaVerificationRequest->organization_id
+            && (int) $metaVerificationRequest->organization_id === (int) session('current_organization');
+
+        if (! $ownsRequest || (int) $document->meta_verification_request_id !== $metaVerificationRequest->id) {
+            abort(404);
+        }
+
+        if (! \Illuminate\Support\Facades\Storage::disk('local')->exists($document->path)) {
+            abort(404);
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('local')->download($document->path, $document->original_name ?: 'document');
     }
 
     public function product(Request $request)
@@ -155,7 +297,7 @@ class FrontendController extends BaseController
     {
         return $this->renderLegalPage(
             $request,
-            ['terms-of-service', 'terms', 'terms-and-conditions'],
+            ['terms-of-service', 'terms-of-use', 'terms', 'terms-and-conditions'],
             __('Terms of Service'),
             $this->fallbackTermsOfServiceContent()
         );
@@ -176,6 +318,7 @@ class FrontendController extends BaseController
         $pages = Page::get();
         $page = collect($slugCandidates)
             ->map(static fn (string $slug) => $pages->first(static fn (Page $item) => $item->matchesSlug($slug)))
+            ->filter()
             ->first();
 
         if ($page) {

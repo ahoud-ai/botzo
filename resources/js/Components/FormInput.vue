@@ -8,8 +8,11 @@
         min: Number,
         className: String,
         labelClass: String,
+        inputClass: [String, Array, Object],
+        hideLabel: Boolean,
         required: Boolean,
         error: String,
+        hideError: Boolean,
         disabled: Boolean
     })
 
@@ -20,11 +23,11 @@
 </script>
 <template>
     <div :class="className">
-        <label for="name" class="ui-form-label" :class="labelClass">{{ label ?? name }}</label>
+        <label v-if="!hideLabel" for="name" class="ui-form-label" :class="labelClass">{{ label ?? name }}</label>
         <div>
             <input
-            class="ui-input placeholder:text-gray-400 sm:text-sm sm:leading-6"
-            :class="error ? 'ui-input-error' : ''"
+            class="ui-input placeholder:text-gray-400"
+            :class="[inputClass || 'sm:text-sm sm:leading-6', error ? 'ui-input-error' : '']"
             :type="type"
             :value="props.modelValue"
             @input="updateValue"
@@ -35,6 +38,6 @@
             :required="required"
             />
         </div>
-        <div v-if="error" class="ui-form-error">{{ error }}</div>
+        <div v-if="error && !hideError" class="ui-form-error">{{ error }}</div>
     </div>
 </template>

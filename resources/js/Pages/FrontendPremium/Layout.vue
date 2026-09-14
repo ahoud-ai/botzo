@@ -1,7 +1,7 @@
 <template>
     {{ 'test' }}
     <div :class="rtlClass">
-        <div class="flex items-center bg-secondary/70 h-8 px-5 md:px-10 lg:px-20 2xl:px-60">
+        <div class="flex items-center bg-secondary/70 h-8 px-5 md:px-10 lg:px-20 2xl:px-32">
             <div class="text-sm text-white">
                 <div class="truncate w-[20em] md:w-full flex items-center gap-x-1">
                     <span>
@@ -14,7 +14,7 @@
                 <LangToggle class="text-white" :languages="props.languages" :currentLanguage="props.currentLanguage" />
             </div>
         </div>
-        <section id="section1" class="pt-4 md:pt-10 px-5 md:px-10 lg:px-20 2xl:px-60 relative">
+        <section id="section1" class="pt-4 md:pt-10 px-5 md:px-10 lg:px-20 2xl:px-32 relative">
             <div class="flex justify-between items-center">
                 <div>
                     <div class="premium-brand-lockup" v-if="props.companyConfig.logo">
@@ -43,7 +43,7 @@
 
         <slot />
 
-        <footer id="section7" class="bg-gray-300/10 px-5 md:px-10 lg:px-20 md:pt-10 pb-5 2xl:px-60">
+        <footer id="section7" class="bg-gray-300/10 px-5 md:px-10 lg:px-20 md:pt-10 pb-5 2xl:px-32">
             <div class="md:flex">
                 <div class="md:w-1/4 lg:w-1/2">
                     <div>

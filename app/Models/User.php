@@ -33,7 +33,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone',
         'address',
         'language',
-        'deleted_at'
+        'deleted_at',
+        'meta',
     ];
 
     /**
@@ -55,6 +56,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'is_system_owner' => 'boolean',
         'password' => 'hashed',
+        'meta' => 'array',
     ];
 
     protected $appends = ['full_name'];
@@ -117,6 +119,22 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function role(){
         return $this->belongsTo(Role::class, 'role', 'name');
+    }
+
+    public function onboardingTourStatus(): ?string
+    {
+        return $this->meta['onboarding_tour']['status'] ?? null;
+    }
+
+    public function markOnboardingTourStatus(string $status): void
+    {
+        $meta = $this->meta ?? [];
+        $meta['onboarding_tour'] = [
+            'status' => $status,
+            'updated_at' => now()->toISOString(),
+        ];
+        $this->meta = $meta;
+        $this->save();
     }
 
     public function sendEmailVerificationNotification(){

@@ -1,43 +1,33 @@
 <template>
     <AppLayout>
         <div class="ui-page ui-fade-up ui-page-frame ui-text-main min-h-full">
-            <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div>
-                    <h1 class="text-2xl font-semibold text-slate-950">{{ $t('Create user') }}</h1>
-                    <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                        {{ $t('Create a standalone account, a new organization owner, or an employee with workspace access.') }}
-                    </p>
-                </div>
-
-                <Link href="/admin/users" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50">
-                    {{ $t('Back') }}
-                </Link>
-            </div>
+            <UiPageHeader :title="$t('Create user')" :subtitle="$t('Create a standalone account, a new organization owner, or an employee with workspace access.')">
+                <template #actions>
+                    <Link href="/admin/users" class="usr-btn usr-btn--ghost">
+                        {{ $t('Back') }}
+                    </Link>
+                </template>
+            </UiPageHeader>
 
             <form @submit.prevent="submitForm" class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
                 <div class="space-y-6">
-                    <section class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
+                    <UiSectionCard>
                         <div class="flex flex-wrap gap-3">
                             <button
                                 v-for="mode in creationModes"
                                 :key="mode.value"
                                 type="button"
-                                class="rounded-2xl border px-4 py-3 text-start text-sm transition"
-                                :class="form.creation_mode === mode.value ? 'border-indigo-300 bg-indigo-50 text-indigo-900' : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'"
+                                class="usr-choice-card"
+                                :class="{ 'usr-choice-card--active': form.creation_mode === mode.value }"
                                 @click="setCreationMode(mode.value)"
                             >
-                                <div class="font-semibold">{{ mode.label }}</div>
-                                <div class="mt-1 text-xs leading-5 text-slate-500">{{ mode.description }}</div>
+                                <div class="usr-choice-card-title">{{ mode.label }}</div>
+                                <div class="usr-choice-card-desc">{{ mode.description }}</div>
                             </button>
                         </div>
-                    </section>
+                    </UiSectionCard>
 
-                    <section class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
-                        <div class="mb-4">
-                            <h2 class="text-base font-semibold text-slate-950">{{ $t('Account') }}</h2>
-                            <p class="mt-1 text-sm text-slate-500">{{ $t('The user will receive a platform account and can sign in right away.') }}</p>
-                        </div>
-
+                    <UiSectionCard :title="$t('Account')" :subtitle="$t('The user will receive a platform account and can sign in right away.')">
                         <div class="grid gap-4 md:grid-cols-2">
                             <FormInput v-model="form.first_name" :name="$t('First name')" :error="form.errors.first_name" type="text" />
                             <FormInput v-model="form.last_name" :name="$t('Last name')" :error="form.errors.last_name" type="text" />
@@ -47,18 +37,13 @@
                             <FormInput v-model="form.password_confirmation" :name="$t('Confirm password')" :error="form.errors.password_confirmation" type="password" />
                         </div>
 
-                        <label class="mt-4 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                        <label class="usr-checkbox-row mt-4">
                             <input v-model="form.send_registration_email" type="checkbox" class="ui-checkbox-input">
                             <span>{{ $t('Send a registration email after saving') }}</span>
                         </label>
-                    </section>
+                    </UiSectionCard>
 
-                    <section v-if="form.creation_mode === 'owner_new_org'" class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
-                        <div class="mb-4">
-                            <h2 class="text-base font-semibold text-slate-950">{{ $t('Owner workspace') }}</h2>
-                            <p class="mt-1 text-sm text-slate-500">{{ $t('Create a main organization and assign this account as the owner.') }}</p>
-                        </div>
-
+                    <UiSectionCard v-if="form.creation_mode === 'owner_new_org'" :title="$t('Owner workspace')" :subtitle="$t('Create a main organization and assign this account as the owner.')">
                         <div class="grid gap-4 md:grid-cols-2">
                             <FormInput v-model="form.organization_name" :name="$t('Organization name')" :error="form.errors.organization_name" type="text" class-name="md:col-span-2" />
                             <FormSelect
@@ -82,19 +67,14 @@
                             />
                         </div>
 
-                        <div class="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+                        <div class="usr-banner usr-banner--info mt-4">
                             {{ form.organization_billing_mode === 'later'
                                 ? $t('The organization will be created without a plan, and the owner will complete billing after the first sign-in.')
                                 : $t('The organization will start with the selected plan immediately after creation.') }}
                         </div>
-                    </section>
+                    </UiSectionCard>
 
-                    <section v-if="form.creation_mode === 'employee_existing_org'" class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
-                        <div class="mb-4">
-                            <h2 class="text-base font-semibold text-slate-950">{{ $t('Employee access') }}</h2>
-                            <p class="mt-1 text-sm text-slate-500">{{ $t('Choose an active company, then assign one or more workspaces and roles.') }}</p>
-                        </div>
-
+                    <UiSectionCard v-if="form.creation_mode === 'employee_existing_org'" :title="$t('Employee access')" :subtitle="$t('Choose an active company, then assign one or more workspaces and roles.')">
                         <FormSelect
                             :model-value="form.company_uuid"
                             @update:modelValue="onCompanyChange"
@@ -104,20 +84,20 @@
                             :placeholder="$t('Select a company')"
                         />
 
-                        <div v-if="selectedCompanyBlockingMessage" class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                        <div v-if="selectedCompanyBlockingMessage" class="usr-banner usr-banner--warning mt-4">
                             {{ selectedCompanyBlockingMessage }}
                         </div>
 
                         <div class="mt-5">
                             <div class="mb-3 flex items-center justify-between gap-3">
                                 <div>
-                                    <div class="text-sm font-semibold text-slate-900">{{ $t('Assignments') }}</div>
-                                    <div class="mt-1 text-xs text-slate-500">{{ $t('Each workspace can only be assigned once.') }}</div>
+                                    <div class="usr-choice-card-title">{{ $t('Assignments') }}</div>
+                                    <div class="usr-choice-card-desc mt-1">{{ $t('Each workspace can only be assigned once.') }}</div>
                                 </div>
 
                                 <button
                                     type="button"
-                                    class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                    class="usr-btn usr-btn--ghost usr-btn--sm"
                                     :disabled="!canAddAssignment"
                                     @click="addAssignment"
                                 >
@@ -126,7 +106,7 @@
                             </div>
 
                             <div class="space-y-3">
-                                <div v-for="(assignment, index) in form.assignments" :key="assignment.key" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <div v-for="(assignment, index) in form.assignments" :key="assignment.key" class="usr-tile">
                                     <div class="grid gap-3 md:grid-cols-12">
                                         <FormSelect
                                             :model-value="assignment.organization_uuid"
@@ -149,7 +129,7 @@
                                         <div class="md:col-span-2 flex items-end">
                                             <button
                                                 type="button"
-                                                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                                class="usr-btn usr-btn--ghost w-full justify-center"
                                                 :disabled="form.assignments.length === 1"
                                                 @click="removeAssignment(index)"
                                             >
@@ -162,16 +142,16 @@
 
                             <div v-if="form.errors.assignments" class="ui-form-error mt-3">{{ form.errors.assignments }}</div>
                         </div>
-                    </section>
+                    </UiSectionCard>
 
                     <div class="flex justify-end gap-3">
-                        <Link href="/admin/users" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                        <Link href="/admin/users" class="usr-btn usr-btn--ghost">
                             {{ $t('Cancel') }}
                         </Link>
                         <button
                             type="submit"
                             :disabled="form.processing || employeeModeBlocked"
-                            class="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+                            class="usr-btn usr-btn--solid"
                         >
                             {{ form.processing ? $t('Saving...') : $t('Create user') }}
                         </button>
@@ -179,31 +159,28 @@
                 </div>
 
                 <aside class="space-y-4">
-                    <section class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
-                        <h2 class="text-base font-semibold text-slate-950">{{ $t('Summary') }}</h2>
-                        <div class="mt-4 space-y-3 text-sm">
-                            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <div class="text-xs text-slate-500">{{ $t('Flow') }}</div>
-                                <div class="mt-1 font-semibold text-slate-900">{{ activeModeLabel }}</div>
+                    <UiSectionCard :title="$t('Summary')">
+                        <div class="space-y-3 text-sm">
+                            <div class="usr-tile">
+                                <p class="usr-tile-label">{{ $t('Flow') }}</p>
+                                <p class="usr-tile-value">{{ activeModeLabel }}</p>
                             </div>
-                            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <div class="text-xs text-slate-500">{{ $t('Account email') }}</div>
-                                <div class="mt-1 font-semibold text-slate-900 break-all">{{ form.email || $t('Not set') }}</div>
+                            <div class="usr-tile">
+                                <p class="usr-tile-label">{{ $t('Account email') }}</p>
+                                <p class="usr-tile-value break-all">{{ form.email || $t('Not set') }}</p>
                             </div>
-                            <div v-if="form.creation_mode === 'owner_new_org'" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <div class="text-xs text-slate-500">{{ $t('Organization') }}</div>
-                                <div class="mt-1 font-semibold text-slate-900">{{ form.organization_name || $t('Not set') }}</div>
-                                <div class="mt-2 text-xs text-slate-500">
-                                    {{ form.organization_billing_mode === 'later' ? $t('Billing later') : $t('Plan selected now') }}
-                                </div>
+                            <div v-if="form.creation_mode === 'owner_new_org'" class="usr-tile">
+                                <p class="usr-tile-label">{{ $t('Organization') }}</p>
+                                <p class="usr-tile-value">{{ form.organization_name || $t('Not set') }}</p>
+                                <p class="usr-tile-sub">{{ form.organization_billing_mode === 'later' ? $t('Billing later') : $t('Plan selected now') }}</p>
                             </div>
-                            <div v-if="form.creation_mode === 'employee_existing_org'" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <div class="text-xs text-slate-500">{{ $t('Company') }}</div>
-                                <div class="mt-1 font-semibold text-slate-900">{{ selectedCompanyName || $t('Not set') }}</div>
-                                <div class="mt-2 text-xs text-slate-500">{{ $t('Assignments') }}: {{ completedAssignmentsCount }}</div>
+                            <div v-if="form.creation_mode === 'employee_existing_org'" class="usr-tile">
+                                <p class="usr-tile-label">{{ $t('Company') }}</p>
+                                <p class="usr-tile-value">{{ selectedCompanyName || $t('Not set') }}</p>
+                                <p class="usr-tile-sub">{{ $t('Assignments') }}: {{ completedAssignmentsCount }}</p>
                             </div>
                         </div>
-                    </section>
+                    </UiSectionCard>
                 </aside>
             </form>
         </div>
@@ -218,6 +195,8 @@ import AppLayout from './../Layout/App.vue';
 import FormInput from '@/Components/FormInput.vue';
 import FormPhoneInput from '@/Components/FormPhoneInput.vue';
 import FormSelect from '@/Components/FormSelect.vue';
+import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
+import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
 
 const props = defineProps({
     title: String,
@@ -407,3 +386,148 @@ function submitForm() {
     });
 }
 </script>
+
+<style scoped>
+.usr-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, filter 160ms ease, opacity 160ms ease;
+}
+
+.usr-btn--sm {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.82rem;
+}
+
+.usr-btn--ghost {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+
+.usr-btn--ghost:hover:not(:disabled) {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+
+.usr-btn--ghost:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.usr-btn--solid {
+    border: 1px solid transparent;
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.usr-btn--solid:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+
+.usr-btn--solid:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.usr-choice-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.9rem 1.05rem;
+    text-align: start;
+    transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.usr-choice-card:hover {
+    border-color: var(--ui-border-strong);
+}
+
+.usr-choice-card--active {
+    border-color: color-mix(in srgb, var(--ui-secondary) 55%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-secondary) 10%, var(--ui-surface));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-secondary) 12%, transparent);
+}
+
+.usr-choice-card-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.usr-choice-card-desc {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--ui-muted);
+}
+
+.usr-tile {
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.85rem 1rem;
+}
+
+.usr-tile-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--ui-muted);
+}
+
+.usr-tile-value {
+    margin-top: 0.3rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.usr-tile-sub {
+    margin-top: 0.3rem;
+    font-size: 0.78rem;
+    color: var(--ui-muted);
+}
+
+.usr-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.85rem 1.05rem;
+    font-size: 0.88rem;
+    color: var(--ui-text);
+}
+
+.usr-banner {
+    border: 1px solid;
+    border-radius: 1rem;
+    padding: 0.9rem 1.05rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.usr-banner--info {
+    border-color: color-mix(in srgb, var(--ui-primary) 30%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-primary) 8%, var(--ui-surface));
+    color: var(--ui-text);
+}
+
+.usr-banner--warning {
+    border-color: color-mix(in srgb, var(--ui-warning) 35%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-warning) 10%, var(--ui-surface));
+    color: var(--ui-text);
+}
+</style>

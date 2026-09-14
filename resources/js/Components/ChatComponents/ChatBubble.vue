@@ -217,19 +217,19 @@
 </script>
 <template>
     <div 
-        class="rounded-lg my-1 p-2 text-sm flex flex-col relative"
-        :class="props.type === 'outbound' ? 'ms-auto rounded-tr-none ui-bg-soft speech-bubble-right' : 'me-auto rounded-tl-none bg-white speech-bubble-left'">
+        class="rounded-lg my-1 p-2 text-[14.5px] leading-relaxed flex flex-col relative"
+        :class="props.type === 'outbound' ? 'ms-auto rounded-tr-none ui-bg-soft speech-bubble-right' : 'me-auto rounded-tl-none bg-white dark:bg-[#202c33] speech-bubble-left'">
         <div>
             <!--Text message formatting-->
             <div v-if="JSON.parse(content.metadata).type === 'text'" class="max-w-[300px]">
                 <!-- Header -->
                 <div v-if="JSON.parse(content.metadata).header?.text">
-                    <p class="text-sm font-medium text-gray-900">{{ JSON.parse(content.metadata).header.text }}</p>
+                    <p class="text-sm font-medium text-gray-900 dark:text-slate-100">{{ JSON.parse(content.metadata).header.text }}</p>
                 </div>
                 <!-- Body -->
                 <p class="normal-case whitespace-pre-wrap">{{ JSON.parse(content.metadata).text?.body }}</p>
                 <div v-if="JSON.parse(content.metadata)?.buttons" class="me-auto text-sm ui-text-primary flex flex-col relative max-w-[25em]">
-                    <div v-for="(item, index) in JSON.parse(content.metadata)?.buttons" :key="index" class="flex justify-center items-center gap-x-2 rounded-lg bg-white h-10 my-[0.1em]">
+                    <div v-for="(item, index) in JSON.parse(content.metadata)?.buttons" :key="index" class="flex justify-center items-center gap-x-2 rounded-lg bg-white dark:bg-white/10 h-10 my-[0.1em]">
                         <span>
                             <svg v-if="item.type === 'COPY_CODE'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12V1Z"/></svg>
                             <svg v-else-if="item.type === 'PHONE_NUMBER'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><g fill="none"><path fill="currentColor" d="M20 16v4c-2.758 0-5.07-.495-7-1.325c-3.841-1.652-6.176-4.63-7.5-7.675C4.4 8.472 4 5.898 4 4h4l1 4l-3.5 3c1.324 3.045 3.659 6.023 7.5 7.675L16 15l4 1z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 18.675c1.93.83 4.242 1.325 7 1.325v-4l-4-1l-3 3.675zm0 0C9.159 17.023 6.824 14.045 5.5 11m0 0C4.4 8.472 4 5.898 4 4h4l1 4l-3.5 3z"/></g></svg>
@@ -259,33 +259,33 @@
             <div v-if="metadata.type === 'interactive'" class="max-w-[300px]">
                 <div v-if="interactiveType === 'button_reply' || interactiveType === 'list_reply'">
                     <p class="normal-case whitespace-pre-wrap">{{ inboundInteractiveTitle }}</p>
-                    <p v-if="inboundInteractiveDescription" class="normal-case whitespace-pre-wrap text-xs text-slate-500">{{ inboundInteractiveDescription }}</p>
+                    <p v-if="inboundInteractiveDescription" class="normal-case whitespace-pre-wrap text-xs text-slate-500 dark:text-slate-400">{{ inboundInteractiveDescription }}</p>
                 </div>
 
                 <div v-else>
-                    <p v-if="interactiveHeaderText" class="text-sm font-medium text-gray-900">{{ interactiveHeaderText }}</p>
+                    <p v-if="interactiveHeaderText" class="text-sm font-medium text-gray-900 dark:text-slate-100">{{ interactiveHeaderText }}</p>
                     <p v-if="interactiveMessageBody" class="normal-case whitespace-pre-wrap">{{ interactiveMessageBody }}</p>
-                    <p v-if="interactiveFooterText" class="mt-1 text-xs text-slate-500">{{ interactiveFooterText }}</p>
+                    <p v-if="interactiveFooterText" class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ interactiveFooterText }}</p>
 
                     <div v-if="interactiveType === 'button' && interactiveButtons.length" class="mt-2 flex flex-col gap-1 text-sm ui-text-primary">
-                        <div v-for="(item, index) in interactiveButtons" :key="item.reply?.id || index" class="flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2">
+                        <div v-for="(item, index) in interactiveButtons" :key="item.reply?.id || index" class="flex items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-white/10 px-3 py-2">
                             <img :src="'/images/icons/reply.png'" class="h-4" alt="">
                             <span>{{ item.reply?.title || item.title || item.text }}</span>
                         </div>
                     </div>
 
-                    <div v-if="interactiveType === 'list'" class="mt-2 rounded-lg bg-white p-2 text-sm">
+                    <div v-if="interactiveType === 'list'" class="mt-2 rounded-lg bg-white dark:bg-white/10 p-2 text-sm">
                         <div v-if="interactiveListButton" class="mb-2 text-center font-medium ui-text-primary">{{ interactiveListButton }}</div>
-                        <div v-for="(section, sectionIndex) in interactiveSections" :key="section.title || sectionIndex" class="border-t border-slate-100 py-1 first:border-t-0">
-                            <p v-if="section.title" class="mb-1 text-xs font-medium text-slate-500">{{ section.title }}</p>
+                        <div v-for="(section, sectionIndex) in interactiveSections" :key="section.title || sectionIndex" class="border-t border-slate-100 dark:border-white/10 py-1 first:border-t-0">
+                            <p v-if="section.title" class="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">{{ section.title }}</p>
                             <div v-for="(row, rowIndex) in section.rows || []" :key="row.id || rowIndex" class="py-1">
-                                <p class="text-slate-700">{{ row.title }}</p>
-                                <p v-if="row.description" class="text-xs text-slate-500">{{ row.description }}</p>
+                                <p class="text-slate-700 dark:text-slate-200">{{ row.title }}</p>
+                                <p v-if="row.description" class="text-xs text-slate-500 dark:text-slate-400">{{ row.description }}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div v-if="interactiveType === 'cta_url' && interactiveCtaText" class="mt-2 flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 text-sm ui-text-primary">
+                    <div v-if="interactiveType === 'cta_url' && interactiveCtaText" class="mt-2 flex items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-white/10 px-3 py-2 text-sm ui-text-primary">
                         <img :src="'/images/icons/link.png'" class="h-4" alt="">
                         <span>{{ interactiveCtaText }}</span>
                     </div>
@@ -295,13 +295,13 @@
             <!--Image formatting-->
             <div v-else-if="JSON.parse(content.metadata).type === 'image'">
                 <img v-if="content.media != null" :src="content?.media?.path" :alt="$t('Image')" class="mb-2 max-w-[300px]" />
-                <div v-else class="text-slate-500 flex justify-center items-center gap-x-4">
+                <div v-else class="text-slate-500 dark:text-slate-400 flex justify-center items-center gap-x-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z"/><path fill="currentColor" d="m13.299 3.148l8.634 14.954a1.5 1.5 0 0 1-1.299 2.25H3.366a1.5 1.5 0 0 1-1.299-2.25l8.634-14.954c.577-1 2.02-1 2.598 0ZM12 4.898L4.232 18.352h15.536L12 4.898ZM12 15a1 1 0 1 1 0 2a1 1 0 0 1 0-2Zm0-7a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V9a1 1 0 0 1 1-1Z"/></g></svg>
                     {{ $t('Content not available') }}
                 </div>
                 <div v-if="JSON.parse(content.metadata).image?.caption" class="max-w-[300px]">{{ JSON.parse(content.metadata).image?.caption }}</div>
                 <div v-if="JSON.parse(content.metadata)?.buttons" class="me-auto text-sm ui-text-primary flex flex-col relative max-w-[25em]">
-                    <div v-for="(item, index) in JSON.parse(content.metadata)?.buttons" :key="index" class="flex justify-center items-center gap-x-2 rounded-lg bg-white h-10 my-[0.1em]">
+                    <div v-for="(item, index) in JSON.parse(content.metadata)?.buttons" :key="index" class="flex justify-center items-center gap-x-2 rounded-lg bg-white dark:bg-white/10 h-10 my-[0.1em]">
                         <span>
                             <svg v-if="item.type === 'COPY_CODE'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12V1Z"/></svg>
                             <svg v-else-if="item.type === 'PHONE_NUMBER'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><g fill="none"><path fill="currentColor" d="M20 16v4c-2.758 0-5.07-.495-7-1.325c-3.841-1.652-6.176-4.63-7.5-7.675C4.4 8.472 4 5.898 4 4h4l1 4l-3.5 3c1.324 3.045 3.659 6.023 7.5 7.675L16 15l4 1z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 18.675c1.93.83 4.242 1.325 7 1.325v-4l-4-1l-3 3.675zm0 0C9.159 17.023 6.824 14.045 5.5 11m0 0C4.4 8.472 4 5.898 4 4h4l1 4l-3.5 3z"/></g></svg>
@@ -346,7 +346,7 @@
                     </div>
                 </div>
                 <div v-if="JSON.parse(content.metadata)?.buttons" class="me-auto text-sm ui-text-primary flex flex-col relative max-w-[25em]">
-                    <div v-for="(item, index) in JSON.parse(content.metadata)?.buttons" :key="index" class="flex justify-center items-center gap-x-2 rounded-lg bg-white h-10 my-[0.1em]">
+                    <div v-for="(item, index) in JSON.parse(content.metadata)?.buttons" :key="index" class="flex justify-center items-center gap-x-2 rounded-lg bg-white dark:bg-white/10 h-10 my-[0.1em]">
                         <span>
                             <svg v-if="item.type === 'COPY_CODE'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12V1Z"/></svg>
                             <svg v-else-if="item.type === 'PHONE_NUMBER'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><g fill="none"><path fill="currentColor" d="M20 16v4c-2.758 0-5.07-.495-7-1.325c-3.841-1.652-6.176-4.63-7.5-7.675C4.4 8.472 4 5.898 4 4h4l1 4l-3.5 3c1.324 3.045 3.659 6.023 7.5 7.675L16 15l4 1z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 18.675c1.93.83 4.242 1.325 7 1.325v-4l-4-1l-3 3.675zm0 0C9.159 17.023 6.824 14.045 5.5 11m0 0C4.4 8.472 4 5.898 4 4h4l1 4l-3.5 3z"/></g></svg>
@@ -365,7 +365,7 @@
 
             <!--Location formatting-->
             <div v-else-if="JSON.parse(content.metadata).type === 'location'">
-                <div class="w-[300px] rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-700">
+                <div class="w-[300px] rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-white/10 p-3 text-sm text-slate-700 dark:text-slate-200">
                     <div class="mb-1 font-medium">{{ $t('Location') }}</div>
                     <div class="font-mono text-xs">{{ location(content.metadata).lat }}, {{ location(content.metadata).lng }}</div>
                 </div>
@@ -374,7 +374,7 @@
             <!--Sticker formatting-->
             <div v-else-if="JSON.parse(content.metadata).type === 'sticker'">
                 <img v-if="content.media != null" :src="content?.media?.path" :alt="$t('Image')" class="mb-2 max-w-[100px]" />
-                <div v-else class="text-slate-500 flex justify-center items-center gap-x-4">
+                <div v-else class="text-slate-500 dark:text-slate-400 flex justify-center items-center gap-x-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z"/><path fill="currentColor" d="m13.299 3.148l8.634 14.954a1.5 1.5 0 0 1-1.299 2.25H3.366a1.5 1.5 0 0 1-1.299-2.25l8.634-14.954c.577-1 2.02-1 2.598 0ZM12 4.898L4.232 18.352h15.536L12 4.898ZM12 15a1 1 0 1 1 0 2a1 1 0 0 1 0-2Zm0-7a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V9a1 1 0 0 1 1-1Z"/></g></svg>
                     {{ $t('Content not available') }}
                 </div>
@@ -383,7 +383,7 @@
             <!--Contacts formatting-->
             <div v-else-if="JSON.parse(content.metadata).type === 'contacts'">
                 <div class="flex gap-x-3 w-[300px] items-center">
-                    <div class="rounded-full p-3 bg-slate-200">
+                    <div class="rounded-full p-3 bg-slate-200 dark:bg-white/10">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 512 512"><path fill="currentColor" d="M332.64 64.58C313.18 43.57 286 32 256 32c-30.16 0-57.43 11.5-76.8 32.38c-19.58 21.11-29.12 49.8-26.88 80.78C156.76 206.28 203.27 256 256 256s99.16-49.71 103.67-110.82c2.27-30.7-7.33-59.33-27.03-80.6ZM432 480H80a31 31 0 0 1-24.2-11.13c-6.5-7.77-9.12-18.38-7.18-29.11C57.06 392.94 83.4 353.61 124.8 326c36.78-24.51 83.37-38 131.2-38s94.42 13.5 131.2 38c41.4 27.6 67.74 66.93 76.18 113.75c1.94 10.73-.68 21.34-7.18 29.11A31 31 0 0 1 432 480Z"/></svg>
                     </div>
                     <div>
@@ -398,7 +398,7 @@
                     <source :src="content.media.path" :type="content.media?.type || 'audio/mpeg'">
                     {{ $t('Your browser does not support the audio element') }}
                 </audio>
-                <div v-else class="text-slate-500 flex justify-center items-center gap-x-4">
+                <div v-else class="text-slate-500 dark:text-slate-400 flex justify-center items-center gap-x-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z"/><path fill="currentColor" d="m13.299 3.148l8.634 14.954a1.5 1.5 0 0 1-1.299 2.25H3.366a1.5 1.5 0 0 1-1.299-2.25l8.634-14.954c.577-1 2.02-1 2.598 0ZM12 4.898L4.232 18.352h15.536L12 4.898ZM12 15a1 1 0 1 1 0 2a1 1 0 0 1 0-2Zm0-7a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V9a1 1 0 0 1 1-1Z"/></g></svg>
                     {{ $t('Audio file unavailable') }}
                 </div>
@@ -410,13 +410,13 @@
                     <source :src="content?.media?.path" type="video/mp4">
                     {{ $t('Your browser does not support the video element') }}
                 </video>
-                <div v-else class="text-slate-500 flex justify-center items-center gap-x-4">
+                <div v-else class="text-slate-500 dark:text-slate-400 flex justify-center items-center gap-x-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z"/><path fill="currentColor" d="m13.299 3.148l8.634 14.954a1.5 1.5 0 0 1-1.299 2.25H3.366a1.5 1.5 0 0 1-1.299-2.25l8.634-14.954c.577-1 2.02-1 2.598 0ZM12 4.898L4.232 18.352h15.536L12 4.898ZM12 15a1 1 0 1 1 0 2a1 1 0 0 1 0-2Zm0-7a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V9a1 1 0 0 1 1-1Z"/></g></svg>
                     {{ $t('Content not available') }}
                 </div>
                 <div v-if="JSON.parse(content.metadata).video?.caption" class="max-w-[300px]">{{ JSON.parse(content.metadata).video?.caption }}</div>
                 <div v-if="JSON.parse(content.metadata)?.buttons" class="me-auto text-sm ui-text-primary flex flex-col relative max-w-[25em]">
-                    <div v-for="(item, index) in JSON.parse(content.metadata)?.buttons" :key="index" class="flex justify-center items-center gap-x-2 rounded-lg bg-white h-10 my-[0.1em]">
+                    <div v-for="(item, index) in JSON.parse(content.metadata)?.buttons" :key="index" class="flex justify-center items-center gap-x-2 rounded-lg bg-white dark:bg-white/10 h-10 my-[0.1em]">
                         <span>
                             <svg v-if="item.type === 'COPY_CODE'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12V1Z"/></svg>
                             <svg v-else-if="item.type === 'PHONE_NUMBER'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><g fill="none"><path fill="currentColor" d="M20 16v4c-2.758 0-5.07-.495-7-1.325c-3.841-1.652-6.176-4.63-7.5-7.675C4.4 8.472 4 5.898 4 4h4l1 4l-3.5 3c1.324 3.045 3.659 6.023 7.5 7.675L16 15l4 1z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 18.675c1.93.83 4.242 1.325 7 1.325v-4l-4-1l-3 3.675zm0 0C9.159 17.023 6.824 14.045 5.5 11m0 0C4.4 8.472 4 5.898 4 4h4l1 4l-3.5 3z"/></g></svg>
@@ -430,13 +430,13 @@
 
             <!--Timestamp-->
             <div v-if="props.type === 'outbound' && content.user" class="mt-2 mb--2">
-                <span  class="text-gray-500 text-xs text-end leading-none">{{ $t('Sent By:') }} <u>{{ content.user?.first_name + ' ' + content.user?.last_name }}</u></span>
+                <span  class="text-gray-500 dark:text-slate-400 text-xs text-end leading-none">{{ $t('Sent By:') }} <u>{{ content.user?.first_name + ' ' + content.user?.last_name }}</u></span>
             </div>
             <div class="flex items-center justify-between gap-x-4" :class="props.type === 'outbound' && content.user ? '' : 'mt-2'">
-                <p class="text-gray-500 text-xs text-end leading-none">{{ content.created_at }}</p>
-                <span class="relative group cursor-pointer" :class="chatStatus(content.logs) === 'read' ? 'text-blue-500' : (chatStatus(content.logs) === 'failed' ? 'text-red-600' : 'text-gray-500')">
+                <p class="text-gray-500 dark:text-slate-400 text-xs text-end leading-none">{{ content.created_at }}</p>
+                <span class="relative group cursor-pointer" :class="chatStatus(content.logs) === 'read' ? 'text-blue-500' : (chatStatus(content.logs) === 'failed' ? 'text-red-600' : 'text-gray-500 dark:text-slate-400')">
                     <!-- Tooltip text -->
-                    <div class="absolute capitalize hidden group-hover:block bg-white text-gray-600 text-xs rounded-sm py-1 px-2 bottom-full mb-1 whitespace-no-wrap">
+                    <div class="absolute capitalize hidden group-hover:block bg-white dark:bg-[#233138] text-gray-600 dark:text-slate-300 text-xs rounded-sm py-1 px-2 bottom-full mb-1 whitespace-no-wrap">
                         {{ chatStatus(content.logs) }}
                     </div>
                     <svg v-if="chatStatus(content.logs) === 'sent'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m2.75 8.75l3.5 3.5l7-7.5"/></svg>
@@ -453,59 +453,59 @@
 
     <Modal :label="$t('Message status: ') + chatStatus(content.logs)" :isOpen=isModalOpen :closeBtn="true" @close="isModalOpen = false">
         <div>
-            <div v-if="errorDetails" class="bg-red-100 rounded-md p-4 text-sm mt-4">
+            <div v-if="errorDetails" class="bg-red-100 dark:bg-red-950/40 rounded-md p-4 text-sm mt-4">
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
-                        <h3 class="font-semibold text-red-800">{{ $t('Error Details') }}</h3>
-                        <button type="button" v-if="errorDetails" @click="copyFullError" class="text-gray-600 hover:text-black transition" :title="$t('Copy Full Error')">
+                        <h3 class="font-semibold text-red-800 dark:text-red-300">{{ $t('Error Details') }}</h3>
+                        <button type="button" v-if="errorDetails" @click="copyFullError" class="text-gray-600 dark:text-slate-400 hover:text-black dark:hover:text-white transition" :title="$t('Copy Full Error')">
                             <svg v-if="copiedRef !== 'error'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 11c0-2.828 0-4.243.879-5.121C7.757 5 9.172 5 12 5h3c2.828 0 4.243 0 5.121.879C21 6.757 21 8.172 21 11v5c0 2.828 0 4.243-.879 5.121C19.243 22 17.828 22 15 22h-3c-2.828 0-4.243 0-5.121-.879C6 20.243 6 18.828 6 16z"/><path d="M6 19a3 3 0 0 1-3-3v-6c0-3.771 0-5.657 1.172-6.828C5.343 2 7.229 2 11 2h4a3 3 0 0 1 3 3"/></g></svg>
                             <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19L21 7l-1.41-1.41z"/></svg>
                         </button>
                     </div>
                     
-                    <div v-if="content.id" class="text-xs text-gray-600">
+                    <div v-if="content.id" class="text-xs text-gray-600 dark:text-slate-400">
                         <span class="font-medium">{{ $t('Chat ID') }}:</span> {{ content.id }}
                     </div>
-                    
-                    <div class="border-t border-red-200 pt-2 mt-2 space-y-2">
+
+                    <div class="border-t border-red-200 dark:border-red-900/40 pt-2 mt-2 space-y-2">
                         <div v-if="errorDetails.message">
-                            <p class="font-medium text-red-900">{{ $t('Message') }}:</p>
-                            <p class="text-red-800">{{ errorDetails.message }}</p>
+                            <p class="font-medium text-red-900 dark:text-red-300">{{ $t('Message') }}:</p>
+                            <p class="text-red-800 dark:text-red-300">{{ errorDetails.message }}</p>
                         </div>
                         
                         <div v-if="errorDetails.error_code" class="flex items-center gap-x-2">
-                            <span class="font-medium text-red-900">{{ $t('Error Code') }}:</span>
-                            <span class="text-red-800">{{ errorDetails.error_code }}</span>
+                            <span class="font-medium text-red-900 dark:text-red-300">{{ $t('Error Code') }}:</span>
+                            <span class="text-red-800 dark:text-red-300">{{ errorDetails.error_code }}</span>
                         </div>
                         
                         <div v-if="errorDetails.error_type" class="flex items-center gap-x-2">
-                            <span class="font-medium text-red-900">{{ $t('Error Type') }}:</span>
-                            <span class="text-red-800">{{ errorDetails.error_type }}</span>
+                            <span class="font-medium text-red-900 dark:text-red-300">{{ $t('Error Type') }}:</span>
+                            <span class="text-red-800 dark:text-red-300">{{ errorDetails.error_type }}</span>
                         </div>
                         
                         <div v-if="errorDetails.error_user_msg" class="flex items-center gap-x-2">
-                            <span class="font-medium text-red-900">{{ $t('User Message') }}:</span>
-                            <span class="text-red-800">{{ errorDetails.error_user_msg }}</span>
+                            <span class="font-medium text-red-900 dark:text-red-300">{{ $t('User Message') }}:</span>
+                            <span class="text-red-800 dark:text-red-300">{{ errorDetails.error_user_msg }}</span>
                         </div>
                         
                         <div v-if="errorDetails.error_data?.details" class="mt-2">
-                            <p class="font-medium text-red-900">{{ $t('Details') }}:</p>
-                            <p class="text-red-800">{{ errorDetails.error_data.details }}</p>
+                            <p class="font-medium text-red-900 dark:text-red-300">{{ $t('Details') }}:</p>
+                            <p class="text-red-800 dark:text-red-300">{{ errorDetails.error_data.details }}</p>
                         </div>
                         
-                        <div v-if="errorDetails.fbtrace_id" class="text-xs text-gray-600 mt-2">
+                        <div v-if="errorDetails.fbtrace_id" class="text-xs text-gray-600 dark:text-slate-400 mt-2">
                             <span class="font-medium">{{ $t('Trace ID') }}:</span> {{ errorDetails.fbtrace_id }}
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div v-else class="bg-gray-100 rounded-md p-4 text-sm mt-4">
-                <p class="text-gray-600">{{ $t('No error details available') }}</p>
+            <div v-else class="bg-gray-100 dark:bg-white/5 rounded-md p-4 text-sm mt-4">
+                <p class="text-gray-600 dark:text-slate-400">{{ $t('No error details available') }}</p>
             </div>
 
             <div class="mt-4 flex w-full">
-                <button type="button" @click="isModalOpen = false;" class="w-full justify-center rounded-md border border-transparent bg-slate-50 px-4 py-2 text-sm text-slate-500 hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">{{ $t('Close') }}</button>
+                <button type="button" @click="isModalOpen = false;" class="w-full justify-center rounded-md border border-transparent bg-slate-50 dark:bg-white/5 px-4 py-2 text-sm text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">{{ $t('Close') }}</button>
             </div>
         </div>
     </Modal>

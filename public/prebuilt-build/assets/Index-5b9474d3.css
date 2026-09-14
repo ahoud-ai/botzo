@@ -1,0 +1,18 @@
+
+.tm-btn[data-v-166b9ad2] {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease;
+}
+.tm-btn--solid[data-v-166b9ad2] {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.tm-btn--solid[data-v-166b9ad2]:hover {
+    filter: brightness(1.05);
+}

@@ -1,0 +1,12 @@
+
+.settings-sidebar-title[data-v-0452d02a] {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--ui-text);
+}
+.settings-sidebar-subtitle[data-v-0452d02a] {
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    line-height: 1.35;
+    color: var(--ui-muted);
+}

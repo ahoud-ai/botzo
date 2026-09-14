@@ -4,87 +4,85 @@
             <div v-if="!existingOrganization" class="hidden justify-between md:flex">
                 <div>
                     <h1 class="mb-1 text-xl">{{ $t('Create organization') }}</h1>
-                    <p class="mb-6 flex items-center text-sm leading-6 text-gray-600">
+                    <p class="mb-6 flex items-center text-sm leading-6 org-muted">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
                         <span class="ms-1 mt-1">{{ $t('Create organization') }}</span>
                     </p>
                 </div>
-                <Link href="/admin/organizations" class="rounded-md bg-indigo-600 px-3 py-2 text-sm text-white shadow-sm hover:bg-indigo-500">{{ $t('Back') }}</Link>
+                <Link href="/admin/organizations" class="org-btn org-btn--solid">{{ $t('Back') }}</Link>
             </div>
 
             <template v-if="existingOrganization">
-                <section class="relative overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60 md:p-8">
-                    <div class="absolute inset-x-0 top-0 h-32 bg-[linear-gradient(135deg,rgba(99,102,241,0.10),rgba(14,165,233,0.08),transparent)]"></div>
+                <section class="org-hero">
+                    <div class="org-hero-wash"></div>
 
                     <div class="relative flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
                         <div class="flex min-w-0 items-start gap-4">
-                            <div class="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4 shadow-sm">
-                                <div class="flex h-20 w-20 items-center justify-center rounded-[1.2rem] bg-slate-100 text-slate-700">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24"><path fill="currentColor" d="M17 3.722v5.497l2.864.716A1.5 1.5 0 0 1 21 11.39V19a1 1 0 1 1 0 2H3a1 1 0 1 1 0-2v-7.69a1.5 1.5 0 0 1 .83-1.343L7 8.382V6.347a1.5 1.5 0 0 1 .973-1.405l7-2.625A1.5 1.5 0 0 1 17 3.722Zm-2 .721l-6 2.25V19h6V4.443Zm2 6.838V19h2v-7.22l-2-.5Zm-10-.663l-2 1V19h2v-8.382Z"/></svg>
-                                </div>
-                            </div>
+                            <span class="org-hero-avatar" :class="isBranchOrganization ? 'org-avatar--branch' : 'org-avatar--main'">
+                                {{ orgInitial }}
+                            </span>
                             <div class="min-w-0 space-y-4">
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <h1 class="text-2xl font-semibold text-slate-950">{{ props.organization.name }}</h1>
-                                    <span class="rounded-full px-3 py-1 text-xs font-medium" :class="isBranchOrganization ? 'bg-sky-100 text-sky-700' : 'bg-indigo-100 text-indigo-700'">
+                                    <h1 class="org-hero-title">{{ props.organization.name }}</h1>
+                                    <span class="org-chip" :class="isBranchOrganization ? 'ui-chip-neutral' : 'ui-chip-info'">
                                         {{ isBranchOrganization ? $t('Branch') : $t('Main organization') }}
                                     </span>
-                                    <span class="rounded-full px-3 py-1 text-xs font-medium" :class="subscriptionTone(props.profileSummary?.subscription?.status)">
+                                    <span class="org-chip" :class="subscriptionTone(props.profileSummary?.subscription?.status)">
                                         {{ props.profileSummary?.subscription?.status_label ?? $t('No active subscription') }}
                                     </span>
-                                    <span v-if="isParentManaged" class="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">{{ $t('Managed from parent subscription') }}</span>
+                                    <span v-if="isParentManaged" class="org-chip ui-chip-warning">{{ $t('Managed from parent subscription') }}</span>
                                 </div>
 
                                 <div class="space-y-1">
-                                    <p class="text-sm font-medium text-slate-700">{{ props.profileSummary?.subscription?.plan_name ?? $t('Not set') }}</p>
-                                    <p class="text-sm text-slate-500">{{ organizationSubtitle }}</p>
+                                    <p class="org-hero-plan">{{ props.profileSummary?.subscription?.plan_name ?? $t('Not set') }}</p>
+                                    <p class="org-hero-subtitle">{{ organizationSubtitle }}</p>
                                 </div>
 
-                                <div class="flex flex-wrap gap-2.5 text-xs text-slate-600">
-                                    <span class="rounded-full border border-slate-200 bg-white px-3 py-1.5">
-                                        {{ $t('Billing owner') }}: <strong class="text-slate-900">{{ props.profileSummary?.billing_owner_name ?? $t('Not set') }}</strong>
+                                <div class="flex flex-wrap gap-2.5 text-xs">
+                                    <span class="org-pill">
+                                        {{ $t('Billing owner') }}: <strong>{{ props.profileSummary?.billing_owner_name ?? $t('Not set') }}</strong>
                                     </span>
-                                    <span class="rounded-full border border-slate-200 bg-white px-3 py-1.5">
-                                        {{ $t('Owner') }}: <strong class="text-slate-900">{{ props.profileSummary?.owner_name ?? $t('Not set') }}</strong>
+                                    <span class="org-pill">
+                                        {{ $t('Owner') }}: <strong>{{ props.profileSummary?.owner_name ?? $t('Not set') }}</strong>
                                     </span>
-                                    <span class="rounded-full border border-slate-200 bg-white px-3 py-1.5">
-                                        {{ $t('Renewal date') }}: <strong class="text-slate-900">{{ props.profileSummary?.subscription?.valid_until ?? $t('Not set') }}</strong>
+                                    <span class="org-pill">
+                                        {{ $t('Renewal date') }}: <strong>{{ props.profileSummary?.subscription?.valid_until ?? $t('Not set') }}</strong>
                                     </span>
-                                    <span v-if="props.profileSummary?.parent_organization_name" class="rounded-full border border-slate-200 bg-white px-3 py-1.5">
-                                        {{ $t('Parent organization') }}: <strong class="text-slate-900">{{ props.profileSummary.parent_organization_name }}</strong>
+                                    <span v-if="props.profileSummary?.parent_organization_name" class="org-pill">
+                                        {{ $t('Parent organization') }}: <strong>{{ props.profileSummary.parent_organization_name }}</strong>
                                     </span>
                                 </div>
 
                                 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                                    <div v-for="item in headerStats" :key="item.label" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                        <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
-                                            <component :is="item.icon" class="h-3.5 w-3.5 text-slate-400" />
-                                            {{ item.label }}
+                                    <div v-for="item in headerStats" :key="item.label" class="org-tile">
+                                        <div class="org-tile-head">
+                                            <component :is="item.icon" class="h-3.5 w-3.5" />
+                                            <span class="org-tile-label">{{ item.label }}</span>
                                         </div>
-                                        <p class="mt-1 text-sm font-semibold text-slate-900">{{ item.value }}</p>
+                                        <p class="org-tile-value">{{ item.value }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="flex flex-wrap items-center gap-3">
-                            <Link href="/admin/organizations" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                            <Link href="/admin/organizations" class="org-btn org-btn--ghost">
                                 <ArrowLeft class="h-4 w-4" />
                                 {{ $t('Back') }}
                             </Link>
-                            <button type="button" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50" @click="changeTab('edit')">
+                            <button type="button" class="org-btn org-btn--ghost" @click="changeTab('edit')">
                                 <PencilLine class="h-4 w-4" />
                                 {{ $t('Edit') }}
                             </button>
-                            <button v-if="!isParentManaged" type="button" @click="toggleFormModal()" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">
+                            <button v-if="!isParentManaged" type="button" @click="toggleFormModal()" class="org-btn org-btn--solid">
                                 <CreditCard class="h-4 w-4" />
                                 {{ $t('Create transaction') }}
                             </button>
                         </div>
                     </div>
 
-                    <div v-if="organizationNotice" class="relative mt-5 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+                    <div v-if="organizationNotice" class="org-banner org-banner--info relative mt-5">
                         <div class="flex items-start gap-3">
-                            <span class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+                            <span class="org-banner-icon org-banner-icon--info">
                                 <InfoIcon class="h-4 w-4" />
                             </span>
                             <p class="leading-6">{{ organizationNotice }}</p>
@@ -92,13 +90,13 @@
                     </div>
                 </section>
 
-                <section class="mt-6 overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
-                    <div class="border-b border-slate-200 px-4 py-4 md:px-6">
-                        <div class="flex flex-wrap gap-2">
-                            <button v-for="option in tabs" :key="option.key" type="button" class="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition" :class="tab === option.key ? 'bg-slate-950 text-white shadow-sm' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'" @click="changeTab(option.key)">
+                <section class="org-panel mt-6">
+                    <div class="org-tabbar">
+                        <div class="org-filter-group org-filter-group--segmented">
+                            <button v-for="option in tabs" :key="option.key" type="button" class="org-filter-pill org-filter-pill--segmented" :class="{ 'org-filter-pill--active': tab === option.key }" @click="changeTab(option.key)">
                                 <component :is="option.icon" class="h-4 w-4" />
                                 {{ option.label }}
-                                <span v-if="option.count !== null" class="rounded-full px-2 py-0.5 text-[11px]" :class="tab === option.key ? 'bg-white/15 text-white' : 'bg-white text-slate-500'">{{ option.count }}</span>
+                                <span v-if="option.count !== null" class="org-tab-count" :class="{ 'org-tab-count--active': tab === option.key }">{{ option.count }}</span>
                             </button>
                         </div>
                     </div>
@@ -108,37 +106,37 @@
                             <div class="grid gap-6 xl:grid-cols-[1.05fr,0.95fr]">
                                 <UiSectionCard :title="$t('Summary')">
                                     <div class="grid gap-4 sm:grid-cols-2">
-                                        <div v-for="row in overviewRows" :key="row.label" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                            <p class="text-xs font-medium text-slate-500">{{ row.label }}</p>
-                                            <p class="mt-1 break-words text-sm font-semibold text-slate-900">{{ row.value }}</p>
+                                        <div v-for="row in overviewRows" :key="row.label" class="org-tile">
+                                            <p class="org-tile-label">{{ row.label }}</p>
+                                            <p class="org-tile-value break-words">{{ row.value }}</p>
                                         </div>
                                     </div>
-                                    <div v-if="overviewChips.length" class="mt-4 flex flex-wrap gap-2 text-xs text-slate-600">
-                                        <span v-for="chip in overviewChips" :key="chip.label" class="rounded-full border border-slate-200 bg-white px-3 py-1.5">
-                                            {{ chip.label }}: <strong class="text-slate-900">{{ chip.value }}</strong>
+                                    <div v-if="overviewChips.length" class="mt-4 flex flex-wrap gap-2 text-xs">
+                                        <span v-for="chip in overviewChips" :key="chip.label" class="org-pill">
+                                            {{ chip.label }}: <strong>{{ chip.value }}</strong>
                                         </span>
                                     </div>
-                                    <div class="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-4">
-                                        <p class="text-xs font-medium text-slate-500">{{ $t('Address details') }}</p>
-                                        <div v-if="addressLines.length" class="mt-2 space-y-1 text-sm text-slate-700">
+                                    <div class="org-tile org-tile--dashed mt-4">
+                                        <p class="org-tile-label">{{ $t('Address details') }}</p>
+                                        <div v-if="addressLines.length" class="mt-2 space-y-1 text-sm org-tile-value">
                                             <p v-for="line in addressLines" :key="line">{{ line }}</p>
                                         </div>
-                                        <p v-else class="mt-2 text-sm text-slate-500">{{ $t('Not set') }}</p>
+                                        <p v-else class="mt-2 text-sm org-muted">{{ $t('Not set') }}</p>
                                     </div>
                                 </UiSectionCard>
 
                                 <UiSectionCard :title="$t('Billing')">
                                     <div class="grid gap-4 sm:grid-cols-2">
-                                        <div v-for="row in commercialRows" :key="row.label" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                            <p class="text-xs font-medium text-slate-500">{{ row.label }}</p>
-                                            <p class="mt-1 break-words text-sm font-semibold text-slate-900">{{ row.value }}</p>
+                                        <div v-for="row in commercialRows" :key="row.label" class="org-tile">
+                                            <p class="org-tile-label">{{ row.label }}</p>
+                                            <p class="org-tile-value break-words">{{ row.value }}</p>
                                         </div>
                                     </div>
                                     <div class="mt-6 grid gap-3">
-                                        <div v-for="item in latestBillingItems" :key="item.label" class="rounded-2xl border border-slate-200 px-4 py-3">
-                                            <p class="text-xs font-medium text-slate-500">{{ item.label }}</p>
-                                            <p class="mt-1 text-sm font-semibold text-slate-900">{{ item.value }}</p>
-                                            <p v-if="item.meta" class="mt-1 text-xs text-slate-500">{{ item.meta }}</p>
+                                        <div v-for="item in latestBillingItems" :key="item.label" class="org-tile">
+                                            <p class="org-tile-label">{{ item.label }}</p>
+                                            <p class="org-tile-value">{{ item.value }}</p>
+                                            <p v-if="item.meta" class="mt-1 text-xs org-muted">{{ item.meta }}</p>
                                         </div>
                                         <UiEmptyState v-if="!latestBillingItems.length" :title="$t('No billing yet')">
                                             <template #icon>
@@ -153,25 +151,28 @@
                         <div v-show="tab === 'branches'">
                             <UiSectionCard :title="$t('Branch workspaces')">
                                 <div v-if="props.branches?.length" class="grid gap-4 lg:grid-cols-2">
-                                    <article v-for="branch in props.branches" :key="branch.uuid" class="rounded-[1rem] border border-slate-200 bg-slate-50 p-4">
+                                    <article v-for="branch in props.branches" :key="branch.uuid" class="org-card">
                                         <div class="flex items-start justify-between gap-4">
-                                            <div class="min-w-0">
-                                                <div class="flex flex-wrap items-center gap-2">
-                                                    <h3 class="text-base font-semibold text-slate-900">{{ branch.name }}</h3>
-                                                    <span v-if="branch.is_current" class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700">{{ $t('Current workspace') }}</span>
+                                            <div class="flex min-w-0 items-start gap-3">
+                                                <span class="org-avatar org-avatar--branch">{{ (branch.name ?? '').trim().charAt(0).toUpperCase() || '#' }}</span>
+                                                <div class="min-w-0">
+                                                    <div class="flex flex-wrap items-center gap-2">
+                                                        <h3 class="org-card-name">{{ branch.name }}</h3>
+                                                        <span v-if="branch.is_current" class="org-chip ui-chip-info">{{ $t('Current workspace') }}</span>
+                                                    </div>
+                                                    <p class="org-card-context mt-1">{{ branch.owner_name ?? $t('Not set') }}</p>
                                                 </div>
-                                                <p class="mt-1 text-sm text-slate-500">{{ branch.owner_name ?? $t('Not set') }}</p>
                                             </div>
-                                            <Link :href="'/admin/organizations/' + branch.uuid" class="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100">{{ $t('Open workspace') }}</Link>
+                                            <Link :href="'/admin/organizations/' + branch.uuid" class="org-btn org-btn--ghost org-btn--sm">{{ $t('Open workspace') }}</Link>
                                         </div>
-                                        <div class="mt-4 flex flex-wrap gap-2 text-xs text-slate-600">
-                                            <span class="rounded-full border border-slate-200 bg-white px-3 py-1.5">
-                                                {{ $t('Seats') }}: <strong class="text-slate-900">{{ branch.teams_count }}</strong>
+                                        <div class="mt-4 flex flex-wrap gap-2 text-xs">
+                                            <span class="org-pill">
+                                                {{ $t('Seats') }}: <strong>{{ branch.teams_count }}</strong>
                                             </span>
-                                            <span class="rounded-full border border-slate-200 bg-white px-3 py-1.5">
+                                            <span class="org-pill">
                                                 {{ branch.subscription_display?.plan_name ?? $t('Not set') }}
                                             </span>
-                                            <span class="rounded-full border border-slate-200 bg-white px-3 py-1.5">
+                                            <span class="org-pill">
                                                 {{ branch.subscription_display?.valid_until ?? $t('Not set') }}
                                             </span>
                                         </div>
@@ -191,11 +192,11 @@
                                     <div
                                         v-for="notice in usageNotices"
                                         :key="notice.key"
-                                        class="rounded-[0.95rem] border px-4 py-4 text-sm"
+                                        class="text-sm"
                                         :class="usageNoticeClasses(notice)"
                                     >
                                         <div class="flex items-start gap-3">
-                                            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full" :class="usageNoticeIconClasses(notice)" v-html="usageNoticeIcon(notice)"></span>
+                                            <span class="shrink-0" :class="usageNoticeIconClasses(notice)" v-html="usageNoticeIcon(notice)"></span>
                                             <div>
                                                 <h3 class="font-semibold">{{ notice.title }}</h3>
                                                 <p class="mt-1 leading-6">{{ notice.message }}</p>
@@ -205,21 +206,21 @@
                                 </div>
 
                                 <div v-if="usageMetrics.length" class="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-                                    <article v-for="metric in usageMetrics" :key="metric.key" class="rounded-[1rem] border p-3.5 transition-all duration-200" :class="usageMetricCardClasses(metric)">
+                                    <article v-for="metric in usageMetrics" :key="metric.key" :class="usageMetricCardClasses(metric)">
                                         <div class="flex items-start justify-between gap-4">
                                             <div class="flex items-start gap-3">
-                                                <span class="ui-kpi-icon ui-kpi-icon--sm shrink-0 bg-white text-primary shadow-sm shadow-slate-200/70">
+                                                <span class="org-metric-icon">
                                                     <span class="[&_svg]:block" v-html="metric.icon"></span>
                                                 </span>
                                                 <div>
-                                                    <p class="text-sm font-semibold text-slate-900">{{ metric.label }}</p>
-                                                    <p v-if="metric.helper" class="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">{{ metric.helper }}</p>
+                                                    <p class="org-tile-value">{{ metric.label }}</p>
+                                                    <p v-if="metric.helper" class="mt-1 line-clamp-2 text-xs leading-5 org-muted">{{ metric.helper }}</p>
                                                 </div>
                                             </div>
-                                            <span class="rounded-full px-3 py-1 text-xs font-medium" :class="usageMetricBadgeClasses(metric)">{{ metric.used }} / {{ metric.limit < 0 ? $t('Unlimited') : metric.limit }}</span>
+                                            <span class="org-chip" :class="usageMetricBadgeClasses(metric)">{{ metric.used }} / {{ metric.limit < 0 ? $t('Unlimited') : metric.limit }}</span>
                                         </div>
-                                        <div v-if="metric.limit >= 0" class="mt-4 h-2 overflow-hidden rounded-full bg-slate-200">
-                                            <div class="h-full rounded-full transition-all duration-500" :class="usageMetricProgressClasses(metric)" :style="{ width: usagePercentage(metric) + '%' }"></div>
+                                        <div v-if="metric.limit >= 0" class="org-progress-track mt-4">
+                                            <div class="org-progress-fill" :class="usageMetricProgressClasses(metric)" :style="{ width: usagePercentage(metric) + '%' }"></div>
                                         </div>
                                     </article>
                                 </div>
@@ -237,11 +238,11 @@
                                     <div
                                         v-for="(note, index) in teamNotes"
                                         :key="`${note.level}-${index}`"
-                                        class="rounded-[1rem] border px-4 py-3 text-sm"
-                                        :class="note.level === 'warning' ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-sky-200 bg-sky-50 text-sky-900'"
+                                        class="text-sm"
+                                        :class="note.level === 'warning' ? 'org-banner org-banner--warning' : 'org-banner org-banner--info'"
                                     >
                                         <div class="flex items-start gap-3">
-                                            <span class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-2xl" :class="note.level === 'warning' ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700'">
+                                            <span :class="note.level === 'warning' ? 'org-banner-icon org-banner-icon--warning' : 'org-banner-icon org-banner-icon--info'">
                                                 <InfoIcon class="h-4 w-4" />
                                             </span>
                                             <p class="leading-6">{{ note.message }}</p>
@@ -254,7 +255,7 @@
 
                         <div v-show="tab === 'billing'" class="space-y-6">
                             <UiSectionCard :title="$t('Billing')">
-                                <div class="rounded-[1rem] border px-4 py-4 text-sm leading-7" :class="isParentManaged ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-sky-200 bg-sky-50 text-sky-900'">
+                                <div class="text-sm leading-7" :class="isParentManaged ? 'org-banner org-banner--warning' : 'org-banner org-banner--info'">
                                     <span v-if="isParentManaged">
                                         {{ $t('Billing transactions for branches are managed from the parent organization.') }}
                                     </span>
@@ -272,9 +273,9 @@
                                 </div>
 
                                 <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                                    <div v-for="row in billingWorkspaceRows" :key="row.label" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                        <p class="text-xs font-medium text-slate-500">{{ row.label }}</p>
-                                        <p class="mt-1 break-words text-sm font-semibold text-slate-900">{{ row.value }}</p>
+                                    <div v-for="row in billingWorkspaceRows" :key="row.label" class="org-tile">
+                                        <p class="org-tile-label">{{ row.label }}</p>
+                                        <p class="org-tile-value break-words">{{ row.value }}</p>
                                     </div>
                                 </div>
                             </UiSectionCard>
@@ -301,10 +302,10 @@
                                         <FormSelect v-if="form.organization_type !== 'branch'" v-model="form.plan" :name="$t('Subscription plan')" :error="form.errors.plan" :options="roleOptions()" :type="'text'" :class="'xl:col-span-3 sm:col-span-1'"/>
                                         <FormSelect v-model="form.organization_type" :name="$t('Organization type')" :error="form.errors.organization_type" :options="organizationTypeOptions" :disabled="existingOrganization" :type="'text'" :class="'xl:col-span-3 sm:col-span-1'"/>
                                         <FormSelect v-if="form.organization_type === 'branch'" v-model="form.parent_organization_uuid" :name="$t('Parent organization')" :error="form.errors.parent_organization_uuid" :options="parentOrganizationOptions()" :type="'text'" :class="'xl:col-span-6 sm:col-span-2'"/>
-                                        <div v-if="form.organization_type === 'branch'" class="xl:col-span-6 sm:col-span-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                                        <div v-if="form.organization_type === 'branch'" class="xl:col-span-6 sm:col-span-2 org-tile">
                                             {{ $t('Branches inherit subscription, features, and limits from the selected parent organization.') }}
                                         </div>
-                                        <div v-if="existingOrganization" class="xl:col-span-6 sm:col-span-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                                        <div v-if="existingOrganization" class="xl:col-span-6 sm:col-span-2 org-banner org-banner--warning">
                                             {{ $t('Changing organization type directly is disabled to protect billing ownership and workspace hierarchy.') }}
                                         </div>
                                     </div>
@@ -321,7 +322,7 @@
                                 </UiSectionCard>
 
                                 <div class="flex justify-end">
-                                    <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-slate-800">
+                                    <button type="submit" class="org-btn org-btn--solid">
                                         <PencilLine class="h-4 w-4" />
                                         {{ $t('Save') }}
                                     </button>
@@ -335,7 +336,7 @@
             <template v-else>
                 <form @submit.prevent="submitForm()" class="space-y-6">
                     <UiSectionCard :title="$t('Organization details')" :subtitle="$t('Create organization')">
-                        <div class="border-b border-slate-100 py-5 sm:flex">
+                        <div class="org-divider-row py-5 sm:flex">
                             <div class="mb-1 hidden sm:block sm:w-[40%]"><h3 class="text-sm tracking-[0px]">{{ $t('Organization details') }}</h3></div>
                             <div class="sm:flex sm:w-[60%] gap-x-6">
                                 <div class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
@@ -343,20 +344,20 @@
                                     <FormSelect v-if="form.organization_type !== 'branch'" v-model="form.plan" :name="$t('Subscription plan')" :error="form.errors.plan" :options="roleOptions()" :type="'text'" :class="'sm:col-span-3'"/>
                                     <FormSelect v-model="form.organization_type" :name="$t('Organization type')" :error="form.errors.organization_type" :options="organizationTypeOptions" :type="'text'" :class="'sm:col-span-3'"/>
                                     <FormSelect v-if="form.organization_type === 'branch'" v-model="form.parent_organization_uuid" :name="$t('Parent organization')" :error="form.errors.parent_organization_uuid" :options="parentOrganizationOptions()" :type="'text'" :class="'sm:col-span-6'"/>
-                                    <div v-if="form.organization_type === 'branch'" class="sm:col-span-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">{{ $t('Branches inherit subscription, features, and limits from the selected parent organization.') }}</div>
+                                    <div v-if="form.organization_type === 'branch'" class="sm:col-span-6 org-tile">{{ $t('Branches inherit subscription, features, and limits from the selected parent organization.') }}</div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="border-b border-slate-100 py-5 sm:flex">
+                        <div class="org-divider-row py-5 sm:flex">
                             <div class="mb-1 hidden sm:block sm:w-[40%]">
                                 <h3 class="text-sm tracking-[0px]">{{ $t('User details') }}</h3>
-                                <p class="text-sm text-gray-500">{{ $t('Enter the details of the main administrative user of this organization') }}</p>
+                                <p class="text-sm org-muted">{{ $t('Enter the details of the main administrative user of this organization') }}</p>
                             </div>
                             <div class="sm:w-[60%]">
-                                <div class="mb-4 flex justify-between gap-x-2 rounded-lg bg-primary p-1 text-white sm:w-[80%]">
-                                    <button type="button" class="w-[50%] rounded-lg px-1 py-2 text-sm" :class="{ 'bg-white text-black': form.create_user === 1 }" @click="switchUserType(1)">{{ $t('Add user') }}</button>
-                                    <button type="button" class="w-[50%] rounded-lg px-1 py-2 text-sm" :class="{ 'bg-white text-black': form.create_user === 0 }" @click="switchUserType(0)">{{ $t('Select existing user') }}</button>
+                                <div class="org-segmented-toggle sm:w-[80%]">
+                                    <button type="button" class="org-segmented-toggle-btn" :class="{ 'org-segmented-toggle-btn--active': form.create_user === 1 }" @click="switchUserType(1)">{{ $t('Add user') }}</button>
+                                    <button type="button" class="org-segmented-toggle-btn" :class="{ 'org-segmented-toggle-btn--active': form.create_user === 0 }" @click="switchUserType(0)">{{ $t('Select existing user') }}</button>
                                 </div>
                                 <div v-if="form.create_user === 1" class="sm:w-[80%] grid gap-x-6 gap-y-4 sm:grid-cols-6">
                                     <FormInput v-model="form.first_name" :name="$t('First name')" :error="form.errors.first_name" :type="'text'" :class="'sm:col-span-3'"/>
@@ -385,7 +386,7 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-end pt-4"><button type="submit" class="flex items-center gap-x-4 rounded-md bg-black px-3 py-2 text-sm text-white shadow-sm hover:bg-slate-600">{{ $t('Save') }}</button></div>
+                        <div class="flex justify-end pt-4"><button type="submit" class="org-btn org-btn--solid">{{ $t('Save') }}</button></div>
                     </UiSectionCard>
                 </form>
             </template>
@@ -401,10 +402,10 @@
                     <FormSelect v-if="form1.type === 'payment'" v-model="form1.method" :name="$t('Payment method')" :error="form1.errors.method" :options="paymentOptions" :class="'sm:col-span-6'"/>
                     <FormInput v-else v-model="form1.description" :name="$t('Description')" :error="form1.errors.description" :type="'text'" :class="'sm:col-span-6'"/>
                 </div>
-                <div class="mt-6 rounded-lg bg-red-800 px-2 py-1"><p class="flex items-center gap-x-2 text-[12px] text-white"><svg class="text-white" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path fill="currentColor" fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625zM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5m0 9a1 1 0 1 0 0-2a1 1 0 0 0 0 2" clip-rule="evenodd"/></svg><span>{{ $t('You can\'t undo this transaction once you save it') }}</span></p></div>
+                <div class="org-banner org-banner--danger mt-6"><p class="flex items-center gap-x-2 text-[12px]"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path fill="currentColor" fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625zM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5m0 9a1 1 0 1 0 0-2a1 1 0 0 0 0 2" clip-rule="evenodd"/></svg><span>{{ $t('You can\'t undo this transaction once you save it') }}</span></p></div>
                 <div class="mt-6 flex">
-                    <button type="button" @click="toggleFormModal()" class="me-4 inline-flex justify-center rounded-md border border-transparent bg-slate-50 px-4 py-2 text-sm text-slate-500 hover:bg-slate-200">{{ $t('Cancel') }}</button>
-                    <button type="submit" :class="['inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm text-white', { 'opacity-50': isLoading }]" :disabled="isLoading">
+                    <button type="button" @click="toggleFormModal()" class="org-btn org-btn--ghost me-4">{{ $t('Cancel') }}</button>
+                    <button type="submit" class="org-btn org-btn--solid" :class="{ 'opacity-50': isLoading }" :disabled="isLoading">
                         <svg v-if="isLoading" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z" opacity=".5"/><path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"><animateTransform attributeName="transform" dur="1s" from="0 12 12" repeatCount="indefinite" to="360 12 12" type="rotate"/></path></svg>
                         <span v-else>{{ $t('Save') }}</span>
                     </button>
@@ -639,35 +640,47 @@
     });
     const usagePercentage = (metric) => (!metric?.limit || metric.limit < 1) ? 0 : Math.min(100, Math.round((metric.used / metric.limit) * 100));
     const usageMetricCardClasses = (metric) => {
-        if (metric.status === 'exceeded') return 'border-red-200 bg-red-50/70';
-        if (metric.status === 'warning') return 'border-amber-200 bg-amber-50/70';
-        return 'border-slate-200 bg-slate-50';
+        if (metric.status === 'exceeded') return 'org-metric-card org-metric-card--danger';
+        if (metric.status === 'warning') return 'org-metric-card org-metric-card--warning';
+        return 'org-metric-card';
     };
     const usageMetricBadgeClasses = (metric) => {
-        if (metric.status === 'exceeded') return 'bg-red-100 text-red-700';
-        if (metric.status === 'warning') return 'bg-amber-100 text-amber-700';
-        if (metric.status === 'unlimited') return 'bg-slate-100 text-slate-700';
-        return 'bg-white text-slate-700';
+        if (metric.status === 'exceeded') return 'ui-chip-danger';
+        if (metric.status === 'warning') return 'ui-chip-warning';
+        if (metric.status === 'unlimited') return 'ui-chip-neutral';
+        return 'ui-chip-success';
     };
     const usageMetricProgressClasses = (metric) => {
-        if (metric.status === 'exceeded') return 'bg-red-500';
-        if (metric.status === 'warning') return 'bg-amber-500';
-        return 'bg-primary';
+        if (metric.status === 'exceeded') return 'org-progress-fill--danger';
+        if (metric.status === 'warning') return 'org-progress-fill--warning';
+        return 'org-progress-fill--success';
     };
     const subscriptionTone = (statusKey) => {
-        if (statusKey === 'active' || statusKey === 'trial') return 'bg-emerald-100 text-emerald-700';
-        if (statusKey === 'expired' || statusKey === 'inactive' || statusKey === 'none') return 'bg-amber-100 text-amber-700';
-        return 'bg-slate-100 text-slate-700';
+        switch (statusKey) {
+            case 'active':
+                return 'ui-chip-success';
+            case 'trial_active':
+            case 'billing_pending':
+                return 'ui-chip-warning';
+            case 'trial_expired':
+            case 'payment_required':
+                return 'ui-chip-danger';
+            case 'inherited':
+                return 'ui-chip-info';
+            default:
+                return 'ui-chip-neutral';
+        }
     };
+    const orgInitial = computed(() => (props.organization?.name ?? '').trim().charAt(0).toUpperCase() || '#');
     const usageNoticeClasses = (notice) => {
-        if (notice.type === 'danger') return 'border-red-200 bg-red-50 text-red-950';
-        if (notice.type === 'warning') return 'border-amber-200 bg-amber-50 text-amber-950';
-        return 'border-sky-200 bg-sky-50 text-sky-950';
+        if (notice.type === 'danger') return 'org-banner org-banner--danger';
+        if (notice.type === 'warning') return 'org-banner org-banner--warning';
+        return 'org-banner org-banner--info';
     };
     const usageNoticeIconClasses = (notice) => {
-        if (notice.type === 'danger') return 'bg-red-100 text-red-700';
-        if (notice.type === 'warning') return 'bg-amber-100 text-amber-700';
-        return 'bg-sky-100 text-sky-700';
+        if (notice.type === 'danger') return 'org-banner-icon org-banner-icon--danger';
+        if (notice.type === 'warning') return 'org-banner-icon org-banner-icon--warning';
+        return 'org-banner-icon org-banner-icon--info';
     };
     const usageNoticeIcon = (notice) => {
         if (notice.type === 'danger') {
@@ -695,3 +708,413 @@
         });
     };
 </script>
+
+<style scoped>
+.org-muted {
+    color: var(--ui-muted);
+}
+
+.org-hero {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-xl, 1.5rem);
+    background: var(--ui-surface);
+    box-shadow: var(--ui-shadow-1);
+    padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .org-hero {
+        padding: 2rem;
+    }
+}
+
+.org-hero-wash {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 8rem;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--ui-secondary) 12%, transparent), color-mix(in srgb, var(--ui-primary) 8%, transparent), transparent);
+    pointer-events: none;
+}
+
+.org-avatar--main,
+.org-avatar--branch {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.9rem;
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.org-avatar--main {
+    background: linear-gradient(135deg, var(--ui-secondary), color-mix(in srgb, var(--ui-secondary) 70%, var(--ui-primary)));
+    color: #fff;
+    box-shadow: 0 10px 22px -12px color-mix(in srgb, var(--ui-secondary) 70%, transparent);
+}
+
+.org-avatar--branch {
+    background: color-mix(in srgb, var(--ui-text) 12%, var(--ui-surface-soft));
+    color: var(--ui-text);
+    border: 1px dashed var(--ui-border-strong);
+}
+
+.org-hero-avatar.org-avatar--main,
+.org-hero-avatar.org-avatar--branch {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 1.4rem;
+    font-size: 1.7rem;
+}
+
+.org-hero-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--ui-text);
+}
+
+.org-hero-plan {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+
+.org-hero-subtitle {
+    font-size: 0.85rem;
+    color: var(--ui-muted);
+}
+
+.org-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.org-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 999px;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-muted);
+    padding: 0.4rem 0.85rem;
+}
+
+.org-pill strong {
+    color: var(--ui-text);
+    font-weight: 700;
+}
+
+.org-tile {
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.8rem 0.95rem;
+}
+
+.org-tile--dashed {
+    border-style: dashed;
+}
+
+.org-tile-head {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--ui-muted);
+}
+
+.org-tile-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--ui-muted);
+}
+
+.org-tile-value {
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+
+.org-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, border-color 160ms ease, filter 160ms ease, opacity 160ms ease;
+}
+
+.org-btn--sm {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.78rem;
+}
+
+.org-btn--ghost {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+
+.org-btn--ghost:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+
+.org-btn--solid {
+    border: 1px solid transparent;
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+
+.org-btn--solid:hover {
+    filter: brightness(1.05);
+}
+
+.org-panel {
+    overflow: hidden;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-xl, 1.5rem);
+    background: var(--ui-surface);
+    box-shadow: var(--ui-shadow-1);
+}
+
+.org-tabbar {
+    border-bottom: 1px solid var(--ui-border);
+    padding: 1rem 1.25rem;
+}
+
+.org-filter-group--segmented {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 0.3rem;
+    border-radius: 999px;
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+}
+
+.org-filter-pill--segmented {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 999px;
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+    background: transparent;
+    border: 1px solid transparent;
+    transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.org-filter-pill--segmented:hover {
+    color: var(--ui-text);
+    background: var(--ui-border);
+}
+
+.org-filter-pill--active.org-filter-pill--segmented {
+    color: #fff;
+    background: linear-gradient(135deg, var(--ui-secondary), color-mix(in srgb, var(--ui-secondary) 78%, var(--ui-primary)));
+    box-shadow: 0 10px 20px -12px color-mix(in srgb, var(--ui-secondary) 60%, rgba(15, 23, 42, 0.5));
+}
+
+.org-tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.3rem;
+    border-radius: 999px;
+    padding: 0.05rem 0.4rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    background: var(--ui-surface);
+    color: var(--ui-muted);
+}
+
+.org-tab-count--active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.org-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.1rem;
+    border: 1px solid var(--ui-border);
+    border-radius: 1.1rem;
+    background: var(--ui-surface);
+    transition: box-shadow 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.org-card:hover {
+    border-color: var(--ui-border-strong);
+    box-shadow: var(--ui-shadow-2);
+    transform: translateY(-2px);
+}
+
+.org-card-name {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: var(--ui-text);
+}
+
+.org-card-context {
+    font-size: 0.83rem;
+    color: var(--ui-muted);
+}
+
+.org-banner {
+    border: 1px solid;
+    border-radius: 1rem;
+    padding: 1rem 1.1rem;
+}
+
+.org-banner--info {
+    border-color: color-mix(in srgb, var(--ui-primary) 30%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-primary) 8%, var(--ui-surface));
+    color: var(--ui-text);
+}
+
+.org-banner--warning {
+    border-color: color-mix(in srgb, var(--ui-warning) 35%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-warning) 10%, var(--ui-surface));
+    color: var(--ui-text);
+}
+
+.org-banner--danger {
+    border-color: color-mix(in srgb, var(--ui-danger) 35%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-danger) 10%, var(--ui-surface));
+    color: var(--ui-text);
+}
+
+.org-banner-icon {
+    display: inline-flex;
+    height: 2rem;
+    width: 2rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.8rem;
+    margin-top: 0.1rem;
+}
+
+.org-banner-icon--info {
+    background: color-mix(in srgb, var(--ui-primary) 16%, transparent);
+    color: var(--ui-primary);
+}
+
+.org-banner-icon--warning {
+    background: color-mix(in srgb, var(--ui-warning) 20%, transparent);
+    color: color-mix(in srgb, var(--ui-warning) 80%, #0f172a);
+}
+
+.org-banner-icon--danger {
+    background: color-mix(in srgb, var(--ui-danger) 20%, transparent);
+    color: var(--ui-danger);
+}
+
+.org-metric-card {
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.9rem;
+    transition: border-color 200ms ease, background-color 200ms ease;
+}
+
+.org-metric-card--warning {
+    border-color: color-mix(in srgb, var(--ui-warning) 40%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-warning) 8%, var(--ui-surface));
+}
+
+.org-metric-card--danger {
+    border-color: color-mix(in srgb, var(--ui-danger) 40%, var(--ui-border));
+    background: color-mix(in srgb, var(--ui-danger) 8%, var(--ui-surface));
+}
+
+.org-metric-icon {
+    display: inline-flex;
+    height: 2.25rem;
+    width: 2.25rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.8rem;
+    background: var(--ui-surface);
+    color: var(--ui-secondary);
+    box-shadow: var(--ui-shadow-1);
+}
+
+.org-progress-track {
+    height: 0.5rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--ui-border);
+}
+
+.org-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 500ms ease;
+}
+
+.org-progress-fill--success {
+    background: var(--ui-secondary);
+}
+
+.org-progress-fill--warning {
+    background: var(--ui-warning);
+}
+
+.org-progress-fill--danger {
+    background: var(--ui-danger);
+}
+
+.org-divider-row {
+    border-bottom: 1px solid var(--ui-border);
+}
+
+.org-segmented-toggle {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 0.8rem;
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+    padding: 0.25rem;
+}
+
+.org-segmented-toggle-btn {
+    width: 50%;
+    border-radius: 0.6rem;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.85rem;
+    color: var(--ui-muted);
+    transition: background-color 160ms ease, color 160ms ease;
+}
+
+.org-segmented-toggle-btn--active {
+    background: var(--ui-surface);
+    color: var(--ui-text);
+    box-shadow: var(--ui-shadow-1);
+}
+</style>

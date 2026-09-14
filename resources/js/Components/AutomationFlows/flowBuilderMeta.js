@@ -158,55 +158,61 @@ const NODE_META = {
 
 export const flowNodeMeta = NODE_META;
 
+// Each node "tone" is derived from the app's existing --ui-* design tokens via
+// color-mix(), never raw hex, so the flow builder automatically follows the
+// same light/dark palette as the rest of the dashboard. --flow-tone-* custom
+// properties are defined once in flowBuilderCanvas.css and shared with the
+// edge tones in flowBuilderStudio.js so node color and branch color stay in
+// sync from a single source of truth.
 const VISUAL_TONES = {
     trigger: {
-        railClass: 'bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500',
-        iconClass: 'border-sky-200 bg-sky-50 text-sky-700 shadow-[0_10px_24px_rgba(14,165,233,0.12)]',
-        accentClass: 'border-sky-200 bg-sky-50/90 text-sky-900',
-        categoryClass: 'border-sky-200 bg-white/80 text-sky-700',
-        handleClass: '!bg-sky-600',
+        railClass: 'bg-[linear-gradient(90deg,var(--flow-tone-trigger),color-mix(in_srgb,var(--flow-tone-trigger)_55%,var(--ui-surface)))]',
+        iconClass: 'border-[color-mix(in_srgb,var(--flow-tone-trigger)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-trigger)_14%,var(--ui-surface))] text-[var(--flow-tone-trigger)] shadow-[0_10px_24px_color-mix(in_srgb,var(--flow-tone-trigger)_20%,transparent)]',
+        accentClass: 'border-[color-mix(in_srgb,var(--flow-tone-trigger)_30%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-trigger)_8%,var(--ui-surface))] text-[var(--ui-text)]',
+        categoryClass: 'border-[color-mix(in_srgb,var(--flow-tone-trigger)_30%,var(--ui-border))] bg-[var(--ui-surface)] text-[var(--flow-tone-trigger)]',
+        handleClass: '!bg-[var(--flow-tone-trigger)]',
     },
     message: {
-        railClass: 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-500',
-        iconClass: 'border-cyan-200 bg-cyan-50 text-cyan-700 shadow-[0_10px_24px_rgba(6,182,212,0.12)]',
-        accentClass: 'border-cyan-200 bg-cyan-50/85 text-cyan-900',
-        categoryClass: 'border-cyan-200 bg-white/80 text-cyan-700',
-        handleClass: '!bg-cyan-600',
+        railClass: 'bg-[linear-gradient(90deg,var(--flow-tone-message),color-mix(in_srgb,var(--flow-tone-message)_55%,var(--ui-surface)))]',
+        iconClass: 'border-[color-mix(in_srgb,var(--flow-tone-message)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-message)_14%,var(--ui-surface))] text-[var(--flow-tone-message)] shadow-[0_10px_24px_color-mix(in_srgb,var(--flow-tone-message)_20%,transparent)]',
+        accentClass: 'border-[color-mix(in_srgb,var(--flow-tone-message)_30%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-message)_8%,var(--ui-surface))] text-[var(--ui-text)]',
+        categoryClass: 'border-[color-mix(in_srgb,var(--flow-tone-message)_30%,var(--ui-border))] bg-[var(--ui-surface)] text-[var(--flow-tone-message)]',
+        handleClass: '!bg-[var(--flow-tone-message)]',
     },
     logic: {
-        railClass: 'bg-gradient-to-r from-violet-500 via-fuchsia-500 to-amber-400',
-        iconClass: 'border-violet-200 bg-violet-50 text-violet-700 shadow-[0_10px_24px_rgba(139,92,246,0.12)]',
-        accentClass: 'border-violet-200 bg-violet-50/85 text-violet-900',
-        categoryClass: 'border-violet-200 bg-white/80 text-violet-700',
-        handleClass: '!bg-violet-600',
+        railClass: 'bg-[linear-gradient(90deg,var(--flow-tone-branch),color-mix(in_srgb,var(--flow-tone-branch)_55%,var(--ui-surface)))]',
+        iconClass: 'border-[color-mix(in_srgb,var(--flow-tone-branch)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-branch)_14%,var(--ui-surface))] text-[var(--flow-tone-branch)] shadow-[0_10px_24px_color-mix(in_srgb,var(--flow-tone-branch)_20%,transparent)]',
+        accentClass: 'border-[color-mix(in_srgb,var(--flow-tone-branch)_30%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-branch)_8%,var(--ui-surface))] text-[var(--ui-text)]',
+        categoryClass: 'border-[color-mix(in_srgb,var(--flow-tone-branch)_30%,var(--ui-border))] bg-[var(--ui-surface)] text-[var(--flow-tone-branch)]',
+        handleClass: '!bg-[var(--flow-tone-branch)]',
     },
     action: {
-        railClass: 'bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500',
-        iconClass: 'border-emerald-200 bg-emerald-50 text-emerald-700 shadow-[0_10px_24px_rgba(16,185,129,0.12)]',
-        accentClass: 'border-emerald-200 bg-emerald-50/90 text-emerald-900',
-        categoryClass: 'border-emerald-200 bg-white/80 text-emerald-700',
-        handleClass: '!bg-emerald-600',
+        railClass: 'bg-[linear-gradient(90deg,var(--flow-tone-action),color-mix(in_srgb,var(--flow-tone-action)_55%,var(--ui-surface)))]',
+        iconClass: 'border-[color-mix(in_srgb,var(--flow-tone-action)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-action)_14%,var(--ui-surface))] text-[var(--flow-tone-action)] shadow-[0_10px_24px_color-mix(in_srgb,var(--flow-tone-action)_20%,transparent)]',
+        accentClass: 'border-[color-mix(in_srgb,var(--flow-tone-action)_30%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-action)_8%,var(--ui-surface))] text-[var(--ui-text)]',
+        categoryClass: 'border-[color-mix(in_srgb,var(--flow-tone-action)_30%,var(--ui-border))] bg-[var(--ui-surface)] text-[var(--flow-tone-action)]',
+        handleClass: '!bg-[var(--flow-tone-action)]',
     },
     handoff: {
-        railClass: 'bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500',
-        iconClass: 'border-amber-200 bg-amber-50 text-amber-700 shadow-[0_10px_24px_rgba(245,158,11,0.14)]',
-        accentClass: 'border-amber-200 bg-amber-50/90 text-amber-950',
-        categoryClass: 'border-amber-200 bg-white/80 text-amber-700',
-        handleClass: '!bg-amber-600',
+        railClass: 'bg-[linear-gradient(90deg,var(--flow-tone-handoff),color-mix(in_srgb,var(--flow-tone-handoff)_55%,var(--ui-surface)))]',
+        iconClass: 'border-[color-mix(in_srgb,var(--flow-tone-handoff)_35%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-handoff)_14%,var(--ui-surface))] text-[var(--flow-tone-handoff)] shadow-[0_10px_24px_color-mix(in_srgb,var(--flow-tone-handoff)_22%,transparent)]',
+        accentClass: 'border-[color-mix(in_srgb,var(--flow-tone-handoff)_30%,var(--ui-border))] bg-[color-mix(in_srgb,var(--flow-tone-handoff)_9%,var(--ui-surface))] text-[var(--ui-text)]',
+        categoryClass: 'border-[color-mix(in_srgb,var(--flow-tone-handoff)_30%,var(--ui-border))] bg-[var(--ui-surface)] text-[var(--flow-tone-handoff)]',
+        handleClass: '!bg-[var(--flow-tone-handoff)]',
     },
     end: {
-        railClass: 'bg-gradient-to-r from-slate-500 via-slate-600 to-slate-700',
-        iconClass: 'border-slate-200 bg-slate-100 text-slate-700 shadow-[0_10px_24px_rgba(100,116,139,0.12)]',
-        accentClass: 'border-slate-200 bg-slate-100/85 text-slate-900',
-        categoryClass: 'border-slate-200 bg-white/80 text-slate-700',
-        handleClass: '!bg-slate-600',
+        railClass: 'bg-[linear-gradient(90deg,var(--ui-muted),color-mix(in_srgb,var(--ui-muted)_55%,var(--ui-surface)))]',
+        iconClass: 'border-[var(--ui-border-strong)] bg-[var(--ui-surface-soft)] text-[var(--ui-muted)] shadow-[0_10px_24px_color-mix(in_srgb,var(--ui-muted)_16%,transparent)]',
+        accentClass: 'border-[var(--ui-border)] bg-[var(--ui-surface-soft)] text-[var(--ui-text)]',
+        categoryClass: 'border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-muted)]',
+        handleClass: '!bg-[var(--ui-muted)]',
     },
     fallback: {
-        railClass: 'bg-gradient-to-r from-slate-400 via-slate-500 to-slate-600',
-        iconClass: 'border-slate-200 bg-slate-50 text-slate-700 shadow-[0_10px_24px_rgba(148,163,184,0.12)]',
-        accentClass: 'border-slate-200 bg-slate-50/90 text-slate-900',
-        categoryClass: 'border-slate-200 bg-white/80 text-slate-700',
-        handleClass: '!bg-slate-600',
+        railClass: 'bg-[linear-gradient(90deg,var(--ui-muted),color-mix(in_srgb,var(--ui-muted)_45%,var(--ui-surface)))]',
+        iconClass: 'border-[var(--ui-border)] bg-[var(--ui-surface-soft)] text-[var(--ui-muted)] shadow-[0_10px_24px_color-mix(in_srgb,var(--ui-muted)_12%,transparent)]',
+        accentClass: 'border-[var(--ui-border)] bg-[var(--ui-surface-soft)] text-[var(--ui-text)]',
+        categoryClass: 'border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-muted)]',
+        handleClass: '!bg-[var(--ui-muted)]',
     },
 };
 

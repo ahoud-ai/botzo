@@ -1,0 +1,165 @@
+
+.pgs-btn[data-v-918f5f73] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: filter 160ms ease, background-color 160ms ease, border-color 160ms ease, opacity 160ms ease;
+}
+.pgs-btn--solid[data-v-918f5f73] {
+    background: var(--ui-secondary);
+    color: #fff;
+    box-shadow: var(--ui-shadow-1);
+}
+.pgs-btn--solid[data-v-918f5f73]:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+.pgs-btn--solid[data-v-918f5f73]:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+.pgs-btn--ghost[data-v-918f5f73] {
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
+}
+.pgs-btn--ghost[data-v-918f5f73]:hover {
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border-strong);
+}
+.pgs-btn--danger[data-v-918f5f73] {
+    border: 1px solid color-mix(in srgb, var(--ui-danger) 45%, transparent);
+    background: var(--ui-surface);
+    color: var(--ui-danger);
+}
+.pgs-btn--danger[data-v-918f5f73]:hover {
+    background: color-mix(in srgb, var(--ui-danger) 10%, transparent);
+}
+.pgs-slug-row[data-v-918f5f73] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.1rem;
+    border-top: 1px solid var(--ui-border);
+    padding-top: 1.1rem;
+}
+.pgs-slug-chip[data-v-918f5f73] {
+    border-radius: 0.6rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.3rem 0.65rem;
+    font-size: 0.75rem;
+    color: var(--ui-muted);
+}
+.pgs-slug-chip--accent[data-v-918f5f73] {
+    border-color: color-mix(in srgb, var(--ui-secondary) 40%, transparent);
+    color: var(--ui-secondary);
+    font-weight: 600;
+}
+.pgs-layout[data-v-918f5f73] {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+@media (min-width: 1100px) {
+.pgs-layout[data-v-918f5f73] {
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+}
+.pgs-preview-card[data-v-918f5f73] {
+        position: sticky;
+        top: 1.5rem;
+}
+}
+.pgs-tabs[data-v-918f5f73] {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+}
+.pgs-tabs--secondary[data-v-918f5f73] {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--ui-border);
+    padding-bottom: 0.85rem;
+}
+.pgs-tab[data-v-918f5f73] {
+    border-radius: 0.65rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+    background: var(--ui-surface-soft);
+    transition: background-color 160ms ease, color 160ms ease;
+}
+.pgs-tab--sm[data-v-918f5f73] {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.8rem;
+}
+.pgs-tab[data-v-918f5f73]:hover {
+    background: color-mix(in srgb, var(--ui-secondary) 8%, var(--ui-surface-soft));
+    color: var(--ui-text);
+}
+.pgs-tab--active[data-v-918f5f73] {
+    background: var(--ui-secondary);
+    color: #fff;
+}
+.pgs-editor-shell[data-v-918f5f73] {
+    border-radius: 0.9rem;
+    overflow: hidden;
+}
+.pgs-html-textarea[data-v-918f5f73] {
+    width: 100%;
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.85rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.83rem;
+    color: var(--ui-text);
+}
+.pgs-html-textarea[data-v-918f5f73]:focus {
+    outline: none;
+    border-color: var(--ui-secondary);
+}
+.pgs-notice[data-v-918f5f73] {
+    margin-top: 0.85rem;
+    font-size: 0.8rem;
+}
+.pgs-notice--warning[data-v-918f5f73] {
+    color: var(--ui-warning);
+}
+.pgs-notice--danger[data-v-918f5f73] {
+    color: var(--ui-danger);
+}
+.pgs-preview-frame[data-v-918f5f73] {
+    max-height: 32rem;
+    overflow: auto;
+    border-radius: 0.9rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: var(--ui-text);
+}
+.pgs-save-bar[data-v-918f5f73] {
+    position: sticky;
+    bottom: 0.75rem;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+    border-radius: 1rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--ui-shadow-2);
+}
+.pgs-save-hint[data-v-918f5f73] {
+    font-size: 0.8rem;
+    color: var(--ui-muted);
+}

@@ -10,8 +10,11 @@
         type: String,
         className: String,
         labelClass: String,
+        wrapperClass: String,
+        hideLabel: Boolean,
         required: Boolean,
         error: String,
+        hideError: Boolean,
         disabled: Boolean,
         allowedCountries: {
             type: Array,
@@ -110,9 +113,9 @@
 
 <template>
     <div :class="className">
-        <label for="name" class="ui-form-label" :class="labelClass">{{ name }}</label>
+        <label v-if="!hideLabel" for="name" class="ui-form-label" :class="labelClass">{{ name }}</label>
         <div>
-            <div class="ui-phone-wrapper">
+            <div class="ui-phone-wrapper" :class="wrapperClass">
                 <vue-tel-input 
                     :inputOptions="{
                         autocomplete: 'off',
@@ -139,6 +142,6 @@
                 </vue-tel-input>
             </div>
         </div>
-        <div v-if="displayError" class="ui-form-error">{{ displayError }}</div>
+        <div v-if="displayError && !hideError" class="ui-form-error">{{ displayError }}</div>
     </div>
 </template>

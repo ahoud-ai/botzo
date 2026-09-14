@@ -8,6 +8,7 @@
                 <slot :user="user" :toggleNavBar="toggleTopBar"></slot>
             </div>
         </div>
+        <ProductTour />
     </div>
 </template>
 <script setup>
@@ -19,6 +20,7 @@
     import 'vue3-toastify/dist/index.css';
     import { getEchoInstance } from '../../../echo';
     import { useRtl } from '@/Composables/useRtl';
+    import ProductTour from '@/Components/ProductTour/ProductTour.vue';
 
     defineProps({
         immersive: {
@@ -94,8 +96,8 @@
 .ui-shell-immersive {
     min-height: 100vh;
     background:
-        radial-gradient(circle at top left, rgba(191, 219, 254, 0.5), transparent 28%),
-        linear-gradient(180deg, #f7fafc 0%, #edf3fb 100%);
+        radial-gradient(circle at top left, color-mix(in srgb, var(--ui-secondary) 16%, transparent), transparent 30%),
+        var(--ui-bg);
 }
 
 .ui-main-immersive {

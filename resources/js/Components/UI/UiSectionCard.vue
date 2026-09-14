@@ -14,6 +14,7 @@ const props = defineProps({
 
 const slots = useSlots();
 const hasIcon = computed(() => Boolean(slots.icon));
+const hasBody = computed(() => Boolean(slots.default));
 </script>
 
 <template>
@@ -29,7 +30,7 @@ const hasIcon = computed(() => Boolean(slots.icon));
                 </div>
             </div>
         </header>
-        <div class="ui-section-body">
+        <div v-if="hasBody" class="ui-section-body">
             <slot />
         </div>
     </section>

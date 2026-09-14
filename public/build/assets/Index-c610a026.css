@@ -1,0 +1,226 @@
+
+.mvr-toolbar[data-v-f987dc27] {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 1.1rem;
+}
+.mvr-search[data-v-f987dc27] {
+    flex: 1;
+    min-width: 15rem;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.68rem 1rem;
+    border: 1px solid var(--ui-border);
+    border-radius: 0.8rem;
+    background: var(--ui-surface);
+    color: var(--ui-muted);
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.mvr-search[data-v-f987dc27]:focus-within {
+    border-color: color-mix(in srgb, var(--ui-secondary) 32%, var(--ui-border));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-secondary) 10%, transparent);
+}
+.mvr-search-input[data-v-f987dc27] {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 0.85rem;
+    color: var(--ui-text);
+}
+.mvr-pill-group[data-v-f987dc27] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.mvr-pill[data-v-f987dc27] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ui-muted);
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    transition: transform 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.mvr-pill[data-v-f987dc27]:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--tone) 34%, var(--ui-border));
+    color: color-mix(in srgb, var(--tone) 70%, var(--ui-text));
+}
+.mvr-pill--active[data-v-f987dc27] {
+    color: #fff;
+    border-color: transparent;
+    background: linear-gradient(135deg, var(--ui-secondary), color-mix(in srgb, var(--ui-secondary) 78%, var(--ui-primary)));
+    box-shadow: 0 10px 20px -12px color-mix(in srgb, var(--ui-secondary) 60%, rgba(15, 23, 42, 0.5));
+}
+.mvr-pill-dot[data-v-f987dc27] {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--tone);
+    flex-shrink: 0;
+}
+.mvr-pill--active .mvr-pill-dot[data-v-f987dc27] {
+    background: #fff;
+}
+.mvr-table-shell[data-v-f987dc27] {
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-lg);
+    box-shadow: var(--ui-shadow-1);
+    overflow: hidden;
+    background: var(--ui-surface);
+}
+.mvr-table[data-v-f987dc27] {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+.mvr-table th[data-v-f987dc27] {
+    text-align: start;
+    padding: 0.85rem 1.1rem;
+    color: var(--ui-muted);
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+}
+.mvr-table td[data-v-f987dc27] {
+    padding: 1rem 1.1rem;
+    border-bottom: 1px solid var(--ui-border);
+    vertical-align: middle;
+}
+.mvr-row:last-child td[data-v-f987dc27] {
+    border-bottom: none;
+}
+.mvr-row[data-v-f987dc27] {
+    transition: background-color 150ms ease;
+}
+.mvr-row[data-v-f987dc27]:hover {
+    background: var(--ui-surface-soft);
+}
+.mvr-table a[data-v-f987dc27] {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+}
+a.mvr-contact[data-v-f987dc27] {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+.mvr-contact-avatar[data-v-f987dc27] {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 800;
+    background: color-mix(in srgb, var(--tone) 16%, var(--ui-surface));
+    color: color-mix(in srgb, var(--tone) 78%, var(--ui-text));
+    border: 1px solid color-mix(in srgb, var(--tone) 28%, transparent);
+}
+.mvr-contact-text[data-v-f987dc27] {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+.mvr-contact-name[data-v-f987dc27] {
+    font-weight: 800;
+    color: var(--ui-text);
+}
+.mvr-contact-sub[data-v-f987dc27] {
+    font-size: 0.75rem;
+    color: var(--ui-muted);
+    margin-top: 0.1rem;
+}
+.mvr-org-badge[data-v-f987dc27] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ui-text);
+}
+.mvr-org-dot[data-v-f987dc27] {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--ui-secondary);
+    flex-shrink: 0;
+}
+.mvr-guest-badge[data-v-f987dc27] {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ui-muted);
+    padding: 0.25rem 0.65rem;
+    border: 1px dashed var(--ui-border-strong);
+    border-radius: 999px;
+}
+.mvr-chip[data-v-f987dc27] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    border: 1px solid color-mix(in srgb, var(--tone) 28%, transparent);
+    background: color-mix(in srgb, var(--tone) 15%, transparent);
+    color: color-mix(in srgb, var(--tone) 82%, var(--ui-text));
+    white-space: nowrap;
+}
+.mvr-date[data-v-f987dc27] {
+    color: var(--ui-muted);
+}
+
+.mvr-page[data-v-abafc053] {
+    min-height: 100%;
+    padding: 1.5rem 2rem;
+}
+.mvr-page__inner[data-v-abafc053] {
+    width: 100%;
+    max-width: 1680px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.mvr-kpi-row[data-v-abafc053] .mvr-kpi {
+    position: relative;
+    overflow: hidden;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.mvr-kpi-row[data-v-abafc053] .mvr-kpi::before {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 3px;
+    background: var(--mvr-kpi-tone);
+}
+.mvr-kpi-row[data-v-abafc053] .mvr-kpi:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ui-shadow-1);
+}
+.mvr-kpi-row[data-v-abafc053] .mvr-kpi--primary { --mvr-kpi-tone: var(--ui-primary);
+}
+.mvr-kpi-row[data-v-abafc053] .mvr-kpi--secondary { --mvr-kpi-tone: var(--ui-secondary);
+}
+.mvr-kpi-row[data-v-abafc053] .mvr-kpi--success { --mvr-kpi-tone: var(--ui-success);
+}
+.mvr-kpi-row[data-v-abafc053] .mvr-kpi--danger { --mvr-kpi-tone: var(--ui-danger);
+}

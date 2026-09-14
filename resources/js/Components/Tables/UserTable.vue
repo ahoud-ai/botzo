@@ -168,12 +168,12 @@
                 <TableBodyRowItem v-if="type === 'admin' || showRole === true" class="hidden sm:table-cell capitalize">
                     <div>
                         <span>{{ roleLabel(item.role) }}</span>
-                        <p v-if="isSystemOwner(item)" class="mt-1 text-xs normal-case text-indigo-700">{{ item.system_owner_label || $t('System Owner') }}</p>
-                        <p v-if="item.role_hint" class="mt-1 text-xs normal-case text-slate-500">{{ item.role_hint }}</p>
+                        <p v-if="isSystemOwner(item)" class="mt-1 text-xs normal-case text-[var(--ui-secondary)] font-semibold">{{ item.system_owner_label || $t('System Owner') }}</p>
+                        <p v-if="item.role_hint" class="mt-1 text-xs normal-case text-[var(--ui-muted)]">{{ item.role_hint }}</p>
                     </div>
                 </TableBodyRowItem>
                 <TableBodyRowItem class="capitalize">
-                    <span class="py-1 rounded-md text-xs px-3 ui-chip-neutral text-slate-700">{{ statusLabel(item.status) }}</span>
+                    <span class="py-1 rounded-md text-xs px-3 ui-chip-neutral">{{ statusLabel(item.status) }}</span>
                 </TableBodyRowItem>
                 <TableBodyRowItem class="hidden sm:table-cell">
                     <span class="block text-end">{{ item.updated_at }}</span>

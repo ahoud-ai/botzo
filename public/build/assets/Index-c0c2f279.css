@@ -1,0 +1,55 @@
+
+.automation-trigger-chip[data-v-b3134fcb] {
+    display: inline-block;
+    max-width: 12rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0.25rem 0.55rem;
+    border: 1px dashed var(--ui-border-strong);
+    background: var(--ui-surface-soft);
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--ui-text);
+}
+.automation-type-chip[data-v-b3134fcb] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.automation-create-btn[data-v-b3134fcb] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.7rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--ui-secondary);
+    transition: filter 160ms ease;
+}
+.automation-create-btn[data-v-b3134fcb]:hover {
+    filter: brightness(1.05);
+}
+
+.automation-create-btn[data-v-a98a1fa9] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.7rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--ui-secondary);
+    transition: filter 160ms ease;
+}
+.automation-create-btn[data-v-a98a1fa9]:hover:not(:disabled) {
+    filter: brightness(1.05);
+}
+.automation-create-btn--disabled[data-v-a98a1fa9] {
+    background: var(--ui-border-strong);
+    color: var(--ui-muted);
+    cursor: not-allowed;
+}

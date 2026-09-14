@@ -24,8 +24,8 @@
                     :className="'sm:col-span-6'"
                 />
 
-                <div v-if="showPasswordFields" class="sm:col-span-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <div class="mb-3 text-xs text-slate-500">
+                <div v-if="showPasswordFields" class="sm:col-span-6 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] p-4">
+                    <div class="mb-3 text-xs text-[var(--ui-muted)]">
                         {{ $t('Leave the password fields empty to keep the current password.') }}
                     </div>
                     <div class="grid gap-3 sm:grid-cols-6">
@@ -48,7 +48,7 @@
 
                 <div
                     v-else-if="isEditMode"
-                    class="sm:col-span-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500"
+                    class="sm:col-span-6 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-4 py-3 text-xs text-[var(--ui-muted)]"
                 >
                     {{ $t(passwordHelperText) }}
                 </div>
@@ -56,11 +56,11 @@
                 <div class="sm:col-span-6 flex items-center justify-between">
                     <div>
                         <div class="ui-form-label mb-0">{{ $t('Assignments') }}</div>
-                        <div class="mt-1 text-xs text-slate-500">{{ $t('Select one or more workspaces and define a role for each one.') }}</div>
+                        <div class="mt-1 text-xs text-[var(--ui-muted)]">{{ $t('Select one or more workspaces and define a role for each one.') }}</div>
                     </div>
                     <button
                         type="button"
-                        class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-sky-200 bg-sky-50 px-4 py-2.5 text-sm font-semibold text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+                        class="team-modal-add-btn"
                         @click="addAssignment"
                         :disabled="!canAddAssignment"
                     >
@@ -73,14 +73,15 @@
 
                 <div
                     v-if="assignmentsLocked"
-                    class="sm:col-span-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800"
+                    class="sm:col-span-6 rounded-xl border px-4 py-3 text-xs"
+                    style="border-color: color-mix(in srgb, var(--ui-warning) 35%, var(--ui-border)); background: color-mix(in srgb, var(--ui-warning) 12%, var(--ui-surface)); color: color-mix(in srgb, var(--ui-warning) 75%, var(--ui-text));"
                 >
                     {{ $t('This employee inherits protected owner access and their assignments cannot be changed here.') }}
                 </div>
 
                 <div
                     v-else-if="addAssignmentHint"
-                    class="sm:col-span-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600"
+                    class="sm:col-span-6 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] px-4 py-3 text-xs text-[var(--ui-muted)]"
                 >
                     {{ $t(addAssignmentHint) }}
                 </div>
@@ -88,7 +89,7 @@
                 <div
                     v-for="(assignment, index) in form.assignments"
                     :key="assignment.key"
-                    class="sm:col-span-6 rounded-xl border border-slate-200 bg-slate-50 p-4"
+                    class="sm:col-span-6 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-soft)] p-4"
                 >
                     <div class="grid gap-3 sm:grid-cols-12">
                         <FormSelect
@@ -114,7 +115,7 @@
                         <div class="sm:col-span-2 flex items-end">
                             <button
                                 type="button"
-                                class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                class="team-modal-remove-btn"
                                 :disabled="assignmentsLocked || form.assignments.length === 1"
                                 @click="removeAssignment(index)"
                             >
@@ -124,7 +125,8 @@
                     </div>
                     <div
                         v-if="assignment.organization_uuid && roleOptionsFor(assignment.organization_uuid).length === 0"
-                        class="mt-2 text-xs text-amber-700"
+                        class="mt-2 text-xs"
+                        style="color: var(--ui-warning);"
                     >
                         {{ $t('No roles available for this workspace') }}
                     </div>
@@ -138,13 +140,13 @@
                     <button
                         type="button"
                         @click="emit('close')"
-                        class="inline-flex justify-center rounded-md border border-transparent bg-slate-50 px-4 py-2 text-sm text-slate-500 hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 me-4"
+                        class="team-modal-btn team-modal-btn--ghost me-4"
                     >
                         {{ $t('Cancel') }}
                     </button>
                     <button
                         type="submit"
-                        :class="['inline-flex justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2', { 'opacity-50': form.processing }]"
+                        :class="['team-modal-btn team-modal-btn--solid', { 'opacity-50': form.processing }]"
                         :disabled="form.processing"
                     >
                         <svg v-if="form.processing" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z" opacity=".5"/><path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"><animateTransform attributeName="transform" dur="1s" from="0 12 12" repeatCount="indefinite" to="360 12 12" type="rotate"/></path></svg>
@@ -155,6 +157,83 @@
         </div>
     </Modal>
 </template>
+
+<style scoped>
+.team-modal-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    border-radius: 0.7rem;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ui-secondary);
+    background: color-mix(in srgb, var(--ui-secondary) 12%, var(--ui-surface));
+    border: 1px solid color-mix(in srgb, var(--ui-secondary) 30%, var(--ui-border));
+    transition: background-color 160ms ease;
+}
+
+.team-modal-add-btn:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--ui-secondary) 20%, var(--ui-surface));
+}
+
+.team-modal-add-btn:disabled {
+    cursor: not-allowed;
+    color: var(--ui-muted);
+    background: var(--ui-surface-soft);
+    border-color: var(--ui-border);
+}
+
+.team-modal-remove-btn {
+    width: 100%;
+    border-radius: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    color: var(--ui-text);
+    border: 1px solid var(--ui-border);
+    transition: background-color 160ms ease;
+}
+
+.team-modal-remove-btn:hover:not(:disabled) {
+    background: var(--ui-border);
+}
+
+.team-modal-remove-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.team-modal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.7rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, filter 160ms ease;
+}
+
+.team-modal-btn--ghost {
+    color: var(--ui-text);
+    background: var(--ui-surface-soft);
+    border: 1px solid var(--ui-border);
+}
+
+.team-modal-btn--ghost:hover {
+    background: var(--ui-border);
+}
+
+.team-modal-btn--solid {
+    color: #fff;
+    background: var(--ui-secondary);
+}
+
+.team-modal-btn--solid:hover {
+    filter: brightness(1.05);
+}
+</style>
 
 <script setup>
 import { computed, watch } from 'vue';
