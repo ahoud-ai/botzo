@@ -261,19 +261,6 @@
                     </div>
                 </div>
 
-                <!-- Business / Tax Disclosure -->
-                <div class="w-full border-t-[0.5px] border-[#5a6b7e] pt-[28.5px] text-center dark:border-[#94a3b8]">
-                    <p class="text-sm font-medium text-white">{{ businessInfo.name }}</p>
-                    <p class="mt-1 text-sm leading-6 text-[#8899aa]">{{ businessInfo.address }}</p>
-                    <p class="mt-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm leading-6 text-[#8899aa]">
-                        <span>{{ $t('Phone') }}: <a :href="'tel:' + businessInfo.phone" dir="ltr" class="hover:underline hover:text-[#25d366]">{{ businessInfo.phone }}</a></span>
-                        <span>&bull;</span>
-                        <span>{{ $t('Website') }}: <a :href="businessInfo.website" target="_blank" rel="noopener" dir="ltr" class="hover:underline hover:text-[#25d366]">{{ businessInfo.website }}</a></span>
-                        <span>&bull;</span>
-                        <span>{{ $t('Tax ID') }}: <span dir="ltr">{{ businessInfo.taxId }}</span></span>
-                    </p>
-                </div>
-
                 <div class="w-full border-t-[0.5px] border-[#5a6b7e] pt-[28.5px] text-center dark:border-[#94a3b8]">
                     <p dir="auto" class="text-sm leading-6 text-[#8899aa]">
                         {{ $t('© {year} Botzo · All rights reserved · Made with ❤ for the Saudi market', { year: currentYear }) }}
@@ -300,13 +287,6 @@
 
     const page = usePage();
     const currentYear = new Date().getFullYear();
-    const businessInfo = {
-        name: 'مؤسسة بوتوزو',
-        address: 'حي العارض، طريق الملك عبدالعزيز بن عبدالرحمن آل سعود الفرعي، مبنى 7217، الرقم الإضافي 2312، الرياض 13342، المملكة العربية السعودية',
-        phone: '+966532222773',
-        website: 'https://botzo.net/',
-        taxId: '3022207986',
-    };
     const { rtlClass, isRtl } = useRtl();
     
     const isAuthenticated = computed(() => {
