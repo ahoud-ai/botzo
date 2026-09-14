@@ -265,9 +265,6 @@
                     <p dir="auto" class="text-sm leading-6 text-[#8899aa]">
                         {{ $t('© {year} Botzo · All rights reserved · Made with ❤ for the Saudi market', { year: currentYear }) }}
                     </p>
-                    <Link href="/cookie-policy" dir="auto" class="mt-1 inline-block text-sm leading-6 text-[#8899aa] transition-colors hover:text-[#25d366]">
-                        {{ $t('Cookie Policy') }}
-                    </Link>
                 </div>
             </div>
         </footer>
