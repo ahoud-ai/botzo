@@ -343,16 +343,16 @@ class ChatController extends BaseController
                 [
                     'assigned_to' => $userId,
                     'status' => 'open',
-                    'updated_at' => now(),
+                    'updated_at' => \Carbon\Carbon::now('UTC'),
                 ]
             );
             $previousAssignedTo = $ticket->wasRecentlyCreated ? null : $ticket->assigned_to;
-            
+
             // Update assignment if ticket already existed
             if ($ticket->wasRecentlyCreated === false) {
                 $ticket->update([
                     'assigned_to' => $userId,
-                    'updated_at' => now()
+                    'updated_at' => \Carbon\Carbon::now('UTC')
                 ]);
             }
 
@@ -360,7 +360,7 @@ class ChatController extends BaseController
             $ticketId = ChatTicketLog::insertGetId([
                 'contact_id' => $contact->id,
                 'description' => __('Conversation was assigned to :name', ['name' => trim($user->first_name . ' ' . $user->last_name)]),
-                'created_at' => now()
+                'created_at' => \Carbon\Carbon::now('UTC')
             ]);
 
             // Create chat log entry
@@ -368,7 +368,7 @@ class ChatController extends BaseController
                 'contact_id' => $contact->id,
                 'entity_type' => 'ticket',
                 'entity_id' => $ticketId,
-                'created_at' => now()
+                'created_at' => \Carbon\Carbon::now('UTC')
             ]);
             $this->broadcastTicketLog($chatLogId, (int) $organizationId, [$userId, $previousAssignedTo]);
         }
@@ -406,14 +406,14 @@ class ChatController extends BaseController
             $ticketId = ChatTicketLog::insertGetId([
                 'contact_id' => $contact->id,
                 'description' => __('Conversation status changed from :from to :to', ['from' => $fromStatus, 'to' => $toStatus]),
-                'created_at' => now()
+                'created_at' => \Carbon\Carbon::now('UTC')
             ]);
 
             $chatLogId = ChatLog::insertGetId([
                 'contact_id' => $contact->id,
                 'entity_type' => 'ticket',
                 'entity_id' => $ticketId,
-                'created_at' => now()
+                'created_at' => \Carbon\Carbon::now('UTC')
             ]);
             $this->broadcastTicketLog($chatLogId, (int) $contact->organization_id, [
                 $user->id,

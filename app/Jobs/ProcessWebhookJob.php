@@ -161,8 +161,8 @@ class ProcessWebhookJob implements ShouldQueue
                         'phone' => $phone,
                         'organization_id' => $organization->id,
                         'created_by' => 0,
-                        'created_at' => now(),
-                        'updated_at' => now(),
+                        'created_at' => \Carbon\Carbon::now('UTC'),
+                        'updated_at' => \Carbon\Carbon::now('UTC'),
                     ]);
                     $isNewContact = true;
                 }
@@ -206,7 +206,7 @@ class ProcessWebhookJob implements ShouldQueue
                             'contact_id' => $contact->id,
                             'entity_type' => 'chat',
                             'entity_id' => $chat->id,
-                            'created_at' => now()
+                            'created_at' => \Carbon\Carbon::now('UTC')
                         ]);
 
                         // Load ChatLog and broadcast event (event is queued automatically via ShouldQueue)

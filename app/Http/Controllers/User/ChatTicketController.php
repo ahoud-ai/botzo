@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Events\NewChatEvent;
 use App\Http\Controllers\Controller as BaseController;
+use Carbon\Carbon;
 use App\Models\AutoReply;
 use App\Models\Chat;
 use App\Models\ChatLog;
@@ -54,8 +55,8 @@ class ChatTicketController extends BaseController
             ['contact_id' => $contact->id],
             [
                 'status' => 'open',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at' => Carbon::now('UTC'),
+                'updated_at' => Carbon::now('UTC'),
             ]
         );
         $previousAssignedTo = $ticket->assigned_to;
@@ -63,7 +64,7 @@ class ChatTicketController extends BaseController
         $ticket->update([
             'status' => $request->status,
             'assigned_to' => auth()->user()->id,
-            'updated_at' => now(),
+            'updated_at' => Carbon::now('UTC'),
         ]);
 
         $fromStatus = $request->status === 'closed' ? __('open') : __('closed');
@@ -72,14 +73,14 @@ class ChatTicketController extends BaseController
         $ticketId = ChatTicketLog::insertGetId([
             'contact_id' => $contact->id,
             'description' => __('Conversation status changed from :from to :to', ['from' => $fromStatus, 'to' => $toStatus]),
-            'created_at' => now()
+            'created_at' => Carbon::now('UTC')
         ]);
 
         $chatLogId = ChatLog::insertGetId([
             'contact_id' => $contact->id,
             'entity_type' => 'ticket',
             'entity_id' => $ticketId,
-            'created_at' => now()
+            'created_at' => Carbon::now('UTC')
         ]);
         $this->broadcastTicketLog($chatLogId, (int) $organizationId, [auth()->id(), $previousAssignedTo]);
 
@@ -130,15 +131,15 @@ class ChatTicketController extends BaseController
             ['contact_id' => $contact->id],
             [
                 'status' => 'open',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at' => Carbon::now('UTC'),
+                'updated_at' => Carbon::now('UTC'),
             ]
         );
         $previousAssignedTo = $ticket->assigned_to;
 
         $ticket->update([
             'assigned_to' => $request->id,
-            'updated_at' => now(),
+            'updated_at' => Carbon::now('UTC'),
         ]);
 
         if ($request->id) {
@@ -148,14 +149,14 @@ class ChatTicketController extends BaseController
             $ticketId = ChatTicketLog::insertGetId([
                 'contact_id' => $contact->id,
                 'description' => __('Conversation was assigned to :name', ['name' => $assignedUserName]),
-                'created_at' => now()
+                'created_at' => Carbon::now('UTC')
             ]);
 
             $chatLogId = ChatLog::insertGetId([
                 'contact_id' => $contact->id,
                 'entity_type' => 'ticket',
                 'entity_id' => $ticketId,
-                'created_at' => now()
+                'created_at' => Carbon::now('UTC')
             ]);
             $this->broadcastTicketLog($chatLogId, (int) $organizationId, [$request->id, $previousAssignedTo]);
 
@@ -163,14 +164,14 @@ class ChatTicketController extends BaseController
             $ticketId = ChatTicketLog::insertGetId([
                 'contact_id' => $contact->id,
                 'description' => __('Conversation was unassigned'),
-                'created_at' => now()
+                'created_at' => Carbon::now('UTC')
             ]);
 
             $chatLogId = ChatLog::insertGetId([
                 'contact_id' => $contact->id,
                 'entity_type' => 'ticket',
                 'entity_id' => $ticketId,
-                'created_at' => now()
+                'created_at' => Carbon::now('UTC')
             ]);
             $this->broadcastTicketLog($chatLogId, (int) $organizationId, [$previousAssignedTo]);
         }

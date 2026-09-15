@@ -7,6 +7,7 @@ use App\Models\ChatTicket;
 use App\Models\ChatTicketLog;
 use App\Models\Organization;
 use App\Models\Team;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ChatTicketProvisioningService
@@ -33,23 +34,23 @@ class ChatTicketProvisioningService
                     ? $this->resolveAssignee()
                     : null;
                 $ticket->status = 'open';
-                $ticket->created_at = now();
-                $ticket->updated_at = now();
+                $ticket->created_at = Carbon::now('UTC');
+                $ticket->updated_at = Carbon::now('UTC');
                 $ticket->save();
 
                 $ticketLogId = ChatTicketLog::insertGetId([
                     'contact_id' => $contactId,
                     'description' => __('Conversation was opened'),
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'created_at' => Carbon::now('UTC'),
+                    'updated_at' => Carbon::now('UTC'),
                 ]);
 
                 ChatLog::insert([
                     'contact_id' => $contactId,
                     'entity_type' => 'ticket',
                     'entity_id' => $ticketLogId,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'created_at' => Carbon::now('UTC'),
+                    'updated_at' => Carbon::now('UTC'),
                 ]);
 
                 return $ticket;
@@ -63,22 +64,22 @@ class ChatTicketProvisioningService
                 }
 
                 $ticket->status = 'open';
-                $ticket->updated_at = now();
+                $ticket->updated_at = Carbon::now('UTC');
                 $ticket->save();
 
                 $ticketLogId = ChatTicketLog::insertGetId([
                     'contact_id' => $contactId,
                     'description' => __('Conversation was moved from closed to open'),
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'created_at' => Carbon::now('UTC'),
+                    'updated_at' => Carbon::now('UTC'),
                 ]);
 
                 ChatLog::insert([
                     'contact_id' => $contactId,
                     'entity_type' => 'ticket',
                     'entity_id' => $ticketLogId,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'created_at' => Carbon::now('UTC'),
+                    'updated_at' => Carbon::now('UTC'),
                 ]);
             }
 
