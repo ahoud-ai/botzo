@@ -9,9 +9,13 @@ $providers = [
      */
     App\Providers\AppServiceProvider::class,
     App\Providers\AuthServiceProvider::class,
+    // BroadcastConfigServiceProvider must boot before BroadcastServiceProvider:
+    // it sets the real (DB-driven) pusher config that BroadcastServiceProvider's
+    // boot() needs in place before it requires routes/channels.php and resolves
+    // the default broadcaster driver instance those channels register against.
+    App\Providers\BroadcastConfigServiceProvider::class,
     App\Providers\BroadcastServiceProvider::class,
     App\Providers\EventServiceProvider::class,
-    App\Providers\BroadcastConfigServiceProvider::class,
     App\Providers\MailConfigServiceProvider::class,
     App\Providers\RouteServiceProvider::class,
     Mews\Purifier\PurifierServiceProvider::class,

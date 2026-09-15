@@ -18,6 +18,15 @@ class BroadcastConfigServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap services.
+     *
+     * Must run before BroadcastServiceProvider::boot() (see the provider
+     * order in config/app.php), which requires routes/channels.php and calls
+     * Broadcast::channel() there — that resolves and caches the default
+     * broadcaster driver instance. If this provider set the real pusher
+     * config afterward instead, channels.php would have already registered
+     * its channels on a stale/default driver instance that never receives
+     * them, and every broadcasting/auth request would 403 with no channel
+     * match even though the user is authenticated correctly.
      */
     public function boot()
     {
