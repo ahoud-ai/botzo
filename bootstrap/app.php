@@ -64,6 +64,17 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         // Custom exception rendering
         $exceptions->render(function (Throwable $e, Request $request) {
+            if ($request->is('broadcasting/auth')) {
+                file_put_contents(storage_path('logs/temp_exception_diag.log'), date('c') . ' ' . json_encode([
+                    'exception_class' => get_class($e),
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace_top' => array_slice(explode("\n", $e->getTraceAsString()), 0, 8),
+                    'request_user_id' => $request->user()?->id,
+                ]) . PHP_EOL, FILE_APPEND);
+            }
+
             if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
                 $statusCode = $e->getStatusCode();
 
