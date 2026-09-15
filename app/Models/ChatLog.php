@@ -18,13 +18,15 @@ class ChatLog extends Model {
     // Accessor to format created_at with organization's timezone
     public function getCreatedAtAttribute($value)
     {
-        // Convert the stored UTC timestamp to the organization's timezone
-        return DateTimeHelper::convertToOrganizationTimezone($value)->toDateTimeString();
+        // Stored in UTC — tag it explicitly before conversion, since a raw
+        // naive string would otherwise be parsed using the app's local
+        // default timezone instead of being treated as UTC.
+        return DateTimeHelper::convertToOrganizationTimezone(Carbon::parse($value, 'UTC'))->toDateTimeString();
     }
 
     public function getUpdatedAtAttribute($value)
     {
-        return DateTimeHelper::convertToOrganizationTimezone($value)->toDateTimeString();
+        return DateTimeHelper::convertToOrganizationTimezone(Carbon::parse($value, 'UTC'))->toDateTimeString();
     }
 
     public function entity()

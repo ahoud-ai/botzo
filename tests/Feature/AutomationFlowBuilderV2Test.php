@@ -1751,7 +1751,7 @@ class AutomationFlowBuilderV2Test extends TestCase
             'type' => 'text',
             'text' => ['body' => 'Hello flow'],
         ]);
-        $inboundChat->update(['created_at' => now()->subHours(3)]);
+        $inboundChat->update(['created_at' => \Carbon\Carbon::now('UTC')->subHours(3)]);
         $inboundChat->refresh();
 
         $started = $runtime->handleInbound($inboundChat);
@@ -1794,7 +1794,7 @@ class AutomationFlowBuilderV2Test extends TestCase
             'type' => 'text',
             'text' => ['body' => 'Hello flow'],
         ]);
-        $inboundChat->update(['created_at' => now()->subHours(3)]);
+        $inboundChat->update(['created_at' => \Carbon\Carbon::now('UTC')->subHours(3)]);
         $inboundChat->refresh();
 
         $started = $runtime->handleInbound($inboundChat);
@@ -2703,7 +2703,7 @@ class AutomationFlowBuilderV2Test extends TestCase
             'type' => 'inbound',
             'metadata' => json_encode($metadata),
             'status' => 'received',
-            'created_at' => now(),
+            'created_at' => \Carbon\Carbon::now('UTC'),
         ]);
     }
 

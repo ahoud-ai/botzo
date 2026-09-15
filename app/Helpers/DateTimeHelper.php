@@ -40,6 +40,12 @@ class DateTimeHelper
             }
         }
 
+        // NOTE: $date's stored source timezone varies by caller/model (some are
+        // UTC, some use standard Eloquent timestamps in the app's local zone) —
+        // this shared helper can't assume one. Callers whose column is known to
+        // be stored in UTC should pass an already UTC-tagged Carbon instance
+        // (e.g. Carbon::parse($raw, 'UTC')) rather than a raw string, since
+        // parse() preserves an existing DateTime's timezone instead of guessing.
         return Carbon::parse($date)->setTimezone($timezone);
     }
 

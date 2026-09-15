@@ -48,7 +48,10 @@ class Chat extends Model {
     
     public function getCreatedAtAttribute($value)
     {
-        return DateTimeHelper::convertToOrganizationTimezone($value)->toDateTimeString();
+        // Stored in UTC (see ProcessWebhookJob / WhatsappService) — tag it
+        // explicitly before conversion, since a raw naive string would
+        // otherwise be parsed using the app's local default timezone.
+        return DateTimeHelper::convertToOrganizationTimezone(Carbon::parse($value, 'UTC'))->toDateTimeString();
     }
     
     public function contact()
