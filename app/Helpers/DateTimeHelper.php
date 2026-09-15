@@ -22,7 +22,10 @@ class DateTimeHelper
 
     public static function convertToOrganizationTimezone($date)
     {
-        $timezone = 'UTC'; // Default to UTC
+        // Fall back to the app's configured timezone (not UTC) so chats display
+        // in local time by default — most organizations never set a per-org
+        // timezone in their metadata, so this fallback is the common case.
+        $timezone = config('app.timezone', 'UTC');
         $organizationId = session()->get('current_organization');
 
         if ($organizationId) {
