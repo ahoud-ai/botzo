@@ -34,15 +34,35 @@ class BroadcastConfigServiceProvider extends ServiceProvider
             $broadcastSettings = $this->getPusherSettings();
 
             if (!empty($broadcastSettings) && isset($broadcastSettings['broadcast_driver'])) {
-                // Set default broadcaster
-                Config::set('broadcasting.default', $broadcastSettings['broadcast_driver']);
+                $isPusher = $broadcastSettings['broadcast_driver'] === 'pusher';
+                $hasPusherCredentials = !empty($broadcastSettings['pusher_app_key'])
+                    && !empty($broadcastSettings['pusher_app_secret'])
+                    && !empty($broadcastSettings['pusher_app_id']);
 
-                // Only set Pusher config if driver is pusher
-                if ($broadcastSettings['broadcast_driver'] === 'pusher' && !empty($broadcastSettings['pusher_app_key'])) {
-                    Config::set('broadcasting.connections.pusher.key', $broadcastSettings['pusher_app_key'] ?? null);
-                    Config::set('broadcasting.connections.pusher.secret', $broadcastSettings['pusher_app_secret'] ?? null);
-                    Config::set('broadcasting.connections.pusher.app_id', $broadcastSettings['pusher_app_id'] ?? null);
-                    Config::set('broadcasting.connections.pusher.options.cluster', $broadcastSettings['pusher_app_cluster'] ?? null);
+                // Only switch the default driver to pusher once real credentials exist —
+                // otherwise the broadcaster resolves with a null key/secret the moment
+                // anything (including just registering channels in routes/channels.php)
+                // touches Broadcast::, and the Pusher SDK throws a TypeError.
+                Config::set('broadcasting.default', $isPusher && !$hasPusherCredentials
+                    ? 'null'
+                    : $broadcastSettings['broadcast_driver']);
+
+                if ($isPusher && $hasPusherCredentials) {
+                    $cluster = $broadcastSettings['pusher_app_cluster'] ?? null;
+
+                    Config::set('broadcasting.connections.pusher.key', $broadcastSettings['pusher_app_key']);
+                    Config::set('broadcasting.connections.pusher.secret', $broadcastSettings['pusher_app_secret']);
+                    Config::set('broadcasting.connections.pusher.app_id', $broadcastSettings['pusher_app_id']);
+                    Config::set('broadcasting.connections.pusher.options.cluster', $cluster);
+
+                    // config/broadcasting.php bakes a static 'host' fallback (api-mt1.pusher.com)
+                    // from the PUSHER_APP_CLUSTER env var at file-load time. The Pusher SDK prefers
+                    // 'host' over 'cluster' whenever 'host' is present, so overriding only 'cluster'
+                    // here left every request hitting the wrong cluster's API and Pusher rejecting
+                    // the app key with "not in this cluster". Override 'host' too so it matches.
+                    if ($cluster) {
+                        Config::set('broadcasting.connections.pusher.options.host', 'api-' . $cluster . '.pusher.com');
+                    }
                 }
             } else {
                 \Illuminate\Support\Facades\Log::warning('BroadcastConfigServiceProvider: No broadcast settings found or broadcast_driver not set');
