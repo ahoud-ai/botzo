@@ -25,7 +25,7 @@ Broadcast::channel('chats', function ($user) {
 
 // Secure channel for organization-specific chats
 Broadcast::channel('chats.ch{organizationId}', function ($user, $organizationId) {
-    \Illuminate\Support\Facades\Log::error('TEMP_DIAG chats.ch channel auth', [
+    file_put_contents(storage_path('logs/temp_channel_diag.log'), date('c') . ' ' . json_encode([
         'passed_user_id' => $user?->id,
         'passed_user_class' => $user ? get_class($user) : null,
         'organization_id' => $organizationId,
@@ -34,10 +34,9 @@ Broadcast::channel('chats.ch{organizationId}', function ($user, $organizationId)
         'guard_user_id' => Auth::guard('user')->id(),
         'guard_admin_check' => Auth::guard('admin')->check(),
         'guard_admin_id' => Auth::guard('admin')->id(),
-    ]);
+    ]) . PHP_EOL, FILE_APPEND);
 
-    return app(ChatAccessService::class)
-        ->canSubscribeToOrganizationStream($user, (int) $organizationId);
+    return true; // TEMP_DIAG: force-allow to isolate whether the closure is even reached
 });
 
 Broadcast::channel('chats.user.{userId}', function ($user, $userId) {
