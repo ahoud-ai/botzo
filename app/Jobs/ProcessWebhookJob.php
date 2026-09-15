@@ -193,7 +193,9 @@ class ProcessWebhookJob implements ShouldQueue
                         $response['provider'] = 'whatsapp_cloud';
                         $chat->metadata = json_encode($response);
                         $chat->status = 'delivered';
-                        $chat->created_at = \Carbon\Carbon::now('UTC');
+                        $chat->created_at = isset($response['timestamp'])
+                            ? \Carbon\Carbon::createFromTimestamp((int) $response['timestamp'], 'UTC')
+                            : \Carbon\Carbon::now('UTC');
                         $chat->save();
 
                         $isMediaMessage = in_array($response['type'], ['image', 'video', 'audio', 'document', 'sticker'], true);
