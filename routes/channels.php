@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Broadcast;
 use App\Services\Chat\ChatAccessService;
 
+file_put_contents(storage_path('logs/temp_channels_file_loaded.log'), date('c') . ' channels.php was required' . PHP_EOL, FILE_APPEND);
+
 /*
 |--------------------------------------------------------------------------
 | Broadcast Channels
