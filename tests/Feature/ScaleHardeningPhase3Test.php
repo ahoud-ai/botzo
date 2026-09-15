@@ -71,7 +71,9 @@ class ScaleHardeningPhase3Test extends TestCase
         $response->assertOk();
         $response->assertJson(['status' => 'success']);
 
-        Queue::assertPushedOn('webhook-media', ProcessWebhookJob::class);
+        Queue::assertPushed(ProcessWebhookJob::class, function (ProcessWebhookJob $job) {
+            return $job->connection === 'sync';
+        });
     }
 
     public function test_campaign_redispatch_skips_database_queue_probe_when_queue_is_redis(): void

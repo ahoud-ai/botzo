@@ -132,8 +132,15 @@ class WebhookController extends BaseController
             return Response::json(['status' => 'success'], 200);
         }
 
-        ProcessWebhookJob::dispatch($request->all(), (int) $organization->id)
-            ->onQueue('webhook-media');
+        try {
+            ProcessWebhookJob::dispatch($request->all(), (int) $organization->id)
+                ->onConnection('sync');
+        } catch (\Throwable $e) {
+            Log::error('Synchronous webhook processing failed.', [
+                'organization_id' => $organization->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return Response::json(['status' => 'success'], 200);
     }
