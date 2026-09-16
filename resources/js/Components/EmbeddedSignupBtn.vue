@@ -17,7 +17,17 @@
     let popupPollTimer = null;
 
     const sessionInfoListener = (event) => {
-        if (event.origin !== "https://www.facebook.com" && event.origin !== "https://web.facebook.com") {
+        // TEMP_DIAG: log every cross-window message while we confirm the
+        // origin/shape Meta's hosted onboarding page actually posts from.
+        // eslint-disable-next-line no-console
+        console.log('[EmbeddedSignup] message received', event.origin, event.data);
+
+        const allowedOrigins = [
+            "https://www.facebook.com",
+            "https://web.facebook.com",
+            "https://business.facebook.com",
+        ];
+        if (!allowedOrigins.includes(event.origin)) {
             return;
         }
 
@@ -26,9 +36,12 @@
             if (data.type === 'WA_EMBEDDED_SIGNUP') {
                 // if user finishes the Embedded Signup flow
                 if (data.event === 'FINISH') {
-                    const {phone_number_id, waba_id} = data.data;
+                    const {phone_number_id, waba_id, code} = data.data;
                     embeddedSignupData.value.phone_number_id = phone_number_id ?? null;
                     embeddedSignupData.value.waba_id = waba_id ?? null;
+                    if (code) {
+                        completeSignup(code);
+                    }
                 }
                 // if user cancels the Embedded Signup flow
                 else {
