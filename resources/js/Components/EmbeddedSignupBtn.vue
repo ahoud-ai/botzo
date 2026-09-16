@@ -1,60 +1,26 @@
 <script setup>
-    import { ref, onMounted, onUnmounted } from 'vue';
+    import { ref, onUnmounted } from 'vue';
     import { router } from "@inertiajs/vue3";
     import { useI18n } from 'vue-i18n';
     const { t } = useI18n();
-    
+
     const props = defineProps(['appId', 'configId', 'graphAPIVersion'])
 
     const isSetupLoading = ref(false);
-    const isSdkReady = ref(false);
-    const sdkScriptFailed = ref(false);
     const isMessageListenerAttached = ref(false);
     const embeddedSignupData = ref({
         waba_id: null,
         phone_number_id: null,
     });
 
-    onMounted(() => {
-        window.fbAsyncInit = function () {
-            // JavaScript SDK configuration and setup
-            if (typeof window.FB === 'undefined') {
-                return;
-            }
-
-            window.FB.init({
-                appId: props.appId, // Facebook App ID
-                cookie: true, // enable cookies
-                xfbml: true, // parse social plugins on this page
-                version: props.graphAPIVersion // Graph API version
-            });
-            isSdkReady.value = true;
-        };
-
-        // Load the JavaScript SDK asynchronously
-        (function (d, s, id) {
-            var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) {
-                if (typeof window.FB !== 'undefined') {
-                    isSdkReady.value = true;
-                }
-                return;
-            }
-            js = d.createElement(s);
-            js.id = id;
-            js.src = "https://connect.facebook.net/en_US/sdk.js";
-            js.onerror = function () {
-                sdkScriptFailed.value = true;
-            };
-            fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
-    });
+    let popupWindow = null;
+    let popupPollTimer = null;
 
     const sessionInfoListener = (event) => {
         if (event.origin !== "https://www.facebook.com" && event.origin !== "https://web.facebook.com") {
             return;
         }
-        
+
         try {
             const data = JSON.parse(event.data);
             if (data.type === 'WA_EMBEDDED_SIGNUP') {
@@ -74,12 +40,45 @@
         }
     };
 
-    onUnmounted(() => {
+    function stopWatchingPopup() {
+        if (popupPollTimer) {
+            window.clearInterval(popupPollTimer);
+            popupPollTimer = null;
+        }
+    }
+
+    function detachMessageListener() {
         if (isMessageListenerAttached.value) {
             window.removeEventListener("message", sessionInfoListener);
             isMessageListenerAttached.value = false;
         }
+    }
+
+    onUnmounted(() => {
+        stopWatchingPopup();
+        detachMessageListener();
     });
+
+    function completeSignup(code) {
+        isSetupLoading.value = true;
+
+        router.post(`/whatsapp/exchange-code`, {
+            token: code,
+            waba_id: embeddedSignupData.value.waba_id,
+            phone_number_id: embeddedSignupData.value.phone_number_id,
+        }, {
+            preserveState: true,
+            onSuccess: () => {
+                router.visit('/settings/whatsapp', {
+                    preserveState: false,
+                });
+            },
+            onFinish: () => {
+                detachMessageListener();
+                isSetupLoading.value = false;
+            },
+        });
+    }
 
     function launchWhatsAppSignup() {
         if (window.location.protocol !== 'https:') {
@@ -89,16 +88,6 @@
 
         if (!props.appId || !props.configId) {
             alert(t('Embedded signup is not configured correctly. Contact the administrator.'));
-            return;
-        }
-
-        if (sdkScriptFailed.value) {
-            alert(t('Unable to load Facebook SDK.'));
-            return;
-        }
-
-        if (!isSdkReady.value || typeof window.FB === 'undefined') {
-            alert(t('Facebook SDK is still loading. Please try again in a few seconds.'));
             return;
         }
 
@@ -113,47 +102,65 @@
             });
         }
 
-        // Launch Facebook login
-        window.FB.login(function (response) {
-            if (response.authResponse) {
-                isSetupLoading.value = true;
-                router.post(`/whatsapp/exchange-code`, {
-                    token: response.authResponse.code,
-                    waba_id: embeddedSignupData.value.waba_id,
-                    phone_number_id: embeddedSignupData.value.phone_number_id,
-                }, {
-                    preserveState: true,
-                    onSuccess: () => {
-                        router.visit('/settings/whatsapp', {
-                            preserveState: false,
-                        });
-                    },
-                    onFinish: () => {
-                        if (isMessageListenerAttached.value) {
-                            window.removeEventListener("message", sessionInfoListener);
-                            isMessageListenerAttached.value = false;
-                        }
-                        isSetupLoading.value = false;
-                    },
-                })
-            } else {
-                if (isMessageListenerAttached.value) {
-                    window.removeEventListener("message", sessionInfoListener);
-                    isMessageListenerAttached.value = false;
-                }
-            }
-        }, {
-            config_id: props.configId, // configuration ID goes here
-            response_type: 'code', // must be set to 'code' for System User access token
-            override_default_response_type: true, // when true, any response types passed in the "response_type" will take precedence over the default types
-            extras: {
-                sessionInfoVersion: 3,
-                version: 'v4',
-                setup: {
-                    // Prefilled data can go here
-                }
-            }
+        // Open Meta's own hosted Embedded Signup page directly in a popup instead
+        // of calling window.FB.login(). Chrome/browser FedCM interception was
+        // silently rewriting the FB.login() popup request into an unrelated
+        // generic OAuth request (stripping config_id, forcing scope=openid),
+        // which Meta then rejected as an unsupported permission — regardless of
+        // what parameters this component passed. Meta's own hosted onboarding
+        // link (confirmed working directly against this app/config) bypasses
+        // that entirely, since it isn't mediated through FB.login()'s popup.
+        const redirectUri = `${window.location.origin}/`;
+        const params = new URLSearchParams({
+            app_id: props.appId,
+            config_id: props.configId,
+            redirect_uri: redirectUri,
+            extras: JSON.stringify({ sessionInfoVersion: '3', version: 'v4' }),
         });
+
+        popupWindow = window.open(
+            `https://business.facebook.com/messaging/whatsapp/onboard/?${params.toString()}`,
+            'whatsapp-embedded-signup',
+            'width=600,height=800'
+        );
+
+        if (!popupWindow) {
+            alert(t('Please allow pop-ups for this site to continue.'));
+            detachMessageListener();
+            return;
+        }
+
+        // Meta redirects the popup back to our own redirect_uri with ?code=...
+        // once the flow completes. Poll for that instead of relying on an
+        // FB.login() callback, since we're not using FB.login() here.
+        popupPollTimer = window.setInterval(() => {
+            if (popupWindow.closed) {
+                stopWatchingPopup();
+                detachMessageListener();
+                return;
+            }
+
+            let popupUrl = null;
+            try {
+                popupUrl = popupWindow.location.href;
+            } catch {
+                // Still on facebook.com/business.facebook.com (cross-origin) — not back yet.
+                return;
+            }
+
+            if (popupUrl.indexOf(redirectUri) === 0) {
+                stopWatchingPopup();
+
+                const code = new URL(popupUrl).searchParams.get('code');
+                popupWindow.close();
+
+                if (code) {
+                    completeSignup(code);
+                } else {
+                    detachMessageListener();
+                }
+            }
+        }, 500);
     }
 </script>
 <template>
