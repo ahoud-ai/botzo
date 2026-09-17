@@ -1,8 +1,10 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
-import { CreditCard, Landmark, Smartphone, Wallet } from 'lucide-vue-next';
+import { CreditCard, Landmark, Loader2, Printer, Smartphone, Wallet } from 'lucide-vue-next';
+import InvoicePrintDocument from '@/Components/Billing/InvoicePrintDocument.vue';
+import { useInvoicePdf } from '@/Composables/useInvoicePdf';
 
 const props = defineProps({
     title: {
@@ -40,6 +42,63 @@ const props = defineProps({
 });
 
 const { locale, t } = useI18n();
+
+// The invoice PDF is generated entirely client-side (html2pdf.js capturing this
+// off-screen document) instead of hitting a backend PDF route — see useInvoicePdf.
+const printDocumentRef = ref(null);
+const { downloadPdf, printPdf } = useInvoicePdf();
+const isDownloading = ref(false);
+const isPrinting = ref(false);
+
+async function handleDownload() {
+    if (isDownloading.value || !printDocumentRef.value?.$el) {
+        return;
+    }
+
+    isDownloading.value = true;
+    try {
+        await downloadPdf(printDocumentRef.value.$el, props.invoice);
+    } catch (error) {
+        console.error('Invoice PDF download failed', error);
+        alert(t('Could not generate the PDF. Please try again.') + '\n\n' + (error?.message || error));
+    } finally {
+        isDownloading.value = false;
+    }
+}
+
+async function handlePrint() {
+    if (isPrinting.value || !printDocumentRef.value?.$el) {
+        return;
+    }
+
+    isPrinting.value = true;
+    try {
+        await printPdf(printDocumentRef.value.$el, props.invoice);
+    } catch (error) {
+        console.error('Invoice PDF print failed', error);
+        alert(t('Could not generate the PDF. Please try again.') + '\n\n' + (error?.message || error));
+    } finally {
+        isPrinting.value = false;
+    }
+}
+
+// Lets the invoice list's Print/Download buttons hand off here (via ?action=print or
+// ?action=download) instead of duplicating the PDF-generation setup on that page too.
+onMounted(() => {
+    const action = new URLSearchParams(window.location.search).get('action');
+
+    if (action !== 'print' && action !== 'download') {
+        return;
+    }
+
+    window.history.replaceState(null, '', window.location.pathname);
+
+    if (action === 'print') {
+        handlePrint();
+    } else {
+        handleDownload();
+    }
+});
 
 const documentDirection = computed(() => String(locale.value ?? '').startsWith('ar') ? 'rtl' : 'ltr');
 const resolvedTitle = computed(() => props.title ?? props.invoice?.invoice_number ?? t('Invoice'));
@@ -210,23 +269,25 @@ const timelinePoints = computed(() => {
                     >
                         {{ backLabel ?? $t('Back') }}
                     </Link>
-                    <a
-                        v-if="downloadUrl"
-                        :href="downloadUrl"
-                        download
-                        :class="softPrimaryActionClass"
+                    <button
+                        type="button"
+                        :disabled="isDownloading"
+                        :class="[softPrimaryActionClass, 'disabled:cursor-not-allowed disabled:opacity-60']"
+                        @click="handleDownload"
                     >
-                        {{ $t('Download PDF') }}
-                    </a>
-                    <a
-                        v-if="printUrl"
-                        :href="printUrl"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        :class="primaryActionClass"
+                        <Loader2 v-if="isDownloading" class="h-4 w-4 animate-spin" />
+                        {{ isDownloading ? $t('Preparing…') : $t('Download PDF') }}
+                    </button>
+                    <button
+                        type="button"
+                        :disabled="isPrinting"
+                        :class="[primaryActionClass, 'disabled:cursor-not-allowed disabled:opacity-60']"
+                        @click="handlePrint"
                     >
-                        {{ $t('Print') }}
-                    </a>
+                        <Loader2 v-if="isPrinting" class="h-4 w-4 animate-spin" />
+                        <Printer v-else class="h-4 w-4" />
+                        {{ isPrinting ? $t('Preparing…') : $t('Print') }}
+                    </button>
                 </div>
             </div>
 
@@ -392,5 +453,9 @@ const timelinePoints = computed(() => {
                 </article>
             </div>
         </section>
+
+        <div style="position:fixed; top:0; left:-3000px; z-index:-1;" aria-hidden="true">
+            <InvoicePrintDocument ref="printDocumentRef" :invoice="props.invoice" />
+        </div>
     </div>
 </template>

@@ -26,9 +26,12 @@ const props = defineProps({
     },
 });
 
+// Print/Download both go to the invoice detail page with an action flag — that page
+// holds the real (client-side, dom-to-image-based) PDF generation, so the list just
+// hands off to it instead of duplicating that logic or linking the old backend routes.
 const invoiceHref = (uuid) => `${props.viewBasePath}/${uuid}`;
-const printHref = (uuid) => `${props.printBasePath}/${uuid}/print`;
-const downloadHref = (uuid) => props.downloadBasePath ? `${props.downloadBasePath}/${uuid}/download` : null;
+const printHref = (uuid) => `${props.viewBasePath}/${uuid}?action=print`;
+const downloadHref = (uuid) => `${props.viewBasePath}/${uuid}?action=download`;
 const viewButtonClass = 'billing-table-btn billing-table-btn--ghost';
 const printButtonClass = 'billing-table-btn billing-table-btn--solid';
 const downloadButtonClass = 'billing-table-btn billing-table-btn--tint';
@@ -84,12 +87,12 @@ const statusClass = (label) => {
                                         <Link :href="invoiceHref(item.uuid)" :class="viewButtonClass">
                                             {{ $t('View') }}
                                         </Link>
-                                        <a :href="printHref(item.uuid)" target="_blank" rel="noopener noreferrer" :class="printButtonClass">
+                                        <Link :href="printHref(item.uuid)" :class="printButtonClass">
                                             {{ $t('Print') }}
-                                        </a>
-                                        <a v-if="downloadHref(item.uuid)" :href="downloadHref(item.uuid)" download :class="downloadButtonClass">
+                                        </Link>
+                                        <Link :href="downloadHref(item.uuid)" :class="downloadButtonClass">
                                             {{ $t('Download PDF') }}
-                                        </a>
+                                        </Link>
                                     </div>
                                 </td>
                             </tr>
@@ -136,12 +139,12 @@ const statusClass = (label) => {
                             <Link :href="invoiceHref(item.uuid)" :class="viewButtonClass">
                                 {{ $t('View') }}
                             </Link>
-                            <a :href="printHref(item.uuid)" target="_blank" rel="noopener noreferrer" :class="printButtonClass">
+                            <Link :href="printHref(item.uuid)" :class="printButtonClass">
                                 {{ $t('Print') }}
-                            </a>
-                            <a v-if="downloadHref(item.uuid)" :href="downloadHref(item.uuid)" download :class="downloadButtonClass">
+                            </Link>
+                            <Link :href="downloadHref(item.uuid)" :class="downloadButtonClass">
                                 {{ $t('Download PDF') }}
-                            </a>
+                            </Link>
                         </div>
                     </article>
                 </div>

@@ -1,0 +1,147 @@
+
+/* Explicitly embedded (not just named in font-family) so html2canvas captures real
+   Arabic glyph shaping — without an actual loaded @font-face, the browser falls back
+   to whatever system font is installed, and html2canvas's canvas text renderer
+   reproduces that fallback's Arabic shaping far worse than the live DOM does,
+   producing broken/disconnected letterforms in the captured PDF. */
+@font-face {
+    font-family: 'TajawalPrint';
+    src: url('/fonts/Tajawal/Tajawal-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: block;
+}
+@font-face {
+    font-family: 'TajawalPrint';
+    src: url('/fonts/Tajawal/Tajawal-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: block;
+}
+
+/* Single flat accent color throughout (no gradients, no secondary hues) — the Botzo
+   mark itself keeps its own gradient since it's the logo graphic, not a UI color choice. */
+.invoice-print[data-v-4bdc7774] {
+    --ip-accent: #0E9F6E;
+    --ip-accent-soft: #EAFBF3;
+    --ip-accent-border: #BEEFD9;
+    --ip-border: #CFD8E3;
+    --ip-text: #0A0F1C;
+    --ip-muted: #5C6B7A;
+    --ip-body: #445566;
+
+    width: 794px;
+    padding: 30px 40px;
+    background: #ffffff;
+    color: var(--ip-text);
+    font-family: 'TajawalPrint', 'Segoe UI', Tahoma, Arial, sans-serif;
+    font-size: 12.5px;
+    line-height: 1.45;
+    box-sizing: border-box;
+}
+.ip-brand-row[data-v-4bdc7774] { display: flex; align-items: center; justify-content: space-between;
+}
+.ip-brand-left[data-v-4bdc7774] { display: flex; align-items: center; gap: 10px;
+}
+.ip-logo[data-v-4bdc7774] { width: 34px; height: 34px; display: block;
+}
+.ip-brand-name[data-v-4bdc7774] { font-size: 16px; font-weight: 700; color: var(--ip-text);
+}
+.ip-kicker[data-v-4bdc7774] {
+    display: inline-block;
+    padding: 6px 14px;
+    border: 1px solid var(--ip-accent-border);
+    background: var(--ip-accent-soft);
+    color: var(--ip-accent);
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 999px;
+}
+.ip-title[data-v-4bdc7774] { font-size: 25px; font-weight: 700; color: var(--ip-text); margin: 12px 0 4px;
+}
+.ip-note[data-v-4bdc7774] { font-size: 11.5px; color: var(--ip-muted); margin: 0 0 9px;
+}
+.ip-price-box[data-v-4bdc7774] {
+    border: 1px solid var(--ip-accent-border);
+    background: var(--ip-accent-soft);
+    border-radius: 16px;
+    padding: 11px 18px;
+    margin-bottom: 9px;
+}
+.ip-price-label[data-v-4bdc7774] { font-size: 10.5px; color: var(--ip-accent); font-weight: 700;
+}
+.ip-price-value[data-v-4bdc7774] { font-size: 25px; font-weight: 700; color: var(--ip-accent); margin: 2px 0; font-variant-numeric: tabular-nums;
+}
+.ip-price-note[data-v-4bdc7774] { font-size: 10px; color: #0C8C61;
+}
+.ip-chip-row[data-v-4bdc7774] { display: flex; gap: 8px; margin-bottom: 8px;
+}
+.ip-chip[data-v-4bdc7774] { flex: 1; border: 1px solid var(--ip-border); border-radius: 11px; background: #ffffff; padding: 8px 12px;
+}
+.ip-chip-accent[data-v-4bdc7774] { border-color: var(--ip-accent-border); background: var(--ip-accent-soft);
+}
+.ip-chip-label[data-v-4bdc7774] { font-size: 9.5px; color: var(--ip-muted);
+}
+.ip-chip-value[data-v-4bdc7774] { margin-top: 2px; font-size: 12px; font-weight: 700; color: var(--ip-text); font-variant-numeric: tabular-nums;
+}
+.ip-chip-accent .ip-chip-value[data-v-4bdc7774] { color: var(--ip-accent);
+}
+.ip-divider[data-v-4bdc7774] { height: 1px; background: #E5EBF3; margin: 9px 0;
+}
+.ip-section[data-v-4bdc7774] { margin-bottom: 11px;
+}
+.ip-section-title[data-v-4bdc7774] { font-size: 14.5px; font-weight: 700; color: var(--ip-text); margin: 0 0 2px;
+}
+.ip-section-note[data-v-4bdc7774] { font-size: 10.5px; color: var(--ip-muted); margin: 0 0 7px;
+}
+.ip-dual[data-v-4bdc7774] { display: flex; gap: 10px;
+}
+.ip-panel[data-v-4bdc7774] { flex: 1; border: 1px solid var(--ip-border); border-radius: 13px; background: #ffffff; padding: 11px 14px;
+}
+.ip-panel-title[data-v-4bdc7774] { font-size: 12.5px; font-weight: 700; color: var(--ip-text); margin-bottom: 4px;
+}
+.ip-info-table[data-v-4bdc7774] { width: 100%; border-collapse: collapse;
+}
+.ip-info-table tr + tr td[data-v-4bdc7774] { border-top: 1px solid #EDF2F7;
+}
+.ip-info-label[data-v-4bdc7774] { width: 36%; padding: 5px 0; font-size: 10.5px; color: var(--ip-muted); vertical-align: top;
+}
+.ip-info-value[data-v-4bdc7774] { padding: 5px 0; font-size: 12px; font-weight: 700; color: var(--ip-text); line-height: 1.4; vertical-align: top; font-variant-numeric: tabular-nums;
+}
+.ip-muted-copy[data-v-4bdc7774] { padding: 5px 0; font-size: 11px; color: var(--ip-body); line-height: 1.4; vertical-align: top;
+}
+.ip-items-table[data-v-4bdc7774] { width: 100%; border-collapse: collapse; margin-top: 2px;
+}
+.ip-items-table th[data-v-4bdc7774], .ip-items-table td[data-v-4bdc7774] { border: 1px solid var(--ip-border); padding: 8px 11px; vertical-align: top; text-align: start; font-size: 11.5px; line-height: 1.45;
+}
+.ip-items-table th[data-v-4bdc7774] { background: var(--ip-accent-soft); color: var(--ip-accent); font-size: 10.5px; font-weight: 700;
+}
+.ip-amount[data-v-4bdc7774] { text-align: end; white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.ip-summary-table[data-v-4bdc7774] { width: 100%; border-collapse: collapse;
+}
+.ip-summary-table td[data-v-4bdc7774] { border: 1px solid var(--ip-border); padding: 8px 12px; line-height: 1.45;
+}
+.ip-summary-label[data-v-4bdc7774] { text-align: start; font-size: 11px; color: var(--ip-body);
+}
+.ip-summary-value[data-v-4bdc7774] { text-align: end; font-size: 12px; font-weight: 700; color: var(--ip-text); white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.ip-summary-total td[data-v-4bdc7774] { background: var(--ip-accent); border-color: var(--ip-accent); font-weight: 700; padding: 10px 12px;
+}
+.ip-summary-total .ip-summary-label[data-v-4bdc7774], .ip-summary-total .ip-summary-value[data-v-4bdc7774] { color: #ffffff; font-size: 14px;
+}
+.ip-official[data-v-4bdc7774] {
+    background: #0C8C61;
+    border-radius: 13px;
+    padding: 11px 16px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.ip-official-note[data-v-4bdc7774] { font-size: 10px; color: #E3F7EE;
+}
+.ip-official-name[data-v-4bdc7774] { font-size: 12px; font-weight: 700; margin-top: 1px; color: #ffffff;
+}
+.ip-official-end[data-v-4bdc7774] { font-size: 10px; color: #E3F7EE;
+}

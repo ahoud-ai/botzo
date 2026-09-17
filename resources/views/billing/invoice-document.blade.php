@@ -26,10 +26,10 @@
     $vendorAddressLines = array_values(array_filter($vendor['address_lines'] ?? []));
     $customerAddressLines = array_values(array_filter($customer['address_lines'] ?? []));
 
-    $resolvedLogoPath = $vendor['logo_path'] ?? public_path('images/brand/botzo-logo-app.png');
+    $resolvedLogoPath = $vendor['logo_path'] ?? public_path('bimi/botzo-logo-new-512.png');
 
     if ($pdfMode) {
-        $pdfPreferredLogoPath = public_path('images/brand/botzo-logo-app.png');
+        $pdfPreferredLogoPath = public_path('bimi/botzo-logo-new-512.png');
 
         if (is_file($pdfPreferredLogoPath)) {
             $resolvedLogoPath = $pdfPreferredLogoPath;
@@ -42,7 +42,7 @@
     if ($logoExists) {
         $logoUrl = $pdfMode
             ? 'file:///' . str_replace('\\', '/', $resolvedLogoPath)
-            : ($vendor['logo_url'] ?? url('/images/brand/botzo-logo-app.png'));
+            : ($vendor['logo_url'] ?? url('/bimi/botzo-logo-new-512.png'));
     }
 
     $summaryRows = [

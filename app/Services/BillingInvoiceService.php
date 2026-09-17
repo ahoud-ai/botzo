@@ -508,6 +508,7 @@ class BillingInvoiceService
     private function invoicePdfFontDirectories(): array
     {
         return array_values(array_filter([
+            storage_path('fonts/src'),
             public_path('fonts/Tajawal'),
             resource_path('fonts/ping-ar-lt'),
             resource_path('fonts/Outfit'),
@@ -517,6 +518,11 @@ class BillingInvoiceService
 
     private function invoicePdfFontData(): array
     {
+        // IBM Plex Sans Arabic is the same face used by the Meta verification agreement PDF
+        // (see resources/views/pdf/meta-verification-agreement.blade.php) — used first here too
+        // so every customer-facing PDF this system generates shares one typographic identity.
+        $plexRegular = storage_path('fonts/src/IBMPlexSansArabic-Regular.ttf');
+        $plexBold = storage_path('fonts/src/IBMPlexSansArabic-Bold.ttf');
         $tajawalRegular = public_path('fonts/Tajawal/Tajawal-Regular.ttf');
         $tajawalBold = public_path('fonts/Tajawal/Tajawal-Bold.ttf');
         $bundledRegular = resource_path('fonts/ping-ar-lt/ping-ar-lt-regular.otf');
@@ -525,6 +531,15 @@ class BillingInvoiceService
         $windowsBold = 'C:\Windows\Fonts\tahomabd.ttf';
 
         $fonts = [];
+
+        if (is_file($plexRegular) && is_file($plexBold)) {
+            $fonts['plexarabicpdf'] = [
+                'R' => 'IBMPlexSansArabic-Regular.ttf',
+                'B' => 'IBMPlexSansArabic-Bold.ttf',
+                'useOTL' => 0xFF,
+                'useKashida' => 75,
+            ];
+        }
 
         if (is_file($tajawalRegular) && is_file($tajawalBold)) {
             $fonts['tajawalpdf'] = [
@@ -560,6 +575,10 @@ class BillingInvoiceService
     {
         if ($direction !== 'rtl') {
             return 'dejavusans, sans-serif';
+        }
+
+        if (is_file(storage_path('fonts/src/IBMPlexSansArabic-Regular.ttf'))) {
+            return 'plexarabicpdf, dejavusans, sans-serif';
         }
 
         if (is_file(resource_path('fonts/ping-ar-lt/ping-ar-lt-regular.otf'))) {
@@ -606,12 +625,13 @@ class BillingInvoiceService
         $vendorAddressLines = array_values(array_filter($vendor['address_lines'] ?? []));
         $customerAddressLines = array_values(array_filter($customer['address_lines'] ?? []));
         $vendorAddress = $vendorAddressLines !== []
-            ? implode('<br>', array_map(fn ($line) => $this->escapePdfHtml((string) $line), $vendorAddressLines))
+            ? implode('<br>', array_map(fn ($line) => $this->isolateBidiValue((string) $line, $direction), $vendorAddressLines))
             : $this->escapePdfHtml(__('Not set'));
         $customerAddress = $customerAddressLines !== []
-            ? implode('<br>', array_map(fn ($line) => $this->escapePdfHtml((string) $line), $customerAddressLines))
+            ? implode('<br>', array_map(fn ($line) => $this->isolateBidiValue((string) $line, $direction), $customerAddressLines))
             : $this->escapePdfHtml(__('Not set'));
         $brandInitial = Str::upper(Str::substr(trim($brandName), 0, 1));
+        $brandHasArabic = (bool) preg_match('/\p{Arabic}/u', $brandName);
 
         $summaryRows = [
             ['label' => __('Subtotal'), 'value' => $summary['subtotal'] ?? '0.00', 'total' => false],
@@ -639,108 +659,133 @@ class BillingInvoiceService
             'total' => true,
         ];
 
-        $logoPngPath = public_path('bimi/botzo-logo-app.png');
+        $logoPngPath = public_path('bimi/botzo-logo-new-512.png');
         $logoSvgPath = public_path('bimi/botzo-logo.svg');
         $logoSrc = is_file($logoPngPath)
             ? 'file:///' . str_replace('\\', '/', $logoPngPath)
             : (is_file($logoSvgPath) ? 'file:///' . str_replace('\\', '/', $logoSvgPath) : null);
         $logoHtml = $logoSrc
-            ? '<img src="' . $this->escapePdfHtml($logoSrc) . '" alt="' . $this->escapePdfHtml($brandName) . '" style="width:48px;height:48px;display:block;border-radius:10px;object-fit:cover;">'
-            : '<div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#25D366,#00E5FF 45%,#7C3AED);text-align:center;line-height:48px;font-size:22px;font-weight:bold;color:#ffffff;">' . $this->escapePdfHtml($brandInitial !== '' ? $brandInitial : 'B') . '</div>';
+            ? '<img src="' . $this->escapePdfHtml($logoSrc) . '" alt="' . $this->escapePdfHtml($brandName) . '" style="width:30px;height:30px;display:block;">'
+            : '<div style="width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#A4ED41,#63DB9B 45%,#21C8F5 75%,#4230F8);text-align:center;line-height:38px;font-size:17px;font-weight:bold;color:#ffffff;">' . $this->escapePdfHtml($brandInitial !== '' ? $brandInitial : 'B') . '</div>';
+
+        // Brand palette matches the Botzo mark's own gradient (lime -> teal -> cyan -> indigo),
+        // reduced to one readable solid accent for text/badges plus the full gradient for accent
+        // bars only — mirroring the visual language of the Meta verification agreement PDF,
+        // whose overall composition (big bold price box, chip row, solid official-info footer
+        // bar) this template now follows directly rather than the denser many-small-boxes layout
+        // it used before.
+        $accent = '#0E9F6E';
+        $accentDark = '#046C4E';
+        $accentSoft = '#EAFBF3';
+        $accentBorder = '#BEEFD9';
+        $brandGradient = 'linear-gradient(90deg,#A4ED41 0%,#63DB9B 34%,#21C8F5 68%,#4230F8 100%)';
 
         $html = '<html lang="' . $this->escapePdfHtml($locale) . '" dir="' . $this->escapePdfHtml($direction) . '"><head><meta charset="utf-8"><title>'
             . $this->escapePdfHtml($title) . ' - ' . $this->escapePdfHtml($documentNumber)
             . '</title><style>'
-            . 'body{font-family:' . $bodyFont . ';font-size:11px;line-height:1.9;color:#0A0F1C;margin:0;background:#ffffff;}'
-            . '.sheet{border:1px solid #E5EBF3;background:#ffffff;}'
-            . '.top-accent{height:7px;background:linear-gradient(90deg,#25D366 0%,#00E5FF 34%,#1877F2 68%,#7C3AED 100%);}'
-            . '.section{padding:18px 20px;border-top:1px solid #E5EBF3;}'
-            . '.section:first-child{border-top:none;background:#FAFBFD;}'
-            . '.hero-table,.facts-table,.dual-table,.items-table,.summary-table,.footer-table,.meta-table,.info-table{width:100%;border-collapse:collapse;table-layout:fixed;}'
-            . '.hero-table td,.facts-table td,.dual-table td,.footer-table td{vertical-align:top;}'
-            . '.hero-main{width:60%;padding-' . ($direction === 'rtl' ? 'left' : 'right') . ':12px;}'
-            . '.hero-side{width:40%;}'
-            . '.logo-wrap{width:66px;}'
-            . '.kicker{display:inline-block;padding:5px 12px;border:1px solid #DDE6F0;background:#ffffff;color:#334155;font-size:9.4px;font-weight:bold;border-radius:999px;}'
-            . '.brand{font-size:10px;color:#64748B;letter-spacing:0.12em;text-transform:uppercase;margin:8px 0 5px;}'
-            . '.title{font-size:26px;font-weight:bold;color:#0A0F1C;margin:0 0 6px;}'
-            . '.note{font-size:10.5px;color:#475569;line-height:1.8;}'
-            . '.meta-table tr+tr td{padding-top:8px;}'
-            . '.meta-card{border:1px solid #E5EBF3;background:#ffffff;padding:10px 12px;}'
-            . '.status-card{border-color:#bbf7d0;background:#ecfdf5;color:#15803d;font-weight:bold;text-align:center;font-size:10px;}'
-            . '.meta-label,.info-label{font-size:9.5px;color:#64748B;}'
-            . '.meta-value{margin-top:4px;font-size:12.6px;font-weight:bold;color:#0A0F1C;line-height:1.8;}'
-            . '.facts-table{margin-top:12px;}'
-            . '.facts-table td{width:33.33%;}'
-            . '.fact-start{padding-' . ($direction === 'rtl' ? 'left' : 'right') . ':8px;}'
-            . '.fact-mid{padding-left:4px;padding-right:4px;}'
-            . '.fact-end{padding-' . ($direction === 'rtl' ? 'right' : 'left') . ':8px;}'
-            . '.fact-card{border:1px solid #E5EBF3;background:#ffffff;padding:12px 14px;}'
-            . '.fact-label{font-size:9.5px;color:#64748B;}'
-            . '.fact-value{margin-top:5px;font-size:12.4px;font-weight:bold;color:#0A0F1C;line-height:1.8;}'
-            . '.section-title{font-size:14px;font-weight:bold;color:#0A0F1C;margin:0 0 4px;}'
-            . '.section-note{font-size:10px;color:#64748B;margin:0 0 10px;}'
-            . '.dual-table td{width:50%;}'
-            . '.dual-start{padding-' . ($direction === 'rtl' ? 'left' : 'right') . ':8px;}'
-            . '.dual-end{padding-' . ($direction === 'rtl' ? 'right' : 'left') . ':8px;}'
-            . '.panel{border:1px solid #E5EBF3;background:#ffffff;padding:14px 16px;}'
+            . 'body{font-family:' . $bodyFont . ';font-size:12px;line-height:1.55;color:#1A2332;margin:0;background:#ffffff;}'
+            . '.sheet{background:#ffffff;}'
+            . '.brand-row{width:100%;border-collapse:collapse;}'
+            . '.brand-row td{vertical-align:middle;}'
+            . '.logo-cell{width:46px;}'
+            . '.brand-name{font-size:15px;font-weight:bold;color:#0A0F1C;letter-spacing:' . ($brandHasArabic ? 'normal' : '0.01em') . ';}'
+            . '.kicker{display:inline-block;padding:6px 14px;border:1px solid ' . $accentBorder . ';background:' . $accentSoft . ';color:' . $accentDark . ';font-size:10px;font-weight:bold;border-radius:999px;}'
+            . '.title{font-size:27px;font-weight:bold;color:#0A0F1C;margin:14px 0 5px;}'
+            . '.note{font-size:11px;color:#8899AA;line-height:1.6;margin-bottom:11px;}'
+            . '.price-box{border:1px solid ' . $accentBorder . ';background:' . $accentSoft . ';border-radius:16px;padding:12px 18px;margin-bottom:10px;}'
+            . '.price-label{font-size:10.5px;color:' . $accentDark . ';font-weight:bold;}'
+            . '.price-value{font-size:28px;font-weight:bold;color:' . $accentDark . ';margin:2px 0;font-variant-numeric:tabular-nums lining-nums;}'
+            . '.price-note{font-size:9.5px;color:#3E8E76;}'
+            . '.chips-table{width:100%;border-collapse:collapse;margin-bottom:9px;}'
+            . '.chips-table td{width:33.33%;vertical-align:top;}'
+            . '.chip-start{padding-' . ($direction === 'rtl' ? 'left' : 'right') . ':7px;}'
+            . '.chip-mid{padding-left:3.5px;padding-right:3.5px;}'
+            . '.chip-end{padding-' . ($direction === 'rtl' ? 'right' : 'left') . ':7px;}'
+            . '.chip{border:1px solid #CFD8E3;border-radius:11px;background:#ffffff;padding:8px 12px;}'
+            . '.chip-status{border-color:' . $accentBorder . ';background:' . $accentSoft . ';}'
+            . '.chip-label{font-size:9.5px;color:#8899AA;}'
+            . '.chip-value{margin-top:3px;font-size:12.2px;font-weight:bold;color:#0A0F1C;font-variant-numeric:tabular-nums lining-nums;}'
+            . '.chip-status .chip-value{color:' . $accentDark . ';}'
+            . '.divider{height:1px;background:#E5EBF3;margin:11px 0;}'
+            . '.section{margin-bottom:13px;}'
+            . '.section-title{font-size:15px;font-weight:bold;color:#0A0F1C;margin:0 0 3px;}'
+            . '.section-note{font-size:10.5px;color:#8899AA;margin:0 0 8px;}'
+            . '.dual-table{width:100%;border-collapse:collapse;table-layout:fixed;}'
+            . '.dual-table td{width:50%;vertical-align:top;}'
+            . '.dual-start{padding-' . ($direction === 'rtl' ? 'left' : 'right') . ':9px;}'
+            . '.dual-end{padding-' . ($direction === 'rtl' ? 'right' : 'left') . ':9px;}'
+            . '.panel{border:1px solid #CFD8E3;border-radius:14px;background:#ffffff;padding:12px 15px;}'
+            . '.panel-title{font-size:12.5px;font-weight:bold;color:#0A0F1C;margin-bottom:5px;}'
+            . '.info-table{width:100%;border-collapse:collapse;}'
             . '.info-table tr+tr td{border-top:1px solid #EDF2F7;}'
-            . '.info-label{width:34%;padding:9px 0;vertical-align:top;}'
-            . '.info-value{padding:9px 0;font-size:11.8px;font-weight:bold;color:#0A0F1C;line-height:1.9;vertical-align:top;}'
-            . '.muted-copy{padding:9px 0;font-size:10.6px;color:#475569;line-height:1.9;vertical-align:top;}'
-            . '.items-table{margin-top:8px;}'
-            . '.items-table th,.items-table td{border:1px solid #E5EBF3;padding:11px 12px;vertical-align:top;text-align:' . $textAlign . ';line-height:1.85;}'
-            . '.items-table th{background:#F5F7FA;color:#334155;font-size:10px;font-weight:bold;}'
-            . '.amount-cell{text-align:' . $oppositeAlign . ';white-space:nowrap;font-weight:bold;}'
-            . '.ltr{direction:ltr;text-align:left;}'
-            . '.summary-table td{border:1px solid #E5EBF3;padding:10px 12px;line-height:1.8;}'
-            . '.summary-label{text-align:' . $textAlign . ';font-size:10.6px;color:#334155;}'
-            . '.summary-value{text-align:' . $oppositeAlign . ';font-size:11.8px;font-weight:bold;color:#0A0F1C;white-space:nowrap;}'
-            . '.summary-total td{background:#F5F7FA;font-weight:bold;}'
-            . '.summary-total .summary-label,.summary-total .summary-value{color:#1877F2;font-size:13px;}'
-            . '.footer{padding:14px 20px;border-top:1px solid #E5EBF3;font-size:9.7px;color:#64748B;}'
-            . '.footer-end{text-align:' . $oppositeAlign . ';font-weight:bold;color:#334155;}'
-            . '.footer-gradient{height:3px;background:linear-gradient(90deg,#25D366,#00E5FF,#1877F2,#7C3AED);margin-bottom:12px;}'
-            . '</style></head><body><div class="sheet"><div class="top-accent"></div>';
+            . '.info-label{width:36%;padding:6px 0;font-size:10.5px;color:#8899AA;vertical-align:top;}'
+            . '.info-value{padding:6px 0;font-size:12.2px;font-weight:bold;color:#0A0F1C;line-height:1.55;vertical-align:top;font-variant-numeric:tabular-nums lining-nums;}'
+            . '.muted-copy{padding:6px 0;font-size:11px;color:#445566;line-height:1.55;vertical-align:top;}'
+            . '.items-table{width:100%;border-collapse:collapse;margin-top:2px;}'
+            . '.items-table th,.items-table td{border:1px solid #CFD8E3;padding:9px 12px;vertical-align:top;text-align:' . $textAlign . ';line-height:1.6;font-size:11.5px;}'
+            . '.items-table th{background:' . $accentSoft . ';color:' . $accentDark . ';font-size:10.5px;font-weight:bold;}'
+            . '.amount-cell{text-align:' . $oppositeAlign . ';white-space:nowrap;font-weight:bold;font-variant-numeric:tabular-nums lining-nums;}'
+            . '.ltr{direction:ltr;unicode-bidi:isolate;text-align:left;}'
+            . '.summary-table{width:100%;border-collapse:collapse;}'
+            . '.summary-table td{border:1px solid #CFD8E3;padding:11px 13px;line-height:1.8;}'
+            . '.summary-label{text-align:' . $textAlign . ';font-size:11px;color:#445566;}'
+            . '.summary-value{text-align:' . $oppositeAlign . ';font-size:12.4px;font-weight:bold;color:#0A0F1C;white-space:nowrap;font-variant-numeric:tabular-nums lining-nums;}'
+            . '.summary-total td{background:' . $accent . ';border-color:' . $accent . ';font-weight:bold;padding:11px 13px;}'
+            . '.summary-total .summary-label,.summary-total .summary-value{color:#ffffff;font-size:15px;}'
+            . '.official-box{background:' . $accentDark . ';border-radius:14px;padding:14px 18px;color:#ffffff;}'
+            . '.official-table{width:100%;border-collapse:collapse;}'
+            . '.official-note{font-size:10px;opacity:0.82;}'
+            . '.official-name{font-size:12.5px;font-weight:bold;margin-top:2px;}'
+            . '.official-end{text-align:' . $oppositeAlign . ';font-size:10px;opacity:0.82;vertical-align:middle;}'
+            . '</style></head><body><div class="sheet">';
 
-        $html .= '<div class="section"><table class="hero-table"><tr>'
-            . '<td class="hero-main"><table style="width:100%;border-collapse:collapse;table-layout:fixed;"><tr><td class="logo-wrap">' . $logoHtml . '</td><td>'
-            . '<div class="kicker">' . $this->escapePdfHtml(__('Official billing document')) . '</div>'
-            . '<div class="brand">' . $this->escapePdfHtml($brandName) . '</div>'
-            . '<div class="title">' . $this->escapePdfHtml(__('Invoice')) . '</div>'
-            . '<div class="note">' . $this->escapePdfHtml(__('A simplified invoice prepared for accounting review, printing, and PDF download.')) . '</div>'
-            . '</td></tr></table></td>'
-            . '<td class="hero-side"><table class="meta-table">'
-            . '<tr><td class="meta-card status-card">' . $this->escapePdfHtml($statusLabel) . '</td></tr>'
-            . '<tr><td class="meta-card"><div class="meta-label">' . $this->escapePdfHtml(__('Invoice no.')) . '</div><div class="meta-value ltr">' . $this->escapePdfHtml($documentNumber) . '</div></td></tr>'
-            . '<tr><td class="meta-card"><div class="meta-label">' . $this->escapePdfHtml(__('Issued date')) . '</div><div class="meta-value ltr">' . $this->escapePdfHtml($issuedAt) . '</div></td></tr>'
-            . '<tr><td class="meta-card"><div class="meta-label">' . $this->escapePdfHtml(__('Total')) . '</div><div class="meta-value ltr">' . $this->escapePdfHtml((string) ($summary['total'] ?? '0.00')) . '</div></td></tr>'
-            . '</table></td></tr></table>';
+        $html .= '<table class="brand-row"><tr>'
+            . '<td class="logo-cell">' . $logoHtml . '</td>'
+            . '<td><div class="brand-name">' . $this->isolateBidiValue($brandName, $direction) . '</div></td>'
+            . '<td style="text-align:' . $oppositeAlign . ';"><div class="kicker">' . $this->escapePdfHtml(__('Official billing document')) . '</div></td>'
+            . '</tr></table>';
 
-        $html .= '<table class="facts-table"><tr>'
-            . '<td class="fact-start"><div class="fact-card"><div class="fact-label">' . $this->escapePdfHtml(__('Subscription plan')) . '</div><div class="fact-value">' . $this->escapePdfHtml($planName) . '</div></div></td>'
-            . '<td class="fact-mid"><div class="fact-card"><div class="fact-label">' . $this->escapePdfHtml(__('Billing period')) . '</div><div class="fact-value">' . $this->escapePdfHtml($billingPeriod) . '</div></div></td>'
-            . '<td class="fact-end"><div class="fact-card"><div class="fact-label">' . $this->escapePdfHtml(__('Payment method')) . '</div><div class="fact-value">' . $this->escapePdfHtml($paymentMethodLabel) . '</div></div></td>'
-            . '</tr></table></div>';
+        $html .= '<div class="title">' . $this->escapePdfHtml(__('Invoice')) . '</div>'
+            . '<div class="note">' . $this->escapePdfHtml(__('A simplified invoice prepared for accounting review, printing, and PDF download.')) . '</div>';
+
+        $html .= '<div class="price-box">'
+            . '<div class="price-label">' . $this->escapePdfHtml(__('Total')) . '</div>'
+            . '<div class="price-value ltr">' . $this->isolateBidiValue((string) ($summary['total'] ?? '0.00'), $direction) . '</div>'
+            . '<div class="price-note">' . $this->escapePdfHtml(__('Includes tax, if applicable')) . '</div>'
+            . '</div>';
+
+        $html .= '<table class="chips-table"><tr>'
+            . '<td class="chip-start"><div class="chip chip-status"><div class="chip-label">' . $this->escapePdfHtml(__('Status')) . '</div><div class="chip-value">' . $this->escapePdfHtml($statusLabel) . '</div></div></td>'
+            . '<td class="chip-mid"><div class="chip"><div class="chip-label">' . $this->escapePdfHtml(__('Invoice no.')) . '</div><div class="chip-value ltr">' . $this->isolateBidiValue($documentNumber, $direction) . '</div></div></td>'
+            . '<td class="chip-end"><div class="chip"><div class="chip-label">' . $this->escapePdfHtml(__('Issued date')) . '</div><div class="chip-value ltr">' . $this->isolateBidiValue($issuedAt, $direction) . '</div></div></td>'
+            . '</tr></table>';
+
+        $html .= '<table class="chips-table"><tr>'
+            . '<td class="chip-start"><div class="chip"><div class="chip-label">' . $this->escapePdfHtml(__('Subscription plan')) . '</div><div class="chip-value">' . $this->isolateBidiValue($planName, $direction) . '</div></div></td>'
+            . '<td class="chip-mid"><div class="chip"><div class="chip-label">' . $this->escapePdfHtml(__('Billing period')) . '</div><div class="chip-value">' . $this->isolateBidiValue($billingPeriod, $direction) . '</div></div></td>'
+            . '<td class="chip-end"><div class="chip"><div class="chip-label">' . $this->escapePdfHtml(__('Payment method')) . '</div><div class="chip-value">' . $this->isolateBidiValue($paymentMethodLabel, $direction) . '</div></div></td>'
+            . '</tr></table>';
+
+        $html .= '<div class="divider"></div>';
 
         $html .= '<div class="section"><div class="section-title">' . $this->escapePdfHtml(__('Billing parties')) . '</div>'
             . '<div class="section-note">' . $this->escapePdfHtml(__('Essential vendor and customer details required to validate this invoice.')) . '</div>'
             . '<table class="dual-table"><tr>'
             . '<td class="dual-start"><div class="panel">'
-            . '<div class="section-title">' . $this->escapePdfHtml(__('Vendor')) . '</div>'
+            . '<div class="panel-title">' . $this->escapePdfHtml(__('Vendor')) . '</div>'
             . '<table class="info-table">'
-            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Name')) . '</td><td class="info-value">' . $this->escapePdfHtml((string) ($vendor['name'] ?? __('Not set'))) . '</td></tr>'
-            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Tax ID')) . '</td><td class="info-value ltr">' . $this->escapePdfHtml($vendorTaxId) . '</td></tr>'
-            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Contact')) . '</td><td class="info-value ltr">' . $this->escapePdfHtml((string) $vendorPhones) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Name')) . '</td><td class="info-value">' . $this->isolateBidiValue((string) ($vendor['name'] ?? __('Not set')), $direction) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Tax ID')) . '</td><td class="info-value ltr">' . $this->isolateBidiValue($vendorTaxId, $direction) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Contact')) . '</td><td class="info-value ltr">' . $this->isolateBidiValue((string) $vendorPhones, $direction) . '</td></tr>'
             . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Address')) . '</td><td class="muted-copy">' . $vendorAddress . '</td></tr>'
             . '</table>'
             . '</div></td>'
             . '<td class="dual-end"><div class="panel">'
-            . '<div class="section-title">' . $this->escapePdfHtml(__('Customer')) . '</div>'
+            . '<div class="panel-title">' . $this->escapePdfHtml(__('Customer')) . '</div>'
             . '<table class="info-table">'
-            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Organization')) . '</td><td class="info-value">' . $this->escapePdfHtml((string) ($customer['name'] ?? __('Not set'))) . '</td></tr>'
-            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Owner')) . '</td><td class="info-value">' . $this->escapePdfHtml((string) ($customer['owner_name'] ?? __('Not set'))) . '</td></tr>'
-            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Email')) . '</td><td class="info-value ltr">' . $this->escapePdfHtml($customerEmail) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Organization')) . '</td><td class="info-value">' . $this->isolateBidiValue((string) ($customer['name'] ?? __('Not set')), $direction) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Owner')) . '</td><td class="info-value">' . $this->isolateBidiValue((string) ($customer['owner_name'] ?? __('Not set')), $direction) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Email')) . '</td><td class="info-value ltr">' . $this->isolateBidiValue($customerEmail, $direction) . '</td></tr>'
             . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Address')) . '</td><td class="muted-copy">' . $customerAddress . '</td></tr>'
             . '</table>'
             . '</div></td></tr></table></div>';
@@ -761,43 +806,67 @@ class BillingInvoiceService
 
         foreach ($itemRows as $item) {
             $html .= '<tr>'
-                . '<td>' . $this->escapePdfHtml((string) ($item['label'] ?? __('Not set'))) . '</td>'
-                . '<td>' . $this->escapePdfHtml((string) ($item['description'] ?? '—')) . '</td>'
-                . '<td class="amount-cell ltr">' . $this->escapePdfHtml((string) ($item['amount'] ?? '0.00')) . '</td>'
+                . '<td>' . $this->isolateBidiValue((string) ($item['label'] ?? __('Not set')), $direction) . '</td>'
+                . '<td>' . $this->isolateBidiValue((string) ($item['description'] ?? '—'), $direction) . '</td>'
+                . '<td class="amount-cell ltr">' . $this->isolateBidiValue((string) ($item['amount'] ?? '0.00'), $direction) . '</td>'
                 . '</tr>';
         }
 
         $html .= '</table></div>';
         $html .= '<div class="section"><table class="dual-table"><tr>'
             . '<td class="dual-start"><div class="panel">'
-            . '<div class="section-title">' . $this->escapePdfHtml(__('Payment details')) . '</div>'
+            . '<div class="panel-title">' . $this->escapePdfHtml(__('Payment details')) . '</div>'
             . '<table class="info-table">'
-            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Payment method')) . '</td><td class="info-value">' . $this->escapePdfHtml($paymentMethodLabel) . '</td></tr>'
-            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Reference')) . '</td><td class="info-value ltr">' . $this->escapePdfHtml($paymentReference) . '</td></tr>'
-            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Paid at')) . '</td><td class="info-value ltr">' . $this->escapePdfHtml($paidAt) . '</td></tr>'
-            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Billing period')) . '</td><td class="info-value">' . $this->escapePdfHtml($billingPeriod) . '</td></tr>'
-            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Subscription plan')) . '</td><td class="info-value">' . $this->escapePdfHtml($planName) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Payment method')) . '</td><td class="info-value">' . $this->isolateBidiValue($paymentMethodLabel, $direction) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Reference')) . '</td><td class="info-value ltr">' . $this->isolateBidiValue($paymentReference, $direction) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Paid at')) . '</td><td class="info-value ltr">' . $this->isolateBidiValue($paidAt, $direction) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Billing period')) . '</td><td class="info-value">' . $this->isolateBidiValue($billingPeriod, $direction) . '</td></tr>'
+            . '<tr><td class="info-label">' . $this->escapePdfHtml(__('Subscription plan')) . '</td><td class="info-value">' . $this->isolateBidiValue($planName, $direction) . '</td></tr>'
             . '</table>'
             . '</div></td>'
             . '<td class="dual-end"><div class="panel">'
-            . '<div class="section-title">' . $this->escapePdfHtml(__('Invoice summary')) . '</div>'
+            . '<div class="panel-title">' . $this->escapePdfHtml(__('Invoice summary')) . '</div>'
             . '<table class="summary-table">';
 
         foreach ($summaryRows as $row) {
             $html .= '<tr' . (!empty($row['total']) ? ' class="summary-total"' : '') . '>'
                 . '<td class="summary-label">' . $this->escapePdfHtml((string) ($row['label'] ?? '')) . '</td>'
-                . '<td class="summary-value ltr">' . $this->escapePdfHtml((string) ($row['value'] ?? '0.00')) . '</td>'
+                . '<td class="summary-value ltr">' . $this->isolateBidiValue((string) ($row['value'] ?? '0.00'), $direction) . '</td>'
                 . '</tr>';
         }
 
         $html .= '</table></div></td></tr></table></div>';
-        $html .= '<div class="footer"><div class="footer-gradient"></div><table class="footer-table"><tr>'
-            . '<td>' . $this->escapePdfHtml(__('Secure document generated from the subscription billing system.')) . '</td>'
-            . '<td class="footer-end">' . $this->escapePdfHtml($brandName) . '</td>'
+
+        $html .= '<div class="official-box"><table class="official-table"><tr>'
+            . '<td><div class="official-note">' . $this->escapePdfHtml(__('Secure document generated from the subscription billing system.')) . '</div>'
+            . '<div class="official-name">' . $this->isolateBidiValue($brandName, $direction) . '</div></td>'
+            . '<td class="official-end">' . $this->escapePdfHtml(__('Invoice')) . ' ' . $this->isolateBidiValue($documentNumber, $direction) . '</td>'
             . '</tr></table></div>';
         $html .= '</div></body></html>';
 
         return $html;
+    }
+
+    /**
+     * Root-cause fix for mixed-direction invoice values (phone numbers, dates, reference
+     * codes, English plan/payment labels) getting visually scrambled by mPDF's bidi
+     * reordering when they sit inside an RTL document. CSS `direction:ltr` alone is not
+     * enough — verified empirically that only the HTML `dir="ltr"` attribute reliably
+     * isolates a run from the surrounding RTL paragraph in mPDF, including inside nested
+     * table cells. Only wraps values that contain NO Arabic script, so genuinely-Arabic
+     * text (customer/vendor names, translated plan names, item descriptions) is left to
+     * flow naturally in the document's own direction rather than being force-misaligned.
+     */
+    private function isolateBidiValue(?string $value, string $direction): string
+    {
+        $value = (string) $value;
+        $escaped = $this->escapePdfHtml($value);
+
+        if ($direction !== 'rtl' || $value === '' || preg_match('/\p{Arabic}/u', $value)) {
+            return $escaped;
+        }
+
+        return '<span dir="ltr" style="unicode-bidi:isolate;direction:ltr;">' . $escaped . '</span>';
     }
 
     private function escapePdfHtml(?string $value): string
