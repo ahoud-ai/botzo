@@ -18,6 +18,7 @@
 
     let popupWindow = null;
     let popupPollTimer = null;
+    let reconcileAttemptId = 0;
     let settledByCode = false;
 
     const sessionInfoListener = (event) => {
@@ -103,14 +104,30 @@
     // not yet linked to an organization is a candidate. Meta's sharing can lag a
     // couple seconds behind the popup closing, so this retries a few times before
     // giving up (status stays 'pending' — see reconcile()).
+    //
+    // reconcileAttemptId guards against a real race, confirmed live: this loop can
+    // still be mid-retry (up to ~10s across 4 attempts) when the user closes that
+    // popup and opens a new one before it finishes. Without the guard, the stale
+    // loop's late 'ambiguous' result would land after launchWhatsAppSignup() already
+    // cleared the picker for the new attempt, making it reappear on its own.
     async function reconcileAfterPopupClosed() {
+        const attemptId = ++reconcileAttemptId;
+
         for (let attempt = 0; attempt < 4; attempt++) {
             if (attempt > 0) {
                 await sleep(2500);
             }
 
+            if (attemptId !== reconcileAttemptId) {
+                return;
+            }
+
             try {
                 const { data } = await axios.post('/whatsapp/embedded-signup/reconcile');
+
+                if (attemptId !== reconcileAttemptId) {
+                    return;
+                }
 
                 if (data?.status === 'connected') {
                     router.visit('/settings/whatsapp', { preserveState: false });
@@ -129,6 +146,9 @@
     }
 
     async function selectCandidate(wabaId) {
+        // Stop any still-running reconcileAfterPopupClosed() loop from
+        // overwriting this explicit choice with a late 'ambiguous' result.
+        reconcileAttemptId++;
         isSelectingCandidate.value = true;
 
         try {
@@ -160,9 +180,11 @@
         }
 
         settledByCode = false;
-        // Clear any picker left over from a previous attempt — without this,
-        // starting a fresh popup while an earlier ambiguous-candidates picker
-        // was still showing left both on screen at once (confirmed live).
+        // Invalidate any still-running reconcileAfterPopupClosed() loop from an
+        // earlier attempt and clear its picker — without this, a fresh popup
+        // could open while an earlier attempt's picker (or its late in-flight
+        // result) was still live, and both showed at once (confirmed live).
+        reconcileAttemptId++;
         ambiguousCandidates.value = [];
         window.addEventListener("message", sessionInfoListener);
         isMessageListenerAttached.value = true;
