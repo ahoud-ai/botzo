@@ -160,6 +160,10 @@
         }
 
         settledByCode = false;
+        // Clear any picker left over from a previous attempt — without this,
+        // starting a fresh popup while an earlier ambiguous-candidates picker
+        // was still showing left both on screen at once (confirmed live).
+        ambiguousCandidates.value = [];
         window.addEventListener("message", sessionInfoListener);
         isMessageListenerAttached.value = true;
 
