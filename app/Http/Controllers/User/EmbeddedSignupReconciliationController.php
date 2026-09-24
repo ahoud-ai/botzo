@@ -99,9 +99,12 @@ class EmbeddedSignupReconciliationController extends BaseController
         // support", let the user pick — see select() below.
         if (count($unclaimedIds) > 1) {
             $candidates = array_map(function (string $wabaId) use ($reconciliationService) {
+                $details = $reconciliationService->fetchWabaDetails($wabaId);
+
                 return [
                     'waba_id' => $wabaId,
-                    'name' => $reconciliationService->fetchWabaName($wabaId) ?? $wabaId,
+                    'name' => $details['name'] ?? $wabaId,
+                    'phone' => $details['phone'],
                 ];
             }, $unclaimedIds);
 

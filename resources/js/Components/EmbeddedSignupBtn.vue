@@ -262,7 +262,8 @@
                     @click="selectCandidate(candidate.waba_id)"
                     class="border rounded-lg p-2 text-start hover:bg-gray-50 disabled:opacity-50"
                 >
-                    {{ candidate.name }}
+                    <span class="block font-medium">{{ candidate.name }}</span>
+                    <span v-if="candidate.phone" class="block text-xs text-gray-500" dir="ltr">{{ candidate.phone }}</span>
                 </button>
             </div>
         </div>

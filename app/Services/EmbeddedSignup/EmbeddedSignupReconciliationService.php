@@ -164,15 +164,26 @@ class EmbeddedSignupReconciliationService
     }
 
     /**
-     * Display name for one candidate WABA, used only when reconcile() can't
-     * tell which of several unclaimed WABAs the user means and needs to show
-     * them a picker (see EmbeddedSignupReconciliationController::reconcile()).
+     * Display name + phone number for one candidate WABA, used only when
+     * reconcile() can't tell which of several unclaimed WABAs the user means
+     * and needs to show them a picker (see
+     * EmbeddedSignupReconciliationController::reconcile()). The phone number
+     * matters more than the name here: two different real businesses can
+     * plausibly share a name, but never a phone number, so the name alone
+     * isn't enough for the user to tell candidates apart.
      */
-    public function fetchWabaName(string $wabaId): ?string
+    public function fetchWabaDetails(string $wabaId): array
     {
-        $response = $this->graphGet($wabaId, ['fields' => 'name']);
+        $response = $this->graphGet($wabaId, ['fields' => 'name,phone_numbers{display_phone_number}']);
 
-        return $response->successful() ? data_get($response->json(), 'name') : null;
+        if (!$response->successful()) {
+            return ['name' => null, 'phone' => null];
+        }
+
+        return [
+            'name' => data_get($response->json(), 'name'),
+            'phone' => data_get($response->json(), 'phone_numbers.data.0.display_phone_number'),
+        ];
     }
 
     private function graphGet(string $path, array $query = []): Response
