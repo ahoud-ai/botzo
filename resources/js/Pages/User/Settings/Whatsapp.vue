@@ -241,12 +241,20 @@
 
                     <UiSectionCard v-if="settings?.whatsapp" :title="$t('Remove Whatsapp account')" :subtitle="$t('This will completely delete your whatsapp integration. Your contacts & messages will be unaffected.')" class="mb-20 settings-danger-card">
                         <template #icon>
-                            <button type="button" @click="deleteIntegration()" class="settings-danger-btn">{{ $t('Delete integration')}}</button>
+                            <button type="button" @click="isDeleteConfirmOpen = true" class="settings-danger-btn">{{ $t('Delete integration')}}</button>
                         </template>
                     </UiSectionCard>
                 </div>
             </div>
         </div>
+
+        <AlertModal
+            v-model="isDeleteConfirmOpen"
+            :label="$t('Delete integration?')"
+            :description="$t('This will completely delete your whatsapp integration. Your contacts & messages will be unaffected.')"
+            :confirm-button-text="$t('Delete integration')"
+            @confirm="deleteIntegration"
+        />
 
         <Modal :label="$t('Whatsapp API config')" :isOpen="isOpenFormModal" @close="isOpenFormModal = false">
             <div class="mt-5 grid grid-cols-1 gap-x-6 gap-y-4">
@@ -302,6 +310,7 @@
 <script setup>
     import SettingLayout from "./Layout.vue";
     import { computed, onMounted, ref } from 'vue';
+    import AlertModal from '@/Components/AlertModal.vue';
     import EmbeddedSignupBtn from '@/Components/EmbeddedSignupBtn.vue';
     import FormModal from '@/Components/FormModal.vue';
     import FormImageLogo from '@/Components/FormImageLogo.vue';
@@ -517,9 +526,12 @@
         });
     }
 
+    const isDeleteConfirmOpen = ref(false);
+
     const deleteIntegration = () => {
+        isDeleteConfirmOpen.value = false;
+
         router.delete(`/settings/whatsapp/business-profile`, {
-            onBefore: () => confirm(t('Are you sure you want to delete your integration?')),
             preserveState: true,
             onSuccess: () => {
                 router.visit('/settings/whatsapp', {

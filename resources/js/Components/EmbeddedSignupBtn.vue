@@ -3,6 +3,8 @@
     import { router } from "@inertiajs/vue3";
     import { useI18n } from 'vue-i18n';
     import axios from 'axios';
+    import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue';
+    import { DevicePhoneMobileIcon } from '@heroicons/vue/24/outline';
     const { t } = useI18n();
 
     const props = defineProps(['appId', 'configId', 'graphAPIVersion'])
@@ -276,24 +278,70 @@
         </div>
     </div>
 
-    <div v-if="ambiguousCandidates.length" class="fixed inset-0 ui-layer-modal bg-black bg-opacity-40 flex items-center justify-center">
-        <div class="bg-white p-6 rounded-lg shadow-lg text-sm w-full max-w-sm">
-            <p class="mb-4 font-medium">{{ $t('More than one WhatsApp account was found. Which one is yours?') }}</p>
-            <div class="flex flex-col gap-2">
-                <button
-                    v-for="candidate in ambiguousCandidates"
-                    :key="candidate.waba_id"
-                    type="button"
-                    :disabled="isSelectingCandidate"
-                    @click="selectCandidate(candidate.waba_id)"
-                    class="border rounded-lg p-2 text-start hover:bg-gray-50 disabled:opacity-50"
-                >
-                    <span class="block font-medium">{{ candidate.name }}</span>
-                    <span v-if="candidate.phone" class="block text-xs text-gray-500" dir="ltr">{{ candidate.phone }}</span>
-                </button>
+    <TransitionRoot as="template" :show="ambiguousCandidates.length > 0">
+        <Dialog as="div" class="relative ui-layer-modal">
+            <TransitionChild
+                as="template"
+                enter="ease-out duration-200"
+                enter-from="opacity-0"
+                enter-to="opacity-100"
+                leave="ease-in duration-150"
+                leave-from="opacity-100"
+                leave-to="opacity-0"
+            >
+                <div class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm transition-opacity" />
+            </TransitionChild>
+
+            <div class="fixed inset-0 ui-layer-modal w-screen overflow-y-auto">
+                <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-6">
+                    <TransitionChild
+                        as="template"
+                        enter="ease-out duration-200"
+                        enter-from="translate-y-4 opacity-0 sm:translate-y-0 sm:scale-95"
+                        enter-to="translate-y-0 opacity-100 sm:scale-100"
+                        leave="ease-in duration-150"
+                        leave-from="translate-y-0 opacity-100 sm:scale-100"
+                        leave-to="translate-y-4 opacity-0 sm:translate-y-0 sm:scale-95"
+                    >
+                        <DialogPanel class="relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0d1420] text-start shadow-2xl">
+                            <div class="h-1.5 bg-gradient-to-r from-sky-500 via-indigo-500 to-rose-500" />
+
+                            <div class="px-5 pb-5 pt-5 sm:px-6">
+                                <div class="flex items-start gap-4">
+                                    <div class="mt-0.5 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl border border-sky-200 dark:border-sky-500/20 bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400">
+                                        <DevicePhoneMobileIcon class="h-5 w-5" aria-hidden="true" />
+                                    </div>
+
+                                    <div class="min-w-0 flex-1">
+                                        <DialogTitle as="h3" class="text-base font-semibold text-slate-900 dark:text-white">
+                                            {{ $t('More than one WhatsApp account was found') }}
+                                        </DialogTitle>
+                                        <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
+                                            {{ $t('Which one is yours?') }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 flex flex-col gap-2">
+                                    <button
+                                        v-for="candidate in ambiguousCandidates"
+                                        :key="candidate.waba_id"
+                                        type="button"
+                                        :disabled="isSelectingCandidate"
+                                        @click="selectCandidate(candidate.waba_id)"
+                                        class="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-3 text-start transition hover:bg-slate-50 dark:hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                        <span class="block text-sm font-medium text-slate-900 dark:text-white">{{ candidate.name }}</span>
+                                        <span v-if="candidate.phone" class="block text-xs text-slate-500 dark:text-slate-400" dir="ltr">{{ candidate.phone }}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </DialogPanel>
+                    </TransitionChild>
+                </div>
             </div>
-        </div>
-    </div>
+        </Dialog>
+    </TransitionRoot>
 
     <button type="button" @click="launchWhatsAppSignup" class="bg-primary text-white p-2 rounded-lg text-sm mt-5 flex px-3 w-fit">
         {{ $t('Setup whatsapp') }}
