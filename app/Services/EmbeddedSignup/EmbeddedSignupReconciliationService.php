@@ -163,6 +163,18 @@ class EmbeddedSignupReconciliationService
         return $this->listClientWabaIds($businessId);
     }
 
+    /**
+     * Display name for one candidate WABA, used only when reconcile() can't
+     * tell which of several unclaimed WABAs the user means and needs to show
+     * them a picker (see EmbeddedSignupReconciliationController::reconcile()).
+     */
+    public function fetchWabaName(string $wabaId): ?string
+    {
+        $response = $this->graphGet($wabaId, ['fields' => 'name']);
+
+        return $response->successful() ? data_get($response->json(), 'name') : null;
+    }
+
     private function graphGet(string $path, array $query = []): Response
     {
         return Http::acceptJson()

@@ -135,25 +135,80 @@ class EmbeddedSignupReconciliationController extends BaseController
             return response()->json(['success' => true, 'status' => 'pending']);
         }
 
+        // More than one WABA is unclaimed at once — genuinely ambiguous for a
+        // first-time real client (two orgs mid-connecting simultaneously), but
+        // this is also what happens whenever we've been testing repeatedly with
+        // Meta's reusable sandbox numbers, since Meta never "unshares" a WABA
+        // just because we disconnect it locally. Rather than fail with "contact
+        // support", let the user pick — see select() below.
         if (count($newIds) > 1) {
+            $candidates = array_map(function (string $wabaId) use ($reconciliationService) {
+                return [
+                    'waba_id' => $wabaId,
+                    'name' => $reconciliationService->fetchWabaName($wabaId) ?? $wabaId,
+                ];
+            }, $newIds);
+
             $this->embeddedSignupAuditService->record(
                 'reconcile.ambiguous',
-                'failed',
+                'pending',
                 ['candidate_waba_ids' => $newIds],
-                'RECONCILE_AMBIGUOUS',
+                null,
                 $organizationId,
                 $userId,
-                __('Multiple new WhatsApp accounts were detected at once. Please contact support to complete the connection.')
+                __('Multiple new WhatsApp accounts were detected at once; user is choosing.')
             );
 
+            return response()->json(['success' => true, 'status' => 'ambiguous', 'candidates' => $candidates]);
+        }
+
+        return $this->linkWaba($newIds[0], $reconciliationService, $organizationId, $userId);
+    }
+
+    /**
+     * Completes the connection for one specific WABA the user picked from the
+     * candidate list reconcile() returned when it couldn't disambiguate on its
+     * own. Re-checks the id is still genuinely unclaimed rather than trusting
+     * the client, since the candidate list is a few seconds stale by the time
+     * the user clicks.
+     */
+    public function select(Request $request)
+    {
+        if ($response = $this->abortIfDemo()) {
+            return $response;
+        }
+
+        $organizationId = session()->get('current_organization');
+        $this->checkPermission('settings.manage', $organizationId);
+        $userId = auth()->id();
+
+        $validated = $request->validate(['waba_id' => ['required', 'string']]);
+        $wabaId = $validated['waba_id'];
+
+        $reconciliationService = app(EmbeddedSignupReconciliationService::class);
+        $currentIds = $reconciliationService->currentClientWabaIds();
+
+        if ($currentIds === null || !in_array($wabaId, $currentIds, true)) {
             return response()->json([
                 'success' => false,
-                'status' => 'ambiguous',
-                'message' => __('Multiple new WhatsApp accounts were detected at once. Please contact support to complete the connection.'),
+                'status' => 'error',
+                'message' => __('Unable to reach Meta right now. Please try again in a moment.'),
             ], 422);
         }
 
-        $wabaId = $newIds[0];
+        if (Organization::where('metadata->whatsapp->waba_id', $wabaId)->exists()) {
+            return response()->json([
+                'success' => false,
+                'status' => 'error',
+                'message' => __('This WhatsApp account is already connected to another organization.'),
+            ], 422);
+        }
+
+        return $this->linkWaba($wabaId, $reconciliationService, $organizationId, $userId);
+    }
+
+    private function linkWaba(string $wabaId, EmbeddedSignupReconciliationService $reconciliationService, ?int $organizationId, ?int $userId)
+    {
         $embeddedSignupService = new EmbeddedSignupService();
         $accessToken = $reconciliationService->systemUserToken();
 

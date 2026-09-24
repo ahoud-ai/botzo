@@ -9,6 +9,8 @@
 
     const isSetupLoading = ref(false);
     const isMessageListenerAttached = ref(false);
+    const ambiguousCandidates = ref([]);
+    const isSelectingCandidate = ref(false);
     const embeddedSignupData = ref({
         waba_id: null,
         phone_number_id: null,
@@ -116,13 +118,33 @@
                 }
 
                 if (data?.status === 'ambiguous') {
-                    alert(t('Multiple new WhatsApp accounts were detected at once. Please contact support to complete the connection.'));
+                    ambiguousCandidates.value = data.candidates ?? [];
                     return;
                 }
                 // status === 'pending' — nothing new found yet, retry.
             } catch {
                 // Network/server hiccup — still worth retrying rather than giving up immediately.
             }
+        }
+    }
+
+    async function selectCandidate(wabaId) {
+        isSelectingCandidate.value = true;
+
+        try {
+            const { data } = await axios.post('/whatsapp/embedded-signup/select', { waba_id: wabaId });
+
+            if (data?.status === 'connected') {
+                router.visit('/settings/whatsapp', { preserveState: false });
+                return;
+            }
+
+            alert(data?.message || t('Something went wrong. Refresh the page and try again'));
+        } catch (error) {
+            alert(error?.response?.data?.message || t('Something went wrong. Refresh the page and try again'));
+        } finally {
+            isSelectingCandidate.value = false;
+            ambiguousCandidates.value = [];
         }
     }
 
@@ -231,6 +253,24 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24"><path fill="black" d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,20a9,9,0,1,1,9-9A9,9,0,0,1,12,21Z" transform="matrix(0 0 0 0 12 12)"><animateTransform id="svgSpinnersPulseRingsMultiple0" attributeName="transform" begin="0;svgSpinnersPulseRingsMultiple2.end" calcMode="spline" dur="1.2s" keySplines=".52,.6,.25,.99" type="translate" values="12 12;0 0"/><animateTransform additive="sum" attributeName="transform" begin="0;svgSpinnersPulseRingsMultiple2.end" calcMode="spline" dur="1.2s" keySplines=".52,.6,.25,.99" type="scale" values="0;1"/><animate attributeName="opacity" begin="0;svgSpinnersPulseRingsMultiple2.end" calcMode="spline" dur="1.2s" keySplines=".52,.6,.25,.99" values="1;0"/></path><path fill="black" d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,20a9,9,0,1,1,9-9A9,9,0,0,1,12,21Z" transform="matrix(0 0 0 0 12 12)"><animateTransform id="svgSpinnersPulseRingsMultiple1" attributeName="transform" begin="svgSpinnersPulseRingsMultiple0.begin+0.2s" calcMode="spline" dur="1.2s" keySplines=".52,.6,.25,.99" type="translate" values="12 12;0 0"/><animateTransform additive="sum" attributeName="transform" begin="svgSpinnersPulseRingsMultiple0.begin+0.2s" calcMode="spline" dur="1.2s" keySplines=".52,.6,.25,.99" type="scale" values="0;1"/><animate attributeName="opacity" begin="svgSpinnersPulseRingsMultiple0.begin+0.2s" calcMode="spline" dur="1.2s" keySplines=".52,.6,.25,.99" values="1;0"/></path><path fill="black" d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,20a9,9,0,1,1,9-9A9,9,0,0,1,12,21Z" transform="matrix(0 0 0 0 12 12)"><animateTransform id="svgSpinnersPulseRingsMultiple2" attributeName="transform" begin="svgSpinnersPulseRingsMultiple0.begin+0.4s" calcMode="spline" dur="1.2s" keySplines=".52,.6,.25,.99" type="translate" values="12 12;0 0"/><animateTransform additive="sum" attributeName="transform" begin="svgSpinnersPulseRingsMultiple0.begin+0.4s" calcMode="spline" dur="1.2s" keySplines=".52,.6,.25,.99" type="scale" values="0;1"/><animate attributeName="opacity" begin="svgSpinnersPulseRingsMultiple0.begin+0.4s" calcMode="spline" dur="1.2s" keySplines=".52,.6,.25,.99" values="1;0"/></path></svg>
             </div>
             <p>{{ $t('Please wait for your whatsapp account to be connected!') }}</p>
+        </div>
+    </div>
+
+    <div v-if="ambiguousCandidates.length" class="fixed inset-0 ui-layer-modal bg-black bg-opacity-40 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg text-sm w-full max-w-sm">
+            <p class="mb-4 font-medium">{{ $t('More than one WhatsApp account was found. Which one is yours?') }}</p>
+            <div class="flex flex-col gap-2">
+                <button
+                    v-for="candidate in ambiguousCandidates"
+                    :key="candidate.waba_id"
+                    type="button"
+                    :disabled="isSelectingCandidate"
+                    @click="selectCandidate(candidate.waba_id)"
+                    class="border rounded-lg p-2 text-start hover:bg-gray-50 disabled:opacity-50"
+                >
+                    {{ candidate.name }}
+                </button>
+            </div>
         </div>
     </div>
 
