@@ -834,6 +834,8 @@ class SettingController extends BaseController
             );
         }
 
+        // getPhoneNumberStatus()/getBusinessProfile() read $this->phoneNumberId from construction — rebuild if it started null (Embedded Signup fallback).
+        $whatsappService = empty($phoneNumberId) ? $this->makeWhatsappService($accessToken, $apiVersion, $appId, $resolvedPhoneNumberId, $wabaId, $organizationId) : $whatsappService;
         $phoneNumberStatusResponse = $whatsappService->getPhoneNumberStatus($accessToken, $resolvedPhoneNumberId);
         if (!$phoneNumberStatusResponse->success) {
             return $this->errorResult(
