@@ -2,6 +2,7 @@
     import { ref, onUnmounted } from 'vue';
     import { router } from "@inertiajs/vue3";
     import { useI18n } from 'vue-i18n';
+    import axios from 'axios';
     const { t } = useI18n();
 
     const props = defineProps(['appId', 'configId', 'graphAPIVersion'])
@@ -15,13 +16,9 @@
 
     let popupWindow = null;
     let popupPollTimer = null;
+    let settledByCode = false;
 
     const sessionInfoListener = (event) => {
-        // TEMP_DIAG: log every cross-window message while we confirm the
-        // origin/shape Meta's hosted onboarding page actually posts from.
-        // eslint-disable-next-line no-console
-        console.log('[EmbeddedSignup] message received', event.origin, event.data);
-
         const allowedOrigins = [
             "https://www.facebook.com",
             "https://web.facebook.com",
@@ -40,6 +37,7 @@
                     embeddedSignupData.value.phone_number_id = phone_number_id ?? null;
                     embeddedSignupData.value.waba_id = waba_id ?? null;
                     if (code) {
+                        settledByCode = true;
                         completeSignup(code);
                     }
                 }
@@ -93,6 +91,41 @@
         });
     }
 
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    // Neither the WA_EMBEDDED_SIGNUP postMessage nor the redirect_uri code hand-off
+    // actually fires when the popup is opened via window.open() to Meta's hosted
+    // onboarding URL (confirmed by live testing — Meta's own success screen shows,
+    // but our opener never hears about it). This asks our backend to check Meta
+    // directly instead: it compares which WhatsApp accounts are shared with our
+    // Business Manager now against the snapshot taken before the popup opened, and
+    // persists whichever one is new. Meta's sharing can lag a couple seconds behind
+    // the popup closing, so this retries a few times before giving up.
+    async function reconcileAfterPopupClosed() {
+        for (let attempt = 0; attempt < 4; attempt++) {
+            if (attempt > 0) {
+                await sleep(2500);
+            }
+
+            try {
+                const { data } = await axios.post('/whatsapp/embedded-signup/reconcile');
+
+                if (data?.status === 'connected') {
+                    router.visit('/settings/whatsapp', { preserveState: false });
+                    return;
+                }
+
+                if (data?.status === 'ambiguous') {
+                    alert(t('Multiple new WhatsApp accounts were detected at once. Please contact support to complete the connection.'));
+                    return;
+                }
+                // status === 'pending' — nothing new found yet, retry.
+            } catch {
+                // Network/server hiccup — still worth retrying rather than giving up immediately.
+            }
+        }
+    }
+
     function launchWhatsAppSignup() {
         if (window.location.protocol !== 'https:') {
             alert(t('Embedded signup requires HTTPS. Please use a secure URL.'));
@@ -104,6 +137,7 @@
             return;
         }
 
+        settledByCode = false;
         window.addEventListener("message", sessionInfoListener);
         isMessageListenerAttached.value = true;
 
@@ -114,6 +148,12 @@
                 feature: 'whatsapp_embedded_signup'
             });
         }
+
+        // Snapshot which WABAs are already shared with us before opening the popup,
+        // so the fallback reconciliation below (see reconcileAfterPopupClosed) can
+        // tell which one is newly shared once the popup closes. Not blocking: if
+        // this fails, reconcile() still runs against an empty/stale baseline.
+        axios.post('/whatsapp/embedded-signup/snapshot').catch(() => {});
 
         // Open Meta's own hosted Embedded Signup page directly in a popup instead
         // of calling window.FB.login(). Chrome/browser FedCM interception was
@@ -150,6 +190,13 @@
             if (popupWindow.closed) {
                 stopWatchingPopup();
                 detachMessageListener();
+
+                if (!settledByCode) {
+                    isSetupLoading.value = true;
+                    reconcileAfterPopupClosed().finally(() => {
+                        isSetupLoading.value = false;
+                    });
+                }
                 return;
             }
 
@@ -168,6 +215,7 @@
                 popupWindow.close();
 
                 if (code) {
+                    settledByCode = true;
                     completeSignup(code);
                 } else {
                     detachMessageListener();

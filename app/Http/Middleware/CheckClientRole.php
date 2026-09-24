@@ -41,6 +41,7 @@ class CheckClientRole
             $request->is('settings*')
             || $request->is('contact-fields*')
             || $request->is('whatsapp/exchange-code')
+            || $request->is('whatsapp/embedded-signup/*')
         ) {
             return 'settings.manage';
         }

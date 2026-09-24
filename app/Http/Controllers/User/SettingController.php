@@ -785,7 +785,8 @@ class SettingController extends BaseController
         ]);
     }
 
-    private function persistWhatsappSettings(
+    // Public so EmbeddedSignupReconciliationController can reuse it — see that controller's docblock.
+    public function persistWhatsappSettings(
         $accessToken,
         $appSecret,
         $appId,
