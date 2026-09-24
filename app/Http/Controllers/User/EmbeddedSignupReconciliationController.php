@@ -5,11 +5,9 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller as BaseController;
 use App\Models\Organization;
 use App\Services\EmbeddedSignup\EmbeddedSignupAuditService;
-use App\Services\EmbeddedSignup\EmbeddedSignupGate;
 use App\Services\EmbeddedSignup\EmbeddedSignupReconciliationService;
 use App\Services\EmbeddedSignup\EmbeddedSignupService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -21,65 +19,34 @@ use Illuminate\Support\Facades\Log;
  * SettingController::exchangeEmbeddedSignupCode() never fires even after a
  * client successfully shares their WABA with us on Meta's side.
  *
- * These two endpoints ask Meta directly instead of waiting for the browser
- * (see EmbeddedSignupReconciliationService for why the System User token makes
- * that possible without a per-user OAuth code): snapshot() records which WABAs
- * are shared with us right before the popup opens, reconcile() re-checks after
- * it closes and persists whichever one is new — reusing the same persistence
- * path (SettingController::persistWhatsappSettings()) that the code-exchange
- * flow already uses, so both paths write the connection identically.
+ * reconcile() asks Meta directly instead of waiting for the browser (see
+ * EmbeddedSignupReconciliationService for why the System User token makes
+ * that possible without a per-user OAuth code): any WABA visible to our
+ * business but not yet linked to an organization is a candidate. Exactly one
+ * candidate links automatically; more than one (two orgs mid-connecting, or
+ * — as hit repeatedly testing this with Meta's reusable sandbox numbers,
+ * which stay shared even after we disconnect them locally — leftover
+ * previously-unclaimed WABAs) is shown to the user to pick from via
+ * select(). Both reuse the same persistence path
+ * (SettingController::persistWhatsappSettings()) that the code-exchange flow
+ * already uses, so every path writes the connection identically.
+ *
+ * An earlier version narrowed candidates to ones "new since a pre-popup
+ * snapshot" to auto-guess among several — dropped because it actively hid
+ * the ambiguous case (silently returned "pending" forever whenever the extra
+ * WABAs were already unclaimed before the snapshot was taken, confirmed live)
+ * instead of surfacing it to the picker below.
  *
  * Split out from SettingController (rather than added there) to keep it under
  * its ratcheted file-size budget — see ArchitectureBudgetGuardTest.
  */
 class EmbeddedSignupReconciliationController extends BaseController
 {
-    private EmbeddedSignupGate $embeddedSignupGate;
     private EmbeddedSignupAuditService $embeddedSignupAuditService;
 
     public function __construct()
     {
-        $this->embeddedSignupGate = new EmbeddedSignupGate();
         $this->embeddedSignupAuditService = new EmbeddedSignupAuditService();
-    }
-
-    public function snapshot(Request $request)
-    {
-        if ($response = $this->abortIfDemo()) {
-            return $response;
-        }
-
-        $organizationId = session()->get('current_organization');
-        $this->checkPermission('settings.manage', $organizationId);
-
-        if (!$this->embeddedSignupGate->isGloballyEnabled()
-            || !$this->embeddedSignupGate->isPlanEnabled($organizationId)
-            || !$this->embeddedSignupGate->isOrganizationEnabled($organizationId)) {
-            return response()->json(['success' => false, 'message' => __('Embedded signup is not available.')], 422);
-        }
-
-        $ids = app(EmbeddedSignupReconciliationService::class)->currentClientWabaIds();
-
-        if ($ids === null) {
-            $this->embeddedSignupAuditService->record(
-                'reconcile.snapshot_failed',
-                'failed',
-                [],
-                'META_LOOKUP_FAILED',
-                $organizationId,
-                auth()->id(),
-                __('Unable to reach Meta right now. Please try again in a moment.')
-            );
-
-            return response()->json([
-                'success' => false,
-                'message' => __('Unable to reach Meta right now. Please try again in a moment.'),
-            ], 422);
-        }
-
-        Cache::put($this->snapshotCacheKey($organizationId), $ids, now()->addMinutes(20));
-
-        return response()->json(['success' => true]);
     }
 
     public function reconcile(Request $request)
@@ -114,24 +81,13 @@ class EmbeddedSignupReconciliationController extends BaseController
         }
 
         // "Unclaimed" (visible to our business, but not yet linked to any
-        // organization) is the primary signal — a WABA that got shared with us
-        // *before* this reconciliation flow existed (or before a bug in it was
-        // fixed) stays permanently visible afterwards, so a plain "new since the
-        // pre-popup snapshot" diff would never catch it again. Never re-link a
-        // WABA another organization already owns, regardless of snapshot state.
+        // organization) is the whole signal — never re-link a WABA another
+        // organization already owns.
         $unclaimedIds = array_values(array_filter($currentIds, function (string $wabaId) {
             return !Organization::where('metadata->whatsapp->waba_id', $wabaId)->exists();
         }));
 
-        $baselineIds = Cache::get($this->snapshotCacheKey($organizationId), []);
-        $newIds = count($unclaimedIds) > 1
-            // Multiple unclaimed WABAs at once (e.g. two orgs mid-connect
-            // simultaneously) — narrow down to the one that appeared during
-            // *this* popup using the pre-popup snapshot.
-            ? array_values(array_diff($unclaimedIds, $baselineIds))
-            : $unclaimedIds;
-
-        if (count($newIds) === 0) {
+        if (count($unclaimedIds) === 0) {
             return response()->json(['success' => true, 'status' => 'pending']);
         }
 
@@ -141,18 +97,18 @@ class EmbeddedSignupReconciliationController extends BaseController
         // Meta's reusable sandbox numbers, since Meta never "unshares" a WABA
         // just because we disconnect it locally. Rather than fail with "contact
         // support", let the user pick — see select() below.
-        if (count($newIds) > 1) {
+        if (count($unclaimedIds) > 1) {
             $candidates = array_map(function (string $wabaId) use ($reconciliationService) {
                 return [
                     'waba_id' => $wabaId,
                     'name' => $reconciliationService->fetchWabaName($wabaId) ?? $wabaId,
                 ];
-            }, $newIds);
+            }, $unclaimedIds);
 
             $this->embeddedSignupAuditService->record(
                 'reconcile.ambiguous',
                 'pending',
-                ['candidate_waba_ids' => $newIds],
+                ['candidate_waba_ids' => $unclaimedIds],
                 null,
                 $organizationId,
                 $userId,
@@ -162,7 +118,7 @@ class EmbeddedSignupReconciliationController extends BaseController
             return response()->json(['success' => true, 'status' => 'ambiguous', 'candidates' => $candidates]);
         }
 
-        return $this->linkWaba($newIds[0], $reconciliationService, $organizationId, $userId);
+        return $this->linkWaba($unclaimedIds[0], $reconciliationService, $organizationId, $userId);
     }
 
     /**
@@ -294,8 +250,6 @@ class EmbeddedSignupReconciliationController extends BaseController
             ], 422);
         }
 
-        Cache::forget($this->snapshotCacheKey($organizationId));
-
         $this->embeddedSignupAuditService->record(
             'reconcile.completed',
             'success',
@@ -307,11 +261,6 @@ class EmbeddedSignupReconciliationController extends BaseController
         );
 
         return response()->json(['success' => true, 'status' => 'connected']);
-    }
-
-    private function snapshotCacheKey(?int $organizationId): string
-    {
-        return "embedded_signup_snapshot:{$organizationId}";
     }
 
     /**

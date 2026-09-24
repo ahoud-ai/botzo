@@ -99,10 +99,10 @@
     // actually fires when the popup is opened via window.open() to Meta's hosted
     // onboarding URL (confirmed by live testing — Meta's own success screen shows,
     // but our opener never hears about it). This asks our backend to check Meta
-    // directly instead: it compares which WhatsApp accounts are shared with our
-    // Business Manager now against the snapshot taken before the popup opened, and
-    // persists whichever one is new. Meta's sharing can lag a couple seconds behind
-    // the popup closing, so this retries a few times before giving up.
+    // directly instead: any WhatsApp account shared with our Business Manager but
+    // not yet linked to an organization is a candidate. Meta's sharing can lag a
+    // couple seconds behind the popup closing, so this retries a few times before
+    // giving up (status stays 'pending' — see reconcile()).
     async function reconcileAfterPopupClosed() {
         for (let attempt = 0; attempt < 4; attempt++) {
             if (attempt > 0) {
@@ -170,12 +170,6 @@
                 feature: 'whatsapp_embedded_signup'
             });
         }
-
-        // Snapshot which WABAs are already shared with us before opening the popup,
-        // so the fallback reconciliation below (see reconcileAfterPopupClosed) can
-        // tell which one is newly shared once the popup closes. Not blocking: if
-        // this fails, reconcile() still runs against an empty/stale baseline.
-        axios.post('/whatsapp/embedded-signup/snapshot').catch(() => {});
 
         // Open Meta's own hosted Embedded Signup page directly in a popup instead
         // of calling window.FB.login(). Chrome/browser FedCM interception was

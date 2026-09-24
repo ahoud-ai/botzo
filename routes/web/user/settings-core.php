@@ -7,7 +7,6 @@ if (file_exists(base_path('modules/IntelliReply/routes.php'))) {
 }
 
 Route::post('/whatsapp/exchange-code', [App\Http\Controllers\User\SettingController::class, 'exchangeEmbeddedSignupCode']);
-Route::post('/whatsapp/embedded-signup/snapshot', [App\Http\Controllers\User\EmbeddedSignupReconciliationController::class, 'snapshot']);
 Route::post('/whatsapp/embedded-signup/reconcile', [App\Http\Controllers\User\EmbeddedSignupReconciliationController::class, 'reconcile']);
 Route::post('/whatsapp/embedded-signup/select', [App\Http\Controllers\User\EmbeddedSignupReconciliationController::class, 'select']);
 Route::post('/settings/features/embedded-signup/toggle', [App\Http\Controllers\User\SettingController::class, 'toggleEmbeddedSignup']);
