@@ -61,6 +61,16 @@ class EmbeddedSignupReconciliationController extends BaseController
         $ids = app(EmbeddedSignupReconciliationService::class)->currentClientWabaIds();
 
         if ($ids === null) {
+            $this->embeddedSignupAuditService->record(
+                'reconcile.snapshot_failed',
+                'failed',
+                [],
+                'META_LOOKUP_FAILED',
+                $organizationId,
+                auth()->id(),
+                __('Unable to reach Meta right now. Please try again in a moment.')
+            );
+
             return response()->json([
                 'success' => false,
                 'message' => __('Unable to reach Meta right now. Please try again in a moment.'),
@@ -86,6 +96,16 @@ class EmbeddedSignupReconciliationController extends BaseController
         $currentIds = $reconciliationService->currentClientWabaIds();
 
         if ($currentIds === null) {
+            $this->embeddedSignupAuditService->record(
+                'reconcile.lookup_failed',
+                'failed',
+                [],
+                'META_LOOKUP_FAILED',
+                $organizationId,
+                $userId,
+                __('Unable to reach Meta right now. Please try again in a moment.')
+            );
+
             return response()->json([
                 'success' => false,
                 'status' => 'error',

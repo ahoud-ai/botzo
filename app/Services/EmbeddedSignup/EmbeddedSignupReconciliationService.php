@@ -2,6 +2,7 @@
 
 namespace App\Services\EmbeddedSignup;
 
+use App\Models\Organization;
 use App\Models\Setting;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -40,18 +41,63 @@ class EmbeddedSignupReconciliationService
 
     /**
      * Our own Business Manager ID, discovered dynamically (not stored anywhere)
-     * because the System User token is scoped to it — mirrors the same
-     * me/businesses lookup already proven out in EmbeddedSignupReviewTestService.
+     * because the System User token is scoped to it.
+     *
+     * me/businesses returns an empty list for this System User token — confirmed
+     * live on production (200 OK, {"data":[]}) — a known limitation already
+     * worked around once before in EmbeddedSignupReviewTestService, which is
+     * exactly where this fallback comes from: reverse-derive the business id via
+     * owner_business_info on a WABA we already know about (any already-connected
+     * organization's waba_id), rather than relying on me/businesses at all.
      */
     public function resolveOwnBusinessId(): ?string
     {
         $response = $this->graphGet('me/businesses', ['fields' => 'id,name']);
 
-        if (!$response->successful()) {
-            return null;
+        if ($response->successful()) {
+            $businessId = data_get($response->json(), 'data.0.id');
+            if ($businessId) {
+                return $businessId;
+            }
         }
 
-        return data_get($response->json(), 'data.0.id');
+        foreach ($this->knownWabaIds() as $wabaId) {
+            $response = $this->graphGet($wabaId, ['fields' => 'owner_business_info']);
+
+            if (!$response->successful()) {
+                continue;
+            }
+
+            $businessId = data_get($response->json(), 'owner_business_info.id');
+            if ($businessId) {
+                return $businessId;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * waba_id values already stored on any organization — used only to bootstrap
+     * resolveOwnBusinessId() above via reverse lookup, not as the reconciliation
+     * baseline itself (that's the point of the snapshot/reconcile diff).
+     */
+    private function knownWabaIds(): array
+    {
+        $ids = [];
+
+        Organization::whereNotNull('metadata')->chunkById(100, function ($organizations) use (&$ids) {
+            foreach ($organizations as $organization) {
+                $metadata = json_decode((string) $organization->metadata, true);
+                $wabaId = $metadata['whatsapp']['waba_id'] ?? null;
+
+                if ($wabaId) {
+                    $ids[] = (string) $wabaId;
+                }
+            }
+        });
+
+        return array_values(array_unique($ids));
     }
 
     /**
