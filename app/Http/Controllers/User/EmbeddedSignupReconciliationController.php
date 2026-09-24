@@ -113,14 +113,23 @@ class EmbeddedSignupReconciliationController extends BaseController
             ], 422);
         }
 
-        $baselineIds = Cache::get($this->snapshotCacheKey($organizationId), []);
-        $newIds = array_values(array_diff($currentIds, $baselineIds));
-
-        // Never re-link a WABA another organization already owns, even if it
-        // looks "new" against a stale/expired baseline.
-        $newIds = array_values(array_filter($newIds, function (string $wabaId) {
+        // "Unclaimed" (visible to our business, but not yet linked to any
+        // organization) is the primary signal — a WABA that got shared with us
+        // *before* this reconciliation flow existed (or before a bug in it was
+        // fixed) stays permanently visible afterwards, so a plain "new since the
+        // pre-popup snapshot" diff would never catch it again. Never re-link a
+        // WABA another organization already owns, regardless of snapshot state.
+        $unclaimedIds = array_values(array_filter($currentIds, function (string $wabaId) {
             return !Organization::where('metadata->whatsapp->waba_id', $wabaId)->exists();
         }));
+
+        $baselineIds = Cache::get($this->snapshotCacheKey($organizationId), []);
+        $newIds = count($unclaimedIds) > 1
+            // Multiple unclaimed WABAs at once (e.g. two orgs mid-connect
+            // simultaneously) — narrow down to the one that appeared during
+            // *this* popup using the pre-popup snapshot.
+            ? array_values(array_diff($unclaimedIds, $baselineIds))
+            : $unclaimedIds;
 
         if (count($newIds) === 0) {
             return response()->json(['success' => true, 'status' => 'pending']);
