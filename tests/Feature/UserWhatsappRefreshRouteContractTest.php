@@ -109,6 +109,10 @@ class UserWhatsappRefreshRouteContractTest extends TestCase
                 ],
             ]);
 
+        $mock->shouldReceive('registerPhone')
+            ->once()
+            ->andReturn((object) ['success' => true]);
+
         $mock->shouldReceive('syncTemplates')
             ->once()
             ->andReturn((object) [

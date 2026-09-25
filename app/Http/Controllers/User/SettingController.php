@@ -862,8 +862,8 @@ class SettingController extends BaseController
             return $this->errorResult('WABA_RESOLUTION_FAILED', __('Organization not found.'));
         }
 
-        $warningMessage = $tokenExchangeWarning;
-
+        // Cloud API rejects every send with "(#133010) Account not registered" until this runs once, even on an otherwise-connected number.
+        $warningMessage = $whatsappService->registerPhone()->success ? $tokenExchangeWarning : __('Connected, but the phone number could not be registered for sending. Try refreshing the connection.');
         $metadataArray = $organizationConfig->metadata ? json_decode($organizationConfig->metadata, true) : [];
         if (!isset($metadataArray['addons']) || !is_array($metadataArray['addons'])) {
             $metadataArray['addons'] = [];

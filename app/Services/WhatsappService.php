@@ -1862,6 +1862,39 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
         return $responseObject;
     }
 
+    /**
+     * Cloud API requires this one-time call (POST .../register with a 6-digit
+     * PIN, for the number's optional two-step verification) before a phone
+     * number can send any message — it's separate from, and not implied by,
+     * Embedded Signup or a manual token connecting successfully. Missing this
+     * call is what "(#133010) Account not registered" means: the number looks
+     * fully connected (business profile, display name) but Graph still
+     * rejects every send. Idempotent — safe to call on an already-registered
+     * number, Graph just returns success again.
+     */
+    public function registerPhone()
+    {
+        $url = "https://graph.facebook.com/{$this->apiVersion}/{$this->phoneNumberId}/register";
+
+        $headers = $this->setHeaders();
+        $data = [
+            'messaging_product' => 'whatsapp',
+            'pin' => str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT),
+        ];
+
+        $responseObject = $this->sendHttpRequest('POST', $url, $data, $headers);
+
+        if (($responseObject->success ?? false) !== true) {
+            Log::warning('WhatsApp phone registration failed.', [
+                'organization_id' => $this->organizationId,
+                'phone_number_id' => $this->phoneNumberId,
+                'error' => $responseObject->data->error->message ?? null,
+            ]);
+        }
+
+        return $responseObject;
+    }
+
     public function getPhoneNumberId()
     {
         return $this->accountInspectionService()->getPhoneNumberId();

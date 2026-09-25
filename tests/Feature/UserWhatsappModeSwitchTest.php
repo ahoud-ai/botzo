@@ -387,6 +387,10 @@ class UserWhatsappModeSwitchTest extends TestCase
                 ],
             ]);
 
+        $mock->shouldReceive('registerPhone')
+            ->once()
+            ->andReturn((object) ['success' => true]);
+
         $mock->shouldReceive('overrideCallbackUrl')
             ->once()
             ->andReturn((object) [
