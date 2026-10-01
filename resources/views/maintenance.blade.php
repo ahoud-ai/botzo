@@ -15,20 +15,21 @@
 
     <title>{{ __('Under maintenance') }} — {{ $companyName }}</title>
 
+    <link rel="icon" href="{{ $faviconUrl }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
+            --bg: #0a0f17;
             --surface: #0d1420;
-            --surface-soft: #121a29;
-            --border: rgba(255, 255, 255, 0.08);
-            --text: #f1f5f9;
+            --border: #1a2332;
+            --border-strong: #28374a;
+            --text: #ffffff;
             --muted: #94a3b8;
-            --accent-1: #0ea5e9;
-            --accent-2: #6366f1;
-            --accent-3: #f43f5e;
+            --primary: {{ $primaryColor }};
+            --secondary: {{ $secondaryColor }};
         }
 
         * {
@@ -45,10 +46,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--surface);
+            background: var(--bg);
             background-image:
-                radial-gradient(60rem 30rem at 15% -10%, rgba(14, 165, 233, 0.16), transparent 60%),
-                radial-gradient(50rem 26rem at 110% 10%, rgba(244, 63, 94, 0.14), transparent 55%);
+                radial-gradient(60rem 30rem at 15% -10%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 60%),
+                radial-gradient(50rem 26rem at 110% 10%, color-mix(in srgb, var(--secondary) 14%, transparent), transparent 55%);
             color: var(--text);
             font-family: {{ $isRtl ? "'Cairo', 'Outfit'" : "'Outfit', 'Cairo'" }}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             padding: 24px;
@@ -58,16 +59,16 @@
             width: 100%;
             max-width: 460px;
             border: 1px solid var(--border);
-            background: var(--surface-soft);
+            background: var(--surface);
             border-radius: 20px;
-            box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
             overflow: hidden;
             text-align: center;
         }
 
         .bar {
             height: 6px;
-            background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-3));
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
         }
 
         .content {
@@ -102,14 +103,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(99, 102, 241, 0.16));
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 18%, transparent), color-mix(in srgb, var(--secondary) 18%, transparent));
+            border: 1px solid var(--border-strong);
         }
 
         .icon-ring svg {
             width: 32px;
             height: 32px;
-            stroke: var(--accent-1);
+            stroke: var(--secondary);
         }
 
         h1 {
@@ -135,7 +136,7 @@
             padding: 8px 14px;
             border-radius: 999px;
             border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.03);
+            background: color-mix(in srgb, var(--surface) 60%, var(--bg));
             font-size: 0.82rem;
             color: var(--muted);
         }
@@ -144,8 +145,8 @@
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background: var(--accent-1);
-            box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.6);
+            background: var(--secondary);
+            box-shadow: 0 0 0 0 color-mix(in srgb, var(--secondary) 60%, transparent);
             animation: pulse 1.8s ease-out infinite;
         }
 
@@ -157,13 +158,13 @@
 
         @keyframes pulse {
             0% {
-                box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.5);
+                box-shadow: 0 0 0 0 color-mix(in srgb, var(--secondary) 50%, transparent);
             }
             70% {
-                box-shadow: 0 0 0 8px rgba(14, 165, 233, 0);
+                box-shadow: 0 0 0 8px color-mix(in srgb, var(--secondary) 0%, transparent);
             }
             100% {
-                box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
+                box-shadow: 0 0 0 0 color-mix(in srgb, var(--secondary) 0%, transparent);
             }
         }
 

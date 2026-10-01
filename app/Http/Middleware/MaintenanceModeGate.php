@@ -34,9 +34,27 @@ class MaintenanceModeGate
             return $next($request);
         }
 
+        $settings = Setting::whereIn('key', ['company_name', 'logo', 'favicon', 'primary_color', 'secondary_color'])
+            ->pluck('value', 'key');
+
+        $primaryColor = trim((string) ($settings['primary_color'] ?? ''));
+        if (! preg_match('/^#[0-9A-Fa-f]{6}$/', $primaryColor)) {
+            $primaryColor = '#034737';
+        }
+
+        $secondaryColor = trim((string) ($settings['secondary_color'] ?? ''));
+        if (! preg_match('/^#[0-9A-Fa-f]{6}$/', $secondaryColor)) {
+            $secondaryColor = '#008000';
+        }
+
+        $faviconPath = trim((string) ($settings['favicon'] ?? ''));
+
         return response()->view('maintenance', [
-            'companyName' => Setting::where('key', 'company_name')->value('value') ?: config('app.name'),
-            'logo' => Setting::where('key', 'logo')->value('value'),
+            'companyName' => $settings['company_name'] ?? config('app.name'),
+            'logo' => $settings['logo'] ?? null,
+            'faviconUrl' => $faviconPath !== '' ? url('/media/'.$faviconPath) : url('/images/favicon.png'),
+            'primaryColor' => $primaryColor,
+            'secondaryColor' => $secondaryColor,
         ], 503)->header('Retry-After', 3600);
     }
 
