@@ -35,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\Localization::class,
             \App\Http\Middleware\SetOrganizationFromSession::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
+            \App\Http\Middleware\MaintenanceModeGate::class,
         ]);
 
         // Register middleware aliases
