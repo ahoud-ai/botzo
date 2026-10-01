@@ -425,7 +425,7 @@ class SettingService
     {
         if (isset($request->all()['socials'])) {
             $socials = $request->all()['socials'];
-            unset($socials['instagram'], $socials['messenger']);
+            unset($socials['messenger']);
 
             try {
                 DB::table('settings')

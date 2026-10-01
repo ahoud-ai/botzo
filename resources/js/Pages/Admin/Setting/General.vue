@@ -14,6 +14,7 @@
             <UiSectionCard :title="$t('Social media accounts')" :subtitle="$t('Add your social media account links')">
                 <div class="grid gap-6 sm:grid-cols-2">
                     <FormInput v-model="form.socials.facebook" :name="'Facebook'" :type="'text'"/>
+                    <FormInput v-model="form.socials.instagram" :name="'Instagram'" :type="'text'"/>
                     <FormInput v-model="form.socials.twitter" :name="'Twitter'" :type="'text'"/>
                     <FormInput v-model="form.socials.tiktok" :name="'TikTok'" :type="'text'"/>
                     <FormInput v-model="form.socials.snapchat" :name="'Snapchat'" :type="'text'"/>
@@ -131,6 +132,7 @@
         favicon: null,
         socials: {
             facebook: socials?.facebook,
+            instagram: socials?.instagram,
             twitter: socials?.twitter,
             tiktok: socials?.tiktok,
             snapchat: socials?.snapchat,
