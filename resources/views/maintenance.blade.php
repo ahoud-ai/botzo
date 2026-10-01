@@ -52,7 +52,7 @@ a{color:#4ADE80}a:hover{color:#86EFAC}
 </div>
 
 <div style="display: flex; flex-direction: column; gap: 14px; align-items: center">
-<h1 class="bz-h1" style="margin: 0; font-size: 56px; line-height: 1.2; font-weight: 700; letter-spacing: -0.5px">هنرجع قريبًا</h1>
+<h1 class="bz-h1" style="margin: 0; font-size: 56px; line-height: 1.2; font-weight: 700; letter-spacing: -0.5px">الموقع تحت الصيانة مؤقتًا</h1>
 <p style="margin: 0; font-size: 18px; line-height: 1.9; color: #A3B1BC; max-width: 520px">نعمل حاليًا على صيانة مجدولة لتحسين أداء منصة <span dir="ltr" style="color: #E8EEF2; font-weight: 600">Botzo</span> وإضافة تحسينات جديدة. شكرًا لصبرك، سنعود خلال وقت قصير.</p>
 </div>
 
