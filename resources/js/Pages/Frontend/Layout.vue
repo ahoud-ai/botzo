@@ -93,6 +93,9 @@
                                 <a v-if="facebookUrl" :href="facebookUrl" class="cursor-pointer">
                                     <svg class="hover:text-secondary" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95"/></svg>
                                 </a>
+                                <a v-if="instagramUrl" :href="instagramUrl" class="cursor-pointer">
+                                    <svg class="hover:text-secondary" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2c2.717 0 3.056.01 4.122.06c1.065.05 1.79.217 2.428.465c.66.254 1.216.598 1.772 1.153a4.9 4.9 0 0 1 1.153 1.772c.247.637.415 1.363.465 2.428c.047 1.066.06 1.405.06 4.122c0 2.717-.01 3.056-.06 4.122c-.05 1.065-.218 1.79-.465 2.428a4.9 4.9 0 0 1-1.153 1.772a4.9 4.9 0 0 1-1.772 1.153c-.637.247-1.363.415-2.428.465c-1.066.047-1.405.06-4.122.06c-2.717 0-3.056-.01-4.122-.06c-1.065-.05-1.79-.218-2.428-.465a4.9 4.9 0 0 1-1.772-1.153a4.9 4.9 0 0 1-1.153-1.772c-.248-.637-.415-1.363-.465-2.428C2.013 15.056 2 14.717 2 12c0-2.717.01-3.056.06-4.122c.05-1.066.217-1.79.465-2.428a4.9 4.9 0 0 1 1.153-1.772A4.9 4.9 0 0 1 5.45 2.525c.638-.248 1.362-.415 2.428-.465C8.944 2.013 9.283 2 12 2m0 1.802c-2.67 0-2.987.01-4.04.059c-.976.044-1.505.207-1.858.344c-.466.182-.8.399-1.15.748c-.35.35-.566.684-.748 1.15c-.137.353-.3.882-.344 1.857c-.049 1.054-.059 1.37-.059 4.04c0 2.67.01 2.986.059 4.04c.044.975.207 1.504.344 1.857c.182.466.399.8.748 1.15c.35.35.684.566 1.15.748c.353.137.882.3 1.857.344c1.054.049 1.37.059 4.04.059c2.67 0 2.987-.01 4.04-.059c.976-.044 1.505-.207 1.858-.344c.466-.182.8-.398 1.15-.748c.35-.35.566-.684.748-1.15c.137-.353.3-.882.344-1.857c.049-1.054.059-1.37.059-4.04c0-2.67-.01-2.986-.059-4.04c-.044-.975-.207-1.504-.344-1.857a3.1 3.1 0 0 0-.748-1.15a3.1 3.1 0 0 0-1.15-.748c-.353-.137-.882-.3-1.857-.344c-1.054-.049-1.37-.059-4.04-.059M12 7a5 5 0 1 1 0 10a5 5 0 0 1 0-10m0 1.802a3.2 3.2 0 1 0 0 6.4a3.2 3.2 0 0 0 0-6.4m5.338-3.205a1.2 1.2 0 1 1 0 2.4a1.2 1.2 0 0 1 0-2.4"/></svg>
+                                </a>
                                 <a v-if="twitterUrl" :href="twitterUrl" class="cursor-pointer">
                                     <svg class="hover:text-secondary" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M22 5.8a8.49 8.49 0 0 1-2.36.64a4.13 4.13 0 0 0 1.81-2.27a8.21 8.21 0 0 1-2.61 1a4.1 4.1 0 0 0-7 3.74a11.64 11.64 0 0 1-8.45-4.29a4.16 4.16 0 0 0-.55 2.07a4.09 4.09 0 0 0 1.82 3.41a4.05 4.05 0 0 1-1.86-.51v.05a4.1 4.1 0 0 0 3.3 4a3.93 3.93 0 0 1-1.1.17a4.9 4.9 0 0 1-.77-.07a4.11 4.11 0 0 0 3.83 2.84A8.22 8.22 0 0 1 3 18.34a7.93 7.93 0 0 1-1-.06a11.57 11.57 0 0 0 6.29 1.85A11.59 11.59 0 0 0 20 8.45v-.53a8.43 8.43 0 0 0 2-2.12"/></svg>
                                 </a>
@@ -129,6 +132,7 @@
 
     const currentYear = new Date().getFullYear();
     const facebookUrl = ref(null);
+    const instagramUrl = ref(null);
     const twitterUrl = ref(null);
     const tiktokUrl = ref(null);
     const snapchatUrl = ref(null);
@@ -142,6 +146,7 @@
             const socialsArray = JSON.parse(props.companyConfig.socials);
 
             facebookUrl.value = socialsArray['facebook'] || null;
+            instagramUrl.value = socialsArray['instagram'] || null;
             twitterUrl.value = socialsArray['twitter'] || null;
             tiktokUrl.value = socialsArray['tiktok'] || null;
             snapchatUrl.value = socialsArray['snapchat'] || null;

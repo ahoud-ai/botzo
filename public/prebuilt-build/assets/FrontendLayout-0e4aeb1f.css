@@ -1,0 +1,72 @@
+
+.dropdown-enter-active[data-v-07a9b588],
+.dropdown-leave-active[data-v-07a9b588] {
+    transition: all 0.2s ease-out;
+}
+.dropdown-enter-from[data-v-07a9b588] {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+.dropdown-leave-to[data-v-07a9b588] {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+.dropdown-enter-to[data-v-07a9b588],
+.dropdown-leave-from[data-v-07a9b588] {
+    opacity: 1;
+    transform: translateY(0);
+}
+.fade-enter-active[data-v-07a9b588] {
+    transition: opacity 0.3s ease-out;
+}
+.fade-leave-active[data-v-07a9b588] {
+    transition: opacity 0.2s ease-in;
+}
+.fade-enter-from[data-v-07a9b588],
+.fade-leave-to[data-v-07a9b588] {
+    opacity: 0;
+}
+.fade-enter-active .mobile-menu-panel-ltr[data-v-07a9b588] {
+    animation: slideInLtr-07a9b588 0.3s ease-out;
+}
+.fade-leave-active .mobile-menu-panel-ltr[data-v-07a9b588] {
+    animation: slideOutLtr-07a9b588 0.2s ease-in;
+}
+.fade-enter-active .mobile-menu-panel-rtl[data-v-07a9b588] {
+    animation: slideInRtl-07a9b588 0.3s ease-out;
+}
+.fade-leave-active .mobile-menu-panel-rtl[data-v-07a9b588] {
+    animation: slideOutRtl-07a9b588 0.2s ease-in;
+}
+@keyframes slideInLtr-07a9b588 {
+from {
+        transform: translateX(100%);
+}
+to {
+        transform: translateX(0);
+}
+}
+@keyframes slideOutLtr-07a9b588 {
+from {
+        transform: translateX(0);
+}
+to {
+        transform: translateX(100%);
+}
+}
+@keyframes slideInRtl-07a9b588 {
+from {
+        transform: translateX(100%);
+}
+to {
+        transform: translateX(0);
+}
+}
+@keyframes slideOutRtl-07a9b588 {
+from {
+        transform: translateX(0);
+}
+to {
+        transform: translateX(100%);
+}
+}
