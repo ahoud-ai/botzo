@@ -46,6 +46,16 @@
                 </div>
             </UiSectionCard>
 
+            <UiSectionCard :title="$t('Maintenance mode')" :subtitle="$t('Temporarily block customer access to the site')">
+                <div class="gs-toggle-row">
+                    <div class="min-w-0 flex-1">
+                        <p class="gs-toggle-title">{{ $t('Enable maintenance mode') }}</p>
+                        <p class="gs-toggle-hint">{{ $t('When on, visitors and customers see a maintenance page and cannot use the site. The admin panel stays accessible.') }}</p>
+                    </div>
+                    <FormToggleSwitch v-model="form.maintenance_mode"/>
+                </div>
+            </UiSectionCard>
+
             <UiSectionCard :title="$t('Site logo and favicon')" :subtitle="$t('Add your logo and favicon')">
                 <div class="grid gap-6 sm:grid-cols-2">
                     <FormImageLogo v-model="form.logo" :name="$t('Site logo')" :error="form.errors.logo" :label="$t('Upload logo')" :imageUrl="getImageUrl('logo')"/>
@@ -111,6 +121,7 @@
         app_environment: getValueByKey('app_environment'),
         frontend_variant: normalizedFrontendVariant(getValueByKey('frontend_variant') || 'premium'),
         display_frontend:  getValueByKey('display_frontend') == 1 || getValueByKey('display_frontend') == '' ? true : false,
+        maintenance_mode: getValueByKey('maintenance_mode') == '1',
         logo: null,
         favicon: null,
         socials: {
