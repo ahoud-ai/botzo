@@ -32,10 +32,8 @@ a{color:#4ADE80}a:hover{color:#86EFAC}
 <div dir="rtl" style="min-height: 100vh; display: flex; flex-direction: column; font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif; color: #E8EEF2; background-color: #080C10; background-image: radial-gradient(rgba(148,163,184,0.09) 1px, transparent 1px); background-size: 28px 28px; padding: 0 24px">
 
 <header style="width: 100%; max-width: 1120px; margin: 0 auto; padding: 28px 0; display: flex; justify-content: space-between; align-items: center; gap: 16px">
-<div style="display: flex; align-items: center; gap: 10px">
-<div style="width: 36px; height: 36px; border-radius: 10px; background: #0E151C; display: flex; align-items: center; justify-content: center; overflow: hidden">
-<img src="{{ url('/images/nav/nav-icon-dark.svg') }}" alt="" style="width: 28px; height: 28px; object-fit: contain">
-</div>
+<div style="display: flex; align-items: center; gap: 8px">
+<img src="{{ url('/images/nav/nav-icon-dark.svg') }}" alt="" style="width: 30.68px; height: 29.9px; display: block">
 <span style="font-size: 20px; font-weight: 700; letter-spacing: 0.2px" dir="ltr">Botzo</span>
 </div>
 <div style="display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px; border: 1px solid #1F2B35; border-radius: 999px; background: #0E151C; font-size: 14px; color: #B6C2CC">
