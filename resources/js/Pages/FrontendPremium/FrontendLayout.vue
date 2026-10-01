@@ -257,6 +257,56 @@
                                 <img src="/images/footer/linkedin-glow.svg" class="footer-social-icon__glow" alt="" aria-hidden="true">
                                 <img src="/images/footer/linkedin-icon.svg" class="footer-social-icon__mark" alt="" aria-hidden="true">
                             </a>
+                            <a
+                                v-if="facebookUrl"
+                                :href="facebookUrl"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="footer-social-icon footer-social-icon--facebook"
+                                aria-label="Facebook"
+                            >
+                                <img src="/images/footer/facebook-icon.svg" class="footer-social-icon__mark" alt="" aria-hidden="true">
+                            </a>
+                            <a
+                                v-if="instagramUrl"
+                                :href="instagramUrl"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="footer-social-icon footer-social-icon--instagram"
+                                aria-label="Instagram"
+                            >
+                                <img src="/images/footer/instagram-icon.svg" class="footer-social-icon__mark" alt="" aria-hidden="true">
+                            </a>
+                            <a
+                                v-if="twitterUrl"
+                                :href="twitterUrl"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="footer-social-icon footer-social-icon--twitter"
+                                aria-label="Twitter"
+                            >
+                                <img src="/images/footer/twitter-icon.svg" class="footer-social-icon__mark" alt="" aria-hidden="true">
+                            </a>
+                            <a
+                                v-if="tiktokUrl"
+                                :href="tiktokUrl"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="footer-social-icon footer-social-icon--tiktok"
+                                aria-label="TikTok"
+                            >
+                                <img src="/images/footer/tiktok-icon.svg" class="footer-social-icon__mark" alt="" aria-hidden="true">
+                            </a>
+                            <a
+                                v-if="snapchatUrl"
+                                :href="snapchatUrl"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="footer-social-icon footer-social-icon--snapchat"
+                                aria-label="Snapchat"
+                            >
+                                <img src="/images/footer/snapchat-icon.svg" class="footer-social-icon__mark" alt="" aria-hidden="true">
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -299,6 +349,11 @@
     const authUser = computed(() => page.props.auth?.user ?? null);
 
     const linkedinUrl = ref(null);
+    const facebookUrl = ref(null);
+    const instagramUrl = ref(null);
+    const twitterUrl = ref(null);
+    const tiktokUrl = ref(null);
+    const snapchatUrl = ref(null);
     const showResourcesDropdown = ref(false);
     const showMobileLanguageDropdown = ref(false);
     const showMobileMenu = ref(false);
@@ -320,6 +375,11 @@
         try {
             const socialsArray = JSON.parse(props.companyConfig.socials || '{}');
             linkedinUrl.value = socialsArray['linkedin'] || null;
+            facebookUrl.value = socialsArray['facebook'] || null;
+            instagramUrl.value = socialsArray['instagram'] || null;
+            twitterUrl.value = socialsArray['twitter'] || null;
+            tiktokUrl.value = socialsArray['tiktok'] || null;
+            snapchatUrl.value = socialsArray['snapchat'] || null;
         } catch (error) {
             console.error('Error parsing socials:', error);
         }
@@ -439,6 +499,26 @@
 
 .footer-social-icon--linkedin::after {
     box-shadow: inset 0px 0px 8px 0px rgba(13, 137, 252, 0.32);
+}
+
+.footer-social-icon--facebook::after {
+    box-shadow: inset 0px 0px 8px 0px rgba(24, 119, 242, 0.32);
+}
+
+.footer-social-icon--instagram::after {
+    box-shadow: inset 0px 0px 8px 0px rgba(225, 48, 108, 0.32);
+}
+
+.footer-social-icon--twitter::after {
+    box-shadow: inset 0px 0px 8px 0px rgba(255, 255, 255, 0.18);
+}
+
+.footer-social-icon--tiktok::after {
+    box-shadow: inset 0px 0px 8px 0px rgba(255, 255, 255, 0.18);
+}
+
+.footer-social-icon--snapchat::after {
+    box-shadow: inset 0px 0px 8px 0px rgba(255, 252, 0, 0.32);
 }
 
 .footer-social-icon:hover {

@@ -1,0 +1,6 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="facebook">
+<rect id="bg" x="2" y="2" width="28" height="28" rx="14" fill="#1877F2"/>
+<path d="M19 11.5h1.5V8.6c-.26-.035-1.153-.11-2.196-.11-2.175 0-3.664 1.325-3.664 3.76v2.336H12.3v3.236h2.34V24h3.258v-6.178h2.246l.357-3.236h-2.603v-2.043c0-.935.253-1.572 1.602-1.572z" fill="white"/>
+</g>
+</svg>
