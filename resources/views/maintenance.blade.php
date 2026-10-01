@@ -32,9 +32,8 @@ a{color:#4ADE80}a:hover{color:#86EFAC}
 <div dir="rtl" style="min-height: 100vh; display: flex; flex-direction: column; font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif; color: #E8EEF2; background-color: #080C10; background-image: radial-gradient(rgba(148,163,184,0.09) 1px, transparent 1px); background-size: 28px 28px; padding: 0 24px">
 
 <header style="width: 100%; max-width: 1120px; margin: 0 auto; padding: 28px 0; display: flex; justify-content: space-between; align-items: center; gap: 16px">
-<div style="display: flex; align-items: center; gap: 8px">
-<img src="{{ url('/images/nav/nav-icon-dark.svg') }}" alt="" style="width: 30.68px; height: 29.9px; display: block">
-<span style="font-size: 20px; font-weight: 700; letter-spacing: 0.2px" dir="ltr">Botzo</span>
+<div style="display: flex; align-items: center">
+<img src="{{ url('/images/nav/nav-brand-dark.svg') }}" alt="Botzo" style="width: 55px; height: 52px; display: block">
 </div>
 <div style="display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px; border: 1px solid #1F2B35; border-radius: 999px; background: #0E151C; font-size: 14px; color: #B6C2CC">
 <span class="bz-dot" style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block"></span>
@@ -61,14 +60,14 @@ a{color:#4ADE80}a:hover{color:#86EFAC}
 <div class="bz-bar" style="width: 35%; height: 100%; border-radius: 999px; background: var(--accent)"></div>
 </div>
 
-<div class="bz-meta" style="width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div class="bz-meta" style="width: 100%; max-width: {{ $maintenanceEta ? '100%' : '320px' }}; margin: 0 auto; display: grid; grid-template-columns: {{ $maintenanceEta ? 'repeat(2, minmax(0, 1fr))' : '1fr' }}; gap: 12px">
 @if ($maintenanceEta)
 <div style="padding: 18px 20px; border: 1px solid #1F2B35; border-radius: 16px; background: #0E151C; display: flex; flex-direction: column; gap: 6px; text-align: right">
 <span style="font-size: 13px; color: #8D9BA7">الوقت المتوقع للعودة</span>
 <span style="font-size: 18px; font-weight: 600">{{ $maintenanceEta }}</span>
 </div>
 @endif
-<div style="padding: 18px 20px; border: 1px solid #1F2B35; border-radius: 16px; background: #0E151C; display: flex; flex-direction: column; gap: 6px; text-align: right">
+<div style="padding: 18px 20px; border: 1px solid #1F2B35; border-radius: 16px; background: #0E151C; display: flex; flex-direction: column; gap: 6px; align-items: {{ $maintenanceEta ? 'flex-end' : 'center' }}; text-align: {{ $maintenanceEta ? 'right' : 'center' }}">
 <span style="font-size: 13px; color: #8D9BA7">بياناتك</span>
 <span style="font-size: 18px; font-weight: 600">آمنة ومحفوظة بالكامل</span>
 </div>
