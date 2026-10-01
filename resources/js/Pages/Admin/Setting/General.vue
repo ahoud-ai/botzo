@@ -54,6 +54,10 @@
                     </div>
                     <FormToggleSwitch v-model="form.maintenance_mode"/>
                 </div>
+
+                <div class="mt-6">
+                    <FormInput v-model="form.maintenance_eta" :name="$t('Expected return time (shown to visitors, optional)')" :error="form.errors.maintenance_eta" :type="'text'" :placeholder="$t('e.g. 30 minutes, or a specific time')"/>
+                </div>
             </UiSectionCard>
 
             <UiSectionCard :title="$t('Site logo and favicon')" :subtitle="$t('Add your logo and favicon')">
@@ -122,6 +126,7 @@
         frontend_variant: normalizedFrontendVariant(getValueByKey('frontend_variant') || 'premium'),
         display_frontend:  getValueByKey('display_frontend') == 1 || getValueByKey('display_frontend') == '' ? true : false,
         maintenance_mode: getValueByKey('maintenance_mode') == '1',
+        maintenance_eta: getValueByKey('maintenance_eta'),
         logo: null,
         favicon: null,
         socials: {

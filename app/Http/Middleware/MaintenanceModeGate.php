@@ -34,27 +34,18 @@ class MaintenanceModeGate
             return $next($request);
         }
 
-        $settings = Setting::whereIn('key', ['company_name', 'logo', 'favicon', 'primary_color', 'secondary_color'])
+        $settings = Setting::whereIn('key', ['favicon', 'email', 'socials', 'maintenance_eta'])
             ->pluck('value', 'key');
 
-        $primaryColor = trim((string) ($settings['primary_color'] ?? ''));
-        if (! preg_match('/^#[0-9A-Fa-f]{6}$/', $primaryColor)) {
-            $primaryColor = '#034737';
-        }
-
-        $secondaryColor = trim((string) ($settings['secondary_color'] ?? ''));
-        if (! preg_match('/^#[0-9A-Fa-f]{6}$/', $secondaryColor)) {
-            $secondaryColor = '#008000';
-        }
-
         $faviconPath = trim((string) ($settings['favicon'] ?? ''));
+        $socials = json_decode((string) ($settings['socials'] ?? ''), true);
+        $statusLink = is_array($socials) ? trim((string) ($socials['twitter'] ?? '')) : '';
 
         return response()->view('maintenance', [
-            'companyName' => $settings['company_name'] ?? config('app.name'),
-            'logo' => $settings['logo'] ?? null,
             'faviconUrl' => $faviconPath !== '' ? url('/media/'.$faviconPath) : url('/images/favicon.png'),
-            'primaryColor' => $primaryColor,
-            'secondaryColor' => $secondaryColor,
+            'maintenanceEta' => trim((string) ($settings['maintenance_eta'] ?? '')),
+            'supportEmail' => trim((string) ($settings['email'] ?? '')) ?: 'support@botzo.net',
+            'statusLink' => $statusLink !== '' ? $statusLink : '#',
         ], 503)->header('Retry-After', 3600);
     }
 
