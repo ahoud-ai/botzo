@@ -11,7 +11,7 @@ use App\Models\ChatStatusLog;
 use App\Models\Organization;
 use App\Models\Setting;
 use App\Models\Template;
-use App\Services\AutoReplyService;
+use App\Services\AutoReplyDispatchService;
 use App\Services\ChatService;
 use App\Services\PhoneService;
 use App\Services\SubscriptionService;
@@ -32,6 +32,9 @@ class ProcessWebhookJob implements ShouldQueue
     public $tries = 3;
 
     protected $payload;
+
+    /** @var array<int, array{chat: Chat, is_new_contact: bool}> */
+    protected array $pendingAutoReplies = [];
     protected $organizationId;
 
     /**
@@ -65,6 +68,11 @@ class ProcessWebhookJob implements ShouldQueue
                         $this->handleChange($res, $organization);
                     }
                 }
+            }
+
+            // One debounced automatic reply per contact, from that contact's latest message.
+            if ($this->pendingAutoReplies !== []) {
+                app(AutoReplyDispatchService::class)->dispatchMany(array_values($this->pendingAutoReplies));
             }
         } catch (\Exception $e) {
             Log::error('Error processing webhook job', [
@@ -278,9 +286,15 @@ class ProcessWebhookJob implements ShouldQueue
             'message_limit'
         );
 
-        if (!$isMessageLimitReached) {
-            if (in_array($response['type'] ?? null, ['text', 'button', 'audio', 'interactive'], true)) {
-                app(AutoReplyService::class)->checkAutoReply($chat, $isNewContact);
+        if (!$isMessageLimitReached && in_array($response['type'] ?? null, ['text', 'button', 'audio', 'interactive'], true)) {
+            $pending = $this->pendingAutoReplies[$contact->id] ?? null;
+
+            // Raw UTC values: the created_at accessor formats for display in the organization timezone.
+            if ($pending === null || $chat->getRawOriginal('created_at') >= $pending['chat']->getRawOriginal('created_at')) {
+                $this->pendingAutoReplies[$contact->id] = [
+                    'chat' => $chat,
+                    'is_new_contact' => $isNewContact || (bool) ($pending['is_new_contact'] ?? false),
+                ];
             }
         }
     }

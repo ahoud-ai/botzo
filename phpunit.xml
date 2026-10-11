@@ -27,6 +27,7 @@
         <env name="DB_PASSWORD" value=""/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="AUTO_REPLY_DEBOUNCE_SECONDS" value="0"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
     </php>

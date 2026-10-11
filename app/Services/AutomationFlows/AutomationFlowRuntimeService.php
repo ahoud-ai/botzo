@@ -755,11 +755,11 @@ class AutomationFlowRuntimeService
     }
     private function isFirstInboundMessage(Chat $chat): bool
     {
-        return Chat::query()
-            ->where('organization_id', $chat->organization_id)
-            ->where('contact_id', $chat->contact_id)
-            ->where('type', 'inbound')
-            ->count() === 1;
+        // Replies are debounced, so a first burst ("hi", "I need help") must still count as the first message.
+        $burstStart = \Illuminate\Support\Carbon::parse($chat->getRawOriginal('created_at'))->subSeconds((int) config('auto_replies.burst_window_seconds', 120));
+
+        return ! Chat::query()->where('organization_id', $chat->organization_id)->where('contact_id', $chat->contact_id)
+            ->where('type', 'inbound')->where('created_at', '<', $burstStart)->exists();
     }
     private function wasWhatsappSendSuccessful(mixed $response): bool
     {

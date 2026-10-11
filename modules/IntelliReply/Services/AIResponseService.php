@@ -282,13 +282,16 @@ class AIResponseService
                     } else {
                         //Define the parameters with which the AI should respond if ticketing workflows have not been enabled
                         //Check if the user has other previous messages during the last 24 hours
+                        // Replies are debounced, so ignore the current burst of messages when counting.
+                        $burstStart = now()->subSeconds((int) config('auto_replies.burst_window_seconds', 120));
                         $inboundChatsCount = Chat::where('contact_id', $chat->contact_id)
                             ->where('type', 'inbound')
                             ->where('created_at', '>', now()->subDay())
+                            ->where('created_at', '<', $burstStart)
                             ->count();
 
-                        // If no outbound chats are found, enable AI assistance for the contact
-                        if ($inboundChatsCount <= 1) {
+                        // No earlier messages in the last day: a new conversation, so enable AI assistance for the contact
+                        if ($inboundChatsCount === 0) {
                             $ai_assistance_enabled = 1;
                             Contact::where('id', $chat->contact_id)
                                 ->update(['ai_assistance_enabled' => $ai_assistance_enabled]);
@@ -799,7 +802,7 @@ class AIResponseService
         if($metadata['type'] === 'text'){
             return [
                 'type' => 'text',
-                'message' => $metadata['text']['body'] ?? null
+                'message' => $this->recentCustomerText($contactId) ?: ($metadata['text']['body'] ?? null),
             ];
         }
 
@@ -831,6 +834,26 @@ class AIResponseService
         }
 
         return null;
+    }
+
+    /**
+     * The customer's trailing text messages since our last reply (replies are debounced,
+     * so "hi" + "how much is X?" must be answered together).
+     */
+    private function recentCustomerText(int $contactId): string
+    {
+        $lines = [];
+
+        foreach (Chat::where('contact_id', $contactId)->orderByDesc('id')->take(5)->get(['type', 'metadata']) as $recent) {
+            $recentMetadata = json_decode((string) $recent->metadata, true);
+            if ($recent->type !== 'inbound' || ($recentMetadata['type'] ?? null) !== 'text') {
+                break;
+            }
+
+            array_unshift($lines, trim((string) data_get($recentMetadata, 'text.body', '')));
+        }
+
+        return trim(implode("\n", array_filter($lines)));
     }
 
     private function readAudioBinary(string $audioPath): ?string
