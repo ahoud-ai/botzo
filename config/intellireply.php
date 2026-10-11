@@ -48,6 +48,12 @@ return [
     ],
 
     // When the AI model fails or times out: apologize once, hand the chat to the team, and pause briefly.
+    // The model could not answer from the business information: hand the chat to the team.
+    'unknown_answer' => [
+        'text' => env('INTELLIREPLY_UNKNOWN_ANSWER_TEXT', 'سؤالك محتاج حد من فريقنا. حوّلنا محادثتك لزميل وهيرد عليك في أقرب وقت.'),
+        'pause_minutes' => (int) env('INTELLIREPLY_UNKNOWN_ANSWER_PAUSE_MINUTES', 720),
+    ],
+
     'fallback' => [
         'text' => env('INTELLIREPLY_FALLBACK_TEXT', 'عذراً، الرد الآلي غير متاح حالياً. وصلتنا رسالتك وفريقنا هيرد عليك في أقرب وقت.'),
         'cooldown_minutes' => (int) env('INTELLIREPLY_FALLBACK_COOLDOWN_MINUTES', 30),

@@ -11,6 +11,9 @@ namespace App\Services\IntelliReply;
  */
 class AiPersonaPromptBuilder
 {
+    /** The model answers with this marker alone when a team member must take over. */
+    public const HANDOFF_MARKER = '[[HANDOFF]]';
+
     public const TONES = ['friendly', 'formal'];
 
     public const DIALECTS = ['auto', 'egyptian', 'gulf', 'msa', 'english'];
@@ -62,7 +65,7 @@ class AiPersonaPromptBuilder
         return $this->persona($organizationMetadata, $organizationName)['business_name'];
     }
 
-    public function replySystemPrompt(array $organizationMetadata, ?string $organizationName, string $documentation): string
+    public function replySystemPrompt(array $organizationMetadata, ?string $organizationName, ?string $documentation): string
     {
         $persona = $this->persona($organizationMetadata, $organizationName);
         $business = $persona['business_name'] !== '' ? '"'.$persona['business_name'].'"' : 'this business';
@@ -73,9 +76,10 @@ class AiPersonaPromptBuilder
             $business,
             [
                 'Keep replies short and suitable for WhatsApp.',
-                "If the answer is not in the information provided, say you don't have this information and offer to connect the customer with a team member.",
+                'Greetings, thanks and small talk can be answered normally.',
+                'If you cannot answer from the information provided, or the customer needs something only a team member can do (complaints, refunds, changing or cancelling an order, payment problems), reply with exactly '.self::HANDOFF_MARKER.' and nothing else. Never guess.',
             ],
-            $documentation
+            trim((string) $documentation) !== '' ? (string) $documentation : 'No documents were provided. Answer only from the business information above.'
         );
     }
 
@@ -91,6 +95,11 @@ class AiPersonaPromptBuilder
             ['Return one concise editable draft only, with no greetings unless appropriate and no explanations.'],
             null
         );
+    }
+
+    public function asksForHandoff(string $reply): bool
+    {
+        return (bool) preg_match('/\[\[\s*handoff\s*\]\]/i', $reply);
     }
 
     private function assemble(string $intro, array $persona, string $business, array $extraRules, ?string $documentation): string

@@ -53,6 +53,20 @@ class AiPersonaPromptBuilderTest extends TestCase
         $this->assertStringNotContainsString('Additional instructions', $prompt);
     }
 
+    public function test_reply_prompt_asks_for_a_handoff_marker_and_works_without_documents(): void
+    {
+        $builder = app(AiPersonaPromptBuilder::class);
+        $prompt = $builder->replySystemPrompt([], 'Botzo Store', null);
+
+        $this->assertStringContainsString('reply with exactly '.AiPersonaPromptBuilder::HANDOFF_MARKER, $prompt);
+        $this->assertStringContainsString('No documents were provided', $prompt);
+
+        $this->assertTrue($builder->asksForHandoff('[[HANDOFF]]'));
+        $this->assertTrue($builder->asksForHandoff(" [[ handoff ]]\n"));
+        $this->assertTrue($builder->asksForHandoff('عذراً [[HANDOFF]]'));
+        $this->assertFalse($builder->asksForHandoff('We can hand off your order to the courier today.'));
+    }
+
     public function test_stored_values_are_capped_to_their_limits(): void
     {
         $persona = app(AiPersonaPromptBuilder::class)->persona($this->metadata([

@@ -40,9 +40,29 @@ class AiReplyFallbackService
         $metadata = $organization?->metadata ? (json_decode($organization->metadata, true) ?: []) : [];
         $text = trim((string) (data_get($metadata, 'ai.fallback_text') ?: config('intellireply.fallback.text', '')));
 
+        if (! $this->handOff($contact, $text, (int) config('intellireply.fallback.pause_minutes', 15), 'ai_unavailable')) {
+            return false;
+        }
+
+        Cache::put($cooldownKey, true, now()->addMinutes(max(1, (int) config('intellireply.fallback.cooldown_minutes', 30))));
+
+        return true;
+    }
+
+    /**
+     * Send $text (with the bot disclosure when still pending), pause automatic replies
+     * and assign the chat to the team.
+     */
+    public function handOff(Contact $contact, string $text, int $pauseMinutes, string $assignReason): bool
+    {
+        $text = trim($text);
         if ($text === '') {
             return false;
         }
+
+        $organizationId = (int) $contact->organization_id;
+        $organization = Organization::find($organizationId);
+        $metadata = $organization?->metadata ? (json_decode($organization->metadata, true) ?: []) : [];
 
         $disclosureService = app(AiDisclosureService::class);
         $disclosure = $disclosureService->pendingFor($organizationId, (int) $contact->id, $metadata, $organization?->name);
@@ -58,11 +78,10 @@ class AiReplyFallbackService
             $disclosureService->markDisclosed($organizationId, (int) $contact->id);
         }
 
-        Cache::put($cooldownKey, true, now()->addMinutes(max(1, (int) config('intellireply.fallback.cooldown_minutes', 30))));
-        app(AiConversationPauseService::class)->pauseFor($contact, (int) config('intellireply.fallback.pause_minutes', 15));
+        app(AiConversationPauseService::class)->pauseFor($contact, $pauseMinutes);
 
         try {
-            app(AutomationFlowConversationHandoffService::class)->assignToAgent($contact, 'auto_assign', null, true, 'ai_unavailable');
+            app(AutomationFlowConversationHandoffService::class)->assignToAgent($contact, 'auto_assign', null, true, $assignReason);
         } catch (\Throwable $exception) {
             report($exception);
         }

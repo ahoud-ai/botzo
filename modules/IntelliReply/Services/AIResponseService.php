@@ -54,19 +54,12 @@ class AIResponseService
         }
 
         $closestDocument = $this->findClosestDocumentByQuery($organizationId, (string) $lastCustomerMessage['message']);
-        if (($closestDocument['success'] ?? false) !== true || empty($closestDocument['document'])) {
-            return [
-                'success' => false,
-                'message' => __('No knowledge base document matched this conversation.'),
-                'code' => 'KNOWLEDGE_NOT_FOUND',
-            ];
-        }
 
         $messages = $this->buildSuggestionPrompt(
             $organizationConfig,
             Organization::where('id', $organizationId)->value('name'),
             $contact,
-            (string) $closestDocument['document'],
+            ($closestDocument['success'] ?? false) === true ? (string) ($closestDocument['document'] ?? '') : '',
             $this->conversationHistoryForSuggestion($organizationId, (int) $contact->id)
         );
 
@@ -114,10 +107,10 @@ class AIResponseService
             }
 
             $receivedMessage = $lastMessage['message'];
+            // Documents are optional: without a match the assistant answers from the persona
+            // and hands the chat to the team when it cannot answer.
             $closestDocument = $this->findClosestDocumentByQuery($organizationId, $receivedMessage);
-            if (($closestDocument['success'] ?? false) !== true || empty($closestDocument['document'])) {
-                return false;
-            }
+            $documentation = ($closestDocument['success'] ?? false) === true ? (string) ($closestDocument['document'] ?? '') : null;
             
             /*if($closestDocument['success'] === false){
                 return 'Sorry but I don\'t have any information about this.';
@@ -216,7 +209,7 @@ class AIResponseService
                         "content" => app(AiPersonaPromptBuilder::class)->replySystemPrompt(
                             $metadataArray,
                             Organization::where('id', $organizationId)->value('name'),
-                            (string) $closestDocument['document']
+                            $documentation
                         )
                     ]
                 ]; // Initialize context with a system message
@@ -373,6 +366,24 @@ class AIResponseService
                     // The model failed, timed out or returned nothing: apologize and hand over instead of going silent.
                     if (!$res || trim((string) ($res['text'] ?? '')) === '') {
                         return app(AiReplyFallbackService::class)->handle($contact, 'model_unavailable');
+                    }
+
+                    if (app(AiPersonaPromptBuilder::class)->asksForHandoff((string) $res['text'])) {
+                        $expectsAudioResponse
+                            ? $usageLimiter->consumeAudio($organizationId, $keySource)
+                            : $usageLimiter->consumeText($organizationId, $keySource);
+                        Log::info('intellireply.knowledge_gap.handoff', [
+                            'organization_id' => $organizationId,
+                            'contact_id' => $contact->id,
+                            'had_documentation' => $documentation !== null,
+                        ]);
+
+                        return app(AiReplyFallbackService::class)->handOff(
+                            $contact,
+                            (string) (data_get($metadataArray, 'ai.unknown_answer_text') ?: config('intellireply.unknown_answer.text', '')),
+                            (int) config('intellireply.unknown_answer.pause_minutes', 720),
+                            'ai_knowledge_gap'
+                        );
                     }
 
                     if ($res) {
@@ -591,7 +602,7 @@ class AIResponseService
             [
                 'role' => 'user',
                 'content' => "Customer: {$customerName}\n\nDocumentation:\n"
-                    .mb_substr($document, 0, 8000)
+                    .(trim($document) !== '' ? mb_substr($document, 0, 8000) : 'No documents were provided.')
                     ."\n\nRecent conversation:\n"
                     .($conversation !== '' ? $conversation : 'No previous text messages.')
                     ."\n\nDraft the next reply for the agent to review.",
@@ -981,6 +992,13 @@ class AIResponseService
             return [
                 'success' => false,
                 'message' => __('AI key missing'),
+            ];
+        }
+
+        if (!Document::where('organization_id', $organizationId)->exists()) {
+            return [
+                'success' => false,
+                'document' => null,
             ];
         }
 
