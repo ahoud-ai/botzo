@@ -10,6 +10,7 @@ use App\Models\Contact;
 use App\Models\Organization;
 use App\Models\Setting;
 use App\Services\IntelliReply\AiKeyResolver;
+use App\Services\IntelliReply\AiReplySafetyGuard;
 use App\Services\IntelliReply\AiUsageLimiterService;
 use App\Services\Whatsapp\WhatsappTokenVault;
 use App\Services\WhatsappService;
@@ -336,6 +337,16 @@ class AIResponseService
                         return false;
                     }
 
+                    $safetyGuard = app(AiReplySafetyGuard::class);
+                    if (!$safetyGuard->allowsReplyToContact((int) $organizationId, (int) $contact->id)) {
+                        Log::warning('intellireply.limit.reached', [
+                            'organization_id' => $organizationId,
+                            'contact_id' => $chat->contact_id,
+                            'error_code' => 'AI_CONTACT_HOURLY_LIMIT',
+                        ]);
+                        return false;
+                    }
+
                     // Pass the context and received message to the chat method
                     $res = $this->chat($organizationId, $lastMessage['type'], $context, $apiKeyBundle);
             
@@ -352,6 +363,7 @@ class AIResponseService
                             $this->initializeWhatsappService($organizationId)->sendMedia($contact->uuid, 'audio', $res['audio']['id'], $file['filePath'], $file['mediaUrl'], $file['location']);
                             $usageLimiter->consumeAudio($organizationId, $keySource);
                         }
+                        $safetyGuard->recordReplyToContact((int) $organizationId, (int) $contact->id);
                         return true; // Indicates that an AI response was sent
                     }
                 }
@@ -378,7 +390,7 @@ class AIResponseService
         }
 
         $model = data_get($organizationConfig, 'ai.model', 'gpt-4o-mini');
-        $maxTokens = (int) data_get($organizationConfig, 'ai.max_tokens', 512);
+        $maxTokens = app(AiReplySafetyGuard::class)->maxOutputTokens((int) data_get($organizationConfig, 'ai.max_tokens', 512));
         $temperature = (float) data_get($organizationConfig, 'ai.temperature', 0.7);
         $audioResponseModels = $this->audioResponseModels();
 
@@ -580,7 +592,7 @@ class AIResponseService
     private function requestTextCompletion(int $organizationId, array $organizationConfig, array $messages, string $apiKey, array $apiKeyBundle): ?string
     {
         $model = data_get($organizationConfig, 'ai.model', 'gpt-4o-mini');
-        $maxTokens = (int) data_get($organizationConfig, 'ai.max_tokens', 512);
+        $maxTokens = app(AiReplySafetyGuard::class)->maxOutputTokens((int) data_get($organizationConfig, 'ai.max_tokens', 512));
         $temperature = (float) data_get($organizationConfig, 'ai.temperature', 0.7);
 
         $response = \Http::withHeaders([

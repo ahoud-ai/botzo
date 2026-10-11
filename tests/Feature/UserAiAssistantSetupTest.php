@@ -66,6 +66,27 @@ class UserAiAssistantSetupTest extends TestCase
         $this->assertSame('sk-test-encrypted', Crypt::decryptString($metadata['ai']['api_key_encrypted']));
     }
 
+    public function test_setup_rejects_max_tokens_above_the_safety_cap(): void
+    {
+        config(['intellireply.safety.max_output_tokens' => 1024]);
+        [$user, $organization] = $this->createUserAndOrganization([]);
+
+        $response = $this->withoutMiddleware([
+                CheckSubscriptionStatus::class,
+                VerifyCsrfToken::class,
+            ])
+            ->actingAs($user, 'user')
+            ->withSession(['current_organization' => $organization->id])
+            ->post('/automation/ai/setup', [
+                'active' => false,
+                'model' => 'gpt-4o-mini',
+                'max_tokens' => 4000,
+                'temperature' => 0.7,
+            ]);
+
+        $response->assertSessionHasErrors('max_tokens');
+    }
+
     public function test_setup_keeps_existing_encrypted_key_when_api_key_input_is_blank(): void
     {
         $existingEncrypted = Crypt::encryptString('sk-existing-value');

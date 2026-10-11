@@ -85,7 +85,7 @@
                             <label class="ui-form-label">{{ $t('Maximum reply length') }}</label>
                             <span class="ai-slider-value">{{ form2.max_tokens }} {{ $t('tokens') }}</span>
                         </div>
-                        <input type="range" min="64" max="8000" step="8" v-model.number="form2.max_tokens" class="ai-range"/>
+                        <input type="range" min="64" :max="maxOutputTokens || 1024" step="8" v-model.number="form2.max_tokens" class="ai-range"/>
                     </div>
 
                     <div class="ai-subcard sm:col-span-6">
@@ -238,7 +238,7 @@
     import FormToggleSwitch from '@/Components/FormToggleSwitch.vue';
     import Pagination from '@/Components/Pagination.vue';
 
-    const props = defineProps(['rows', 'filters', 'settings', 'aimodule', 'fbmodule', 'models', 'embeddingModels', 'audioResponseModels', 'voices', 'aiUsageSummary']);
+    const props = defineProps(['rows', 'filters', 'settings', 'aimodule', 'fbmodule', 'models', 'embeddingModels', 'audioResponseModels', 'voices', 'aiUsageSummary', 'maxOutputTokens']);
     const config = ref(props.settings.metadata);
     const settings = ref(config.value ? JSON.parse(config.value) : null);
     const aiConfigured = computed(() => Boolean(settings.value?.ai?.has_api_key || settings.value?.ai?.api_key));

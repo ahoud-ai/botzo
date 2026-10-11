@@ -84,6 +84,7 @@ class MainController extends BaseController
         $data['aimodule'] = CustomHelper::isModuleEnabled('AI Assistant', $organizationId);
         $data['fbmodule'] = CustomHelper::isModuleEnabled('Flow builder', $organizationId);
         $data['aiUsageSummary'] = app(OrganizationUsageSummaryService::class)->build($organizationId);
+        $data['maxOutputTokens'] = (int) config('intellireply.safety.max_output_tokens', 1024);
 
         return Inertia::render('IntelliReply::User/Index', $data);
     }
@@ -229,7 +230,7 @@ class MainController extends BaseController
             'model' => ['required', 'string', 'max:120', Rule::in($availableModels)],
             'voice' => ['nullable', 'string', 'max:120', Rule::in($availableVoices)],
             'allow_audio_response' => ['nullable', 'boolean'],
-            'max_tokens' => ['nullable', 'integer', 'min:64', 'max:8000'],
+            'max_tokens' => ['nullable', 'integer', 'min:64', 'max:'.(int) config('intellireply.safety.max_output_tokens', 1024)],
             'temperature' => ['nullable', 'numeric', 'min:0', 'max:2'],
             'embedding_model' => ['nullable', 'string', 'max:120', Rule::in($availableEmbeddingModels)],
         ]);
