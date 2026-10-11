@@ -136,30 +136,29 @@ class ProcessWebhookJob implements ShouldQueue
 
     protected function handleMessages(array $messages, array $res, Organization $organization)
     {
-        $isLimitReached = SubscriptionService::isSubscriptionLimitReachedForInboundMessages($organization->id);
+        // Customer messages are always stored and shown; an expired subscription only stops automatic replies.
+        $autoReplyAllowed = !SubscriptionService::isSubscriptionLimitReachedForInboundMessages($organization->id);
 
-        if (!$isLimitReached) {
-            foreach ($messages as $response) {
-                if (!is_array($response) || empty($response['id'])) {
-                    continue;
-                }
+        foreach ($messages as $response) {
+            if (!is_array($response) || empty($response['id'])) {
+                continue;
+            }
 
-                // Meta retries deliveries; make sure the same message is handled once even under concurrency.
-                $lock = Cache::lock(sprintf('whatsapp-inbound:%d:%s', $organization->id, $response['id']), 120);
-                if (!$lock->get()) {
-                    continue;
-                }
+            // Meta retries deliveries; make sure the same message is handled once even under concurrency.
+            $lock = Cache::lock(sprintf('whatsapp-inbound:%d:%s', $organization->id, $response['id']), 120);
+            if (!$lock->get()) {
+                continue;
+            }
 
-                try {
-                    $this->processInboundMessage($response, $res, $organization);
-                } finally {
-                    $lock->release();
-                }
+            try {
+                $this->processInboundMessage($response, $res, $organization, $autoReplyAllowed);
+            } finally {
+                $lock->release();
             }
         }
     }
 
-    protected function processInboundMessage(array $response, array $res, Organization $organization): void
+    protected function processInboundMessage(array $response, array $res, Organization $organization, bool $autoReplyAllowed = true): void
     {
         $phone = (string) ($response['from'] ?? '');
 
@@ -179,12 +178,12 @@ class ProcessWebhookJob implements ShouldQueue
 
         if (!$contact) {
             if (SubscriptionService::isSubscriptionFeatureLimitReached($organization->id, 'contacts_limit')) {
-                Log::warning('Inbound WhatsApp message skipped because contact limit is reached.', [
+                // Still keep the conversation visible; the limit only blocks automatic replies here.
+                Log::notice('Inbound WhatsApp contact created over the contact limit; automatic replies skipped.', [
                     'organization_id' => $organization->id,
-                    'phone' => $phone,
                     'wam_id' => $response['id'] ?? null,
                 ]);
-                return;
+                $autoReplyAllowed = false;
             }
 
             // Create a contact - get contact data from res array
@@ -270,6 +269,10 @@ class ProcessWebhookJob implements ShouldQueue
             event(new NewChatEvent($chatArray, $organization->id));
         }
 
+        if (!$autoReplyAllowed) {
+            return;
+        }
+
         $isMessageLimitReached = SubscriptionService::isSubscriptionFeatureLimitReached(
             $organization->id,
             'message_limit'
@@ -277,7 +280,7 @@ class ProcessWebhookJob implements ShouldQueue
 
         if (!$isMessageLimitReached) {
             if (in_array($response['type'] ?? null, ['text', 'button', 'audio', 'interactive'], true)) {
-                (new AutoReplyService)->checkAutoReply($chat, $isNewContact);
+                app(AutoReplyService::class)->checkAutoReply($chat, $isNewContact);
             }
         }
     }
