@@ -273,6 +273,52 @@
                 </div>
             </section>
 
+            <!-- Card 5a: Frequently asked questions -->
+            <section v-if="aiConfigured" class="ai-card">
+                <div class="mb-4">
+                    <h2 class="ai-card-title">{{ $t('Frequently asked questions') }}</h2>
+                    <p class="ai-card-desc">{{ $t('Write the questions your customers ask most and the exact answer. The assistant uses these answers first.') }}</p>
+                </div>
+
+                <ul v-if="faqItems.length" class="mb-4 divide-y divide-[var(--ui-border)] rounded-2xl border border-[var(--ui-border)]">
+                    <li v-for="faq in faqItems" :key="faq.uuid" class="flex items-start gap-3 p-4">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-semibold text-[var(--ui-text)] [overflow-wrap:anywhere]">{{ faq.question }}</p>
+                            <p class="mt-1 whitespace-pre-line text-xs leading-6 text-[var(--ui-muted)] [overflow-wrap:anywhere]">{{ faq.answer }}</p>
+                        </div>
+                        <div class="flex shrink-0 items-center gap-2">
+                            <button type="button" class="ai-icon-btn" @click="editFaq(faq)" :aria-label="$t('Edit')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897zm0 0L19.5 7.125"/></svg></button>
+                            <button type="button" class="ai-icon-btn" @click="openFaqDelete(faq.uuid)" :aria-label="$t('Delete')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21q.512.078 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48 48 0 0 0-3.478-.397m-12 .562q.51-.088 1.022-.165m0 0a48 48 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a52 52 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a49 49 0 0 0-7.5 0"/></svg></button>
+                        </div>
+                    </li>
+                </ul>
+                <p v-else class="ai-subcard mb-4 text-sm text-[var(--ui-muted)]">{{ $t('No questions yet. Add the first one below.') }}</p>
+
+                <form v-if="editingFaq || faqItems.length < faqLimit('items')" @submit.prevent="submitFaq()" class="ai-subcard grid grid-cols-1 gap-4">
+                    <p class="text-sm font-medium text-[var(--ui-text)]">{{ editingFaq ? $t('Edit question') : $t('Add a question') }}</p>
+                    <div>
+                        <FormInput v-model="faqForm.question" :error="faqForm.errors.question" :name="$t('Question')" :placeholder="$t('Example: Do you deliver outside Cairo?')" :type="'text'"/>
+                        <div class="mt-1 flex justify-end text-[11px] text-[var(--ui-muted)]">
+                            <span>{{ (faqForm.question || '').length }}/{{ faqLimit('question') }}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <FormTextArea v-model="faqForm.answer" :error="faqForm.errors.answer" :name="$t('Answer')" :placeholder="$t('Example: Yes, delivery to all governorates within 3 days for 50 EGP.')" :textAreaRows="3"/>
+                        <div class="mt-1 flex justify-end text-[11px] text-[var(--ui-muted)]">
+                            <span>{{ (faqForm.answer || '').length }}/{{ faqLimit('answer') }}</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-end gap-3">
+                        <button v-if="editingFaq" type="button" class="ai-btn-ghost" @click="resetFaqForm()">{{ $t('Cancel') }}</button>
+                        <button type="submit" class="ai-btn-primary" :disabled="faqForm.processing">
+                            <svg v-if="faqForm.processing" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z" opacity=".5"/><path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"><animateTransform attributeName="transform" dur="1s" from="0 12 12" repeatCount="indefinite" to="360 12 12" type="rotate"/></path></svg>
+                            <span v-else>{{ editingFaq ? $t('Save') : $t('Add') }}</span>
+                        </button>
+                    </div>
+                </form>
+                <p v-else class="text-xs text-[var(--ui-muted)]">{{ $t('You can add up to :count questions.', { count: faqLimit('items') }) }}</p>
+            </section>
+
             <!-- Card 5: Knowledge Base -->
             <section v-if="aiConfigured" class="ai-card">
                 <div class="mb-4 flex flex-wrap items-start justify-between gap-4">
@@ -289,6 +335,12 @@
     </SettingLayout>
 
     <DocumentUploadModal :type="'contact'" v-model:modelValue="isOpenModal"/>
+    <AlertModal
+        v-model="isOpenFaqDelete"
+        @confirm="() => confirmFaqDelete(deleteFaq)"
+        :label="$t('Delete question')"
+        :description="$t('Are you sure you want to delete this row? This action can not be undone')"
+    />
 </template>
 <script setup>
     import SettingLayout from "./../../../../resources/js/Pages/User/Automation/Layout.vue";
@@ -297,13 +349,15 @@
     import { trans } from 'laravel-vue-i18n';
     import DocumentTable from '@/Components/Tables/DocumentTable.vue';
     import DocumentUploadModal from '@/Components/DocumentUploadModal.vue';
+    import AlertModal from '@/Components/AlertModal.vue';
+    import { useAlertModal } from '@/Composables/useAlertModal';
     import FormInput from '@/Components/FormInput.vue';
     import FormSelect from '@/Components/FormSelect.vue';
     import FormTextArea from '@/Components/FormTextArea.vue';
     import FormToggleSwitch from '@/Components/FormToggleSwitch.vue';
     import Pagination from '@/Components/Pagination.vue';
 
-    const props = defineProps(['rows', 'filters', 'settings', 'aimodule', 'fbmodule', 'models', 'embeddingModels', 'audioResponseModels', 'voices', 'aiUsageSummary', 'maxOutputTokens', 'defaultDisclosureText', 'persona', 'personaLimits']);
+    const props = defineProps(['rows', 'filters', 'settings', 'aimodule', 'fbmodule', 'models', 'embeddingModels', 'audioResponseModels', 'voices', 'aiUsageSummary', 'maxOutputTokens', 'defaultDisclosureText', 'persona', 'personaLimits', 'faqs', 'faqLimits']);
     const config = ref(props.settings.metadata);
     const settings = ref(config.value ? JSON.parse(config.value) : null);
     const aiConfigured = computed(() => Boolean(settings.value?.ai?.has_api_key || settings.value?.ai?.api_key));
@@ -394,6 +448,38 @@
         personaForm.post('/automation/ai/persona', {
             preserveScroll: true,
             onSuccess: () => personaForm.defaults(),
+        });
+    };
+
+    const faqItems = computed(() => props.faqs ?? []);
+    const faqLimit = (field) => props.faqLimits?.[field] ?? 0;
+    const editingFaq = ref(null);
+    const faqForm = useForm({ question: '', answer: '' });
+    const resetFaqForm = () => {
+        editingFaq.value = null;
+        faqForm.reset();
+        faqForm.clearErrors();
+    };
+    const editFaq = (faq) => {
+        editingFaq.value = faq.uuid;
+        faqForm.question = faq.question;
+        faqForm.answer = faq.answer;
+    };
+    const submitFaq = () => {
+        const options = { preserveScroll: true, onSuccess: () => resetFaqForm() };
+        if (editingFaq.value) {
+            faqForm.put('/automation/ai/faqs/' + editingFaq.value, options);
+        } else {
+            faqForm.post('/automation/ai/faqs', options);
+        }
+    };
+    const { isOpenAlert: isOpenFaqDelete, openAlert: openFaqDelete, confirmAlert: confirmFaqDelete } = useAlertModal();
+    const deleteFaq = (uuid) => {
+        router.delete('/automation/ai/faqs/' + uuid, {
+            preserveScroll: true,
+            onSuccess: () => {
+                if (editingFaq.value === uuid) resetFaqForm();
+            },
         });
     };
 

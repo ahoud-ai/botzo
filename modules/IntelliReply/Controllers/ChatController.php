@@ -9,13 +9,10 @@ use App\Models\Contact;
 use App\Models\Organization;
 use App\Services\IntelliReply\AiUsageLimiterService;
 use App\Services\IntelliReply\AiKeyResolver;
-use App\Services\Ai\AiProviderManager;
-use App\Services\Ai\Contracts\AiEmbeddingProvider;
 use App\Services\PermissionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Modules\IntelliReply\Models\Document;
 use Modules\IntelliReply\Services\AIResponseService;
 
 class ChatController extends BaseController
@@ -122,104 +119,6 @@ class ChatController extends BaseController
         ]);
     }
 
-    public function chat(Request $request): JsonResponse
-    {
-        $organizationId = (int) session()->get('current_organization');
-        $this->checkPermission('automations.view_all', $organizationId);
-        $this->ensureAiAssistantEnabled($organizationId);
-
-        $payload = $request->validate([
-            'query' => ['required', 'string', 'max:4000'],
-        ]);
-
-        $organization = Organization::findOrFail($organizationId);
-        $metadata = $organization->metadata ? json_decode($organization->metadata, true) : [];
-        $metadata = is_array($metadata) ? $metadata : [];
-
-        $keyResolver = app(AiKeyResolver::class);
-        $keyBundle = $keyResolver->resolveForOrganization(
-            $metadata,
-            data_get($metadata, 'ai.key_source', 'auto'),
-            $organizationId
-        );
-        $apiKey = $keyBundle['key'] ?? null;
-        if (!$apiKey) {
-            return response()->json([
-                'response' => __('AI assistant is not configured.'),
-            ], 422);
-        }
-
-        $client = app(AiProviderManager::class)->embeddings(data_get($metadata, 'ai.embedding_provider'), $apiKey);
-        $query = trim((string) $payload['query']);
-
-        try {
-            [$queryEmbedding] = $this->createEmbeddingWithFallback($client, $query, $metadata);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'response' => $this->isEmbeddingModelAccessError($e)
-                    ? __('Selected embedding model is not available for this OpenAI key. Choose another embedding model or use a key with access.')
-                    : __('Unable to process your request right now. Please try again.'),
-            ], 422);
-        }
-
-        $documents = Document::where('organization_id', $organizationId)->get();
-        $closestDocument = null;
-        $closestDistance = PHP_FLOAT_MAX;
-
-        foreach ($documents as $document) {
-            $documentEmbeddings = json_decode($document->embeddings, true);
-            if (!is_array($documentEmbeddings)) {
-                continue;
-            }
-
-            foreach ($documentEmbeddings as $documentEmbedding) {
-                if (!is_array($documentEmbedding)) {
-                    continue;
-                }
-
-                $distance = $this->cosineDistance($queryEmbedding, $documentEmbedding);
-                if ($distance < $closestDistance) {
-                    $closestDistance = $distance;
-                    $closestDocument = $document;
-                }
-            }
-        }
-
-        if (!$closestDocument) {
-            return response()->json([
-                'response' => __('Sorry but I don\'t have any information about this.'),
-            ]);
-        }
-
-        $aiModel = data_get($metadata, 'ai.model', 'gpt-4o-mini');
-        $maxTokens = (int) data_get($metadata, 'ai.max_tokens', 512);
-        $temperature = (float) data_get($metadata, 'ai.temperature', 0.7);
-
-        $chatResponse = $client->chat()->create([
-            'model' => $aiModel,
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => "You are a customer support AI assistant. Only answer from the provided documentation. If answer is missing, respond: Sorry I don't have information about this.",
-                ],
-                [
-                    'role' => 'user',
-                    'content' => 'documentation: '.$closestDocument->content."\n\nquestion: ".$query,
-                ],
-            ],
-            'max_tokens' => $maxTokens,
-            'temperature' => $temperature,
-        ]);
-
-        $content = data_get($chatResponse->toArray(), 'choices.0.message.content');
-        if (!is_string($content) || trim($content) === '') {
-            $content = __('Sorry but I don\'t have any information about this.');
-        }
-
-        return response()->json([
-            'response' => $content,
-        ]);
-    }
 
     private function ensureAiAssistantEnabled(int $organizationId): void
     {
@@ -255,97 +154,9 @@ class ChatController extends BaseController
             ->exists();
     }
 
-    private function cosineDistance(array $vecA, array $vecB): float
-    {
-        $dotProduct = 0.0;
-        $normA = 0.0;
-        $normB = 0.0;
-        $length = min(count($vecA), count($vecB));
 
-        for ($i = 0; $i < $length; $i++) {
-            $a = (float) $vecA[$i];
-            $b = (float) $vecB[$i];
-            $dotProduct += $a * $b;
-            $normA += $a ** 2;
-            $normB += $b ** 2;
-        }
 
-        if ($normA == 0.0 || $normB == 0.0) {
-            return 1.0;
-        }
 
-        return 1 - ($dotProduct / (sqrt($normA) * sqrt($normB)));
-    }
 
-    private function resolveEmbeddingModel(array $metadata): string
-    {
-        $model = data_get($metadata, 'ai.embedding_model');
-        if (is_string($model) && trim($model) !== '') {
-            return $model;
-        }
 
-        $default = config('intellireply.default_embedding_model', self::DEFAULT_EMBEDDING_MODEL);
-        return is_string($default) && trim($default) !== ''
-            ? $default
-            : self::DEFAULT_EMBEDDING_MODEL;
-    }
-
-    private function embeddingModelCandidates(array $metadata): array
-    {
-        $preferred = $this->resolveEmbeddingModel($metadata);
-        $allowlist = config('intellireply.embedding_models', [self::DEFAULT_EMBEDDING_MODEL]);
-        if (!is_array($allowlist)) {
-            $allowlist = [self::DEFAULT_EMBEDDING_MODEL];
-        }
-
-        $fallbackMap = config('intellireply.embedding_model_fallbacks', []);
-        if (!is_array($fallbackMap)) {
-            $fallbackMap = [];
-        }
-
-        $candidates = [$preferred];
-        $preferredFallbacks = $fallbackMap[$preferred] ?? [];
-        if (is_array($preferredFallbacks)) {
-            foreach ($preferredFallbacks as $fallbackModel) {
-                if (is_string($fallbackModel) && trim($fallbackModel) !== '') {
-                    $candidates[] = trim($fallbackModel);
-                }
-            }
-        }
-
-        foreach ($allowlist as $allowedModel) {
-            if (is_string($allowedModel) && trim($allowedModel) !== '') {
-                $candidates[] = trim($allowedModel);
-            }
-        }
-
-        return array_values(array_unique($candidates));
-    }
-
-    /**
-     * @return array{0:array,1:string}
-     */
-    private function createEmbeddingWithFallback(AiEmbeddingProvider $client, string $input, array $metadata): array
-    {
-        $lastError = null;
-
-        foreach ($this->embeddingModelCandidates($metadata) as $model) {
-            try {
-                return [$client->embed($input, $model), $model];
-            } catch (\Throwable $e) {
-                $lastError = $e;
-                continue;
-            }
-        }
-
-        throw $lastError ?? new \RuntimeException('Unable to generate embeddings');
-    }
-
-    private function isEmbeddingModelAccessError(\Throwable $e): bool
-    {
-        $message = strtolower($e->getMessage());
-        return str_contains($message, 'does not have access to model')
-            || str_contains($message, 'model_not_found')
-            || str_contains($message, 'invalid model');
-    }
 }

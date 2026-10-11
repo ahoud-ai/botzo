@@ -5033,5 +5033,15 @@
     "Automatic (match the customer)": "Automatic (match the customer)",
     "Egyptian Arabic": "Egyptian Arabic",
     "Gulf Arabic": "Gulf Arabic",
-    "Modern Standard Arabic": "Modern Standard Arabic"
+    "Modern Standard Arabic": "Modern Standard Arabic",
+    "Write the questions your customers ask most and the exact answer. The assistant uses these answers first.": "Write the questions your customers ask most and the exact answer. The assistant uses these answers first.",
+    "No questions yet. Add the first one below.": "No questions yet. Add the first one below.",
+    "Edit question": "Edit question",
+    "Add a question": "Add a question",
+    "Example: Do you deliver outside Cairo?": "Example: Do you deliver outside Cairo?",
+    "Example: Yes, delivery to all governorates within 3 days for 50 EGP.": "Example: Yes, delivery to all governorates within 3 days for 50 EGP.",
+    "You can add up to :count questions.": "You can add up to :count questions.",
+    "Delete question": "Delete question",
+    "Question saved": "Question saved",
+    "Unable to generate embeddings": "Unable to generate embeddings"
 }

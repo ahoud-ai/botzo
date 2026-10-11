@@ -48,6 +48,16 @@ return [
     ],
 
     // When the AI model fails or times out: apologize once, hand the chat to the team, and pause briefly.
+    // Knowledge retrieval: manual FAQ plus the most relevant document chunks.
+    'retrieval' => [
+        'top_k' => (int) env('INTELLIREPLY_RETRIEVAL_TOP_K', 4),
+        'min_similarity' => (float) env('INTELLIREPLY_RETRIEVAL_MIN_SIMILARITY', 0.25),
+        'max_context_chars' => (int) env('INTELLIREPLY_RETRIEVAL_MAX_CONTEXT_CHARS', 6000),
+        'faq_inline_chars' => (int) env('INTELLIREPLY_FAQ_INLINE_CHARS', 4000),
+        'faq_top_k' => (int) env('INTELLIREPLY_FAQ_TOP_K', 5),
+        'faq_min_similarity' => (float) env('INTELLIREPLY_FAQ_MIN_SIMILARITY', 0.35),
+    ],
+
     // The model could not answer from the business information: hand the chat to the team.
     'unknown_answer' => [
         'text' => env('INTELLIREPLY_UNKNOWN_ANSWER_TEXT', 'سؤالك محتاج حد من فريقنا. حوّلنا محادثتك لزميل وهيرد عليك في أقرب وقت.'),

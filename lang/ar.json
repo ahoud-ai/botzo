@@ -5498,5 +5498,15 @@
     "Automatic (match the customer)": "تلقائي (حسب العميل)",
     "Egyptian Arabic": "عامية مصرية",
     "Gulf Arabic": "لهجة خليجية",
-    "Modern Standard Arabic": "عربية فصحى"
+    "Modern Standard Arabic": "عربية فصحى",
+    "Write the questions your customers ask most and the exact answer. The assistant uses these answers first.": "اكتب الأسئلة التي يكررها عملاؤك وإجابتها الدقيقة. يعتمد المساعد على هذه الإجابات أولاً.",
+    "No questions yet. Add the first one below.": "لا توجد أسئلة بعد. أضف أول سؤال بالأسفل.",
+    "Edit question": "تعديل السؤال",
+    "Add a question": "إضافة سؤال",
+    "Example: Do you deliver outside Cairo?": "مثال: هل يوجد توصيل خارج القاهرة؟",
+    "Example: Yes, delivery to all governorates within 3 days for 50 EGP.": "مثال: نعم، التوصيل لكل المحافظات خلال 3 أيام مقابل 50 جنيهاً.",
+    "You can add up to :count questions.": "يمكنك إضافة حتى :count سؤالاً.",
+    "Delete question": "حذف السؤال",
+    "Question saved": "تم حفظ السؤال",
+    "Unable to generate embeddings": "تعذّر إنشاء الـ embeddings"
 }

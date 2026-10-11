@@ -10,11 +10,11 @@ use App\Models\Contact;
 use App\Models\Organization;
 use App\Models\Setting;
 use App\Services\Ai\AiProviderManager;
-use App\Services\Ai\Contracts\AiEmbeddingProvider;
 use App\Services\Ai\Data\AiChatRequest;
 use App\Services\Ai\Exceptions\AiProviderException;
 use App\Services\IntelliReply\AiDisclosureService;
 use App\Services\IntelliReply\AiKeyResolver;
+use App\Services\IntelliReply\AiKnowledgeRetriever;
 use App\Services\IntelliReply\AiPersonaPromptBuilder;
 use App\Services\IntelliReply\AiReplyFallbackService;
 use App\Services\IntelliReply\AiReplySafetyGuard;
@@ -24,7 +24,6 @@ use App\Services\WhatsappService;
 use FFMpeg\FFMpeg;
 use FFMpeg\Format\Audio\Mp3;
 use Illuminate\Support\Facades\Log;
-use Modules\IntelliReply\Models\Document;
 
 class AIResponseService
 {
@@ -982,107 +981,15 @@ class AIResponseService
     protected function findClosestDocumentByQuery($organizationId, $query){
         $organizationConfig = $this->getOrganizationConfig($organizationId);
         $apiKeyBundle = $this->resolveAiKeyBundle($organizationId, $organizationConfig);
-        $api_key = $apiKeyBundle['key'] ?? null;
-        if (!$api_key) {
-            Log::warning('intellireply.retrieval.failed', [
-                'organization_id' => $organizationId,
-                'error_code' => 'AI_KEY_MISSING',
-                'key_source' => $apiKeyBundle['source'] ?? null,
-            ]);
-            return [
-                'success' => false,
-                'message' => __('AI key missing'),
-            ];
-        }
+        $knowledge = app(AiKnowledgeRetriever::class)->retrieve((int) $organizationId, $organizationConfig, $apiKeyBundle['key'] ?? null, (string) $query);
 
-        if (!Document::where('organization_id', $organizationId)->exists()) {
-            return [
-                'success' => false,
-                'document' => null,
-            ];
-        }
-
-        $client = app(AiProviderManager::class)->embeddings(data_get($organizationConfig, 'ai.embedding_provider'), $api_key);
-
-        try {
-            // Generate embedding for query
-            [$queryEmbedding] = $this->createEmbeddingWithFallback($client, (string) $query, $organizationConfig);
-
-            // Find the closest document
-            $documents = Document::where('organization_id', $organizationId)->get();
-            $closestDocument = null;
-            $closestDistance = PHP_FLOAT_MAX;
-
-            foreach ($documents as $document) {
-                $documentEmbeddings = json_decode($document->embeddings, true);
-                if (!is_array($documentEmbeddings)) {
-                    continue;
-                }
-
-                foreach ($documentEmbeddings as $documentEmbedding) {
-                    if (!is_array($documentEmbedding)) {
-                        continue;
-                    }
-
-                    $distance = $this->cosineSimilarity($queryEmbedding, $documentEmbedding);
-
-                    if ($distance < $closestDistance) {
-                        $closestDistance = $distance;
-                        $closestDocument = $document;
-                    }
-                }
-            }
-
-            if ($closestDocument) {
-                return [
-                    'success' => true,
-                    'document' => $closestDocument->content
-                ];
-            }
-        
-            return [
-                'success' => false,
-                'document' => null,
-            ];
-        } catch (\Exception $e) {
-            // Handle errors and exceptions
-            Log::warning('intellireply.retrieval.failed', [
-                'organization_id' => $organizationId,
-                'error_code' => $this->isEmbeddingModelAccessError($e)
-                    ? 'EMBEDDING_MODEL_UNAVAILABLE'
-                    : 'RETRIEVAL_FAILED',
-                'key_source' => $apiKeyBundle['source'] ?? null,
-                'error' => $e->getMessage(),
-            ]);
-            return [
-                'success' => false,
-                'message' => $e->getMessage(),
-            ];
-        }
+        return [
+            'success' => $knowledge !== null,
+            'document' => $knowledge,
+        ];
     }
 
-    protected function cosineSimilarity($vecA, $vecB)
-    {
-        $dotProduct = 0.0;
-        $normA = 0.0;
-        $normB = 0.0;
 
-        $length = min(count($vecA), count($vecB));
-
-        for ($i = 0; $i < $length; $i++) {
-            $a = (float) $vecA[$i];
-            $b = (float) $vecB[$i];
-            $dotProduct += $a * $b;
-            $normA += $a ** 2;
-            $normB += $b ** 2;
-        }
-
-        if ($normA == 0.0 || $normB == 0.0) {
-            return 1.0;
-        }
-
-        return 1 - ($dotProduct / (sqrt($normA) * sqrt($normB)));
-    }
 
     protected function initializeWhatsappService($organizationId)
     {
@@ -1161,75 +1068,8 @@ class AIResponseService
         return $normalized;
     }
 
-    private function resolveEmbeddingModel(array $organizationConfig): string
-    {
-        $model = data_get($organizationConfig, 'ai.embedding_model');
-        if (is_string($model) && trim($model) !== '') {
-            return $model;
-        }
 
-        $default = config('intellireply.default_embedding_model', 'text-embedding-3-small');
-        return is_string($default) && trim($default) !== ''
-            ? $default
-            : 'text-embedding-3-small';
-    }
 
-    private function embeddingModelCandidates(array $organizationConfig): array
-    {
-        $preferred = $this->resolveEmbeddingModel($organizationConfig);
-        $allowlist = config('intellireply.embedding_models', ['text-embedding-3-small']);
-        if (!is_array($allowlist)) {
-            $allowlist = ['text-embedding-3-small'];
-        }
 
-        $fallbackMap = config('intellireply.embedding_model_fallbacks', []);
-        if (!is_array($fallbackMap)) {
-            $fallbackMap = [];
-        }
 
-        $candidates = [$preferred];
-        $preferredFallbacks = $fallbackMap[$preferred] ?? [];
-        if (is_array($preferredFallbacks)) {
-            foreach ($preferredFallbacks as $fallbackModel) {
-                if (is_string($fallbackModel) && trim($fallbackModel) !== '') {
-                    $candidates[] = trim($fallbackModel);
-                }
-            }
-        }
-
-        foreach ($allowlist as $allowedModel) {
-            if (is_string($allowedModel) && trim($allowedModel) !== '') {
-                $candidates[] = trim($allowedModel);
-            }
-        }
-
-        return array_values(array_unique($candidates));
-    }
-
-    /**
-     * @return array{0:array,1:string}
-     */
-    private function createEmbeddingWithFallback(AiEmbeddingProvider $client, string $input, array $organizationConfig): array
-    {
-        $lastError = null;
-
-        foreach ($this->embeddingModelCandidates($organizationConfig) as $model) {
-            try {
-                return [$client->embed($input, $model), $model];
-            } catch (\Throwable $e) {
-                $lastError = $e;
-                continue;
-            }
-        }
-
-        throw $lastError ?? new \RuntimeException('Unable to generate embeddings');
-    }
-
-    private function isEmbeddingModelAccessError(\Throwable $e): bool
-    {
-        $message = strtolower($e->getMessage());
-        return str_contains($message, 'does not have access to model')
-            || str_contains($message, 'model_not_found')
-            || str_contains($message, 'invalid model');
-    }
 }

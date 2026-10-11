@@ -6,6 +6,7 @@ use App\Helpers\CustomHelper;
 use App\Http\Controllers\Controller as BaseController;
 use App\Models\Contact;
 use App\Models\Organization;
+use App\Services\IntelliReply\AiEmbeddingService;
 use App\Services\IntelliReply\AiKeyResolver;
 use App\Services\IntelliReply\AiPersonaPromptBuilder;
 use App\Services\Ai\AiProviderManager;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Modules\IntelliReply\Models\Document;
+use Modules\IntelliReply\Models\Faq;
 use Modules\IntelliReply\Resources\DocumentResource;
 
 class MainController extends BaseController
@@ -89,6 +91,8 @@ class MainController extends BaseController
         $data['maxOutputTokens'] = (int) config('intellireply.safety.max_output_tokens', 1024);
         $data['persona'] = app(AiPersonaPromptBuilder::class)->persona($metadata);
         $data['personaLimits'] = AiPersonaPromptBuilder::LIMITS;
+        $data['faqs'] = Faq::where('organization_id', $organizationId)->orderBy('id')->get(['uuid', 'question', 'answer']);
+        $data['faqLimits'] = ['items' => Faq::MAX_PER_ORGANIZATION, 'question' => Faq::MAX_QUESTION_LENGTH, 'answer' => Faq::MAX_ANSWER_LENGTH];
 
         return Inertia::render('IntelliReply::User/Index', $data);
     }
@@ -350,7 +354,7 @@ class MainController extends BaseController
             } catch (\Throwable $e) {
                 Log::warning('intellireply.embedding.preflight_failed', [
                     'organization_id' => $organizationId,
-                    'error_code' => $this->isEmbeddingModelAccessError($e)
+                    'error_code' => app(AiEmbeddingService::class)->isModelAccessError($e)
                         ? 'EMBEDDING_MODEL_UNAVAILABLE'
                         : 'EMBEDDING_PREFLIGHT_FAILED',
                     'embedding_model' => $metadata['ai']['embedding_model'],
@@ -360,7 +364,7 @@ class MainController extends BaseController
 
                 return back()->with('status', [
                     'type' => 'error',
-                    'message' => $this->isEmbeddingModelAccessError($e)
+                    'message' => app(AiEmbeddingService::class)->isModelAccessError($e)
                         ? __('Selected embedding model is not available for this OpenAI key. Choose another embedding model or use a key with access.')
                         : __('Unable to validate embedding model access right now. Please try again.'),
                 ]);
@@ -446,14 +450,6 @@ class MainController extends BaseController
     private function runEmbeddingPreflight(string $apiKey, string $embeddingModel): void
     {
         app(AiProviderManager::class)->embeddings(null, $apiKey)->embed('intellireply preflight', $embeddingModel);
-    }
-
-    private function isEmbeddingModelAccessError(\Throwable $e): bool
-    {
-        $message = strtolower($e->getMessage());
-        return str_contains($message, 'does not have access to model')
-            || str_contains($message, 'model_not_found')
-            || str_contains($message, 'invalid model');
     }
 
     private function policyAllowsOrganizationKey(array $policyConfig): bool
