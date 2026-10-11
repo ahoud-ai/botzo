@@ -11,6 +11,7 @@ use App\Models\Organization;
 use App\Models\Setting;
 use App\Services\IntelliReply\AiDisclosureService;
 use App\Services\IntelliReply\AiKeyResolver;
+use App\Services\IntelliReply\AiReplyFallbackService;
 use App\Services\IntelliReply\AiReplySafetyGuard;
 use App\Services\IntelliReply\AiUsageLimiterService;
 use App\Services\Whatsapp\WhatsappTokenVault;
@@ -352,8 +353,18 @@ class AIResponseService
                     }
 
                     // Pass the context and received message to the chat method
-                    $res = $this->chat($organizationId, $lastMessage['type'], $context, $apiKeyBundle);
-            
+                    try {
+                        $res = $this->chat($organizationId, $lastMessage['type'], $context, $apiKeyBundle);
+                    } catch (\Throwable $exception) {
+                        report($exception);
+                        $res = null;
+                    }
+
+                    // The model failed, timed out or returned nothing: apologize and hand over instead of going silent.
+                    if (!$res || trim((string) ($res['text'] ?? '')) === '') {
+                        return app(AiReplyFallbackService::class)->handle($contact, 'model_unavailable');
+                    }
+
                     if ($res) {
                         $responseType = $expectsAudioResponse && !empty(data_get($res, 'audio.data'))
                             ? 'audio'
@@ -419,7 +430,7 @@ class AIResponseService
             $response = \Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $apiKey
-            ])->timeout(30)->retry(1, 250)->post('https://api.openai.com/v1/chat/completions', [
+            ])->timeout(max(5, (int) config('intellireply.request_timeout_seconds', 20)))->retry(1, 250)->post('https://api.openai.com/v1/chat/completions', [
                 'model' => $model,
                 'messages' => $context,
                 'max_tokens' => $maxTokens,
@@ -429,7 +440,7 @@ class AIResponseService
             $response = \Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $apiKey
-            ])->timeout(45)->retry(1, 250)->post('https://api.openai.com/v1/chat/completions', [
+            ])->timeout(max(5, (int) config('intellireply.request_timeout_seconds', 20)) + 15)->retry(1, 250)->post('https://api.openai.com/v1/chat/completions', [
                 'model' => $model,
                 "modalities" => ["text", "audio"],
                 "audio" => [

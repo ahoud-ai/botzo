@@ -39,6 +39,16 @@ return [
         'pause_minutes' => (int) env('INTELLIREPLY_HANDOFF_PAUSE_MINUTES', 720),
     ],
 
+    // When the AI model fails or times out: apologize once, hand the chat to the team, and pause briefly.
+    'fallback' => [
+        'text' => env('INTELLIREPLY_FALLBACK_TEXT', 'عذراً، الرد الآلي غير متاح حالياً. وصلتنا رسالتك وفريقنا هيرد عليك في أقرب وقت.'),
+        'cooldown_minutes' => (int) env('INTELLIREPLY_FALLBACK_COOLDOWN_MINUTES', 30),
+        'pause_minutes' => (int) env('INTELLIREPLY_FALLBACK_PAUSE_MINUTES', 15),
+    ],
+
+    // Give up on the model after this many seconds (voice replies get 15 seconds more).
+    'request_timeout_seconds' => (int) env('INTELLIREPLY_REQUEST_TIMEOUT_SECONDS', 20),
+
     // After a team member replies, automatic replies to that customer pause for this long, then resume. 0 disables.
     'human_takeover_minutes' => (int) env('INTELLIREPLY_HUMAN_TAKEOVER_MINUTES', 60),
 
