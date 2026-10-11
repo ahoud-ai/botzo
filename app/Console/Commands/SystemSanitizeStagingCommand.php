@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Support\SensitiveSettingCodec;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -99,7 +100,7 @@ class SystemSanitizeStagingCommand extends Command
 
         if (! $dryRun) {
             foreach ($existing as $key) {
-                DB::table('settings')->where('key', $key)->update(['value' => $replacements[$key]]);
+                DB::table('settings')->where('key', $key)->update(['value' => SensitiveSettingCodec::encodeSetting($key, $replacements[$key])]);
             }
         }
 
@@ -111,7 +112,7 @@ class SystemSanitizeStagingCommand extends Command
         $count = 0;
 
         foreach (DB::table('payment_gateways')->get(['id', 'metadata']) as $gateway) {
-            $metadata = json_decode((string) $gateway->metadata, true);
+            $metadata = json_decode((string) SensitiveSettingCodec::decrypt($gateway->metadata), true);
             if (! is_array($metadata)) {
                 continue;
             }
@@ -132,7 +133,7 @@ class SystemSanitizeStagingCommand extends Command
             }
 
             if (! $dryRun) {
-                DB::table('payment_gateways')->where('id', $gateway->id)->update(['metadata' => json_encode($metadata)]);
+                DB::table('payment_gateways')->where('id', $gateway->id)->update(['metadata' => SensitiveSettingCodec::encrypt(json_encode($metadata))]);
             }
             $count++;
         }

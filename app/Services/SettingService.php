@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\PaymentGateway;
 use App\Models\Setting;
 use App\Support\SaClientPlanProfile;
+use App\Support\SensitiveSettingCodec;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
@@ -124,7 +125,7 @@ class SettingService
                             ->updateOrInsert([
                                 'key' => $key
                             ],[
-                                'value' => json_encode($value),
+                                'value' => SensitiveSettingCodec::encodeSetting($key, json_encode($value)),
                             ]);
                     } catch (\Exception $e) {
                         Log::error($e->getMessage());
@@ -154,7 +155,7 @@ class SettingService
                         ->updateOrInsert([
                             'key' => $key
                         ],[
-                            'value' => $value,
+                            'value' => SensitiveSettingCodec::encodeSetting($key, $value),
                         ]);
                 } else {
                     if($key == 'mail_config'){
@@ -232,7 +233,7 @@ class SettingService
                             ->updateOrInsert([
                                 'key' => $key
                             ],[
-                                'value' => $value,
+                                'value' => SensitiveSettingCodec::encodeSetting($key, $value),
                             ]);
                     } else if($key == 'is_tax_inclusive'){
                         try {
@@ -248,7 +249,7 @@ class SettingService
                                     ->updateOrInsert([
                                         'key' => $key
                                     ],[
-                                        'value' => $value,
+                                        'value' => SensitiveSettingCodec::encodeSetting($key, $value),
                                     ]);
                             } catch (\Exception $e) {
                                 Log::error($e->getMessage());

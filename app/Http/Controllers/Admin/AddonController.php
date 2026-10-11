@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller as BaseController;
 use App\Models\Addon;
 use App\Services\EmbeddedSignup\EmbeddedSignupService;
 use App\Support\SaClientPlanProfile;
+use App\Support\SensitiveSettingCodec;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 
@@ -35,7 +36,8 @@ class AddonController extends BaseController
         }
 
         foreach ($settings as $key => $value) {
-            DB::table('settings')->updateOrInsert(['key' => $key],['value' => $value]);
+            // Secrets (e.g. the WhatsApp app secret and system token) are stored encrypted.
+            DB::table('settings')->updateOrInsert(['key' => $key], ['value' => SensitiveSettingCodec::encodeSetting((string) $key, $value)]);
         }
 
         // Enforce encrypted-only storage contract for AI global key.

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Setting;
 use App\Services\Whatsapp\WhatsappTokenVault;
+use App\Support\SensitiveSettingCodec;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Tests\Concerns\CreatesOrganizationContext;
@@ -49,7 +50,7 @@ class SystemSanitizeStagingCommandTest extends TestCase
         $this->assertStringNotContainsString('real-smtp-password', (string) Setting::getValueByKey('mail_config'));
         $this->assertSame('Botzo', Setting::getValueByKey('company_name'));
 
-        $gatewayMetadata = (string) DB::table('payment_gateways')->where('id', $gatewayId)->value('metadata');
+        $gatewayMetadata = (string) SensitiveSettingCodec::decrypt(DB::table('payment_gateways')->where('id', $gatewayId)->value('metadata'));
         $this->assertStringNotContainsString('sk_live_real', $gatewayMetadata);
         $this->assertSame('test', json_decode($gatewayMetadata, true)['active_mode']);
         $this->assertSame('sk_test_x', json_decode($gatewayMetadata, true)['secret_key']);

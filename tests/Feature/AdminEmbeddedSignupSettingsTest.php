@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
@@ -46,20 +47,18 @@ class AdminEmbeddedSignupSettingsTest extends TestCase
             'value' => 'app-id-123',
         ]);
 
-        $this->assertDatabaseHas('settings', [
-            'key' => 'whatsapp_client_secret',
-            'value' => 'app-secret-123',
-        ]);
+        // Secrets are encrypted at rest and read back plain.
+        $this->assertSame('app-secret-123', Setting::getValueByKey('whatsapp_client_secret'));
+        $this->assertDatabaseMissing('settings', ['key' => 'whatsapp_client_secret', 'value' => 'app-secret-123']);
 
         $this->assertDatabaseHas('settings', [
             'key' => 'whatsapp_config_id',
             'value' => 'config-id-123',
         ]);
 
-        $this->assertDatabaseHas('settings', [
-            'key' => 'whatsapp_access_token',
-            'value' => 'fallback-token-123',
-        ]);
+        // Secrets are encrypted at rest and read back plain.
+        $this->assertSame('fallback-token-123', Setting::getValueByKey('whatsapp_access_token'));
+        $this->assertDatabaseMissing('settings', ['key' => 'whatsapp_access_token', 'value' => 'fallback-token-123']);
 
         $this->assertDatabaseHas('settings', [
             'key' => 'is_embedded_signup_active',
