@@ -184,9 +184,11 @@ class MainController extends BaseController
 
         Contact::where('uuid', $uuid)
             ->where('organization_id', $organizationId)
-            ->update([
-                'ai_assistance_enabled' => (bool) $payload['ai_assistant'],
-        ]);
+            ->update(array_merge(
+                ['ai_assistance_enabled' => (bool) $payload['ai_assistant']],
+                // Turning the assistant back on by hand ends any human-takeover pause right away.
+                (bool) $payload['ai_assistant'] ? ['ai_paused_until' => null] : []
+            ));
 
         Log::info('intellireply.contact_toggle.updated', [
             'organization_id' => $organizationId,

@@ -22,6 +22,9 @@ return [
         explode(',', (string) env('INTELLIREPLY_AUDIO_RESPONSE_MODELS', 'gpt-audio-1.5,gpt-audio,gpt-audio-mini,gpt-4o-audio-preview'))
     ))),
 
+    // After a team member replies, automatic replies to that customer pause for this long, then resume. 0 disables.
+    'human_takeover_minutes' => (int) env('INTELLIREPLY_HUMAN_TAKEOVER_MINUTES', 60),
+
     // Always-on cost and loop protection, independent of plan billing settings.
     'safety' => [
         // Hard ceiling for completion tokens, whatever an organization saved in its settings.

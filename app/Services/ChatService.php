@@ -17,6 +17,7 @@ use App\Models\Organization;
 use App\Models\Setting;
 use App\Models\Team;
 use App\Models\Template;
+use App\Services\IntelliReply\AiConversationPauseService;
 use App\Services\IntelliReply\AiKeyResolver;
 use App\Services\IntelliReply\AiUsageLimiterService;
 use App\Services\Chat\ChatAccessService;
@@ -399,7 +400,7 @@ class ChatService
         }
 
         if($request->type === 'text'){
-            return $this->whatsappService->sendMessage($contact->uuid, $request->message, auth()->user()->id);
+            return $this->afterAgentReply($contact, $this->whatsappService->sendMessage($contact->uuid, $request->message, auth()->user()->id));
         } else {
             if (! in_array($request->type, ['audio', 'document', 'image', 'sticker', 'video'], true)) {
                 return response()->json(['success' => false, 'message' => __('Unsupported media type.')], 422);
@@ -436,7 +437,7 @@ class ChatService
                 $mediaUrl = rtrim(config('app.url'), '/') . '/media/' . ltrim($mediaFilePath, '/');
             }
     
-            return $this->whatsappService->sendMedia($contact->uuid, $request->type, $fileName, $mediaFilePath, $mediaUrl, $location, $request->caption ?? null, null, $mediaMetadata, auth()->id());
+            return $this->afterAgentReply($contact, $this->whatsappService->sendMedia($contact->uuid, $request->type, $fileName, $mediaFilePath, $mediaUrl, $location, $request->caption ?? null, null, $mediaMetadata, auth()->id()));
         }
     }
 
@@ -521,7 +522,19 @@ class ChatService
         //Build Template to send
         $template = $this->buildTemplate($template->name, $template->language, json_decode(json_encode($metadata)), $contact);
         
-        return $this->whatsappService->sendTemplateMessage($contact->uuid, $template, auth()->user()->id, NULL, $mediaId);
+        return $this->afterAgentReply($contact, $this->whatsappService->sendTemplateMessage($contact->uuid, $template, auth()->user()->id, NULL, $mediaId));
+    }
+
+    /**
+     * A team member replied: pause automatic replies to this customer for a while (human takeover).
+     */
+    private function afterAgentReply(Contact $contact, mixed $response): mixed
+    {
+        if (($response->success ?? false) === true) {
+            app(AiConversationPauseService::class)->pauseForHumanReply($contact);
+        }
+
+        return $response;
     }
 
     public function clearMessage($uuid)
