@@ -13,5 +13,7 @@ class AiUsageLog extends Model
     protected $casts = [
         'input_tokens' => 'integer',
         'output_tokens' => 'integer',
+        'audio_seconds' => 'float',
+        'cost_usd' => 'float',
     ];
 }

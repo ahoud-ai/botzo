@@ -54,6 +54,21 @@ class AiUsageLogServiceTest extends TestCase
         ]);
     }
 
+    public function test_transcription_minutes_and_cost_are_summed(): void
+    {
+        $service = app(AiUsageLogService::class);
+        $usage = fn (float $seconds, float $cost) => ['provider' => 'openai', 'model' => 'gpt-4o-mini-transcribe', 'audio_seconds' => $seconds, 'cost_usd' => $cost];
+
+        $service->record(900005, 1, AiUsageLogService::PURPOSE_TRANSCRIPTION, 'transcribed', $usage(30, 0.0015), 'global');
+        $service->record(900005, 2, AiUsageLogService::PURPOSE_TRANSCRIPTION, 'transcribed', $usage(90, 0.0045), 'global');
+
+        $totals = $service->totals(900005, now()->subDay(), now()->addMinute())[0];
+
+        $this->assertSame(2, $totals['requests']);
+        $this->assertEqualsWithDelta(120.0, $totals['audio_seconds'], 0.01);
+        $this->assertEqualsWithDelta(0.006, $totals['cost_usd'], 0.000001);
+    }
+
     public function test_missing_usage_fields_are_stored_as_zero_and_unknown(): void
     {
         app(AiUsageLogService::class)->record(900003, null, AiUsageLogService::PURPOSE_AUTO_REPLY, 'replied', [], null);

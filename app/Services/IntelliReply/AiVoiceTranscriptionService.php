@@ -57,7 +57,7 @@ class AiVoiceTranscriptionService
     /**
      * @return array{status:string,text:?string,model:?string,cached:bool,seconds:?float}
      */
-    public function transcribe(Chat $chat, array $organizationMetadata, ?string $organizationName, string $apiKey): array
+    public function transcribe(Chat $chat, array $organizationMetadata, ?string $organizationName, string $apiKey, ?string $keySource = null): array
     {
         $chatMetadata = $this->chatMetadata($chat);
         $stored = $this->storedTranscript($chatMetadata);
@@ -113,11 +113,14 @@ class AiVoiceTranscriptionService
                 continue;
             }
 
-            if (mb_strlen($result->text) < (int) config('intellireply.transcription.min_characters', 2)) {
+            $seconds = $result->seconds ?? $seconds;
+            $understood = mb_strlen($result->text) >= (int) config('intellireply.transcription.min_characters', 2);
+            $this->recordUsage($chat, $result->provider, $model, $seconds, $understood ? 'transcribed' : 'empty', $keySource);
+
+            if (! $understood) {
                 return $this->fail($chat, self::STATUS_EMPTY, 'transcript_empty', ['model' => $model], $seconds);
             }
 
-            $seconds = $result->seconds ?? $seconds;
             $this->storeTranscript($chat, $chatMetadata, $result->text, $model, $seconds);
 
             return $this->result(self::STATUS_OK, $result->text, $model, false, $seconds);
@@ -152,6 +155,26 @@ class AiVoiceTranscriptionService
         );
 
         return array_values(array_unique(array_filter(array_map(fn ($model) => trim((string) $model), $models))));
+    }
+
+    /**
+     * Estimated cost from the configured per-minute price of the model; null when unknown.
+     */
+    public function cost(string $model, ?float $seconds): ?float
+    {
+        $price = ((array) config('intellireply.transcription.price_per_minute_usd', []))[$model] ?? null;
+
+        return $seconds !== null && is_numeric($price) ? $seconds / 60 * (float) $price : null;
+    }
+
+    private function recordUsage(Chat $chat, string $provider, string $model, ?float $seconds, string $outcome, ?string $keySource): void
+    {
+        app(AiUsageLogService::class)->record((int) $chat->organization_id, (int) $chat->contact_id, AiUsageLogService::PURPOSE_TRANSCRIPTION, $outcome, [
+            'provider' => $provider,
+            'model' => $model,
+            'audio_seconds' => $seconds,
+            'cost_usd' => $this->cost($model, $seconds),
+        ], $keySource);
     }
 
     private function hint(array $persona): string

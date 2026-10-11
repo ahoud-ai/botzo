@@ -98,6 +98,12 @@ return [
         'max_seconds' => (int) env('INTELLIREPLY_VOICE_MAX_SECONDS', 120),
         // Used to estimate the length of formats whose duration cannot be read from the file.
         'fallback_bitrate_kbps' => (int) env('INTELLIREPLY_VOICE_FALLBACK_BITRATE_KBPS', 64),
+        // USD per audio minute, for the cost recorded in ai_usage_logs. Check the provider's price list before billing on it.
+        'price_per_minute_usd' => [
+            'gpt-4o-mini-transcribe' => (float) env('INTELLIREPLY_PRICE_PER_MINUTE_GPT_4O_MINI_TRANSCRIBE', 0.003),
+            'gpt-4o-transcribe' => (float) env('INTELLIREPLY_PRICE_PER_MINUTE_GPT_4O_TRANSCRIBE', 0.006),
+            'whisper-1' => (float) env('INTELLIREPLY_PRICE_PER_MINUTE_WHISPER_1', 0.006),
+        ],
     ],
 
     // Sent instead of silence when a voice note cannot be used. Asking again is limited per contact.

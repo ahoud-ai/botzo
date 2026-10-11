@@ -147,6 +147,7 @@ class AiVoiceNoteTest extends TestCase
 
         $transcriptions = Http::recorded(fn (Request $request) => str_contains($request->url(), '/audio/transcriptions'));
         $this->assertCount(1, $transcriptions);
+        $this->assertSame(1, \App\Models\AiUsageLog::where('contact_id', $chat->contact_id)->where('purpose', 'transcription')->count(), 'The stored transcript is reused at no cost.');
         $this->assertSame('en', collect($transcriptions[0][0]->data())->keyBy('name')['language']['contents']);
     }
 
@@ -168,6 +169,7 @@ class AiVoiceNoteTest extends TestCase
 
         $this->assertTrue($this->serviceWith($this->silentWhatsapp())->handleAIResponse($chat, ''));
         Http::assertNothingSent();
+        $this->assertDatabaseMissing('ai_usage_logs', ['contact_id' => $chat->contact_id]);
     }
 
     public function test_a_short_enough_voice_note_is_transcribed(): void
@@ -179,6 +181,17 @@ class AiVoiceNoteTest extends TestCase
 
         $this->assertTrue($this->serviceWith($whatsapp)->handleAIResponse($chat, ''));
         $this->assertEqualsWithDelta(90.0, data_get(json_decode($chat->fresh()->metadata, true), 'ai_transcript.seconds'), 0.1);
+
+        // 1.5 minutes at the configured 0.003 USD per minute.
+        $this->assertDatabaseHas('ai_usage_logs', [
+            'contact_id' => $chat->contact_id,
+            'purpose' => 'transcription',
+            'outcome' => 'transcribed',
+            'model' => 'gpt-4o-mini-transcribe',
+            'key_source' => 'organization',
+            'audio_seconds' => 90.0,
+            'cost_usd' => 0.0045,
+        ]);
     }
 
     public function test_a_failed_transcription_asks_the_customer_to_type_once_per_cooldown(): void
@@ -200,6 +213,7 @@ class AiVoiceNoteTest extends TestCase
 
         $this->assertTrue($this->serviceWith($this->silentWhatsapp())->handleAIResponse($chat, ''));
         Http::assertNotSent(fn (Request $request) => str_contains($request->url(), '/chat/completions'));
+        $this->assertDatabaseHas('ai_usage_logs', ['contact_id' => $chat->contact_id, 'purpose' => 'transcription', 'outcome' => 'empty']);
     }
 
     public function test_a_voice_note_whose_file_never_arrived_asks_the_customer_to_type(): void

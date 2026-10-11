@@ -229,7 +229,7 @@ class AIResponseService
                     }
 
                     if ($isVoiceNote) {
-                        $voice = $this->transcribeVoiceNote($lastMessage['chat'], (int) $organizationId, $metadataArray, $apiKey);
+                        $voice = $this->transcribeVoiceNote($lastMessage['chat'], (int) $organizationId, $metadataArray, $apiKey, $keySource);
                         if ($voice['status'] !== AiVoiceTranscriptionService::STATUS_OK) {
                             // Never go silent on a voice note: ask the customer to type (or send a shorter note).
                             $tooLong = $voice['status'] === AiVoiceTranscriptionService::STATUS_TOO_LONG;
@@ -423,8 +423,9 @@ class AIResponseService
 
         if (($metadata['type'] ?? null) === 'audio') {
             $organizationConfig = $this->getOrganizationConfig($organizationId);
-            $apiKey = $this->resolveAiKeyBundle($organizationId, $organizationConfig)['key'] ?? null;
-            $voice = $apiKey ? $this->transcribeVoiceNote($chat, $organizationId, $organizationConfig, $apiKey) : null;
+            $keyBundle = $this->resolveAiKeyBundle($organizationId, $organizationConfig);
+            $apiKey = $keyBundle['key'] ?? null;
+            $voice = $apiKey ? $this->transcribeVoiceNote($chat, $organizationId, $organizationConfig, $apiKey, $keyBundle['source'] ?? null) : null;
 
             if (($voice['status'] ?? null) === AiVoiceTranscriptionService::STATUS_OK) {
                 return [
@@ -635,13 +636,14 @@ class AIResponseService
     /**
      * @return array{status:string,text:?string,model:?string,cached:bool}
      */
-    protected function transcribeVoiceNote(Chat $voiceChat, int $organizationId, array $organizationMetadata, string $apiKey): array
+    protected function transcribeVoiceNote(Chat $voiceChat, int $organizationId, array $organizationMetadata, string $apiKey, ?string $keySource = null): array
     {
         return app(AiVoiceTranscriptionService::class)->transcribe(
             $voiceChat,
             $organizationMetadata,
             Organization::where('id', $organizationId)->value('name'),
-            $apiKey
+            $apiKey,
+            $keySource
         );
     }
 
