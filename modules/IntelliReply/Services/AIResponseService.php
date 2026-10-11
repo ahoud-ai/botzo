@@ -9,6 +9,10 @@ use App\Models\ChatTicketLog;
 use App\Models\Contact;
 use App\Models\Organization;
 use App\Models\Setting;
+use App\Services\Ai\AiProviderManager;
+use App\Services\Ai\Contracts\AiEmbeddingProvider;
+use App\Services\Ai\Data\AiChatRequest;
+use App\Services\Ai\Exceptions\AiProviderException;
 use App\Services\IntelliReply\AiDisclosureService;
 use App\Services\IntelliReply\AiKeyResolver;
 use App\Services\IntelliReply\AiReplyFallbackService;
@@ -20,7 +24,6 @@ use FFMpeg\FFMpeg;
 use FFMpeg\Format\Audio\Mp3;
 use Illuminate\Support\Facades\Log;
 use Modules\IntelliReply\Models\Document;
-use OpenAI;
 
 class AIResponseService
 {
@@ -421,79 +424,47 @@ class AIResponseService
             return null;
         }
 
-        $model = data_get($organizationConfig, 'ai.model', 'gpt-4o-mini');
-        $maxTokens = app(AiReplySafetyGuard::class)->maxOutputTokens((int) data_get($organizationConfig, 'ai.max_tokens', 512));
-        $temperature = (float) data_get($organizationConfig, 'ai.temperature', 0.7);
-        $audioResponseModels = $this->audioResponseModels();
+        $model = (string) data_get($organizationConfig, 'ai.model', 'gpt-4o-mini');
+        $wantsAudio = in_array($model, $this->audioResponseModels(), true);
+        $timeout = max(5, (int) config('intellireply.request_timeout_seconds', 20)) + ($wantsAudio ? 15 : 0);
 
-        if (!in_array((string) $model, $audioResponseModels, true)) {
-            $response = \Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $apiKey
-            ])->timeout(max(5, (int) config('intellireply.request_timeout_seconds', 20)))->retry(1, 250)->post('https://api.openai.com/v1/chat/completions', [
-                'model' => $model,
-                'messages' => $context,
-                'max_tokens' => $maxTokens,
-                'temperature' => $temperature,
-            ]);
-        } else {
-            $response = \Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $apiKey
-            ])->timeout(max(5, (int) config('intellireply.request_timeout_seconds', 20)) + 15)->retry(1, 250)->post('https://api.openai.com/v1/chat/completions', [
-                'model' => $model,
-                "modalities" => ["text", "audio"],
-                "audio" => [
-                    "voice" => data_get($organizationConfig, 'ai.voice'),
-                    "format" => "mp3"
-                ],
-                'messages' => $context,
-                'max_tokens' => $maxTokens,
-                'temperature' => $temperature,
-            ]);
-        }
-        
-        if (!$response->successful()) {
+        try {
+            $result = app(AiProviderManager::class)
+                ->chat(data_get($organizationConfig, 'ai.provider'), $apiKey)
+                ->chat(new AiChatRequest(
+                    model: $model,
+                    messages: $context,
+                    maxTokens: app(AiReplySafetyGuard::class)->maxOutputTokens((int) data_get($organizationConfig, 'ai.max_tokens', 512)),
+                    temperature: (float) data_get($organizationConfig, 'ai.temperature', 0.7),
+                    timeoutSeconds: $timeout,
+                    audioVoice: $wantsAudio ? (string) data_get($organizationConfig, 'ai.voice') : null,
+                ));
+        } catch (AiProviderException $exception) {
             Log::warning('intellireply.chat.request_failed', [
                 'organization_id' => $organizationId,
-                'error_code' => 'OPENAI_REQUEST_FAILED',
-                'status' => $response->status(),
+                'error_code' => 'AI_PROVIDER_REQUEST_FAILED',
+                'status' => $exception->status,
+                'provider_error' => $exception->errorCode,
                 'key_source' => $apiKeyBundle['source'] ?? null,
             ]);
             return null;
         }
 
-        $responseArray = $response->json();
-
-        //\Log::info($responseArray);
-
-        // Access the first choice in the response (choices array)
-        if (isset($responseArray['choices']) && count($responseArray['choices']) > 0) {
-            $audioId = NULL;
-            $encodedAudioFile = NULL;
-
-            if(isset($responseArray['choices'][0]['message']['content'])){
-                $chatResponse = $responseArray['choices'][0]['message']['content'];
-                $type = 'text';
-            }
-
-            if(isset($responseArray['choices'][0]['message']['audio']['transcript'])){
-                $chatResponse = $responseArray['choices'][0]['message']['audio']['transcript'];
-                $audioId = $responseArray['choices'][0]['message']['audio']['id'];
-                $encodedAudioFile = $responseArray['choices'][0]['message']['audio']['data'];
-                $type = 'audio';
-            }
-
-            return [
-                'type' => $type,
-                'text' => $chatResponse,
-                'audio' => [
-                    'id' => $audioId,
-                    'data' => $encodedAudioFile,
-                    'transcript' => $chatResponse
-                ]
-            ];
-        }
+        return [
+            'type' => $result->hasAudio() ? 'audio' : 'text',
+            'text' => $result->text,
+            'audio' => [
+                'id' => $result->audioId,
+                'data' => $result->audioData,
+                'transcript' => $result->text,
+            ],
+            'usage' => [
+                'provider' => $result->provider,
+                'model' => $result->model,
+                'input_tokens' => $result->inputTokens,
+                'output_tokens' => $result->outputTokens,
+            ],
+        ];
     }
 
     private function latestCustomerMessageForSuggestion(int $organizationId, int $contactId): ?array
@@ -623,34 +594,28 @@ class AIResponseService
 
     private function requestTextCompletion(int $organizationId, array $organizationConfig, array $messages, string $apiKey, array $apiKeyBundle): ?string
     {
-        $model = data_get($organizationConfig, 'ai.model', 'gpt-4o-mini');
-        $maxTokens = app(AiReplySafetyGuard::class)->maxOutputTokens((int) data_get($organizationConfig, 'ai.max_tokens', 512));
-        $temperature = (float) data_get($organizationConfig, 'ai.temperature', 0.7);
-
-        $response = \Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer '.$apiKey,
-        ])->timeout(30)->retry(1, 250)->post('https://api.openai.com/v1/chat/completions', [
-            'model' => $model,
-            'messages' => $messages,
-            'max_tokens' => $maxTokens,
-            'temperature' => $temperature,
-        ]);
-
-        if (!$response->successful()) {
+        try {
+            $result = app(AiProviderManager::class)
+                ->chat(data_get($organizationConfig, 'ai.provider'), $apiKey)
+                ->chat(new AiChatRequest(
+                    model: (string) data_get($organizationConfig, 'ai.model', 'gpt-4o-mini'),
+                    messages: $messages,
+                    maxTokens: app(AiReplySafetyGuard::class)->maxOutputTokens((int) data_get($organizationConfig, 'ai.max_tokens', 512)),
+                    temperature: (float) data_get($organizationConfig, 'ai.temperature', 0.7),
+                    timeoutSeconds: 30,
+                ));
+        } catch (AiProviderException $exception) {
             Log::warning('intellireply.chat_suggestion.request_failed', [
                 'organization_id' => $organizationId,
-                'error_code' => 'OPENAI_REQUEST_FAILED',
-                'status' => $response->status(),
+                'error_code' => 'AI_PROVIDER_REQUEST_FAILED',
+                'status' => $exception->status,
                 'key_source' => $apiKeyBundle['source'] ?? null,
             ]);
 
             return null;
         }
 
-        $content = data_get($response->json(), 'choices.0.message.content');
-
-        return is_string($content) ? trim($content) : null;
+        return trim($result->text) !== '' ? trim($result->text) : null;
     }
 
     protected function saveBase64Audio($base64Data, $organizationId, $fileName)
@@ -1012,7 +977,7 @@ class AIResponseService
             ];
         }
 
-        $client = OpenAI::client($api_key);
+        $client = app(AiProviderManager::class)->embeddings(data_get($organizationConfig, 'ai.embedding_provider'), $api_key);
 
         try {
             // Generate embedding for query
@@ -1219,18 +1184,13 @@ class AIResponseService
     /**
      * @return array{0:array,1:string}
      */
-    private function createEmbeddingWithFallback($client, string $input, array $organizationConfig): array
+    private function createEmbeddingWithFallback(AiEmbeddingProvider $client, string $input, array $organizationConfig): array
     {
         $lastError = null;
 
         foreach ($this->embeddingModelCandidates($organizationConfig) as $model) {
             try {
-                $response = $client->embeddings()->create([
-                    'input' => $input,
-                    'model' => $model,
-                ]);
-
-                return [$response->embeddings[0]->embedding, $model];
+                return [$client->embed($input, $model), $model];
             } catch (\Throwable $e) {
                 $lastError = $e;
                 continue;

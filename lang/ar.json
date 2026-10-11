@@ -5478,5 +5478,7 @@
     "Read messages": "رسائل مقروءة",
     "Last 30 days": "آخر 30 يوماً",
     "Bot disclosure message": "رسالة الإفصاح عن البوت",
-    "Sent once at the start of each conversation. Use {placeholder} for your business name. Leave empty to use the default:": "تُرسل مرة واحدة في بداية كل محادثة. استخدم {placeholder} لاسم نشاطك. اتركها فارغة لاستخدام الرسالة الافتراضية:"
+    "Sent once at the start of each conversation. Use {placeholder} for your business name. Leave empty to use the default:": "تُرسل مرة واحدة في بداية كل محادثة. استخدم {placeholder} لاسم نشاطك. اتركها فارغة لاستخدام الرسالة الافتراضية:",
+    "The AI provider returned no embedding.": "لم يُرجع مزوّد الذكاء الاصطناعي أي embedding.",
+    "Could not reach the AI provider.": "تعذّر الاتصال بمزوّد الذكاء الاصطناعي."
 }

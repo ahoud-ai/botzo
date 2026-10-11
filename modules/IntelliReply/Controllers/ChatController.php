@@ -9,13 +9,14 @@ use App\Models\Contact;
 use App\Models\Organization;
 use App\Services\IntelliReply\AiUsageLimiterService;
 use App\Services\IntelliReply\AiKeyResolver;
+use App\Services\Ai\AiProviderManager;
+use App\Services\Ai\Contracts\AiEmbeddingProvider;
 use App\Services\PermissionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Modules\IntelliReply\Models\Document;
 use Modules\IntelliReply\Services\AIResponseService;
-use OpenAI;
 
 class ChatController extends BaseController
 {
@@ -148,7 +149,7 @@ class ChatController extends BaseController
             ], 422);
         }
 
-        $client = OpenAI::client($apiKey);
+        $client = app(AiProviderManager::class)->embeddings(data_get($metadata, 'ai.embedding_provider'), $apiKey);
         $query = trim((string) $payload['query']);
 
         try {
@@ -324,18 +325,13 @@ class ChatController extends BaseController
     /**
      * @return array{0:array,1:string}
      */
-    private function createEmbeddingWithFallback($client, string $input, array $metadata): array
+    private function createEmbeddingWithFallback(AiEmbeddingProvider $client, string $input, array $metadata): array
     {
         $lastError = null;
 
         foreach ($this->embeddingModelCandidates($metadata) as $model) {
             try {
-                $response = $client->embeddings()->create([
-                    'input' => $input,
-                    'model' => $model,
-                ]);
-
-                return [$response->embeddings[0]->embedding, $model];
+                return [$client->embed($input, $model), $model];
             } catch (\Throwable $e) {
                 $lastError = $e;
                 continue;

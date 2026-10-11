@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller as BaseController;
 use App\Models\Contact;
 use App\Models\Organization;
 use App\Services\IntelliReply\AiKeyResolver;
+use App\Services\Ai\AiProviderManager;
 use App\Services\OrganizationUsageSummaryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -15,7 +16,6 @@ use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Modules\IntelliReply\Models\Document;
 use Modules\IntelliReply\Resources\DocumentResource;
-use OpenAI;
 
 class MainController extends BaseController
 {
@@ -399,11 +399,7 @@ class MainController extends BaseController
 
     private function runEmbeddingPreflight(string $apiKey, string $embeddingModel): void
     {
-        $client = OpenAI::client($apiKey);
-        $client->embeddings()->create([
-            'input' => 'intellireply preflight',
-            'model' => $embeddingModel,
-        ]);
+        app(AiProviderManager::class)->embeddings(null, $apiKey)->embed('intellireply preflight', $embeddingModel);
     }
 
     private function isEmbeddingModelAccessError(\Throwable $e): bool

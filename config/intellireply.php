@@ -1,6 +1,14 @@
 <?php
 
 return [
+    // AI providers by name. Chat and embeddings are resolved separately because not every
+    // chat provider offers embeddings (knowledge-base search can stay on OpenAI).
+    'providers' => [
+        'openai' => App\Services\Ai\Providers\OpenAiProvider::class,
+    ],
+    'default_chat_provider' => env('INTELLIREPLY_CHAT_PROVIDER', 'openai'),
+    'default_embedding_provider' => env('INTELLIREPLY_EMBEDDING_PROVIDER', 'openai'),
+
     // The preferred embedding model for new organizations.
     'default_embedding_model' => env('INTELLIREPLY_DEFAULT_EMBEDDING_MODEL', 'text-embedding-3-small'),
 

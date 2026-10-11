@@ -6,13 +6,14 @@ use App\Helpers\CustomHelper;
 use App\Http\Controllers\Controller as BaseController;
 use App\Models\Organization;
 use App\Services\IntelliReply\AiKeyResolver;
+use App\Services\Ai\AiProviderManager;
+use App\Services\Ai\Contracts\AiEmbeddingProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Modules\IntelliReply\Models\Document;
 use Modules\IntelliReply\Requests\StoreDocuments;
-use OpenAI;
 use PhpOffice\PhpWord\IOFactory as WordIOFactory;
 use Smalot\PdfParser\Parser as PdfParser;
 
@@ -67,7 +68,7 @@ class DocumentController extends BaseController
             }
 
             DB::transaction(function () use ($organizationId, $request, $normalizedContent, $apiKey, $metadata): void {
-                $client = OpenAI::client($apiKey);
+                $client = app(AiProviderManager::class)->embeddings(data_get($metadata, 'ai.embedding_provider'), $apiKey);
 
                 $document = new Document();
                 $document->organization_id = $organizationId;
@@ -296,18 +297,13 @@ class DocumentController extends BaseController
     /**
      * @return array{0:array,1:string}
      */
-    private function createEmbeddingWithFallback($client, string $chunk, array $metadata): array
+    private function createEmbeddingWithFallback(AiEmbeddingProvider $client, string $chunk, array $metadata): array
     {
         $lastError = null;
 
         foreach ($this->embeddingModelCandidates($metadata) as $model) {
             try {
-                $response = $client->embeddings()->create([
-                    'input' => $chunk,
-                    'model' => $model,
-                ]);
-
-                return [$response->embeddings[0]->embedding, $model];
+                return [$client->embed($chunk, $model), $model];
             } catch (\Throwable $e) {
                 $lastError = $e;
                 continue;

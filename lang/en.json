@@ -5405,5 +5405,7 @@
     "Read messages": "Read messages",
     "Last 30 days": "Last 30 days",
     "Bot disclosure message": "Bot disclosure message",
-    "Sent once at the start of each conversation. Use {placeholder} for your business name. Leave empty to use the default:": "Sent once at the start of each conversation. Use {placeholder} for your business name. Leave empty to use the default:"
+    "Sent once at the start of each conversation. Use {placeholder} for your business name. Leave empty to use the default:": "Sent once at the start of each conversation. Use {placeholder} for your business name. Leave empty to use the default:",
+    "The AI provider returned no embedding.": "The AI provider returned no embedding.",
+    "Could not reach the AI provider.": "Could not reach the AI provider."
 }
