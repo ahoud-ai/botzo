@@ -9,6 +9,7 @@ use App\Models\Organization;
 use App\Models\Setting;
 use App\Services\AddonStateService;
 use App\Services\IntelliReply\AiDisclosureService;
+use App\Services\IntelliReply\AiReplyFallbackService;
 use App\Services\IntelliReply\AiReplySafetyGuard;
 use App\Services\WhatsappService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -20,6 +21,7 @@ use Mockery;
 use Modules\IntelliReply\Services\AIResponseService;
 use Tests\Concerns\CreatesOrganizationContext;
 use Tests\TestCase;
+use Tests\Unit\AudioDurationTest;
 
 class AiVoiceNoteTest extends TestCase
 {
@@ -148,13 +150,80 @@ class AiVoiceNoteTest extends TestCase
         $this->assertSame('en', collect($transcriptions[0][0]->data())->keyBy('name')['language']['contents']);
     }
 
-    public function test_unsupported_formats_are_not_sent_to_the_provider(): void
+    public function test_unsupported_formats_are_not_sent_to_the_provider_and_the_customer_is_asked_to_type(): void
     {
-        [, $chat] = $this->voiceConversation(mimeType: 'audio/amr');
+        [$contact, $chat] = $this->voiceConversation(mimeType: 'audio/amr');
         Http::fake();
+        $this->expectAskToType($contact, 'ممكن تكتب سؤالك؟');
 
-        $this->assertFalse($this->serviceWith($this->silentWhatsapp())->handleAIResponse($chat, ''));
+        $this->assertTrue($this->serviceWith($this->silentWhatsapp())->handleAIResponse($chat, ''));
         Http::assertNothingSent();
+    }
+
+    public function test_a_voice_note_over_the_limit_is_not_transcribed_and_the_customer_is_told(): void
+    {
+        [$contact, $chat] = $this->voiceConversation(audio: AudioDurationTest::opus(150));
+        Http::fake();
+        $this->expectAskToType($contact, 'الفويس أطول من دقيقتين');
+
+        $this->assertTrue($this->serviceWith($this->silentWhatsapp())->handleAIResponse($chat, ''));
+        Http::assertNothingSent();
+    }
+
+    public function test_a_short_enough_voice_note_is_transcribed(): void
+    {
+        [, $chat] = $this->voiceConversation(audio: AudioDurationTest::opus(90));
+        $this->fakeOpenAi('عندكم فرع في جدة؟', 'أيوه، عندنا فرع في جدة.');
+        $whatsapp = Mockery::mock(WhatsappService::class);
+        $whatsapp->shouldReceive('sendMessage')->once()->andReturn((object) ['success' => true]);
+
+        $this->assertTrue($this->serviceWith($whatsapp)->handleAIResponse($chat, ''));
+        $this->assertEqualsWithDelta(90.0, data_get(json_decode($chat->fresh()->metadata, true), 'ai_transcript.seconds'), 0.1);
+    }
+
+    public function test_a_failed_transcription_asks_the_customer_to_type_once_per_cooldown(): void
+    {
+        [$contact, $chat] = $this->voiceConversation();
+        Http::fake(['api.openai.com/*' => Http::response(['error' => ['message' => 'server error']], 500)]);
+        $this->expectAskToType($contact, 'ممكن تكتب سؤالك؟');
+
+        $service = $this->serviceWith($this->silentWhatsapp());
+        $this->assertTrue($service->handleAIResponse($chat, ''));
+        $this->assertTrue($service->handleAIResponse($chat, ''), 'A second failure within the cooldown stays quiet.');
+    }
+
+    public function test_an_empty_transcript_counts_as_not_understood(): void
+    {
+        [$contact, $chat] = $this->voiceConversation();
+        Http::fake(['api.openai.com/v1/audio/transcriptions' => Http::response(['text' => ' '])]);
+        $this->expectAskToType($contact, 'ممكن تكتب سؤالك؟');
+
+        $this->assertTrue($this->serviceWith($this->silentWhatsapp())->handleAIResponse($chat, ''));
+        Http::assertNotSent(fn (Request $request) => str_contains($request->url(), '/chat/completions'));
+    }
+
+    public function test_a_voice_note_whose_file_never_arrived_asks_the_customer_to_type(): void
+    {
+        [$contact, $chat] = $this->voiceConversation();
+        $chat->update(['media_id' => null]);
+        Http::fake();
+        $this->expectAskToType($contact, 'ممكن تكتب سؤالك؟');
+
+        $this->assertTrue($this->serviceWith($this->silentWhatsapp())->handleAIResponse($chat->fresh(), ''));
+        Http::assertNothingSent();
+    }
+
+    public function test_a_model_failure_after_transcription_uses_the_team_fallback(): void
+    {
+        config(['intellireply.fallback.text' => 'فريقنا هيرد عليك قريب.']);
+        [$contact, $chat] = $this->voiceConversation();
+        Http::fake([
+            'api.openai.com/v1/audio/transcriptions' => Http::response(['text' => 'عندكم توصيل؟']),
+            'api.openai.com/v1/chat/completions' => Http::response(['error' => ['message' => 'overloaded']], 503),
+        ]);
+        $this->expectAskToType($contact, 'فريقنا هيرد عليك قريب.');
+
+        $this->assertTrue($this->serviceWith($this->silentWhatsapp())->handleAIResponse($chat, ''));
     }
 
     public function test_agent_suggestions_reuse_the_stored_transcript(): void
@@ -189,6 +258,21 @@ class AiVoiceNoteTest extends TestCase
         ]);
     }
 
+    /**
+     * The fallback service sends the "please type" (or team fallback) message; nothing else may be sent.
+     */
+    private function expectAskToType(Contact $contact, string $expectedFragment): void
+    {
+        $channel = Mockery::mock(WhatsappService::class);
+        $channel->shouldReceive('sendMessage')->once()
+            ->with((string) $contact->uuid, Mockery::on(fn ($message) => str_contains($message, $expectedFragment)))
+            ->andReturn((object) ['success' => true]);
+
+        $fallback = Mockery::mock(AiReplyFallbackService::class)->makePartial()->shouldAllowMockingProtectedMethods();
+        $fallback->shouldReceive('whatsapp')->andReturn($channel);
+        $this->app->instance(AiReplyFallbackService::class, $fallback);
+    }
+
     private function silentWhatsapp(): WhatsappService
     {
         $whatsapp = Mockery::mock(WhatsappService::class);
@@ -208,7 +292,7 @@ class AiVoiceNoteTest extends TestCase
     /**
      * @return array{0:Contact,1:Chat}
      */
-    private function voiceConversation(array $ai = [], bool $contactEnabled = true, ?array $planMetadata = null, string $mimeType = 'audio/ogg; codecs=opus'): array
+    private function voiceConversation(array $ai = [], bool $contactEnabled = true, ?array $planMetadata = null, string $mimeType = 'audio/ogg; codecs=opus', string $audio = 'OggS-fake-voice'): array
     {
         [, $organization] = $this->createOwnerContext(['ai' => array_merge([
             'active' => true,
@@ -245,7 +329,7 @@ class AiVoiceNoteTest extends TestCase
         $fileName = 'voice-test-'.Str::random(8).'.ogg';
         $this->files[] = storage_path('app/public/'.$fileName);
         @mkdir(storage_path('app/public'), 0777, true);
-        file_put_contents(storage_path('app/public/'.$fileName), 'OggS-fake-voice');
+        file_put_contents(storage_path('app/public/'.$fileName), $audio);
 
         $media = ChatMedia::create([
             'name' => 'N/A',

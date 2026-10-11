@@ -50,16 +50,65 @@ class AiReplyFallbackService
     }
 
     /**
+     * A voice note could not be used: ask the customer to type instead of going silent.
+     * The assistant stays on (the customer's next text is answered normally) and the
+     * request is sent at most once per cooldown.
+     *
+     * @return bool true when the customer was asked now or recently
+     */
+    public function askToType(Contact $contact, string $text, string $reason): bool
+    {
+        $organizationId = (int) $contact->organization_id;
+        $cooldownKey = sprintf('intellireply:ask-to-type:%d:%d', $organizationId, $contact->id);
+
+        Log::notice('intellireply.voice.ask_to_type', [
+            'organization_id' => $organizationId,
+            'contact_id' => $contact->id,
+            'reason' => $reason,
+        ]);
+
+        if (Cache::has($cooldownKey)) {
+            return true;
+        }
+
+        $text = trim($text);
+        if ($text === '' || ! $this->send($contact, $text)) {
+            return false;
+        }
+
+        Cache::put($cooldownKey, true, now()->addMinutes(max(1, (int) config('intellireply.voice.retry_cooldown_minutes', 10))));
+        app(AiReplySafetyGuard::class)->recordReplyToContact($organizationId, (int) $contact->id);
+
+        return true;
+    }
+
+    /**
      * Send $text (with the bot disclosure when still pending), pause automatic replies
      * and assign the chat to the team.
      */
     public function handOff(Contact $contact, string $text, int $pauseMinutes, string $assignReason): bool
     {
         $text = trim($text);
-        if ($text === '') {
+        if ($text === '' || ! $this->send($contact, $text)) {
             return false;
         }
 
+        app(AiConversationPauseService::class)->pauseFor($contact, $pauseMinutes);
+
+        try {
+            app(AutomationFlowConversationHandoffService::class)->assignToAgent($contact, 'auto_assign', null, true, $assignReason);
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
+
+        return true;
+    }
+
+    /**
+     * Send $text, prefixed with the bot disclosure when it is still pending for this conversation.
+     */
+    private function send(Contact $contact, string $text): bool
+    {
         $organizationId = (int) $contact->organization_id;
         $organization = Organization::find($organizationId);
         $metadata = $organization?->metadata ? (json_decode($organization->metadata, true) ?: []) : [];
@@ -76,14 +125,6 @@ class AiReplyFallbackService
 
         if ($disclosure !== null) {
             $disclosureService->markDisclosed($organizationId, (int) $contact->id);
-        }
-
-        app(AiConversationPauseService::class)->pauseFor($contact, $pauseMinutes);
-
-        try {
-            app(AutomationFlowConversationHandoffService::class)->assignToAgent($contact, 'auto_assign', null, true, $assignReason);
-        } catch (\Throwable $exception) {
-            report($exception);
         }
 
         return true;

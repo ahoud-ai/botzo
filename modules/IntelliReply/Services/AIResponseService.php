@@ -231,7 +231,14 @@ class AIResponseService
                     if ($isVoiceNote) {
                         $voice = $this->transcribeVoiceNote($lastMessage['chat'], (int) $organizationId, $metadataArray, $apiKey);
                         if ($voice['status'] !== AiVoiceTranscriptionService::STATUS_OK) {
-                            return false;
+                            // Never go silent on a voice note: ask the customer to type (or send a shorter note).
+                            $tooLong = $voice['status'] === AiVoiceTranscriptionService::STATUS_TOO_LONG;
+
+                            return app(AiReplyFallbackService::class)->askToType(
+                                $contact,
+                                (string) config($tooLong ? 'intellireply.voice.too_long_text' : 'intellireply.voice.not_understood_text', ''),
+                                'voice_'.$voice['status']
+                            );
                         }
                         $receivedMessage = (string) $voice['text'];
 

@@ -8,6 +8,7 @@ use App\Models\ChatLog;
 use App\Models\ChatMedia;
 use App\Services\Ai\AiProviderManager;
 use App\Services\Ai\Data\AiTranscriptionRequest;
+use App\Support\AudioDuration;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -23,6 +24,7 @@ class AiVoiceTranscriptionService
     public const STATUS_OK = 'ok';
     public const STATUS_NOT_READY = 'not_ready';
     public const STATUS_UNSUPPORTED = 'unsupported';
+    public const STATUS_TOO_LONG = 'too_long';
     public const STATUS_EMPTY = 'empty';
     public const STATUS_FAILED = 'failed';
 
@@ -53,14 +55,14 @@ class AiVoiceTranscriptionService
     ];
 
     /**
-     * @return array{status:string,text:?string,model:?string,cached:bool}
+     * @return array{status:string,text:?string,model:?string,cached:bool,seconds:?float}
      */
     public function transcribe(Chat $chat, array $organizationMetadata, ?string $organizationName, string $apiKey): array
     {
         $chatMetadata = $this->chatMetadata($chat);
         $stored = $this->storedTranscript($chatMetadata);
         if ($stored !== null) {
-            return $this->result(self::STATUS_OK, $stored, data_get($chatMetadata, 'ai_transcript.model'), true);
+            return $this->result(self::STATUS_OK, $stored, data_get($chatMetadata, 'ai_transcript.model'), true, data_get($chatMetadata, 'ai_transcript.seconds'));
         }
 
         $media = $chat->media_id ? ChatMedia::find($chat->media_id) : null;
@@ -77,6 +79,13 @@ class AiVoiceTranscriptionService
         $audio = $this->readAudioBinary((string) $media->path);
         if ($audio === null || $audio === '') {
             return $this->fail($chat, self::STATUS_NOT_READY, 'media_unreadable');
+        }
+
+        // Checked before anything is sent, so an over-long note costs nothing.
+        $seconds = AudioDuration::seconds($audio, $mimeType, (int) config('intellireply.transcription.fallback_bitrate_kbps', 64));
+        $maxSeconds = (int) config('intellireply.transcription.max_seconds', 120);
+        if ($maxSeconds > 0 && $seconds !== null && $seconds > $maxSeconds) {
+            return $this->fail($chat, self::STATUS_TOO_LONG, 'too_long', ['seconds' => round($seconds, 1)], $seconds);
         }
 
         $persona = app(AiPersonaPromptBuilder::class)->persona($organizationMetadata, $organizationName);
@@ -105,15 +114,16 @@ class AiVoiceTranscriptionService
             }
 
             if (mb_strlen($result->text) < (int) config('intellireply.transcription.min_characters', 2)) {
-                return $this->fail($chat, self::STATUS_EMPTY, 'transcript_empty', ['model' => $model]);
+                return $this->fail($chat, self::STATUS_EMPTY, 'transcript_empty', ['model' => $model], $seconds);
             }
 
-            $this->storeTranscript($chat, $chatMetadata, $result->text, $model);
+            $seconds = $result->seconds ?? $seconds;
+            $this->storeTranscript($chat, $chatMetadata, $result->text, $model, $seconds);
 
-            return $this->result(self::STATUS_OK, $result->text, $model, false);
+            return $this->result(self::STATUS_OK, $result->text, $model, false, $seconds);
         }
 
-        return $this->fail($chat, self::STATUS_FAILED, 'transcription_failed');
+        return $this->fail($chat, self::STATUS_FAILED, 'transcription_failed', [], $seconds);
     }
 
     public function storedTranscript(array $chatMetadata): ?string
@@ -152,11 +162,12 @@ class AiVoiceTranscriptionService
             .(self::DIALECT_HINTS[$persona['dialect']] ?? self::DIALECT_HINTS['auto']);
     }
 
-    private function storeTranscript(Chat $chat, array $chatMetadata, string $text, string $model): void
+    private function storeTranscript(Chat $chat, array $chatMetadata, string $text, string $model, ?float $seconds): void
     {
         $chatMetadata['ai_transcript'] = [
             'text' => $text,
             'model' => $model,
+            'seconds' => $seconds !== null ? round($seconds, 1) : null,
             'created_at' => now()->toIso8601String(),
         ];
 
@@ -195,14 +206,20 @@ class AiVoiceTranscriptionService
     }
 
     /**
-     * @return array{status:string,text:?string,model:?string,cached:bool}
+     * @return array{status:string,text:?string,model:?string,cached:bool,seconds:?float}
      */
-    private function result(string $status, ?string $text, ?string $model, bool $cached): array
+    private function result(string $status, ?string $text, ?string $model, bool $cached, mixed $seconds = null): array
     {
-        return ['status' => $status, 'text' => $text, 'model' => $model, 'cached' => $cached];
+        return [
+            'status' => $status,
+            'text' => $text,
+            'model' => $model,
+            'cached' => $cached,
+            'seconds' => is_numeric($seconds) ? (float) $seconds : null,
+        ];
     }
 
-    private function fail(Chat $chat, string $status, string $reason, array $context = []): array
+    private function fail(Chat $chat, string $status, string $reason, array $context = [], ?float $seconds = null): array
     {
         Log::warning('intellireply.audio.transcription_unavailable', array_merge([
             'organization_id' => $chat->organization_id,
@@ -211,7 +228,7 @@ class AiVoiceTranscriptionService
             'reason' => $reason,
         ], $context));
 
-        return $this->result($status, null, null, false);
+        return $this->result($status, null, null, false, $seconds);
     }
 
     private function readAudioBinary(string $audioPath): ?string

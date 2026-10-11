@@ -94,5 +94,16 @@ return [
         'timeout_seconds' => (int) env('INTELLIREPLY_TRANSCRIPTION_TIMEOUT_SECONDS', 30),
         // Shorter transcripts are treated as "not understood" (noise, a cough, an empty note).
         'min_characters' => (int) env('INTELLIREPLY_TRANSCRIPTION_MIN_CHARACTERS', 2),
+        // Longer notes are not transcribed; the customer is asked to type or send a shorter one. 0 disables the cap.
+        'max_seconds' => (int) env('INTELLIREPLY_VOICE_MAX_SECONDS', 120),
+        // Used to estimate the length of formats whose duration cannot be read from the file.
+        'fallback_bitrate_kbps' => (int) env('INTELLIREPLY_VOICE_FALLBACK_BITRATE_KBPS', 64),
+    ],
+
+    // Sent instead of silence when a voice note cannot be used. Asking again is limited per contact.
+    'voice' => [
+        'not_understood_text' => env('INTELLIREPLY_VOICE_NOT_UNDERSTOOD_TEXT', 'معلش، ما قدرتش أفهم الفويس. ممكن تكتب سؤالك؟'),
+        'too_long_text' => env('INTELLIREPLY_VOICE_TOO_LONG_TEXT', 'الفويس أطول من دقيقتين. ممكن تكتب سؤالك أو تبعت فويس أقصر؟'),
+        'retry_cooldown_minutes' => (int) env('INTELLIREPLY_VOICE_RETRY_COOLDOWN_MINUTES', 10),
     ],
 ];
