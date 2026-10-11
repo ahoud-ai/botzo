@@ -155,6 +155,14 @@
                         </div>
                     </div>
 
+                    <div>
+                        <FormTextArea v-model="form3.disclosure_text" :error="form3.errors.disclosure_text" :name="$t('Bot disclosure message')" :textAreaRows="3"/>
+                        <div class="mt-1 flex items-center justify-between gap-3 text-[11px] text-[var(--ui-muted)]">
+                            <span>{{ $t('Sent once at the start of each conversation. Use {placeholder} for your business name. Leave empty to use the default:', { placeholder: '{business}' }) }} {{ defaultDisclosureText }}</span>
+                            <span>{{ (form3.disclosure_text || '').length }}/500</span>
+                        </div>
+                    </div>
+
                     <div class="flex flex-wrap items-center justify-end gap-3">
                         <span v-if="form3.isDirty" class="ai-unsaved-pill">{{ $t('Unsaved changes') }}</span>
                         <button type="submit" class="ai-btn-primary" :disabled="form3.processing">
@@ -238,7 +246,7 @@
     import FormToggleSwitch from '@/Components/FormToggleSwitch.vue';
     import Pagination from '@/Components/Pagination.vue';
 
-    const props = defineProps(['rows', 'filters', 'settings', 'aimodule', 'fbmodule', 'models', 'embeddingModels', 'audioResponseModels', 'voices', 'aiUsageSummary', 'maxOutputTokens']);
+    const props = defineProps(['rows', 'filters', 'settings', 'aimodule', 'fbmodule', 'models', 'embeddingModels', 'audioResponseModels', 'voices', 'aiUsageSummary', 'maxOutputTokens', 'defaultDisclosureText']);
     const config = ref(props.settings.metadata);
     const settings = ref(config.value ? JSON.parse(config.value) : null);
     const aiConfigured = computed(() => Boolean(settings.value?.ai?.has_api_key || settings.value?.ai?.api_key));
@@ -301,6 +309,7 @@
         enable_automatic_responses: settings.value?.ai?.enable_automatic_responses ?? false,
         start_keywords: settings.value?.ai?.start_keywords ?? null,
         stop_keywords: settings.value?.ai?.stop_keywords ?? null,
+        disclosure_text: settings.value?.ai?.disclosure_text ?? null,
     });
 
     const toggleSetupForm = () => {

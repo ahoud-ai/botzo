@@ -9,6 +9,7 @@ use App\Models\ChatTicketLog;
 use App\Models\Contact;
 use App\Models\Organization;
 use App\Models\Setting;
+use App\Services\IntelliReply\AiDisclosureService;
 use App\Services\IntelliReply\AiKeyResolver;
 use App\Services\IntelliReply\AiReplySafetyGuard;
 use App\Services\IntelliReply\AiUsageLimiterService;
@@ -358,10 +359,27 @@ class AIResponseService
                             ? 'audio'
                             : 'text';
 
+                        // Bot disclosure, once per conversation (WhatsApp policy for AI replies).
+                        $disclosureService = app(AiDisclosureService::class);
+                        $disclosure = $disclosureService->pendingFor(
+                            (int) $organizationId,
+                            (int) $contact->id,
+                            $metadataArray,
+                            Organization::where('id', $organizationId)->value('name')
+                        );
+
                         if ($responseType === 'text') {
-                            $this->initializeWhatsappService($organizationId)->sendMessage($contact->uuid, $res['text']);
+                            $reply = $disclosure !== null ? $disclosure."\n\n".$res['text'] : $res['text'];
+                            $sent = $this->initializeWhatsappService($organizationId)->sendMessage($contact->uuid, $reply);
+                            if ($disclosure !== null && ($sent->success ?? false) === true) {
+                                $disclosureService->markDisclosed((int) $organizationId, (int) $contact->id);
+                            }
                             $usageLimiter->consumeText($organizationId, $keySource);
                         } else if ($responseType === 'audio') {
+                            if ($disclosure !== null
+                                && ($this->initializeWhatsappService($organizationId)->sendMessage($contact->uuid, $disclosure)->success ?? false) === true) {
+                                $disclosureService->markDisclosed((int) $organizationId, (int) $contact->id);
+                            }
                             $file = $this->saveBase64Audio($res['audio']['data'], $organizationId, $res['audio']['id']);
                             $this->initializeWhatsappService($organizationId)->sendMedia($contact->uuid, 'audio', $res['audio']['id'], $file['filePath'], $file['mediaUrl'], $file['location']);
                             $usageLimiter->consumeAudio($organizationId, $keySource);

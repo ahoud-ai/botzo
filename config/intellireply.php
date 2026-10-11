@@ -22,6 +22,23 @@ return [
         explode(',', (string) env('INTELLIREPLY_AUDIO_RESPONSE_MODELS', 'gpt-audio-1.5,gpt-audio,gpt-audio-mini,gpt-4o-audio-preview'))
     ))),
 
+    // Bot disclosure, sent once at the start of each conversation before the first AI reply.
+    // Each organization can override the text from the AI settings page. {business} = organization name.
+    'disclosure' => [
+        'default_text' => env('INTELLIREPLY_DISCLOSURE_TEXT', 'مرحباً 👋 أنا المساعد الآلي لـ {business}. لو حابب تتكلم مع حد من فريقنا اكتب «موظف» في أي وقت.'),
+        'conversation_hours' => (int) env('INTELLIREPLY_DISCLOSURE_CONVERSATION_HOURS', 24),
+    ],
+
+    // A customer asking for a person (e.g. "موظف") pauses automatic replies and hands the chat to the team.
+    'handoff' => [
+        'keywords' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('INTELLIREPLY_HANDOFF_KEYWORDS', 'موظف,انسان,بشري,خدمة العملاء,agent,human'))
+        ))),
+        'confirmation_text' => env('INTELLIREPLY_HANDOFF_CONFIRMATION_TEXT', 'تمام، حوّلنا محادثتك لأحد أعضاء فريقنا وهيرد عليك في أقرب وقت.'),
+        'pause_minutes' => (int) env('INTELLIREPLY_HANDOFF_PAUSE_MINUTES', 720),
+    ],
+
     // After a team member replies, automatic replies to that customer pause for this long, then resume. 0 disables.
     'human_takeover_minutes' => (int) env('INTELLIREPLY_HUMAN_TAKEOVER_MINUTES', 60),
 

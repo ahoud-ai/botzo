@@ -84,6 +84,7 @@ class MainController extends BaseController
         $data['aimodule'] = CustomHelper::isModuleEnabled('AI Assistant', $organizationId);
         $data['fbmodule'] = CustomHelper::isModuleEnabled('Flow builder', $organizationId);
         $data['aiUsageSummary'] = app(OrganizationUsageSummaryService::class)->build($organizationId);
+        $data['defaultDisclosureText'] = (string) config('intellireply.disclosure.default_text');
         $data['maxOutputTokens'] = (int) config('intellireply.safety.max_output_tokens', 1024);
 
         return Inertia::render('IntelliReply::User/Index', $data);
@@ -139,6 +140,7 @@ class MainController extends BaseController
             'enable_automatic_responses' => ['required', 'boolean'],
             'start_keywords' => ['nullable', 'string', 'max:1000'],
             'stop_keywords' => ['nullable', 'string', 'max:1000'],
+            'disclosure_text' => ['nullable', 'string', 'max:500'],
         ]);
 
         $organization = Organization::findOrFail($organizationId);
@@ -147,6 +149,7 @@ class MainController extends BaseController
         $metadata['ai']['enable_automatic_responses'] = (bool) $payload['enable_automatic_responses'];
         $metadata['ai']['start_keywords'] = $payload['start_keywords'] ?? null;
         $metadata['ai']['stop_keywords'] = $payload['stop_keywords'] ?? null;
+        $metadata['ai']['disclosure_text'] = trim((string) ($payload['disclosure_text'] ?? '')) ?: null;
         $organization->metadata = json_encode($metadata);
 
         if ($organization->save()) {

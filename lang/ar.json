@@ -5476,5 +5476,7 @@
     "All conversations": "كل المحادثات",
     "Open rate": "معدل الفتح",
     "Read messages": "رسائل مقروءة",
-    "Last 30 days": "آخر 30 يوماً"
+    "Last 30 days": "آخر 30 يوماً",
+    "Bot disclosure message": "رسالة الإفصاح عن البوت",
+    "Sent once at the start of each conversation. Use {placeholder} for your business name. Leave empty to use the default:": "تُرسل مرة واحدة في بداية كل محادثة. استخدم {placeholder} لاسم نشاطك. اتركها فارغة لاستخدام الرسالة الافتراضية:"
 }

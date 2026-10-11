@@ -87,6 +87,24 @@ class UserAiAssistantSetupTest extends TestCase
         $response->assertSessionHasErrors('max_tokens');
     }
 
+    public function test_assistant_setup_saves_a_custom_disclosure_text_and_clears_it_when_blank(): void
+    {
+        [$user, $organization] = $this->createUserAndOrganization([]);
+        $request = fn (?string $text) => $this->withoutMiddleware([CheckSubscriptionStatus::class, VerifyCsrfToken::class])
+            ->actingAs($user, 'user')
+            ->withSession(['current_organization' => $organization->id])
+            ->post('/automation/ai/assistant-setup', [
+                'enable_automatic_responses' => true,
+                'disclosure_text' => $text,
+            ]);
+
+        $request('  معك المساعد الآلي لـ {business}  ')->assertSessionHasNoErrors();
+        $this->assertSame('معك المساعد الآلي لـ {business}', data_get(json_decode($organization->fresh()->metadata, true), 'ai.disclosure_text'));
+
+        $request('')->assertSessionHasNoErrors();
+        $this->assertNull(data_get(json_decode($organization->fresh()->metadata, true), 'ai.disclosure_text'));
+    }
+
     public function test_setup_keeps_existing_encrypted_key_when_api_key_input_is_blank(): void
     {
         $existingEncrypted = Crypt::encryptString('sk-existing-value');

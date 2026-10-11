@@ -6,6 +6,7 @@ use App\Jobs\RunAutoReplyJob;
 use App\Models\Chat;
 use App\Models\Contact;
 use App\Services\IntelliReply\AiConversationPauseService;
+use App\Services\IntelliReply\AiHumanHandoffService;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -85,6 +86,11 @@ class AutoReplyDispatchService
                 // A team member is handling this customer; stay quiet until the takeover pause ends.
                 $contact = Contact::find($chat->contact_id);
                 if ($contact && app(AiConversationPauseService::class)->isPaused($contact)) {
+                    return;
+                }
+
+                // The customer asked for a person: hand over instead of replying automatically.
+                if (app(AiHumanHandoffService::class)->handleIfRequested($chat)) {
                     return;
                 }
 
