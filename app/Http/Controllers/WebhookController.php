@@ -55,8 +55,8 @@ class WebhookController extends BaseController
         }
 
         if ($request->isMethod('post')) {
-            $organization = $this->resolveOrganizationForEmbeddedWebhook($request);
-            if (! $organization) {
+            $payloadsByOrganization = $this->groupEmbeddedPayloadByOrganization($request);
+            if ($payloadsByOrganization === []) {
                 Log::warning('Embedded WhatsApp webhook organization resolution failed.', [
                     'entry_id' => $request->input('entry.0.id'),
                     'phone_number_id' => $request->input('entry.0.changes.0.value.metadata.phone_number_id'),
@@ -65,11 +65,16 @@ class WebhookController extends BaseController
                 return $this->forbiddenResponse();
             }
 
-            if ($signatureError = $this->webhookVerification->verifyWhatsappRequest($request, $organization)) {
+            $verifyingOrganization = $payloadsByOrganization[array_key_first($payloadsByOrganization)]['organization'];
+            if ($signatureError = $this->webhookVerification->verifyWhatsappRequest($request, $verifyingOrganization)) {
                 return $signatureError;
             }
 
-            return $this->handlePostRequest($request, $organization);
+            foreach ($payloadsByOrganization as $group) {
+                $this->dispatchWebhookProcessing($group['payload'], (int) $group['organization']->id);
+            }
+
+            return Response::json(['status' => 'success'], 200);
         }
 
         return Response::json(['error' => __('Method Not Allowed')], 405);
@@ -122,7 +127,9 @@ class WebhookController extends BaseController
 
     protected function handlePostRequest(Request $request, Organization $organization)
     {
-        if (! $this->payloadMatchesOrganization($request, $organization)) {
+        $payload = $this->filterPayloadForOrganization($request->all(), $organization);
+
+        if ($payload === null) {
             Log::warning('WhatsApp webhook payload skipped because it does not match the route organization.', [
                 'organization_id' => $organization->id,
                 'payload_waba_id' => $request->input('entry.0.id'),
@@ -132,55 +139,154 @@ class WebhookController extends BaseController
             return Response::json(['status' => 'success'], 200);
         }
 
-        try {
-            ProcessWebhookJob::dispatch($request->all(), (int) $organization->id)
-                ->onConnection('sync');
-        } catch (\Throwable $e) {
-            Log::error('Synchronous webhook processing failed.', [
-                'organization_id' => $organization->id,
-                'error' => $e->getMessage(),
-            ]);
-        }
+        $this->dispatchWebhookProcessing($payload, (int) $organization->id);
 
         return Response::json(['status' => 'success'], 200);
     }
 
-    private function payloadMatchesOrganization(Request $request, Organization $organization): bool
+    /**
+     * Meta may batch several entries (and several changes per entry) into one POST.
+     * Keep only the changes that belong to this organization's WABA / phone number.
+     */
+    private function filterPayloadForOrganization(array $payload, Organization $organization): ?array
     {
         $metadata = $organization->metadata ? json_decode($organization->metadata, true) : [];
         $expectedWabaId = data_get($metadata, 'whatsapp.waba_id');
         $expectedPhoneNumberId = data_get($metadata, 'whatsapp.phone_number_id');
-        $payloadWabaId = $request->input('entry.0.id');
-        $payloadPhoneNumberId = $request->input('entry.0.changes.0.value.metadata.phone_number_id');
+        $entries = [];
 
-        if ($payloadWabaId && $expectedWabaId && (string) $payloadWabaId !== (string) $expectedWabaId) {
-            return false;
-        }
+        foreach ((array) ($payload['entry'] ?? []) as $entry) {
+            if (! is_array($entry)) {
+                continue;
+            }
 
-        if ($payloadPhoneNumberId && $expectedPhoneNumberId && (string) $payloadPhoneNumberId !== (string) $expectedPhoneNumberId) {
-            return false;
-        }
+            $wabaId = $entry['id'] ?? null;
+            if ($wabaId && $expectedWabaId && (string) $wabaId !== (string) $expectedWabaId) {
+                continue;
+            }
 
-        return true;
-    }
+            $changes = array_values(array_filter((array) ($entry['changes'] ?? []), function ($change) use ($expectedPhoneNumberId) {
+                $phoneNumberId = is_array($change) ? data_get($change, 'value.metadata.phone_number_id') : null;
 
-    private function resolveOrganizationForEmbeddedWebhook(Request $request): ?Organization
-    {
-        $wabaId = $request->input('entry.0.id');
-        $phoneNumberId = $request->input('entry.0.changes.0.value.metadata.phone_number_id');
+                return is_array($change)
+                    && (! $phoneNumberId || ! $expectedPhoneNumberId || (string) $phoneNumberId === (string) $expectedPhoneNumberId);
+            }));
 
-        if (! empty($wabaId)) {
-            $organization = Organization::where('metadata->whatsapp->waba_id', $wabaId)->first();
-
-            if ($organization) {
-                return $organization;
+            if ($changes !== []) {
+                $entry['changes'] = $changes;
+                $entries[] = $entry;
             }
         }
 
-        if (! empty($phoneNumberId)) {
-            return Organization::where('metadata->whatsapp->phone_number_id', $phoneNumberId)->first();
+        if ($entries === []) {
+            return null;
         }
 
-        return null;
+        $payload['entry'] = $entries;
+
+        return $payload;
+    }
+
+    /**
+     * @return array<int, array{organization: Organization, payload: array}>
+     */
+    private function groupEmbeddedPayloadByOrganization(Request $request): array
+    {
+        $payload = $request->all();
+        $groups = [];
+        $organizationsByPhone = [];
+        $organizationsByWaba = [];
+
+        foreach ((array) ($payload['entry'] ?? []) as $entry) {
+            if (! is_array($entry)) {
+                continue;
+            }
+
+            $wabaId = (string) ($entry['id'] ?? '');
+
+            foreach ((array) ($entry['changes'] ?? []) as $change) {
+                if (! is_array($change)) {
+                    continue;
+                }
+
+                $phoneNumberId = (string) data_get($change, 'value.metadata.phone_number_id', '');
+                $organization = null;
+
+                if ($phoneNumberId !== '') {
+                    $organization = $organizationsByPhone[$phoneNumberId]
+                        ??= Organization::where('metadata->whatsapp->phone_number_id', $phoneNumberId)->first();
+                }
+
+                if (! $organization && $wabaId !== '') {
+                    $organization = $organizationsByWaba[$wabaId]
+                        ??= Organization::where('metadata->whatsapp->waba_id', $wabaId)->first();
+                }
+
+                if (! $organization) {
+                    continue;
+                }
+
+                $groupKey = (int) $organization->id;
+                $groups[$groupKey] ??= [
+                    'organization' => $organization,
+                    'payload' => array_merge($payload, ['entry' => []]),
+                ];
+
+                $entryIndex = null;
+                foreach ($groups[$groupKey]['payload']['entry'] as $index => $groupedEntry) {
+                    if ((string) ($groupedEntry['id'] ?? '') === $wabaId) {
+                        $entryIndex = $index;
+                        break;
+                    }
+                }
+
+                if ($entryIndex === null) {
+                    $groups[$groupKey]['payload']['entry'][] = array_merge($entry, ['changes' => []]);
+                    $entryIndex = array_key_last($groups[$groupKey]['payload']['entry']);
+                }
+
+                $groups[$groupKey]['payload']['entry'][$entryIndex]['changes'][] = $change;
+            }
+        }
+
+        return $groups;
+    }
+
+    private function dispatchWebhookProcessing(array $payload, int $organizationId): void
+    {
+        $mode = (string) config('graph.webhook_processing', 'after_response');
+
+        try {
+            if ($mode === 'queue') {
+                ProcessWebhookJob::dispatch($payload, $organizationId)
+                    ->onQueue((string) config('graph.webhook_queue', 'whatsapp-webhooks'));
+
+                return;
+            }
+
+            if ($mode === 'sync') {
+                ProcessWebhookJob::dispatchSync($payload, $organizationId);
+
+                return;
+            }
+
+            // Default: respond to Meta first, then process in the same request lifecycle.
+            app()->terminating(function () use ($payload, $organizationId): void {
+                try {
+                    ProcessWebhookJob::dispatchSync($payload, $organizationId);
+                } catch (\Throwable $e) {
+                    Log::error('Deferred webhook processing failed.', [
+                        'organization_id' => $organizationId,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            });
+        } catch (\Throwable $e) {
+            Log::error('Webhook processing dispatch failed.', [
+                'organization_id' => $organizationId,
+                'mode' => $mode,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

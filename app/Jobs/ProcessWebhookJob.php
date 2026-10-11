@@ -20,6 +20,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class ProcessWebhookJob implements ShouldQueue
@@ -56,28 +58,13 @@ class ProcessWebhookJob implements ShouldQueue
                 return;
             }
 
-            $res = $this->payload['entry'][0]['changes'][0];
-
-            if ($res['field'] === 'messages') {
-                $messages = $res['value']['messages'] ?? null;
-                $statuses = $res['value']['statuses'] ?? null;
-
-                if ($statuses) {
-                    $this->handleStatuses($statuses, $organization);
-                    
-                } else if ($messages) {
-                    $this->handleMessages($messages, $res, $organization);
+            // Meta can batch several entries, each with several changes, into one delivery.
+            foreach ((array) ($this->payload['entry'] ?? []) as $entry) {
+                foreach ((array) ($entry['changes'] ?? []) as $res) {
+                    if (is_array($res)) {
+                        $this->handleChange($res, $organization);
+                    }
                 }
-            } else if ($res['field'] === 'message_template_status_update') {
-                $this->handleTemplateStatusUpdate($res['value'] ?? null, $organization);
-            } else if ($res['field'] === 'account_review_update') {
-                $this->handleAccountReviewUpdate($organization, $res['value'] ?? null);
-            } else if ($res['field'] === 'phone_number_name_update') {
-                $this->handlePhoneNumberNameUpdate($organization, $res['value'] ?? null);
-            } else if ($res['field'] === 'phone_number_quality_update') {
-                $this->handlePhoneNumberQualityUpdate($organization, $res['value'] ?? null);
-            } else if ($res['field'] === 'business_capability_update') {
-                $this->handleBusinessCapabilityUpdate($organization, $res['value'] ?? null);
             }
         } catch (\Exception $e) {
             Log::error('Error processing webhook job', [
@@ -86,6 +73,34 @@ class ProcessWebhookJob implements ShouldQueue
                 'trace' => $e->getTraceAsString()
             ]);
             throw $e;
+        }
+    }
+
+    protected function handleChange(array $res, Organization $organization): void
+    {
+        $field = $res['field'] ?? null;
+
+        if ($field === 'messages') {
+            $statuses = $res['value']['statuses'] ?? null;
+            $messages = $res['value']['messages'] ?? null;
+
+            if ($statuses) {
+                $this->handleStatuses($statuses, $organization);
+            }
+
+            if ($messages) {
+                $this->handleMessages($messages, $res, $organization);
+            }
+        } else if ($field === 'message_template_status_update') {
+            $this->handleTemplateStatusUpdate($res['value'] ?? null, $organization);
+        } else if ($field === 'account_review_update') {
+            $this->handleAccountReviewUpdate($organization, $res['value'] ?? null);
+        } else if ($field === 'phone_number_name_update') {
+            $this->handlePhoneNumberNameUpdate($organization, $res['value'] ?? null);
+        } else if ($field === 'phone_number_quality_update') {
+            $this->handlePhoneNumberQualityUpdate($organization, $res['value'] ?? null);
+        } else if ($field === 'business_capability_update') {
+            $this->handleBusinessCapabilityUpdate($organization, $res['value'] ?? null);
         }
     }
 
@@ -125,127 +140,165 @@ class ProcessWebhookJob implements ShouldQueue
 
         if (!$isLimitReached) {
             foreach ($messages as $response) {
-                $phone = $response['from'];
-
-                if (substr($phone, 0, 1) !== '+') {
-                    $phone = '+' . $phone;
+                if (!is_array($response) || empty($response['id'])) {
+                    continue;
                 }
 
-                $phone = PhoneService::getE164Format($phone);
-
-                // Check if contact exists in organization
-                $contact = Contact::where('organization_id', $organization->id)
-                    ->where('phone', $phone)
-                    ->whereNull('deleted_at')
-                    ->first();
-                
-                $isNewContact = false;
-
-                if (!$contact) {
-                    if (SubscriptionService::isSubscriptionFeatureLimitReached($organization->id, 'contacts_limit')) {
-                        Log::warning('Inbound WhatsApp message skipped because contact limit is reached.', [
-                            'organization_id' => $organization->id,
-                            'phone' => $phone,
-                            'wam_id' => $response['id'] ?? null,
-                        ]);
-                        continue;
-                    }
-
-                    // Create a contact - get contact data from res array
-                    $contactData = $this->contactProfileForMessage($res, $response);
-
-                    $contact = Contact::create([
-                        'first_name' => $contactData['name'] ?? null,
-                        'last_name' => null,
-                        'email' => null,
-                        'phone' => $phone,
-                        'organization_id' => $organization->id,
-                        'created_by' => 0,
-                        'created_at' => \Carbon\Carbon::now('UTC'),
-                        'updated_at' => \Carbon\Carbon::now('UTC'),
-                    ]);
-                    $isNewContact = true;
+                // Meta retries deliveries; make sure the same message is handled once even under concurrency.
+                $lock = Cache::lock(sprintf('whatsapp-inbound:%d:%s', $organization->id, $response['id']), 120);
+                if (!$lock->get()) {
+                    continue;
                 }
 
-                if ($contact) {
-                    $contactData = $this->contactProfileForMessage($res, $response);
-
-                    if ($contact->first_name == NULL && $contactData) {
-                        $contact->update([
-                            'first_name' => $contactData['name'],
-                        ]);
-                    }
-
-                    $chat = Chat::where('wam_id', $response['id'])
-                        ->where('organization_id', $organization->id)
-                        ->first();
-
-                    if (!$chat) {
-                        // First open the chat
-                        (new ChatService($organization->id))->handleTicketAssignment($contact->id);
-
-                        $chat = new Chat;
-                        $chat->organization_id = $organization->id;
-                        $chat->wam_id = $response['id'];
-                        $chat->contact_id = $contact->id;
-                        $chat->type = 'inbound';
-                        $response['channel'] = 'whatsapp';
-                        $response['provider'] = 'whatsapp_cloud';
-                        $chat->metadata = json_encode($response);
-                        $chat->status = 'delivered';
-                        $chat->created_at = isset($response['timestamp'])
-                            ? \Carbon\Carbon::createFromTimestamp((int) $response['timestamp'], 'UTC')
-                            : \Carbon\Carbon::now('UTC');
-                        $chat->save();
-
-                        $isMediaMessage = in_array($response['type'], ['image', 'video', 'audio', 'document', 'sticker'], true);
-
-                        $chat = Chat::with('contact', 'media')->where('id', $chat->id)->first();
-
-                        $chatlogId = ChatLog::insertGetId([
-                            'contact_id' => $contact->id,
-                            'entity_type' => 'chat',
-                            'entity_id' => $chat->id,
-                            'created_at' => \Carbon\Carbon::now('UTC')
-                        ]);
-
-                        // Load ChatLog and broadcast event (event is queued automatically via ShouldQueue)
-                        $chatLogArray = ChatLog::where('id', $chatlogId)
-                            ->where('deleted_at', null)
-                            ->first();
-                        
-                        if ($isMediaMessage) {
-                            ProcessWebhookMediaJob::dispatch(
-                                $response,
-                                $chat->id,
-                                $organization->id
-                            )->onQueue('webhook-media');
-                        } elseif ($chatLogArray) {
-                            $chatArray = [
-                                [
-                                    'type' => 'chat',
-                                    'value' => $chatLogArray->relatedEntities
-                                ]
-                            ];
-                            event(new NewChatEvent($chatArray, $organization->id));
-                        }
-
-                        $isMessageLimitReached = SubscriptionService::isSubscriptionFeatureLimitReached(
-                            $organization->id, 
-                            'message_limit'
-                        );
-
-                        if (!$isMessageLimitReached) {
-                            if ($response['type'] === 'text' || 
-                                $response['type'] === 'button' || 
-                                $response['type'] === 'audio' || 
-                                $response['type'] === 'interactive') {
-                                (new AutoReplyService)->checkAutoReply($chat, $isNewContact);
-                            }
-                        }
-                    }
+                try {
+                    $this->processInboundMessage($response, $res, $organization);
+                } finally {
+                    $lock->release();
                 }
             }
+        }
+    }
+
+    protected function processInboundMessage(array $response, array $res, Organization $organization): void
+    {
+        $phone = (string) ($response['from'] ?? '');
+
+        if (substr($phone, 0, 1) !== '+') {
+            $phone = '+' . $phone;
+        }
+
+        $phone = PhoneService::getE164Format($phone);
+
+        // Check if contact exists in organization
+        $contact = Contact::where('organization_id', $organization->id)
+            ->where('phone', $phone)
+            ->whereNull('deleted_at')
+            ->first();
+
+        $isNewContact = false;
+
+        if (!$contact) {
+            if (SubscriptionService::isSubscriptionFeatureLimitReached($organization->id, 'contacts_limit')) {
+                Log::warning('Inbound WhatsApp message skipped because contact limit is reached.', [
+                    'organization_id' => $organization->id,
+                    'phone' => $phone,
+                    'wam_id' => $response['id'] ?? null,
+                ]);
+                return;
+            }
+
+            // Create a contact - get contact data from res array
+            $contactData = $this->contactProfileForMessage($res, $response);
+
+            $contact = Contact::create([
+                'first_name' => $contactData['name'] ?? null,
+                'last_name' => null,
+                'email' => null,
+                'phone' => $phone,
+                'organization_id' => $organization->id,
+                'created_by' => 0,
+                'created_at' => \Carbon\Carbon::now('UTC'),
+                'updated_at' => \Carbon\Carbon::now('UTC'),
+            ]);
+            $isNewContact = true;
+        }
+
+        $contactData = $this->contactProfileForMessage($res, $response);
+
+        if ($contact->first_name == NULL && $contactData) {
+            $contact->update([
+                'first_name' => $contactData['name'],
+            ]);
+        }
+
+        $alreadyStored = Chat::where('wam_id', $response['id'])
+            ->where('organization_id', $organization->id)
+            ->exists();
+
+        if ($alreadyStored) {
+            return;
+        }
+
+        // First open the chat
+        (new ChatService($organization->id))->handleTicketAssignment($contact->id);
+
+        $chat = new Chat;
+        $chat->organization_id = $organization->id;
+        $chat->wam_id = $response['id'];
+        $chat->contact_id = $contact->id;
+        $chat->type = 'inbound';
+        $response['channel'] = 'whatsapp';
+        $response['provider'] = 'whatsapp_cloud';
+        $chat->metadata = json_encode($response);
+        $chat->status = 'delivered';
+        $chat->created_at = isset($response['timestamp'])
+            ? \Carbon\Carbon::createFromTimestamp((int) $response['timestamp'], 'UTC')
+            : \Carbon\Carbon::now('UTC');
+
+        try {
+            $chat->save();
+        } catch (UniqueConstraintViolationException) {
+            // Another delivery of the same message won the race (organization_id + wam_id is unique).
+            return;
+        }
+
+        $isMediaMessage = in_array($response['type'] ?? null, ['image', 'video', 'audio', 'document', 'sticker'], true);
+
+        $chat = Chat::with('contact', 'media')->where('id', $chat->id)->first();
+
+        $chatlogId = ChatLog::insertGetId([
+            'contact_id' => $contact->id,
+            'entity_type' => 'chat',
+            'entity_id' => $chat->id,
+            'created_at' => \Carbon\Carbon::now('UTC')
+        ]);
+
+        // Load ChatLog and broadcast event (event is queued automatically via ShouldQueue)
+        $chatLogArray = ChatLog::where('id', $chatlogId)
+            ->where('deleted_at', null)
+            ->first();
+
+        if ($isMediaMessage) {
+            $this->dispatchMediaDownload($response, (int) $chat->id, (int) $organization->id);
+        } elseif ($chatLogArray) {
+            $chatArray = [
+                [
+                    'type' => 'chat',
+                    'value' => $chatLogArray->relatedEntities
+                ]
+            ];
+            event(new NewChatEvent($chatArray, $organization->id));
+        }
+
+        $isMessageLimitReached = SubscriptionService::isSubscriptionFeatureLimitReached(
+            $organization->id,
+            'message_limit'
+        );
+
+        if (!$isMessageLimitReached) {
+            if (in_array($response['type'] ?? null, ['text', 'button', 'audio', 'interactive'], true)) {
+                (new AutoReplyService)->checkAutoReply($chat, $isNewContact);
+            }
+        }
+    }
+
+    protected function dispatchMediaDownload(array $response, int $chatId, int $organizationId): void
+    {
+        // Without a queue worker the media job would never run, so download in-process unless queue mode is on.
+        if (config('graph.webhook_processing') === 'queue') {
+            ProcessWebhookMediaJob::dispatch($response, $chatId, $organizationId)->onQueue('webhook-media');
+
+            return;
+        }
+
+        try {
+            ProcessWebhookMediaJob::dispatchSync($response, $chatId, $organizationId);
+        } catch (\Throwable $e) {
+            Log::error('Inbound media download failed.', [
+                'organization_id' => $organizationId,
+                'chat_id' => $chatId,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
