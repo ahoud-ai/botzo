@@ -15,6 +15,7 @@ use App\Models\Template;
 use App\Modules\WhatsApp\Infrastructure\Contracts\WhatsappTransportContract;
 use App\Services\Concerns\InteractsWithWhatsappServiceSupport;
 use App\Services\Whatsapp\WhatsappTemplateRequestGuardService;
+use App\Services\Whatsapp\WhatsappTokenVault;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
@@ -1871,15 +1872,24 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
      * fully connected (business profile, display name) but Graph still
      * rejects every send. Idempotent — safe to call on an already-registered
      * number, Graph just returns success again.
+     *
+     * The PIN becomes the number's two-step verification PIN, so it is stored
+     * (encrypted) after a successful registration and reused on reconnects
+     * instead of silently setting a new random PIN nobody knows.
      */
     public function registerPhone()
     {
         $url = "https://graph.facebook.com/{$this->apiVersion}/{$this->phoneNumberId}/register";
+        $tokenVault = app(WhatsappTokenVault::class);
+        $organization = Organization::find($this->organizationId);
+        $metadata = $organization?->metadata ? (json_decode($organization->metadata, true) ?: []) : [];
+        $storedPin = $tokenVault->resolveTwoStepPinFromMetadata($metadata);
+        $pin = $storedPin ?? str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         $headers = $this->setHeaders();
         $data = [
             'messaging_product' => 'whatsapp',
-            'pin' => str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT),
+            'pin' => $pin,
         ];
 
         $responseObject = $this->sendHttpRequest('POST', $url, $data, $headers);
@@ -1890,6 +1900,10 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
                 'phone_number_id' => $this->phoneNumberId,
                 'error' => $responseObject->data->error->message ?? null,
             ]);
+        } elseif ($organization && $storedPin === null) {
+            $metadata['whatsapp']['two_step_pin_encrypted'] = $tokenVault->encryptTwoStepPin($pin);
+            $organization->metadata = json_encode($metadata);
+            $organization->save();
         }
 
         return $responseObject;
@@ -2088,7 +2102,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
     }
 
     // Private method to send an HTTP request (synchronous - kept for backward compatibility)
-    private function sendHttpRequest($method, $url, $data = [], $headers = [])
+    protected function sendHttpRequest($method, $url, $data = [], $headers = [])
     {
         $client = new Client;
         $responseObject = new \stdClass;

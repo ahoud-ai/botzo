@@ -27,6 +27,16 @@ class WhatsappTokenVault
         return $this->decryptValue($encryptedSecret);
     }
 
+    public function encryptTwoStepPin(?string $pin): ?string
+    {
+        return $this->encryptValue($pin);
+    }
+
+    public function resolveTwoStepPinFromMetadata(array $metadata): ?string
+    {
+        return $this->decryptValue(data_get($metadata, 'whatsapp.two_step_pin_encrypted'));
+    }
+
     public function resolveTokenFromMetadata(array $metadata): ?string
     {
         $encryptedToken = data_get($metadata, 'whatsapp.access_token_encrypted');

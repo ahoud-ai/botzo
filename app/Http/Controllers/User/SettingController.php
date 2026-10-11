@@ -857,13 +857,13 @@ class SettingController extends BaseController
                 $this->extractServiceError($businessProfileResponse, __('Unable to fetch WhatsApp business profile.'))
             );
         }
+        // Cloud API rejects every send with "(#133010) Account not registered" until this runs once. Runs before the metadata read below because it stores the 2FA PIN.
+        $warningMessage = $whatsappService->registerPhone()->success ? $tokenExchangeWarning : __('Connected, but the phone number could not be registered for sending. Try refreshing the connection.');
+
         $organizationConfig = Organization::where('id', $organizationId)->first();
         if (!$organizationConfig) {
             return $this->errorResult('WABA_RESOLUTION_FAILED', __('Organization not found.'));
         }
-
-        // Cloud API rejects every send with "(#133010) Account not registered" until this runs once, even on an otherwise-connected number.
-        $warningMessage = $whatsappService->registerPhone()->success ? $tokenExchangeWarning : __('Connected, but the phone number could not be registered for sending. Try refreshing the connection.');
         $metadataArray = $organizationConfig->metadata ? json_decode($organizationConfig->metadata, true) : [];
         if (!isset($metadataArray['addons']) || !is_array($metadataArray['addons'])) {
             $metadataArray['addons'] = [];
