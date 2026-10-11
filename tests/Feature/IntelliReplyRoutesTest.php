@@ -12,6 +12,7 @@ class IntelliReplyRoutesTest extends TestCase
         $this->post('/automation/ai/activate', ['active' => true])->assertStatus(302);
         $this->post('/automation/ai/setup', [])->assertStatus(302);
         $this->post('/automation/ai/assistant-setup', [])->assertStatus(302);
+        $this->post('/automation/ai/persona', [])->assertStatus(302);
         $this->get('/automation/chat/suggestion?contact=test-uuid')->assertStatus(302);
         $this->post('/automation/upload/document', [])->assertStatus(302);
         $this->delete('/automation/upload/document/test-uuid')->assertStatus(302);

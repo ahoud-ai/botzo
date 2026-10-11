@@ -105,6 +105,48 @@ class UserAiAssistantSetupTest extends TestCase
         $this->assertNull(data_get(json_decode($organization->fresh()->metadata, true), 'ai.disclosure_text'));
     }
 
+    public function test_persona_is_saved_per_organization(): void
+    {
+        [$user, $organization] = $this->createUserAndOrganization([]);
+
+        $this->withoutMiddleware([CheckSubscriptionStatus::class, VerifyCsrfToken::class])
+            ->actingAs($user, 'user')
+            ->withSession(['current_organization' => $organization->id])
+            ->post('/automation/ai/persona', [
+                'business_name' => '  عيادة النور  ',
+                'business_description' => 'عيادة أسنان في مدينة نصر.',
+                'business_hours_address' => 'يومياً من 12 ظهراً حتى 10 مساءً - 5 شارع عباس العقاد',
+                'tone' => 'formal',
+                'dialect' => 'egyptian',
+                'extra_instructions' => '',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $persona = data_get(json_decode($organization->fresh()->metadata, true), 'ai.persona');
+        $this->assertSame('عيادة النور', $persona['business_name']);
+        $this->assertSame('يومياً من 12 ظهراً حتى 10 مساءً - 5 شارع عباس العقاد', $persona['business_hours_address']);
+        $this->assertSame('formal', $persona['tone']);
+        $this->assertSame('egyptian', $persona['dialect']);
+        $this->assertNull($persona['extra_instructions']);
+    }
+
+    public function test_persona_rejects_unknown_dialect_and_overlong_instructions(): void
+    {
+        [$user, $organization] = $this->createUserAndOrganization([]);
+
+        $this->withoutMiddleware([CheckSubscriptionStatus::class, VerifyCsrfToken::class])
+            ->actingAs($user, 'user')
+            ->withSession(['current_organization' => $organization->id])
+            ->post('/automation/ai/persona', [
+                'tone' => 'friendly',
+                'dialect' => 'levantine',
+                'extra_instructions' => str_repeat('a', 1001),
+            ])
+            ->assertSessionHasErrors(['dialect', 'extra_instructions']);
+
+        $this->assertNull(data_get(json_decode((string) $organization->fresh()->metadata, true), 'ai.persona'));
+    }
+
     public function test_setup_keeps_existing_encrypted_key_when_api_key_input_is_blank(): void
     {
         $existingEncrypted = Crypt::encryptString('sk-existing-value');

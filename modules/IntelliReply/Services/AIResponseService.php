@@ -15,6 +15,7 @@ use App\Services\Ai\Data\AiChatRequest;
 use App\Services\Ai\Exceptions\AiProviderException;
 use App\Services\IntelliReply\AiDisclosureService;
 use App\Services\IntelliReply\AiKeyResolver;
+use App\Services\IntelliReply\AiPersonaPromptBuilder;
 use App\Services\IntelliReply\AiReplyFallbackService;
 use App\Services\IntelliReply\AiReplySafetyGuard;
 use App\Services\IntelliReply\AiUsageLimiterService;
@@ -62,6 +63,8 @@ class AIResponseService
         }
 
         $messages = $this->buildSuggestionPrompt(
+            $organizationConfig,
+            Organization::where('id', $organizationId)->value('name'),
             $contact,
             (string) $closestDocument['document'],
             $this->conversationHistoryForSuggestion($organizationId, (int) $contact->id)
@@ -210,7 +213,11 @@ class AIResponseService
                 $context = [
                     [
                         "role" => "system", 
-                        "content" => "You are a customer support service AI Chatbot. You only provide answers that can be strictly found in context or documentation. If the user asks a question that lacks sufficient information or if it is not covered in the documentation, reply with 'Sorry, I don't have information about this. Could you specify what you’d like more information about?'. Here is the documentation: " . $closestDocument['document']
+                        "content" => app(AiPersonaPromptBuilder::class)->replySystemPrompt(
+                            $metadataArray,
+                            Organization::where('id', $organizationId)->value('name'),
+                            (string) $closestDocument['document']
+                        )
                     ]
                 ]; // Initialize context with a system message
 
@@ -568,7 +575,7 @@ class AIResponseService
         return '';
     }
 
-    private function buildSuggestionPrompt(Contact $contact, string $document, array $history): array
+    private function buildSuggestionPrompt(array $organizationConfig, ?string $organizationName, Contact $contact, string $document, array $history): array
     {
         $conversation = collect($history)
             ->map(fn (array $line) => strtoupper((string) $line['role']).': '.(string) $line['message'])
@@ -579,7 +586,7 @@ class AIResponseService
         return [
             [
                 'role' => 'system',
-                'content' => 'You draft WhatsApp replies for a human support agent. Use only the provided documentation and conversation context. Match the customer language. Return one concise editable draft only, with no greetings unless appropriate and no explanations.',
+                'content' => app(AiPersonaPromptBuilder::class)->suggestionSystemPrompt($organizationConfig, $organizationName),
             ],
             [
                 'role' => 'user',

@@ -9,6 +9,7 @@ Route::get('/automation/ai', [MainController::class, 'index']);
 Route::post('/automation/ai/activate', [MainController::class, 'activate']);
 Route::post('/automation/ai/setup', [MainController::class, 'setup']);
 Route::post('/automation/ai/assistant-setup', [MainController::class, 'assistant_setup']);
+Route::post('/automation/ai/persona', [MainController::class, 'persona']);
 Route::get('/automation/chat/suggestion', [AiChatController::class, 'suggestion']);
 Route::post('/automation/contact/{uuid}', [MainController::class, 'enable_ai_assistant']);
 

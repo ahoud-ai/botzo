@@ -36,7 +36,9 @@ class AiDisclosureService
         $custom = trim((string) data_get($organizationMetadata, 'ai.disclosure_text', ''));
         $text = $custom !== '' ? $custom : (string) config('intellireply.disclosure.default_text', '');
 
-        return trim(str_replace('{business}', trim((string) $businessName), $text));
+        $businessName = app(AiPersonaPromptBuilder::class)->businessName($organizationMetadata, $businessName);
+
+        return trim(str_replace('{business}', $businessName, $text));
     }
 
     private function key(int $organizationId, int $contactId): string

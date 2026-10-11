@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller as BaseController;
 use App\Models\Contact;
 use App\Models\Organization;
 use App\Services\IntelliReply\AiKeyResolver;
+use App\Services\IntelliReply\AiPersonaPromptBuilder;
 use App\Services\Ai\AiProviderManager;
 use App\Services\OrganizationUsageSummaryService;
 use Illuminate\Http\Request;
@@ -86,6 +87,8 @@ class MainController extends BaseController
         $data['aiUsageSummary'] = app(OrganizationUsageSummaryService::class)->build($organizationId);
         $data['defaultDisclosureText'] = (string) config('intellireply.disclosure.default_text');
         $data['maxOutputTokens'] = (int) config('intellireply.safety.max_output_tokens', 1024);
+        $data['persona'] = app(AiPersonaPromptBuilder::class)->persona($metadata);
+        $data['personaLimits'] = AiPersonaPromptBuilder::LIMITS;
 
         return Inertia::render('IntelliReply::User/Index', $data);
     }
@@ -173,6 +176,49 @@ class MainController extends BaseController
                 'message' => __('Something went wrong. Refresh the page and try again'),
             ]
         );
+    }
+
+    public function persona(Request $request)
+    {
+        $organizationId = (int) session()->get('current_organization');
+        $this->checkPermission('automations.edit', $organizationId);
+        $this->ensureAiAssistantEnabled($organizationId);
+
+        $limits = AiPersonaPromptBuilder::LIMITS;
+        $payload = $request->validate([
+            'business_name' => ['nullable', 'string', 'max:'.$limits['business_name']],
+            'business_description' => ['nullable', 'string', 'max:'.$limits['business_description']],
+            'business_hours_address' => ['nullable', 'string', 'max:'.$limits['business_hours_address']],
+            'tone' => ['required', Rule::in(AiPersonaPromptBuilder::TONES)],
+            'dialect' => ['required', Rule::in(AiPersonaPromptBuilder::DIALECTS)],
+            'extra_instructions' => ['nullable', 'string', 'max:'.$limits['extra_instructions']],
+        ]);
+
+        $organization = Organization::findOrFail($organizationId);
+        $metadata = $organization->metadata ? json_decode($organization->metadata, true) : [];
+        $metadata = is_array($metadata) ? $metadata : [];
+        $metadata['ai']['persona'] = [
+            'business_name' => trim((string) ($payload['business_name'] ?? '')) ?: null,
+            'business_description' => trim((string) ($payload['business_description'] ?? '')) ?: null,
+            'business_hours_address' => trim((string) ($payload['business_hours_address'] ?? '')) ?: null,
+            'tone' => $payload['tone'],
+            'dialect' => $payload['dialect'],
+            'extra_instructions' => trim((string) ($payload['extra_instructions'] ?? '')) ?: null,
+        ];
+        $organization->metadata = json_encode($metadata);
+        $organization->save();
+
+        Log::info('intellireply.persona.updated', [
+            'organization_id' => $organizationId,
+            'tone' => $payload['tone'],
+            'dialect' => $payload['dialect'],
+            'user_id' => auth()->id(),
+        ]);
+
+        return back()->with('status', [
+            'type' => 'success',
+            'message' => __('Settings updated successfully'),
+        ]);
     }
 
     public function enable_ai_assistant(Request $request, string $uuid)

@@ -173,6 +173,63 @@
                 </form>
             </section>
 
+            <!-- Card 3b: AI persona -->
+            <section v-if="aiConfigured" class="ai-card">
+                <div class="flex items-center justify-between gap-3">
+                    <button type="button" @click="personaOpen = !personaOpen" class="min-w-0 flex-1 text-start" :aria-expanded="personaOpen">
+                        <h2 class="ai-card-title">{{ $t('Assistant persona') }}</h2>
+                        <p class="ai-card-desc">{{ $t('Tell the assistant about your business and how it should talk to your customers.') }}</p>
+                    </button>
+                    <button type="button" @click="personaOpen = !personaOpen" class="ai-icon-btn shrink-0" :aria-label="personaOpen ? $t('Collapse') : $t('Expand')" :aria-expanded="personaOpen">
+                        <svg v-if="personaOpen" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M16.53 14.03a.75.75 0 0 1-1.06 0L12 10.56l-3.47 3.47a.75.75 0 0 1-1.06-1.06l4-4a.75.75 0 0 1 1.06 0l4 4a.75.75 0 0 1 0 1.06" clip-rule="evenodd"/></svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M16.53 8.97a.75.75 0 0 1 0 1.06l-4 4a.75.75 0 0 1-1.06 0l-4-4a.75.75 0 1 1 1.06-1.06L12 12.44l3.47-3.47a.75.75 0 0 1 1.06 0" clip-rule="evenodd"/></svg>
+                    </button>
+                </div>
+
+                <form v-if="personaOpen" @submit.prevent="submitPersona()" class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-6">
+                    <div class="sm:col-span-6">
+                        <FormInput v-model="personaForm.business_name" :error="personaForm.errors.business_name" :name="$t('Business name')" :placeholder="props.settings?.name" :type="'text'"/>
+                        <p class="mt-1 text-[11px] text-[var(--ui-muted)]">{{ $t('Leave empty to use your workspace name.') }}</p>
+                    </div>
+
+                    <div class="sm:col-span-6">
+                        <FormTextArea v-model="personaForm.business_description" :error="personaForm.errors.business_description" :name="$t('About your business')" :placeholder="$t('What you sell, who your customers are, and what makes you different.')" :textAreaRows="3"/>
+                        <div class="mt-1 flex justify-end text-[11px] text-[var(--ui-muted)]">
+                            <span>{{ (personaForm.business_description || '').length }}/{{ personaLimit('business_description') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="sm:col-span-6">
+                        <FormTextArea v-model="personaForm.business_hours_address" :error="personaForm.errors.business_hours_address" :name="$t('Working hours and address')" :placeholder="$t('Example: Saturday to Thursday, 10 AM to 10 PM. 12 Tahrir St, Cairo.')" :textAreaRows="2"/>
+                        <div class="mt-1 flex justify-end text-[11px] text-[var(--ui-muted)]">
+                            <span>{{ (personaForm.business_hours_address || '').length }}/{{ personaLimit('business_hours_address') }}</span>
+                        </div>
+                    </div>
+
+                    <FormSelect v-model="personaForm.tone" :error="personaForm.errors.tone" :name="$t('Tone')" :options="toneOptions" :class="'sm:col-span-3'"/>
+                    <div class="sm:col-span-3">
+                        <FormSelect v-model="personaForm.dialect" :error="personaForm.errors.dialect" :name="$t('Reply language')" :options="dialectOptions"/>
+                        <p class="mt-1 text-[11px] text-[var(--ui-muted)]">{{ $t('Automatic replies in the language and dialect the customer uses.') }}</p>
+                    </div>
+
+                    <div class="sm:col-span-6">
+                        <FormTextArea v-model="personaForm.extra_instructions" :error="personaForm.errors.extra_instructions" :name="$t('Additional instructions')" :placeholder="$t('Example: Always suggest booking a visit. Do not offer discounts.')" :textAreaRows="3"/>
+                        <div class="mt-1 flex items-center justify-between gap-3 text-[11px] text-[var(--ui-muted)]">
+                            <span>{{ $t('The assistant always stays on your business topics only, whatever these instructions say.') }}</span>
+                            <span class="shrink-0">{{ (personaForm.extra_instructions || '').length }}/{{ personaLimit('extra_instructions') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-end gap-3 sm:col-span-6">
+                        <span v-if="personaForm.isDirty" class="ai-unsaved-pill">{{ $t('Unsaved changes') }}</span>
+                        <button type="submit" class="ai-btn-primary" :disabled="personaForm.processing">
+                            <svg v-if="personaForm.processing" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z" opacity=".5"/><path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"><animateTransform attributeName="transform" dur="1s" from="0 12 12" repeatCount="indefinite" to="360 12 12" type="rotate"/></path></svg>
+                            <span v-else>{{ $t('Save') }}</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
             <!-- Card 4: AI usage overview -->
             <section v-if="aiUsageNotices.length || aiUsageMetrics.length" class="ai-card">
                 <div class="mb-4">
@@ -246,7 +303,7 @@
     import FormToggleSwitch from '@/Components/FormToggleSwitch.vue';
     import Pagination from '@/Components/Pagination.vue';
 
-    const props = defineProps(['rows', 'filters', 'settings', 'aimodule', 'fbmodule', 'models', 'embeddingModels', 'audioResponseModels', 'voices', 'aiUsageSummary', 'maxOutputTokens', 'defaultDisclosureText']);
+    const props = defineProps(['rows', 'filters', 'settings', 'aimodule', 'fbmodule', 'models', 'embeddingModels', 'audioResponseModels', 'voices', 'aiUsageSummary', 'maxOutputTokens', 'defaultDisclosureText', 'persona', 'personaLimits']);
     const config = ref(props.settings.metadata);
     const settings = ref(config.value ? JSON.parse(config.value) : null);
     const aiConfigured = computed(() => Boolean(settings.value?.ai?.has_api_key || settings.value?.ai?.api_key));
@@ -311,6 +368,34 @@
         stop_keywords: settings.value?.ai?.stop_keywords ?? null,
         disclosure_text: settings.value?.ai?.disclosure_text ?? null,
     });
+
+    const personaOpen = ref(false);
+    const personaForm = useForm({
+        business_name: props.persona?.business_name ?? '',
+        business_description: props.persona?.business_description ?? '',
+        business_hours_address: props.persona?.business_hours_address ?? '',
+        tone: props.persona?.tone ?? 'friendly',
+        dialect: props.persona?.dialect ?? 'auto',
+        extra_instructions: props.persona?.extra_instructions ?? '',
+    });
+    const personaLimit = (field) => props.personaLimits?.[field] ?? 1000;
+    const toneOptions = computed(() => [
+        { value: 'friendly', label: trans('Friendly') },
+        { value: 'formal', label: trans('Formal') },
+    ]);
+    const dialectOptions = computed(() => [
+        { value: 'auto', label: trans('Automatic (match the customer)') },
+        { value: 'egyptian', label: trans('Egyptian Arabic') },
+        { value: 'gulf', label: trans('Gulf Arabic') },
+        { value: 'msa', label: trans('Modern Standard Arabic') },
+        { value: 'english', label: trans('English') },
+    ]);
+    const submitPersona = () => {
+        personaForm.post('/automation/ai/persona', {
+            preserveScroll: true,
+            onSuccess: () => personaForm.defaults(),
+        });
+    };
 
     const toggleSetupForm = () => {
         setupForm.value = !setupForm.value;
