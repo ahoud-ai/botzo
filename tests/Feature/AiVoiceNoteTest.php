@@ -96,6 +96,91 @@ class AiVoiceNoteTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_the_transcript_reaches_the_model_as_the_customer_message_and_is_stored(): void
+    {
+        [, $chat] = $this->voiceConversation(['persona' => ['dialect' => 'maghrebi', 'business_name' => 'Dar Atlas']]);
+        $this->fakeOpenAi('بغيت نعرف واش كاين livraison لكازا؟', 'إيه، كاين التوصيل لكازا.');
+
+        $whatsapp = Mockery::mock(WhatsappService::class);
+        $whatsapp->shouldReceive('sendMessage')->once()->andReturn((object) ['success' => true]);
+        $this->assertTrue($this->serviceWith($whatsapp)->handleAIResponse($chat, ''));
+
+        Http::assertSent(function (Request $request) {
+            if (! str_contains($request->url(), '/audio/transcriptions')) {
+                return false;
+            }
+
+            $parts = collect($request->data())->keyBy('name');
+
+            return $parts['file']['filename'] === 'voice.ogg'
+                && ($parts['file']['headers']['Content-Type'] ?? null) === 'audio/ogg'
+                && $parts['model']['contents'] === 'gpt-4o-mini-transcribe'
+                && ! $parts->has('language')
+                && str_contains($parts['prompt']['contents'], 'Dar Atlas')
+                && str_contains($parts['prompt']['contents'], 'Maghrebi Arabic');
+        });
+
+        Http::assertSent(function (Request $request) {
+            if (! str_contains($request->url(), '/chat/completions')) {
+                return false;
+            }
+
+            $last = collect($request->data()['messages'])->last();
+
+            return $last['role'] === 'user' && $last['content'] === 'بغيت نعرف واش كاين livraison لكازا؟';
+        });
+
+        $this->assertSame('بغيت نعرف واش كاين livraison لكازا؟', data_get(json_decode($chat->fresh()->metadata, true), 'ai_transcript.text'));
+    }
+
+    public function test_english_pins_the_language_and_a_stored_transcript_is_not_requested_again(): void
+    {
+        [, $chat] = $this->voiceConversation(['persona' => ['dialect' => 'english']]);
+        $this->fakeOpenAi('Do you deliver?', 'Yes, we do.');
+        $whatsapp = Mockery::mock(WhatsappService::class);
+        $whatsapp->shouldReceive('sendMessage')->twice()->andReturn((object) ['success' => true]);
+
+        $this->serviceWith($whatsapp)->handleAIResponse($chat, '');
+        $this->serviceWith($whatsapp)->handleAIResponse($chat->fresh(), '');
+
+        $transcriptions = Http::recorded(fn (Request $request) => str_contains($request->url(), '/audio/transcriptions'));
+        $this->assertCount(1, $transcriptions);
+        $this->assertSame('en', collect($transcriptions[0][0]->data())->keyBy('name')['language']['contents']);
+    }
+
+    public function test_unsupported_formats_are_not_sent_to_the_provider(): void
+    {
+        [, $chat] = $this->voiceConversation(mimeType: 'audio/amr');
+        Http::fake();
+
+        $this->assertFalse($this->serviceWith($this->silentWhatsapp())->handleAIResponse($chat, ''));
+        Http::assertNothingSent();
+    }
+
+    public function test_agent_suggestions_reuse_the_stored_transcript(): void
+    {
+        [$contact, $chat] = $this->voiceConversation();
+        $metadata = json_decode($chat->metadata, true);
+        $metadata['ai_transcript'] = ['text' => 'كم سعر التوصيل؟', 'model' => 'gpt-4o-mini-transcribe'];
+        $chat->update(['metadata' => json_encode($metadata)]);
+        Http::fake(['api.openai.com/v1/chat/completions' => Http::response(['choices' => [['message' => ['content' => 'التوصيل بـ 20 ريال.']]]])]);
+
+        $result = (new AIResponseService())->suggestReply((int) $contact->organization_id, $contact, ['key' => 'sk-test', 'source' => 'organization']);
+
+        $this->assertTrue($result['success']);
+        Http::assertNotSent(fn (Request $request) => str_contains($request->url(), '/audio/transcriptions'));
+        Http::assertSent(fn (Request $request) => str_contains(json_encode($request->data(), JSON_UNESCAPED_UNICODE), 'كم سعر التوصيل؟'));
+    }
+
+    public function test_downloaded_voice_notes_get_a_clean_file_extension(): void
+    {
+        $method = new \ReflectionMethod(\App\Jobs\ProcessWebhookMediaJob::class, 'generateFilename');
+        $job = new \App\Jobs\ProcessWebhookMediaJob([], 1, 1);
+
+        $this->assertStringEndsWith('.ogg', $method->invoke($job, 'x', 'audio/ogg; codecs=opus'));
+        $this->assertStringEndsWith('.jpeg', $method->invoke($job, 'x', 'image/jpeg'));
+    }
+
     private function fakeOpenAi(string $transcript, string $reply): void
     {
         Http::fake([
@@ -123,7 +208,7 @@ class AiVoiceNoteTest extends TestCase
     /**
      * @return array{0:Contact,1:Chat}
      */
-    private function voiceConversation(array $ai = [], bool $contactEnabled = true, ?array $planMetadata = null): array
+    private function voiceConversation(array $ai = [], bool $contactEnabled = true, ?array $planMetadata = null, string $mimeType = 'audio/ogg; codecs=opus'): array
     {
         [, $organization] = $this->createOwnerContext(['ai' => array_merge([
             'active' => true,
@@ -165,7 +250,7 @@ class AiVoiceNoteTest extends TestCase
         $media = ChatMedia::create([
             'name' => 'N/A',
             'path' => rtrim((string) config('app.url'), '/').'/media/public/'.$fileName,
-            'type' => 'audio/ogg; codecs=opus',
+            'type' => $mimeType,
             'size' => 15,
             'location' => 'local',
         ]);

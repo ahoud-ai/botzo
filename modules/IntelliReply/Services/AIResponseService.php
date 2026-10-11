@@ -4,7 +4,6 @@ namespace Modules\IntelliReply\Services;
 
 use App\Helpers\CustomHelper;
 use App\Models\Chat;
-use App\Models\ChatMedia;
 use App\Models\ChatTicketLog;
 use App\Models\Contact;
 use App\Models\Organization;
@@ -20,10 +19,9 @@ use App\Services\IntelliReply\AiReplyFallbackService;
 use App\Services\IntelliReply\AiReplySafetyGuard;
 use App\Services\IntelliReply\AiUsageLimiterService;
 use App\Services\IntelliReply\AiUsageLogService;
+use App\Services\IntelliReply\AiVoiceTranscriptionService;
 use App\Services\Whatsapp\WhatsappTokenVault;
 use App\Services\WhatsappService;
-use FFMpeg\FFMpeg;
-use FFMpeg\Format\Audio\Mp3;
 use Illuminate\Support\Facades\Log;
 
 class AIResponseService
@@ -231,10 +229,11 @@ class AIResponseService
                     }
 
                     if ($isVoiceNote) {
-                        $receivedMessage = (string) $this->transcribeVoiceNote($lastMessage['chat'], (int) $organizationId);
-                        if (trim($receivedMessage) === '') {
+                        $voice = $this->transcribeVoiceNote($lastMessage['chat'], (int) $organizationId, $metadataArray, $apiKey);
+                        if ($voice['status'] !== AiVoiceTranscriptionService::STATUS_OK) {
                             return false;
                         }
+                        $receivedMessage = (string) $voice['text'];
 
                         if ($this->containsKeyword($receivedMessage, $stop_words)) {
                             $contact->update(['ai_assistance_enabled' => 0]);
@@ -416,16 +415,14 @@ class AIResponseService
         }
 
         if (($metadata['type'] ?? null) === 'audio') {
-            $audio = ChatMedia::where('id', $chat->media_id)->first();
-            if (!$audio) {
-                return null;
-            }
+            $organizationConfig = $this->getOrganizationConfig($organizationId);
+            $apiKey = $this->resolveAiKeyBundle($organizationId, $organizationConfig)['key'] ?? null;
+            $voice = $apiKey ? $this->transcribeVoiceNote($chat, $organizationId, $organizationConfig, $apiKey) : null;
 
-            $transcriptionResponse = $this->transcribeAudioToText($organizationId, (string) $audio->path);
-            if (($transcriptionResponse['success'] ?? false) === true && trim((string) ($transcriptionResponse['text'] ?? '')) !== '') {
+            if (($voice['status'] ?? null) === AiVoiceTranscriptionService::STATUS_OK) {
                 return [
                     'type' => 'audio',
-                    'message' => trim((string) $transcriptionResponse['text']),
+                    'message' => (string) $voice['text'],
                 ];
             }
         }
@@ -473,6 +470,10 @@ class AIResponseService
 
         if ($type === 'button') {
             return trim((string) data_get($metadata, 'button.payload', ''));
+        }
+
+        if ($type === 'audio') {
+            return (string) app(AiVoiceTranscriptionService::class)->storedTranscript($metadata);
         }
 
         if ($type === 'interactive') {
@@ -577,136 +578,7 @@ class AIResponseService
         ];
     }
 
-    protected function convertToMp3($filePath)
-    {
-        // Get the file extension
-        $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
 
-        // Check if the file is already in mp3, mpeg, or wav format
-        if (in_array(strtolower($fileExtension), ['mp3', 'mpeg', 'wav'])) {
-            $base64Data = base64_encode(file_get_contents($filePath));
-
-            return [
-                'data' => $base64Data,
-                'format' => $fileExtension == 'mpeg' || $fileExtension == 'mp3' ? 'mp3' : 'wav',
-            ];
-        }
-
-        // Initialize FFmpeg
-        //$ffmpeg = FFMpeg::create();
-        $ffmpeg = FFMpeg::create(array(
-            'ffmpeg.binaries' => config('ffmpeg.ffmpeg.binaries'),
-            'ffprobe.binaries' => config('ffmpeg.ffprobe.binaries'),
-            'timeout' => config('ffmpeg.timeout'),
-            'threads' => config('ffmpeg.threads'),
-        ));
-        $audio = $ffmpeg->open($filePath);
-        $format = new Mp3();
-        $tempFile = tempnam(sys_get_temp_dir(), 'audio') . '.mp3';
-        $audio->save($format, $tempFile);
-        $base64Data = base64_encode(file_get_contents($tempFile));
-        unlink($tempFile);
-
-        return [
-            'data' => $base64Data,
-            'format' => 'mp3',
-        ];
-    }
-
-    protected function transcribeAudioToText($organizationId, $audioPath)
-    {
-        if (!is_string($audioPath) || trim($audioPath) === '') {
-            return [
-                'success' => false,
-                'message' => __('Invalid audio path'),
-                'text' => null,
-            ];
-        }
-
-        $audioBinary = $this->readAudioBinary($audioPath);
-        if ($audioBinary === null) {
-            Log::warning('intellireply.audio.path_unreadable', [
-                'organization_id' => $organizationId,
-                'error_code' => 'AUDIO_PATH_UNREADABLE',
-                'audio_path' => $audioPath,
-            ]);
-
-            return [
-                'success' => false,
-                'message' => __('Invalid audio path'),
-                'text' => null,
-            ];
-        }
-
-        $organizationConfig = $this->getOrganizationConfig($organizationId);
-        $apiKeyBundle = $this->resolveAiKeyBundle($organizationId, $organizationConfig);
-        $apiKey = $apiKeyBundle['key'] ?? null;
-        if (!$apiKey) {
-            return [
-                'success' => false,
-                'message' => __('AI key missing'),
-                'text' => null,
-            ];
-        }
-
-        $lastStatus = null;
-        $lastError = null;
-        foreach ($this->transcriptionModelCandidates() as $transcriptionModel) {
-            try {
-                $response = \Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $apiKey
-                ])->attach('file', $audioBinary, 'audio.mp3')
-                ->timeout(45)->retry(1, 250)->post('https://api.openai.com/v1/audio/transcriptions', [
-                    'model' => $transcriptionModel,
-                    'language' => 'en'
-                ]);
-            } catch (\Throwable $e) {
-                $lastError = $e->getMessage();
-                Log::notice('intellireply.audio.transcription_model_failed', [
-                    'organization_id' => $organizationId,
-                    'error_code' => 'OPENAI_TRANSCRIPTION_FAILED',
-                    'model' => $transcriptionModel,
-                    'key_source' => $apiKeyBundle['source'] ?? null,
-                    'error' => $lastError,
-                ]);
-                continue;
-            }
-
-            if ($response->successful()) {
-                $responseArray = $response->json();
-                if (isset($responseArray['text']) && is_string($responseArray['text'])) {
-                    return [
-                        'success' => true,
-                        'message' => __('Transcription successful'),
-                        'text' => $responseArray['text']
-                    ];
-                }
-            }
-
-            $lastStatus = $response->status();
-            Log::notice('intellireply.audio.transcription_model_failed', [
-                'organization_id' => $organizationId,
-                'error_code' => 'OPENAI_TRANSCRIPTION_FAILED',
-                'model' => $transcriptionModel,
-                'status' => $lastStatus,
-                'key_source' => $apiKeyBundle['source'] ?? null,
-            ]);
-        }
-
-        Log::warning('intellireply.audio.transcription_failed', [
-            'organization_id' => $organizationId,
-            'error_code' => 'OPENAI_TRANSCRIPTION_FAILED',
-            'status' => $lastStatus,
-            'key_source' => $apiKeyBundle['source'] ?? null,
-            'error' => $lastError,
-        ]);
-
-        return [
-            'success' => false,
-            'message' => __('Unable to transcribe audio'),
-            'text' => null,
-        ];
-    }
 
     /**
      * The contact's latest message without any paid processing: text is returned as is,
@@ -752,16 +624,18 @@ class AIResponseService
         return null;
     }
 
-    protected function transcribeVoiceNote(Chat $voiceChat, int $organizationId): ?string
+
+    /**
+     * @return array{status:string,text:?string,model:?string,cached:bool}
+     */
+    protected function transcribeVoiceNote(Chat $voiceChat, int $organizationId, array $organizationMetadata, string $apiKey): array
     {
-        $audio = ChatMedia::where('id', $voiceChat->media_id)->first();
-        if (!$audio) {
-            return null;
-        }
-
-        $transcription = $this->transcribeAudioToText($organizationId, (string) $audio->path);
-
-        return ($transcription['success'] ?? false) === true ? (string) $transcription['text'] : null;
+        return app(AiVoiceTranscriptionService::class)->transcribe(
+            $voiceChat,
+            $organizationMetadata,
+            Organization::where('id', $organizationId)->value('name'),
+            $apiKey
+        );
     }
 
     private function containsKeyword(string $text, ?string $keywords): bool
@@ -777,117 +651,37 @@ class AIResponseService
 
     private function buildReplyContext(Chat $chat, array $metadataArray, int $organizationId, ?string $documentation): array
     {
-        // Retrieve the last 5 messages for the contact
+        $context = [[
+            'role' => 'system',
+            'content' => app(AiPersonaPromptBuilder::class)->replySystemPrompt(
+                $metadataArray,
+                Organization::where('id', $organizationId)->value('name'),
+                $documentation
+            ),
+        ]];
+
+        // The last 10 messages, oldest first; voice notes take part through their transcript.
         $messages = Chat::where('contact_id', $chat->contact_id)
             ->orderBy('created_at', 'desc')
             ->take(10)
-            ->get();
+            ->get()
+            ->reverse();
 
-        // Extract the message body from the metadata column and convert to an array
-        $conversationHistory = $messages->map(function ($message) use ($organizationId, $metadataArray) {
-            // Decode the JSON in the metadata column
-            $metadata = json_decode($message->metadata, true);
+        foreach ($messages as $message) {
+            $metadata = json_decode((string) $message->metadata, true);
+            $content = is_array($metadata) ? $this->chatTextFromMetadata($metadata) : '';
 
-            // Check if type is 'text' and return the body if it exists
-            if (isset($metadata['type']) && ($metadata['type'] === 'text' || $metadata['type'] === 'audio')) {
-                $role = ($message->type === 'outbound') ? 'assistant' : 'user'; //outbound => user, inbound => assistant
-
-                if($metadata['type'] === 'text'){
-                    return [
-                        "role" => $role,
-                        "content" => $metadata['text']['body'] ?? null
-                    ];
-                } else if($metadata['type'] === 'audio' && data_get($metadataArray, 'ai.allow_audio_response', false)){
-                    $audio = ChatMedia::where('id', $message->media_id)->first();
-
-                    if($role == 'user'){
-                          if($audio->location == 'local'){
-                            $filePath = storage_path("app/{$audio->path}");
-
-                            if(file_exists($filePath)){
-                                $audioFile = $this->convertToMp3($filePath);
-
-                                return [
-                                    "role" => $role,
-                                    "content" => [
-                                        [
-                                            "type" => "input_audio",
-                                            "input_audio" => [
-                                                "data" => $audioFile['data'],
-                                                "format" => $audioFile['format'],
-                                            ]
-                                        ]
-                                    ]
-                                ];
-                            }
-                        } else if($audio->location == 'amazon'){
-                            $fileUrl = $audio->path;
-                              $parsedUrl = parse_url($audio->path);
-                            $filePath = ltrim($parsedUrl['path'], '/');
-
-                            if (\Storage::disk('s3')->exists($filePath)) {
-                                $audioFile = $this->convertToMp3($fileUrl);
-
-                                return [
-                                    "role" => $role,
-                                    "content" => [
-                                        [
-                                            "type" => "input_audio",
-                                            "input_audio" => [
-                                                "data" => $audioFile['data'],
-                                                "format" => $audioFile['format'],
-                                            ]
-                                        ]
-                                    ]
-                                ];
-                            }
-                        }
-                    } else {
-                        //Check if audio name starts with audio_
-                        if(isset($audio->name)){
-                            if (str_starts_with($audio->name, 'audio_')) {
-                                return [
-                                    'role' => $role,
-                                    'audio' => [
-                                        'id' => $audio->name,
-                                    ],
-                                ];
-                            }
-                        }
-                    }
-                }
-            }
-
-            return null;
-        })->filter()
-        ->toArray();
-
-        $conversationHistory = array_reverse($conversationHistory); // Inverte a ordem para manter a cronologia
-
-        // Build the context by looping through the conversation history and concatenating the messages
-        $context = [
-            [
-                "role" => "system", 
-                "content" => app(AiPersonaPromptBuilder::class)->replySystemPrompt(
-                    $metadataArray,
-                    Organization::where('id', $organizationId)->value('name'),
-                    $documentation
-                )
-            ]
-        ]; // Initialize context with a system message
-
-        // Append the user and assistant messages to the context
-        foreach ($conversationHistory as $message) {
-            if (!empty($message['content'])) {
+            if ($content !== '') {
                 $context[] = [
-                    "role" => $message['role'],
-                    "content" => $message['content']
+                    'role' => $message->type === 'outbound' ? 'assistant' : 'user',
+                    'content' => $content,
                 ];
             }
         }
 
         return $context;
     }
+
 
     /**
      * The customer's trailing text messages since our last reply (replies are debounced,
@@ -909,116 +703,8 @@ class AIResponseService
         return trim(implode("\n", array_filter($lines)));
     }
 
-    private function readAudioBinary(string $audioPath): ?string
-    {
-        $path = trim($audioPath);
-        if ($path === '') {
-            return null;
-        }
 
-        // Normalize malformed local paths that accidentally prefix storage path before an URL.
-        $httpPos = strpos($path, 'http://');
-        $httpsPos = strpos($path, 'https://');
-        $urlPos = $httpPos !== false ? $httpPos : $httpsPos;
-        if ($urlPos !== false && $urlPos > 0) {
-            $path = substr($path, $urlPos);
-        }
 
-        // Resolve local media URL format: https://domain/media/public/<file>
-        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-            $resolvedLocal = $this->resolveStoragePathFromMediaUrl($path);
-            if ($resolvedLocal !== null && file_exists($resolvedLocal)) {
-                $contents = @file_get_contents($resolvedLocal);
-                return $contents === false ? null : $contents;
-            }
-
-            if (! $this->isTrustedAudioUrl($path)) {
-                Log::warning('intellireply.audio_url_rejected', [
-                    'host' => parse_url($path, PHP_URL_HOST),
-                ]);
-
-                return null;
-            }
-
-            $response = \Http::timeout(30)->retry(1, 250)->get($path);
-            if ($response->successful()) {
-                return $response->body();
-            }
-
-            return null;
-        }
-
-        // Absolute path
-        if (file_exists($path)) {
-            $contents = @file_get_contents($path);
-            return $contents === false ? null : $contents;
-        }
-
-        // Relative storage path (e.g., public/..., uploads/...)
-        $storagePath = storage_path('app/' . ltrim($path, '/'));
-        if (file_exists($storagePath)) {
-            $contents = @file_get_contents($storagePath);
-            return $contents === false ? null : $contents;
-        }
-
-        return null;
-    }
-
-    private function resolveStoragePathFromMediaUrl(string $url): ?string
-    {
-        $path = parse_url($url, PHP_URL_PATH);
-        if (!is_string($path) || $path === '') {
-            return null;
-        }
-
-        // Local media controller serves files under /media/<storage-relative-path>
-        if (str_starts_with($path, '/media/')) {
-            $relative = ltrim(substr($path, strlen('/media/')), '/');
-            if ($relative !== '') {
-                return storage_path('app/' . $relative);
-            }
-        }
-
-        return null;
-    }
-
-    private function isTrustedAudioUrl(string $url): bool
-    {
-        $parts = parse_url($url);
-        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
-        $host = strtolower((string) ($parts['host'] ?? ''));
-
-        if ($scheme !== 'https' || $host === '') {
-            return false;
-        }
-
-        $trustedHosts = [];
-        $appHost = parse_url((string) config('app.url'), PHP_URL_HOST);
-        if (is_string($appHost) && $appHost !== '') {
-            $trustedHosts[] = strtolower($appHost);
-        }
-
-        foreach ([
-            config('filesystems.disks.s3.url'),
-            config('filesystems.disks.s3.endpoint'),
-        ] as $configuredUrl) {
-            $configuredHost = parse_url((string) $configuredUrl, PHP_URL_HOST);
-            if (is_string($configuredHost) && $configuredHost !== '') {
-                $trustedHosts[] = strtolower($configuredHost);
-            }
-        }
-
-        $bucket = trim((string) config('filesystems.disks.s3.bucket'));
-        $region = trim((string) config('filesystems.disks.s3.region'));
-        if ($bucket !== '' && $region !== '') {
-            $trustedHosts[] = strtolower($bucket . '.s3.' . $region . '.amazonaws.com');
-        }
-        if ($bucket !== '') {
-            $trustedHosts[] = strtolower($bucket . '.s3.amazonaws.com');
-        }
-
-        return in_array($host, array_values(array_unique(array_filter($trustedHosts))), true);
-    }
 
     protected function findClosestDocumentByQuery($organizationId, $query){
         $organizationConfig = $this->getOrganizationConfig($organizationId);
@@ -1079,36 +765,6 @@ class AIResponseService
         return empty($normalized) ? ['gpt-audio-1.5'] : $normalized;
     }
 
-    private function transcriptionModelCandidates(): array
-    {
-        $default = config('intellireply.default_transcription_model', 'gpt-4o-mini-transcribe');
-        $fallbacks = config('intellireply.transcription_model_fallbacks', [$default, 'whisper-1']);
-        if (!is_array($fallbacks)) {
-            $fallbacks = [$default, 'whisper-1'];
-        }
-
-        $candidates = [$default];
-        foreach ($fallbacks as $fallbackModel) {
-            $candidates[] = $fallbackModel;
-        }
-
-        $normalized = collect($candidates)
-            ->map(fn ($model) => is_string($model) ? trim($model) : '')
-            ->filter(fn ($model) => $model !== '')
-            ->unique()
-            ->values()
-            ->all();
-
-        if (empty($normalized)) {
-            return ['gpt-4o-mini-transcribe', 'whisper-1'];
-        }
-
-        if (!in_array('whisper-1', $normalized, true)) {
-            $normalized[] = 'whisper-1';
-        }
-
-        return $normalized;
-    }
 
 
 

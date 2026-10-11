@@ -5508,5 +5508,7 @@
     "You can add up to :count questions.": "يمكنك إضافة حتى :count سؤالاً.",
     "Delete question": "حذف السؤال",
     "Question saved": "تم حفظ السؤال",
-    "Unable to generate embeddings": "تعذّر إنشاء الـ embeddings"
+    "Unable to generate embeddings": "تعذّر إنشاء الـ embeddings",
+    "Maghrebi Arabic (Darija)": "دارجة مغاربية",
+    "Transcript": "النص"
 }

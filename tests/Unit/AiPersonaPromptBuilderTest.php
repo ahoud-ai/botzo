@@ -67,6 +67,14 @@ class AiPersonaPromptBuilderTest extends TestCase
         $this->assertFalse($builder->asksForHandoff('We can hand off your order to the courier today.'));
     }
 
+    public function test_maghrebi_dialect_replies_in_darija_or_french(): void
+    {
+        $prompt = app(AiPersonaPromptBuilder::class)->replySystemPrompt($this->metadata(['dialect' => 'maghrebi']), 'Dar Atlas', null);
+
+        $this->assertStringContainsString('Maghrebi Arabic (الدارجة المغاربية)', $prompt);
+        $this->assertStringContainsString('if the customer writes in French, reply in French', $prompt);
+    }
+
     public function test_stored_values_are_capped_to_their_limits(): void
     {
         $persona = app(AiPersonaPromptBuilder::class)->persona($this->metadata([

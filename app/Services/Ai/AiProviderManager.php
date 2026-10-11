@@ -4,6 +4,7 @@ namespace App\Services\Ai;
 
 use App\Services\Ai\Contracts\AiChatProvider;
 use App\Services\Ai\Contracts\AiEmbeddingProvider;
+use App\Services\Ai\Contracts\AiTranscriptionProvider;
 use InvalidArgumentException;
 
 /**
@@ -20,6 +21,11 @@ class AiProviderManager
     public function embeddings(?string $provider, string $apiKey): AiEmbeddingProvider
     {
         return $this->make($provider ?: $this->defaultEmbeddingProvider(), $apiKey, AiEmbeddingProvider::class);
+    }
+
+    public function transcription(?string $provider, string $apiKey): AiTranscriptionProvider
+    {
+        return $this->make($provider ?: (string) config('intellireply.default_transcription_provider', 'openai'), $apiKey, AiTranscriptionProvider::class);
     }
 
     public function defaultChatProvider(): string

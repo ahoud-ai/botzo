@@ -84,10 +84,15 @@ return [
         'max_replies_per_contact_per_hour' => (int) env('INTELLIREPLY_MAX_REPLIES_PER_CONTACT_PER_HOUR', 15),
     ],
 
-    // Speech-to-text transcription model and safe fallbacks.
-    'default_transcription_model' => env('INTELLIREPLY_DEFAULT_TRANSCRIPTION_MODEL', 'gpt-4o-mini-transcribe'),
-    'transcription_model_fallbacks' => array_values(array_filter(array_map(
-        'trim',
-        explode(',', (string) env('INTELLIREPLY_TRANSCRIPTION_MODEL_FALLBACKS', 'gpt-4o-mini-transcribe,whisper-1'))
-    ))),
+    // Speech-to-text for customer voice notes; the model is configured here, not in code.
+    'transcription' => [
+        'model' => env('INTELLIREPLY_TRANSCRIPTION_MODEL', env('INTELLIREPLY_DEFAULT_TRANSCRIPTION_MODEL', 'gpt-4o-mini-transcribe')),
+        'fallback_models' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('INTELLIREPLY_TRANSCRIPTION_FALLBACK_MODELS', 'whisper-1'))
+        ))),
+        'timeout_seconds' => (int) env('INTELLIREPLY_TRANSCRIPTION_TIMEOUT_SECONDS', 30),
+        // Shorter transcripts are treated as "not understood" (noise, a cough, an empty note).
+        'min_characters' => (int) env('INTELLIREPLY_TRANSCRIPTION_MIN_CHARACTERS', 2),
+    ],
 ];

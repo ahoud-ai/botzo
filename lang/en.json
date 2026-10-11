@@ -5435,5 +5435,7 @@
     "You can add up to :count questions.": "You can add up to :count questions.",
     "Delete question": "Delete question",
     "Question saved": "Question saved",
-    "Unable to generate embeddings": "Unable to generate embeddings"
+    "Unable to generate embeddings": "Unable to generate embeddings",
+    "Maghrebi Arabic (Darija)": "Maghrebi Arabic (Darija)",
+    "Transcript": "Transcript"
 }

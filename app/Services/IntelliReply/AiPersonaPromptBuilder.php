@@ -16,7 +16,7 @@ class AiPersonaPromptBuilder
 
     public const TONES = ['friendly', 'formal'];
 
-    public const DIALECTS = ['auto', 'egyptian', 'gulf', 'msa', 'english'];
+    public const DIALECTS = ['auto', 'egyptian', 'gulf', 'maghrebi', 'msa', 'english'];
 
     public const LIMITS = [
         'business_name' => 120,
@@ -31,9 +31,10 @@ class AiPersonaPromptBuilder
     ];
 
     private const DIALECT_LINES = [
-        'auto' => 'Reply in the same language and dialect the customer writes in (for example Egyptian Arabic, Gulf Arabic, Modern Standard Arabic or English).',
+        'auto' => 'Reply in the same language and dialect the customer writes in (for example Egyptian, Gulf or Maghrebi Arabic, Modern Standard Arabic, French or English).',
         'egyptian' => 'Always reply in Egyptian colloquial Arabic (العامية المصرية).',
         'gulf' => 'Always reply in Gulf colloquial Arabic (اللهجة الخليجية).',
+        'maghrebi' => 'Reply in simple Maghrebi Arabic (الدارجة المغاربية) written in Arabic script; if the customer writes in French, reply in French.',
         'msa' => 'Always reply in Modern Standard Arabic (العربية الفصحى).',
         'english' => 'Always reply in English.',
     ];

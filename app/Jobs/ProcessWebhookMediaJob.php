@@ -169,8 +169,9 @@ class ProcessWebhookMediaJob implements ShouldQueue
         // Generate a unique filename based on the file content
         $hash = sha1($fileContent);
 
-        // Get the file extension from the media type
-        $extension = explode('/', $mimeType)[1];
+        // Extension from the base media type: "audio/ogg; codecs=opus" -> "ogg"
+        $subtype = explode('/', explode(';', (string) $mimeType)[0])[1] ?? '';
+        $extension = preg_replace('/[^a-z0-9]/', '', strtolower($subtype)) ?: 'bin';
 
         // Combine the hash, timestamp, and extension to create a unique filename
         $filename = "{$hash}_" . time() . ".{$extension}";

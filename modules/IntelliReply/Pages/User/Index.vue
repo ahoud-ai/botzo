@@ -441,6 +441,7 @@
         { value: 'auto', label: trans('Automatic (match the customer)') },
         { value: 'egyptian', label: trans('Egyptian Arabic') },
         { value: 'gulf', label: trans('Gulf Arabic') },
+        { value: 'maghrebi', label: trans('Maghrebi Arabic (Darija)') },
         { value: 'msa', label: trans('Modern Standard Arabic') },
         { value: 'english', label: trans('English') },
     ]);

@@ -4,15 +4,18 @@ namespace App\Services\Ai\Providers;
 
 use App\Services\Ai\Contracts\AiChatProvider;
 use App\Services\Ai\Contracts\AiEmbeddingProvider;
+use App\Services\Ai\Contracts\AiTranscriptionProvider;
 use App\Services\Ai\Data\AiChatRequest;
 use App\Services\Ai\Data\AiChatResult;
+use App\Services\Ai\Data\AiTranscriptionRequest;
+use App\Services\Ai\Data\AiTranscriptionResult;
 use App\Services\Ai\Exceptions\AiProviderException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
-class OpenAiProvider implements AiChatProvider, AiEmbeddingProvider
+class OpenAiProvider implements AiChatProvider, AiEmbeddingProvider, AiTranscriptionProvider
 {
     public const NAME = 'openai';
 
@@ -60,6 +63,39 @@ class OpenAiProvider implements AiChatProvider, AiEmbeddingProvider
         }
 
         return $embedding;
+    }
+
+    public function transcribe(AiTranscriptionRequest $request): AiTranscriptionResult
+    {
+        $fields = array_filter([
+            'model' => $request->model,
+            'language' => $request->language,
+            'prompt' => $request->prompt,
+            'response_format' => 'json',
+        ], fn ($value) => $value !== null && $value !== '');
+
+        try {
+            $response = Http::withToken($this->apiKey)
+                ->acceptJson()
+                ->timeout(max(5, $request->timeoutSeconds))
+                ->attach('file', $request->audio, $request->fileName, ['Content-Type' => $request->mimeType])
+                ->post(self::BASE_URL.'/audio/transcriptions', $fields);
+        } catch (ConnectionException|RequestException $exception) {
+            throw new AiProviderException(__('Could not reach the AI provider.'), null, 'connection_failed', $exception);
+        }
+
+        if (! $response->successful()) {
+            throw $this->failure($response);
+        }
+
+        $seconds = data_get($response->json(), 'usage.seconds') ?? data_get($response->json(), 'duration');
+
+        return new AiTranscriptionResult(
+            text: trim((string) data_get($response->json(), 'text', '')),
+            provider: self::NAME,
+            model: $request->model,
+            seconds: is_numeric($seconds) ? (float) $seconds : null,
+        );
     }
 
     private function post(string $path, array $payload, int $timeoutSeconds): array
