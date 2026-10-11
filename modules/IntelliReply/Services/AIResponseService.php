@@ -101,158 +101,33 @@ class AIResponseService
         $stop_words = $metadataArray['ai']['stop_keywords'] ?? "";
         
         if($aimodule){
-            $lastMessage = $this->extractLastMessage($organizationId, $chat->contact_id);
-            if (!$lastMessage || empty($lastMessage['message'])) {
+            $lastMessage = $this->peekLastMessage((int) $chat->contact_id);
+            if (!$lastMessage) {
                 return false;
             }
 
-            $receivedMessage = $lastMessage['message'];
-            // Documents are optional: without a match the assistant answers from the persona
-            // and hands the chat to the team when it cannot answer.
-            $closestDocument = $this->findClosestDocumentByQuery($organizationId, $receivedMessage);
-            $documentation = ($closestDocument['success'] ?? false) === true ? (string) ($closestDocument['document'] ?? '') : null;
-            
-            /*if($closestDocument['success'] === false){
-                return 'Sorry but I don\'t have any information about this.';
-            } else {*/
-                // Retrieve the last 5 messages for the contact
-                $messages = Chat::where('contact_id', $chat->contact_id)
-                    ->orderBy('created_at', 'desc')
-                    ->take(10)
-                    ->get();
+            // Voice notes are only transcribed after every check below passes, so nothing is sent
+            // to the AI provider (or paid for) when the assistant would not reply anyway.
+            $isVoiceNote = $lastMessage['type'] === 'audio';
+            $receivedMessage = (string) ($lastMessage['message'] ?? '');
+            if (!$isVoiceNote && trim($receivedMessage) === '') {
+                return false;
+            }
 
-                // Extract the message body from the metadata column and convert to an array
-                $conversationHistory = $messages->map(function ($message) use ($organizationId, $metadataArray) {
-                    // Decode the JSON in the metadata column
-                    $metadata = json_decode($message->metadata, true);
-                    
-                    // Check if type is 'text' and return the body if it exists
-                    if (isset($metadata['type']) && ($metadata['type'] === 'text' || $metadata['type'] === 'audio')) {
-                        $role = ($message->type === 'outbound') ? 'assistant' : 'user'; //outbound => user, inbound => assistant
-
-                        if($metadata['type'] === 'text'){
-                            return [
-                                "role" => $role,
-                                "content" => $metadata['text']['body'] ?? null
-                            ];
-                        } else if($metadata['type'] === 'audio' && data_get($metadataArray, 'ai.allow_audio_response', false)){
-                            $audio = ChatMedia::where('id', $message->media_id)->first();
-
-                            if($role == 'user'){
-                              	if($audio->location == 'local'){
-                                    $filePath = storage_path("app/{$audio->path}");
-
-                                    if(file_exists($filePath)){
-                                        $audioFile = $this->convertToMp3($filePath);
-    
-                                        return [
-                                            "role" => $role,
-                                            "content" => [
-                                                [
-                                                    "type" => "input_audio",
-                                                    "input_audio" => [
-                                                        "data" => $audioFile['data'],
-                                                        "format" => $audioFile['format'],
-                                                    ]
-                                                ]
-                                            ]
-                                        ];
-                                    }
-                                } else if($audio->location == 'amazon'){
-                                    $fileUrl = $audio->path;
-                                  	$parsedUrl = parse_url($audio->path);
-    								$filePath = ltrim($parsedUrl['path'], '/');
-
-                                    if (\Storage::disk('s3')->exists($filePath)) {
-                                        $audioFile = $this->convertToMp3($fileUrl);
-    
-                                        return [
-                                            "role" => $role,
-                                            "content" => [
-                                                [
-                                                    "type" => "input_audio",
-                                                    "input_audio" => [
-                                                        "data" => $audioFile['data'],
-                                                        "format" => $audioFile['format'],
-                                                    ]
-                                                ]
-                                            ]
-                                        ];
-                                    }
-                                }
-                            } else {
-                                //Check if audio name starts with audio_
-                                if(isset($audio->name)){
-                                    if (str_starts_with($audio->name, 'audio_')) {
-                                        return [
-                                            'role' => $role,
-                                            'audio' => [
-                                                'id' => $audio->name,
-                                            ],
-                                        ];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
-                    return null;
-                })->filter()
-                ->toArray();
-
-                $conversationHistory = array_reverse($conversationHistory); // Inverte a ordem para manter a cronologia
-
-                // Build the context by looping through the conversation history and concatenating the messages
-                $context = [
-                    [
-                        "role" => "system", 
-                        "content" => app(AiPersonaPromptBuilder::class)->replySystemPrompt(
-                            $metadataArray,
-                            Organization::where('id', $organizationId)->value('name'),
-                            $documentation
-                        )
-                    ]
-                ]; // Initialize context with a system message
-
-                // Append the user and assistant messages to the context
-                foreach ($conversationHistory as $message) {
-                    if (!empty($message['content'])) {
-                        $context[] = [
-                            "role" => $message['role'],
-                            "content" => $message['content']
-                        ];
-                    }
+            // Start keywords work on text only; stop keywords are checked again after transcription.
+            if (!$isVoiceNote) {
+                if ($this->containsKeyword($receivedMessage, $stop_words)) {
+                    $contact->update(['ai_assistance_enabled' => 0]);
+                    return false; // Stop further AI processing
                 }
 
-                //\Log::info($context);
-
-                // Check if the received message contains any stop words
-                if ($stop_words) {
-                    $stopWordsArray = array_map('trim', explode(',', $stop_words));
-                    // Loop through each stop word and check if it exists in the received message
-                    foreach ($stopWordsArray as $stopWord) {
-                        if (stripos($receivedMessage, $stopWord) !== false) {
-                            $ai_assistance_enabled = 0;
-                            $contact->update(['ai_assistance_enabled' => $ai_assistance_enabled]);
-                            return false; // Stop further AI processing
-                        }
-                    }
+                if ($this->containsKeyword($receivedMessage, $start_words)) {
+                    $ai_assistance_enabled = 1;
+                    $contact->update(['ai_assistance_enabled' => $ai_assistance_enabled]);
                 }
+            }
 
-                // Check if the received message contains any start words
-                if ($start_words) {
-                    $startWordsArray = array_map('trim', explode(',', $start_words));
-                    // Loop through each stop word and check if it exists in the received message
-                    foreach ($startWordsArray as $startWord) {
-                        if (stripos($receivedMessage, $startWord) !== false) {
-                            $ai_assistance_enabled = 1;
-                            $contact->update(['ai_assistance_enabled' => $ai_assistance_enabled]);
-                            //return true;
-                        }
-                    }
-                }
-
-                // Verify if the user has enabled automatic AI responses and 
+                // Verify if the user has enabled automatic AI responses and
                 // ensure that the AI response feature is currently inactive for this user
 
                 if($enable_ai_to_respond_automatically && !$ai_assistance_enabled){
@@ -320,7 +195,7 @@ class AIResponseService
                         return false;
                     }
 
-                    $expectsAudioResponse = $lastMessage['type'] == 'audio'
+                    $expectsAudioResponse = $isVoiceNote
                         && data_get($metadataArray, 'ai.allow_audio_response', false);
 
                     if ($expectsAudioResponse && !$usageLimiter->canUseAudio($organizationId, $keySource)) {
@@ -354,6 +229,24 @@ class AIResponseService
                         ]);
                         return false;
                     }
+
+                    if ($isVoiceNote) {
+                        $receivedMessage = (string) $this->transcribeVoiceNote($lastMessage['chat'], (int) $organizationId);
+                        if (trim($receivedMessage) === '') {
+                            return false;
+                        }
+
+                        if ($this->containsKeyword($receivedMessage, $stop_words)) {
+                            $contact->update(['ai_assistance_enabled' => 0]);
+                            return false;
+                        }
+                    }
+
+                    // Documents are optional: without a match the assistant answers from the persona
+                    // and hands the chat to the team when it cannot answer.
+                    $closestDocument = $this->findClosestDocumentByQuery($organizationId, $receivedMessage);
+                    $documentation = ($closestDocument['success'] ?? false) === true ? (string) ($closestDocument['document'] ?? '') : null;
+                    $context = $this->buildReplyContext($chat, $metadataArray, (int) $organizationId, $documentation);
 
                     // Pass the context and received message to the chat method
                     try {
@@ -815,10 +708,17 @@ class AIResponseService
         ];
     }
 
-    protected function extractLastMessage($organizationId, $contactId){
+    /**
+     * The contact's latest message without any paid processing: text is returned as is,
+     * a voice note is returned with its chat so it can be transcribed later.
+     *
+     * @return array{type:string,message?:string,chat?:Chat}|null
+     */
+    protected function peekLastMessage(int $contactId): ?array
+    {
         $chat = Chat::where('contact_id', $contactId)
-                ->orderBy('created_at', 'desc') // Order by creation time
-                ->first();
+            ->orderBy('created_at', 'desc')
+            ->first();
         if (!$chat) {
             return null;
         }
@@ -828,41 +728,165 @@ class AIResponseService
             return null;
         }
 
-        if($metadata['type'] === 'text'){
+        if ($metadata['type'] === 'text') {
             return [
                 'type' => 'text',
                 'message' => $this->recentCustomerText($contactId) ?: ($metadata['text']['body'] ?? null),
             ];
         }
 
-        if($metadata['type'] === 'button'){
+        if ($metadata['type'] === 'button') {
             return [
                 'type' => 'text',
-                'message' => $metadata['button']['payload'] ?? null
+                'message' => $metadata['button']['payload'] ?? null,
             ];
         }
 
-        if($metadata['type'] === 'audio'){
-            $audio = ChatMedia::where('id', $chat->media_id)->first();
-            if (!$audio) {
-                return null;
+        if ($metadata['type'] === 'audio') {
+            return [
+                'type' => 'audio',
+                'chat' => $chat,
+            ];
+        }
+
+        return null;
+    }
+
+    protected function transcribeVoiceNote(Chat $voiceChat, int $organizationId): ?string
+    {
+        $audio = ChatMedia::where('id', $voiceChat->media_id)->first();
+        if (!$audio) {
+            return null;
+        }
+
+        $transcription = $this->transcribeAudioToText($organizationId, (string) $audio->path);
+
+        return ($transcription['success'] ?? false) === true ? (string) $transcription['text'] : null;
+    }
+
+    private function containsKeyword(string $text, ?string $keywords): bool
+    {
+        foreach (array_map('trim', explode(',', (string) $keywords)) as $keyword) {
+            if ($keyword !== '' && stripos($text, $keyword) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function buildReplyContext(Chat $chat, array $metadataArray, int $organizationId, ?string $documentation): array
+    {
+        // Retrieve the last 5 messages for the contact
+        $messages = Chat::where('contact_id', $chat->contact_id)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
+        // Extract the message body from the metadata column and convert to an array
+        $conversationHistory = $messages->map(function ($message) use ($organizationId, $metadataArray) {
+            // Decode the JSON in the metadata column
+            $metadata = json_decode($message->metadata, true);
+
+            // Check if type is 'text' and return the body if it exists
+            if (isset($metadata['type']) && ($metadata['type'] === 'text' || $metadata['type'] === 'audio')) {
+                $role = ($message->type === 'outbound') ? 'assistant' : 'user'; //outbound => user, inbound => assistant
+
+                if($metadata['type'] === 'text'){
+                    return [
+                        "role" => $role,
+                        "content" => $metadata['text']['body'] ?? null
+                    ];
+                } else if($metadata['type'] === 'audio' && data_get($metadataArray, 'ai.allow_audio_response', false)){
+                    $audio = ChatMedia::where('id', $message->media_id)->first();
+
+                    if($role == 'user'){
+                          if($audio->location == 'local'){
+                            $filePath = storage_path("app/{$audio->path}");
+
+                            if(file_exists($filePath)){
+                                $audioFile = $this->convertToMp3($filePath);
+
+                                return [
+                                    "role" => $role,
+                                    "content" => [
+                                        [
+                                            "type" => "input_audio",
+                                            "input_audio" => [
+                                                "data" => $audioFile['data'],
+                                                "format" => $audioFile['format'],
+                                            ]
+                                        ]
+                                    ]
+                                ];
+                            }
+                        } else if($audio->location == 'amazon'){
+                            $fileUrl = $audio->path;
+                              $parsedUrl = parse_url($audio->path);
+                            $filePath = ltrim($parsedUrl['path'], '/');
+
+                            if (\Storage::disk('s3')->exists($filePath)) {
+                                $audioFile = $this->convertToMp3($fileUrl);
+
+                                return [
+                                    "role" => $role,
+                                    "content" => [
+                                        [
+                                            "type" => "input_audio",
+                                            "input_audio" => [
+                                                "data" => $audioFile['data'],
+                                                "format" => $audioFile['format'],
+                                            ]
+                                        ]
+                                    ]
+                                ];
+                            }
+                        }
+                    } else {
+                        //Check if audio name starts with audio_
+                        if(isset($audio->name)){
+                            if (str_starts_with($audio->name, 'audio_')) {
+                                return [
+                                    'role' => $role,
+                                    'audio' => [
+                                        'id' => $audio->name,
+                                    ],
+                                ];
+                            }
+                        }
+                    }
+                }
             }
 
-            if($audio->location === 'local'){
-                $transcriptionResponse = $this->transcribeAudioToText($organizationId, (string) $audio->path);
-            } else if($audio->location === 'amazon') {
-                $transcriptionResponse = $this->transcribeAudioToText($organizationId, (string) $audio->path);
-            }
+            return null;
+        })->filter()
+        ->toArray();
 
-            if ($transcriptionResponse['success']) {
-                return [
-                    'type' => 'audio',
-                    'message' => $transcriptionResponse['text']
+        $conversationHistory = array_reverse($conversationHistory); // Inverte a ordem para manter a cronologia
+
+        // Build the context by looping through the conversation history and concatenating the messages
+        $context = [
+            [
+                "role" => "system", 
+                "content" => app(AiPersonaPromptBuilder::class)->replySystemPrompt(
+                    $metadataArray,
+                    Organization::where('id', $organizationId)->value('name'),
+                    $documentation
+                )
+            ]
+        ]; // Initialize context with a system message
+
+        // Append the user and assistant messages to the context
+        foreach ($conversationHistory as $message) {
+            if (!empty($message['content'])) {
+                $context[] = [
+                    "role" => $message['role'],
+                    "content" => $message['content']
                 ];
             }
         }
 
-        return null;
+        return $context;
     }
 
     /**
