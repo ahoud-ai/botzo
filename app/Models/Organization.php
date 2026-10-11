@@ -16,6 +16,39 @@ class Organization extends Model {
     protected $guarded = [];
     public $timestamps = true;
 
+    /**
+     * Secrets inside the metadata JSON that must never leave the server
+     * (Inertia props, JSON responses). Server code reads ->metadata directly.
+     */
+    private const CLIENT_REDACTED_METADATA_KEYS = [
+        'whatsapp.access_token',
+        'whatsapp.access_token_encrypted',
+        'whatsapp.app_secret',
+        'whatsapp.app_secret_encrypted',
+        'whatsapp.two_step_pin_encrypted',
+        'ai.api_key',
+        'ai.api_key_encrypted',
+    ];
+
+    public function toArray()
+    {
+        $attributes = parent::toArray();
+
+        if (isset($attributes['metadata']) && is_string($attributes['metadata'])) {
+            $metadata = json_decode($attributes['metadata'], true);
+
+            if (is_array($metadata)) {
+                foreach (self::CLIENT_REDACTED_METADATA_KEYS as $key) {
+                    \Illuminate\Support\Arr::forget($metadata, $key);
+                }
+
+                $attributes['metadata'] = json_encode($metadata);
+            }
+        }
+
+        return $attributes;
+    }
+
     public function listAll(
         $searchTerm,
         $userId = null,
