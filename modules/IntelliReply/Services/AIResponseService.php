@@ -19,6 +19,7 @@ use App\Services\IntelliReply\AiPersonaPromptBuilder;
 use App\Services\IntelliReply\AiReplyFallbackService;
 use App\Services\IntelliReply\AiReplySafetyGuard;
 use App\Services\IntelliReply\AiUsageLimiterService;
+use App\Services\IntelliReply\AiUsageLogService;
 use App\Services\Whatsapp\WhatsappTokenVault;
 use App\Services\WhatsappService;
 use FFMpeg\FFMpeg;
@@ -62,7 +63,7 @@ class AIResponseService
             $this->conversationHistoryForSuggestion($organizationId, (int) $contact->id)
         );
 
-        $text = $this->requestTextCompletion($organizationId, $organizationConfig, $messages, $apiKey, $apiKeyBundle);
+        $text = $this->requestTextCompletion($organizationId, $organizationConfig, $messages, $apiKey, $apiKeyBundle, (int) $contact->id);
         if ($text === null || trim($text) === '') {
             return [
                 'success' => false,
@@ -367,7 +368,17 @@ class AIResponseService
                         return app(AiReplyFallbackService::class)->handle($contact, 'model_unavailable');
                     }
 
-                    if (app(AiPersonaPromptBuilder::class)->asksForHandoff((string) $res['text'])) {
+                    $isHandoff = app(AiPersonaPromptBuilder::class)->asksForHandoff((string) $res['text']);
+                    app(AiUsageLogService::class)->record(
+                        (int) $organizationId,
+                        (int) $contact->id,
+                        AiUsageLogService::PURPOSE_AUTO_REPLY,
+                        $isHandoff ? 'handoff' : 'replied',
+                        (array) ($res['usage'] ?? []),
+                        $keySource
+                    );
+
+                    if ($isHandoff) {
                         $expectsAudioResponse
                             ? $usageLimiter->consumeAudio($organizationId, $keySource)
                             : $usageLimiter->consumeText($organizationId, $keySource);
@@ -609,7 +620,7 @@ class AIResponseService
         ];
     }
 
-    private function requestTextCompletion(int $organizationId, array $organizationConfig, array $messages, string $apiKey, array $apiKeyBundle): ?string
+    private function requestTextCompletion(int $organizationId, array $organizationConfig, array $messages, string $apiKey, array $apiKeyBundle, ?int $contactId = null): ?string
     {
         try {
             $result = app(AiProviderManager::class)
@@ -631,6 +642,13 @@ class AIResponseService
 
             return null;
         }
+
+        app(AiUsageLogService::class)->record($organizationId, $contactId, AiUsageLogService::PURPOSE_SUGGESTION, 'drafted', [
+            'provider' => $result->provider,
+            'model' => $result->model,
+            'input_tokens' => $result->inputTokens,
+            'output_tokens' => $result->outputTokens,
+        ], $apiKeyBundle['source'] ?? null);
 
         return trim($result->text) !== '' ? trim($result->text) : null;
     }

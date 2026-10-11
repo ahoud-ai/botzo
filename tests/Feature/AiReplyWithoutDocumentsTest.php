@@ -36,6 +36,7 @@ class AiReplyWithoutDocumentsTest extends TestCase
         [$contact, $chat] = $this->conversation('مواعيدكم إيه؟');
         Http::fake(['api.openai.com/v1/chat/completions' => Http::response([
             'choices' => [['message' => ['content' => 'مواعيدنا يومياً من 12 الظهر لـ 10 بالليل.']]],
+            'usage' => ['prompt_tokens' => 420, 'completion_tokens' => 18],
         ])]);
 
         $whatsapp = Mockery::mock(WhatsappService::class);
@@ -46,6 +47,17 @@ class AiReplyWithoutDocumentsTest extends TestCase
         $this->assertTrue($this->serviceWith($whatsapp)->handleAIResponse($chat, 'مواعيدكم إيه؟'));
 
         Http::assertNotSent(fn (Request $request) => str_contains($request->url(), '/embeddings'));
+        $this->assertDatabaseHas('ai_usage_logs', [
+            'organization_id' => $contact->organization_id,
+            'contact_id' => $contact->id,
+            'purpose' => 'auto_reply',
+            'outcome' => 'replied',
+            'provider' => 'openai',
+            'model' => 'gpt-4o-mini',
+            'key_source' => 'organization',
+            'input_tokens' => 420,
+            'output_tokens' => 18,
+        ]);
         Http::assertSent(function (Request $request) {
             $system = (string) data_get($request->data(), 'messages.0.content');
 
@@ -60,6 +72,7 @@ class AiReplyWithoutDocumentsTest extends TestCase
         [$contact, $chat] = $this->conversation('عايز أسترجع فلوسي');
         Http::fake(['api.openai.com/v1/chat/completions' => Http::response([
             'choices' => [['message' => ['content' => '[[HANDOFF]]']]],
+            'usage' => ['prompt_tokens' => 400, 'completion_tokens' => 3],
         ])]);
 
         $replyChannel = Mockery::mock(WhatsappService::class);
@@ -75,6 +88,12 @@ class AiReplyWithoutDocumentsTest extends TestCase
 
         $this->assertTrue($this->serviceWith($replyChannel)->handleAIResponse($chat, 'عايز أسترجع فلوسي'));
         $this->assertTrue(app(AiConversationPauseService::class)->isPaused($contact->fresh()));
+        $this->assertDatabaseHas('ai_usage_logs', [
+            'contact_id' => $contact->id,
+            'outcome' => 'handoff',
+            'input_tokens' => 400,
+            'output_tokens' => 3,
+        ]);
     }
 
     private function serviceWith(WhatsappService $whatsapp): AIResponseService
