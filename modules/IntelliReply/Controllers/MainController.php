@@ -279,7 +279,7 @@ class MainController extends BaseController
         $audioResponseModels = $this->availableAudioResponseModels();
 
         $payload = $request->validate([
-            'active' => ['required', 'boolean'],
+            'active' => ['sometimes', 'boolean'],
             'api_key' => ['nullable', 'string', 'max:500'],
             'key_source' => ['nullable', Rule::in(['organization', 'global', 'auto'])],
             'model' => ['required', 'string', 'max:120', Rule::in($availableModels)],
@@ -325,7 +325,9 @@ class MainController extends BaseController
         }
         unset($metadata['ai']['api_key']);
 
-        $metadata['ai']['active'] = (bool) $payload['active'];
+        // Saving the model settings can switch the assistant on (first setup) but never off:
+        // turning it off is only done with the activation toggle.
+        $metadata['ai']['active'] = (bool) ($payload['active'] ?? false) || (bool) data_get($metadata, 'ai.active', false);
         $metadata['ai']['key_source'] = $requestedKeySource;
         $metadata['ai']['platform'] = 'OpenAI';
         $metadata['ai']['model'] = $payload['model'] ?: self::DEFAULT_MODEL;
@@ -338,14 +340,15 @@ class MainController extends BaseController
         $metadata['ai']['voice'] = $payload['voice'] ?? null;
 
         $resolvedRuntime = $keyResolver->resolveForOrganization($metadata, $requestedKeySource, $organizationId);
-        if ((bool) $payload['active'] && empty($resolvedRuntime['key'])) {
+        if ($metadata['ai']['active'] && empty($resolvedRuntime['key'])) {
             return back()->with('status', [
                 'type' => 'error',
                 'message' => __('AI API key is missing for the selected key policy.'),
             ]);
         }
 
-        if ((bool) $payload['active'] && !app()->environment('testing')) {
+        // Check the key with the provider whenever there is one, so "saved" really means it works.
+        if (!empty($resolvedRuntime['key']) && !app()->environment('testing')) {
             try {
                 $this->runEmbeddingPreflight(
                     (string) $resolvedRuntime['key'],

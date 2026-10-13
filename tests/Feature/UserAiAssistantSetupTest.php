@@ -105,6 +105,41 @@ class UserAiAssistantSetupTest extends TestCase
         $this->assertNull(data_get(json_decode($organization->fresh()->metadata, true), 'ai.disclosure_text'));
     }
 
+    public function test_saving_model_settings_never_turns_an_active_assistant_off(): void
+    {
+        [$user, $organization] = $this->createUserAndOrganization([
+            'ai' => ['active' => true, 'api_key_encrypted' => Crypt::encryptString('sk-org'), 'key_source' => 'organization'],
+        ]);
+        $save = fn (array $payload) => $this->withoutMiddleware([CheckSubscriptionStatus::class, VerifyCsrfToken::class])
+            ->actingAs($user, 'user')
+            ->withSession(['current_organization' => $organization->id])
+            ->post('/automation/ai/setup', $payload + ['model' => 'gpt-4o-mini', 'max_tokens' => 512, 'temperature' => 0.7]);
+
+        // The settings form used to send its stale "active: false" and silently switch the assistant off.
+        $save(['active' => false])->assertSessionHasNoErrors();
+        $this->assertTrue((bool) data_get(json_decode($organization->fresh()->metadata, true), 'ai.active'));
+
+        $save([])->assertSessionHasNoErrors();
+        $this->assertTrue((bool) data_get(json_decode($organization->fresh()->metadata, true), 'ai.active'));
+    }
+
+    public function test_the_first_setup_can_switch_the_assistant_on_but_does_not_by_default(): void
+    {
+        [$user, $organization] = $this->createUserAndOrganization([
+            'ai' => ['api_key_encrypted' => Crypt::encryptString('sk-org'), 'key_source' => 'organization'],
+        ]);
+        $save = fn (array $payload) => $this->withoutMiddleware([CheckSubscriptionStatus::class, VerifyCsrfToken::class])
+            ->actingAs($user, 'user')
+            ->withSession(['current_organization' => $organization->id])
+            ->post('/automation/ai/setup', $payload + ['model' => 'gpt-4o-mini', 'max_tokens' => 512, 'temperature' => 0.7]);
+
+        $save(['active' => false])->assertSessionHasNoErrors();
+        $this->assertFalse((bool) data_get(json_decode($organization->fresh()->metadata, true), 'ai.active'));
+
+        $save(['active' => true])->assertSessionHasNoErrors();
+        $this->assertTrue((bool) data_get(json_decode($organization->fresh()->metadata, true), 'ai.active'));
+    }
+
     public function test_persona_is_saved_per_organization(): void
     {
         [$user, $organization] = $this->createUserAndOrganization([]);
