@@ -36,7 +36,7 @@ class DocumentController extends BaseController
         $apiKey = $keyBundle['key'] ?? null;
 
         if (empty($apiKey)) {
-            Log::warning('intellireply.document.upload.denied', [
+            Log::channel('intellireply')->warning('intellireply.document.upload.denied', [
                 'organization_id' => $organizationId,
                 'error_code' => 'AI_KEY_MISSING',
                 'key_source' => $keyBundle['source'] ?? null,
@@ -91,7 +91,7 @@ class DocumentController extends BaseController
                 $document->save();
             });
 
-            Log::info('intellireply.document.uploaded', [
+            Log::channel('intellireply')->info('intellireply.document.uploaded', [
                 'organization_id' => $organizationId,
                 'title' => (string) $request->input('title'),
                 'key_source' => $keyBundle['source'] ?? null,
@@ -130,7 +130,7 @@ class DocumentController extends BaseController
             ->where('organization_id', $organizationId)
             ->delete();
 
-        Log::info('intellireply.document.deleted', [
+        Log::channel('intellireply')->info('intellireply.document.deleted', [
             'organization_id' => $organizationId,
             'document_uuid' => $uuid,
             'user_id' => auth()->id(),

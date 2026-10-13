@@ -25,7 +25,7 @@ class AiReplyFallbackService
         $organizationId = (int) $contact->organization_id;
         $cooldownKey = sprintf('intellireply:fallback-sent:%d:%d', $organizationId, $contact->id);
 
-        Log::warning('intellireply.fallback.triggered', [
+        Log::channel('intellireply')->warning('intellireply.fallback.triggered', [
             'organization_id' => $organizationId,
             'contact_id' => $contact->id,
             'reason' => $reason,
@@ -61,7 +61,7 @@ class AiReplyFallbackService
         $organizationId = (int) $contact->organization_id;
         $cooldownKey = sprintf('intellireply:ask-to-type:%d:%d', $organizationId, $contact->id);
 
-        Log::notice('intellireply.voice.ask_to_type', [
+        Log::channel('intellireply')->notice('intellireply.voice.ask_to_type', [
             'organization_id' => $organizationId,
             'contact_id' => $contact->id,
             'reason' => $reason,

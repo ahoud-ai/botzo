@@ -32,7 +32,7 @@ class FaqController extends BaseController
         $faq = Faq::create(['organization_id' => $organizationId] + $payload);
         $this->embed($faq, $organizationId);
 
-        Log::info('intellireply.faq.created', ['organization_id' => $organizationId, 'user_id' => auth()->id()]);
+        Log::channel('intellireply')->info('intellireply.faq.created', ['organization_id' => $organizationId, 'user_id' => auth()->id()]);
 
         return back()->with('status', ['type' => 'success', 'message' => __('Question saved')]);
     }

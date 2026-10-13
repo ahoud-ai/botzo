@@ -103,7 +103,7 @@ class AiVoiceTranscriptionService
                     timeoutSeconds: max(5, (int) config('intellireply.transcription.timeout_seconds', 30)),
                 ));
             } catch (Throwable $exception) {
-                Log::notice('intellireply.audio.transcription_model_failed', [
+                Log::channel('intellireply')->notice('intellireply.audio.transcription_model_failed', [
                     'organization_id' => $chat->organization_id,
                     'chat_id' => $chat->id,
                     'model' => $model,
@@ -244,7 +244,7 @@ class AiVoiceTranscriptionService
 
     private function fail(Chat $chat, string $status, string $reason, array $context = [], ?float $seconds = null): array
     {
-        Log::warning('intellireply.audio.transcription_unavailable', array_merge([
+        Log::channel('intellireply')->warning('intellireply.audio.transcription_unavailable', array_merge([
             'organization_id' => $chat->organization_id,
             'chat_id' => $chat->id,
             'status' => $status,
@@ -278,7 +278,7 @@ class AiVoiceTranscriptionService
             }
 
             if (! $this->isTrustedAudioUrl($path)) {
-                Log::warning('intellireply.audio_url_rejected', [
+                Log::channel('intellireply')->warning('intellireply.audio_url_rejected', [
                     'host' => parse_url($path, PHP_URL_HOST),
                 ]);
 

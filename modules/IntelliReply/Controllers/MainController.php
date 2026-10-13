@@ -115,7 +115,7 @@ class MainController extends BaseController
         $organization->metadata = json_encode($metadata);
 
         if ($organization->save()) {
-            Log::info('intellireply.activate.updated', [
+            Log::channel('intellireply')->info('intellireply.activate.updated', [
                 'organization_id' => $organizationId,
                 'active' => (bool) $payload['active'],
                 'user_id' => auth()->id(),
@@ -160,7 +160,7 @@ class MainController extends BaseController
         $organization->metadata = json_encode($metadata);
 
         if ($organization->save()) {
-            Log::info('intellireply.assistant_setup.updated', [
+            Log::channel('intellireply')->info('intellireply.assistant_setup.updated', [
                 'organization_id' => $organizationId,
                 'enable_automatic_responses' => (bool) $payload['enable_automatic_responses'],
                 'user_id' => auth()->id(),
@@ -212,7 +212,7 @@ class MainController extends BaseController
         $organization->metadata = json_encode($metadata);
         $organization->save();
 
-        Log::info('intellireply.persona.updated', [
+        Log::channel('intellireply')->info('intellireply.persona.updated', [
             'organization_id' => $organizationId,
             'tone' => $payload['tone'],
             'dialect' => $payload['dialect'],
@@ -243,7 +243,7 @@ class MainController extends BaseController
                 (bool) $payload['ai_assistant'] ? ['ai_paused_until' => null] : []
             ));
 
-        Log::info('intellireply.contact_toggle.updated', [
+        Log::channel('intellireply')->info('intellireply.contact_toggle.updated', [
             'organization_id' => $organizationId,
             'contact_uuid' => $uuid,
             'ai_assistance_enabled' => (bool) $payload['ai_assistant'],
@@ -355,7 +355,7 @@ class MainController extends BaseController
                     (string) $metadata['ai']['embedding_model']
                 );
             } catch (\Throwable $e) {
-                Log::warning('intellireply.embedding.preflight_failed', [
+                Log::channel('intellireply')->warning('intellireply.embedding.preflight_failed', [
                     'organization_id' => $organizationId,
                     'error_code' => app(AiEmbeddingService::class)->isModelAccessError($e)
                         ? 'EMBEDDING_MODEL_UNAVAILABLE'
@@ -377,7 +377,7 @@ class MainController extends BaseController
         $organization->metadata = json_encode($metadata);
 
         if ($organization->save()) {
-            Log::info('intellireply.openai_setup.updated', [
+            Log::channel('intellireply')->info('intellireply.openai_setup.updated', [
                 'organization_id' => $organizationId,
                 'model' => $metadata['ai']['model'] ?? null,
                 'embedding_model' => $metadata['ai']['embedding_model'] ?? null,

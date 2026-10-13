@@ -184,7 +184,7 @@ class AIResponseService
                     $apiKey = $apiKeyBundle['key'] ?? null;
                     $keySource = $apiKeyBundle['source'] ?? null;
                     if (!$apiKey) {
-                        Log::warning('intellireply.chat.request_failed', [
+                        Log::channel('intellireply')->warning('intellireply.chat.request_failed', [
                             'organization_id' => $organizationId,
                             'contact_id' => $chat->contact_id,
                             'error_code' => 'AI_KEY_MISSING',
@@ -197,7 +197,7 @@ class AIResponseService
                         && data_get($metadataArray, 'ai.allow_audio_response', false);
 
                     if ($expectsAudioResponse && !$usageLimiter->canUseAudio($organizationId, $keySource)) {
-                        Log::warning('intellireply.limit.reached', [
+                        Log::channel('intellireply')->warning('intellireply.limit.reached', [
                             'organization_id' => $organizationId,
                             'contact_id' => $chat->contact_id,
                             'error_code' => 'AI_LIMIT_REACHED',
@@ -208,7 +208,7 @@ class AIResponseService
                     }
 
                     if (!$expectsAudioResponse && !$usageLimiter->canUseText($organizationId, $keySource)) {
-                        Log::warning('intellireply.limit.reached', [
+                        Log::channel('intellireply')->warning('intellireply.limit.reached', [
                             'organization_id' => $organizationId,
                             'contact_id' => $chat->contact_id,
                             'error_code' => 'AI_LIMIT_REACHED',
@@ -220,7 +220,7 @@ class AIResponseService
 
                     $safetyGuard = app(AiReplySafetyGuard::class);
                     if (!$safetyGuard->allowsReplyToContact((int) $organizationId, (int) $contact->id)) {
-                        Log::warning('intellireply.limit.reached', [
+                        Log::channel('intellireply')->warning('intellireply.limit.reached', [
                             'organization_id' => $organizationId,
                             'contact_id' => $chat->contact_id,
                             'error_code' => 'AI_CONTACT_HOURLY_LIMIT',
@@ -281,7 +281,7 @@ class AIResponseService
                         $expectsAudioResponse
                             ? $usageLimiter->consumeAudio($organizationId, $keySource)
                             : $usageLimiter->consumeText($organizationId, $keySource);
-                        Log::info('intellireply.knowledge_gap.handoff', [
+                        Log::channel('intellireply')->info('intellireply.knowledge_gap.handoff', [
                             'organization_id' => $organizationId,
                             'contact_id' => $contact->id,
                             'had_documentation' => $documentation !== null,
@@ -343,7 +343,7 @@ class AIResponseService
             : $this->resolveAiKeyBundle($organizationId, $organizationConfig);
         $apiKey = $apiKeyBundle['key'] ?? null;
         if (!$apiKey) {
-            Log::warning('intellireply.chat.request_failed', [
+            Log::channel('intellireply')->warning('intellireply.chat.request_failed', [
                 'organization_id' => $organizationId,
                 'error_code' => 'AI_KEY_MISSING',
                 'key_source' => $apiKeyBundle['source'] ?? null,
@@ -367,7 +367,7 @@ class AIResponseService
                     audioVoice: $wantsAudio ? (string) data_get($organizationConfig, 'ai.voice') : null,
                 ));
         } catch (AiProviderException $exception) {
-            Log::warning('intellireply.chat.request_failed', [
+            Log::channel('intellireply')->warning('intellireply.chat.request_failed', [
                 'organization_id' => $organizationId,
                 'error_code' => 'AI_PROVIDER_REQUEST_FAILED',
                 'status' => $exception->status,
@@ -535,7 +535,7 @@ class AIResponseService
                     timeoutSeconds: 30,
                 ));
         } catch (AiProviderException $exception) {
-            Log::warning('intellireply.chat_suggestion.request_failed', [
+            Log::channel('intellireply')->warning('intellireply.chat_suggestion.request_failed', [
                 'organization_id' => $organizationId,
                 'error_code' => 'AI_PROVIDER_REQUEST_FAILED',
                 'status' => $exception->status,

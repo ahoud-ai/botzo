@@ -73,6 +73,16 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // AI assistant decisions and provider errors, kept apart from the application log so they
+        // stay visible when LOG_LEVEL only lets errors through. Rotated daily.
+        'intellireply' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/intellireply.log'),
+            'level' => env('INTELLIREPLY_LOG_LEVEL', 'info'),
+            'days' => (int) env('INTELLIREPLY_LOG_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

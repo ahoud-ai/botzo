@@ -44,7 +44,7 @@ class AiKnowledgeRetriever
             try {
                 [$queryVector] = $this->embeddings->embed($organizationMetadata, $apiKey, $query);
             } catch (Throwable $exception) {
-                Log::warning('intellireply.retrieval.failed', [
+                Log::channel('intellireply')->warning('intellireply.retrieval.failed', [
                     'organization_id' => $organizationId,
                     'error_code' => $this->embeddings->isModelAccessError($exception) ? 'EMBEDDING_MODEL_UNAVAILABLE' : 'RETRIEVAL_FAILED',
                     'error' => $exception->getMessage(),
@@ -55,7 +55,7 @@ class AiKnowledgeRetriever
         $selectedFaqs = $faqsFitInline ? $faqs : $this->rankFaqs($faqs, $queryVector, $organizationMetadata, $apiKey);
         $chunks = $queryVector !== null ? $this->rankChunks($documents, $queryVector) : [];
 
-        Log::info('intellireply.retrieval.completed', [
+        Log::channel('intellireply')->info('intellireply.retrieval.completed', [
             'organization_id' => $organizationId,
             'faq_count' => $selectedFaqs->count(),
             'chunk_count' => count($chunks),
@@ -78,7 +78,7 @@ class AiKnowledgeRetriever
             [$vector, $model] = $this->embeddings->embed($organizationMetadata, $apiKey, $faq->question);
             $faq->forceFill(['embedding' => $vector, 'embedding_model' => $model])->save();
         } catch (Throwable $exception) {
-            Log::warning('intellireply.faq.embedding_failed', [
+            Log::channel('intellireply')->warning('intellireply.faq.embedding_failed', [
                 'organization_id' => $faq->organization_id,
                 'error' => $exception->getMessage(),
             ]);

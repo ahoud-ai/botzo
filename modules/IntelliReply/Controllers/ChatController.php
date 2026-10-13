@@ -82,7 +82,7 @@ class ChatController extends BaseController
         } catch (\Throwable $exception) {
             report($exception);
 
-            Log::warning('intellireply.chat_suggestion.failed', [
+            Log::channel('intellireply')->warning('intellireply.chat_suggestion.failed', [
                 'organization_id' => $organizationId,
                 'contact_id' => $contact->id,
                 'error_code' => 'SUGGESTION_FAILED',

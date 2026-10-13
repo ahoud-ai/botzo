@@ -51,7 +51,7 @@ class AiHumanHandoffService
             $this->whatsapp((int) $organization->id, $metadata)->sendMessage($contact->uuid, $confirmation);
         }
 
-        Log::info('intellireply.handoff.requested', [
+        Log::channel('intellireply')->info('intellireply.handoff.requested', [
             'organization_id' => $organization->id,
             'contact_id' => $contact->id,
         ]);
