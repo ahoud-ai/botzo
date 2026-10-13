@@ -177,6 +177,15 @@ class AIResponseService
                     }
                 }
 
+                // Staying silent must be explainable from the AI log.
+                if (!$is_ai_active || !$ai_assistance_enabled) {
+                    Log::channel('intellireply')->info('intellireply.reply.skipped', [
+                        'organization_id' => $organizationId,
+                        'contact_id' => $chat->contact_id,
+                        'reason' => !$is_ai_active ? 'assistant_inactive' : 'contact_not_enabled',
+                    ]);
+                }
+
                 // Check if AI is active and automatic responses are enabled
                 if ($is_ai_active && $ai_assistance_enabled) {
                     $usageLimiter = app(AiUsageLimiterService::class);
