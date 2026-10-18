@@ -888,6 +888,11 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
         $requestData['type'] = $mediaType;
         $requestData[$mediaType]['link'] = $mediaUrl;
 
+        // Ogg/Opus audio sent with voice: true shows as a voice message instead of an audio file.
+        if ($mediaType === 'audio' && ($mediaMetadata['voice'] ?? false) === true) {
+            $requestData['audio']['voice'] = true;
+        }
+
         if ($mediaType == 'document') {
             $requestData[$mediaType]['filename'] = $mediaFileName;
         }

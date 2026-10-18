@@ -245,12 +245,13 @@ class UserAiAssistantSetupTest extends TestCase
         $response->assertSessionHasErrors('embedding_model');
     }
 
-    public function test_setup_rejects_audio_responses_for_non_audio_model(): void
+    public function test_setup_accepts_audio_responses_with_a_regular_chat_model(): void
     {
         [$user, $organization] = $this->createUserAndOrganization([
             'ai' => [],
         ]);
 
+        // Voice replies are produced by a separate speech model, so any chat model can use them.
         $response = $this->withoutMiddleware([
                 CheckSubscriptionStatus::class,
                 VerifyCsrfToken::class,
@@ -268,11 +269,11 @@ class UserAiAssistantSetupTest extends TestCase
             ]);
 
         $response->assertStatus(302);
-        $response->assertSessionHas('status', function ($status): bool {
-            return is_array($status)
-                && ($status['type'] ?? null) === 'error'
-                && ($status['message'] ?? null) === __('Selected model does not support audio responses. Choose an audio-capable model.');
-        });
+        $response->assertSessionHas('status', fn ($status): bool => is_array($status) && ($status['type'] ?? null) === 'success');
+
+        $metadata = json_decode($organization->fresh()->metadata ?? '{}', true);
+        $this->assertSame('gpt-4o-mini', data_get($metadata, 'ai.model'));
+        $this->assertTrue((bool) data_get($metadata, 'ai.allow_audio_response'));
     }
 
     public function test_setup_accepts_audio_responses_for_audio_capable_model(): void

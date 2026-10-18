@@ -81,7 +81,6 @@ class MainController extends BaseController
             ->map(fn (string $value) => ['value' => $value, 'label' => $value])
             ->values()
             ->all();
-        $data['audioResponseModels'] = $this->availableAudioResponseModels();
         $data['voices'] = config('voices');
         $data['filters'] = request()->all();
         $data['aimodule'] = CustomHelper::isModuleEnabled('AI Assistant', $organizationId);
@@ -276,7 +275,6 @@ class MainController extends BaseController
             ->values()
             ->all();
         $availableEmbeddingModels = $this->availableEmbeddingModels();
-        $audioResponseModels = $this->availableAudioResponseModels();
 
         $payload = $request->validate([
             'active' => ['sometimes', 'boolean'],
@@ -289,14 +287,6 @@ class MainController extends BaseController
             'temperature' => ['nullable', 'numeric', 'min:0', 'max:2'],
             'embedding_model' => ['nullable', 'string', 'max:120', Rule::in($availableEmbeddingModels)],
         ]);
-
-        if ((bool) ($payload['allow_audio_response'] ?? false)
-            && !in_array((string) $payload['model'], $audioResponseModels, true)) {
-            return back()->with('status', [
-                'type' => 'error',
-                'message' => __('Selected model does not support audio responses. Choose an audio-capable model.'),
-            ]);
-        }
 
         $organization = Organization::findOrFail($organizationId);
         $metadata = $organization->metadata ? json_decode($organization->metadata, true) : [];
@@ -433,22 +423,6 @@ class MainController extends BaseController
         return is_string($default) && trim($default) !== '' ? $default : self::DEFAULT_EMBEDDING_MODEL;
     }
 
-    private function availableAudioResponseModels(): array
-    {
-        $models = config('intellireply.audio_response_models', ['gpt-audio-1.5']);
-        if (!is_array($models)) {
-            return ['gpt-audio-1.5'];
-        }
-
-        $normalized = collect($models)
-            ->map(fn ($model) => is_string($model) ? trim($model) : '')
-            ->filter(fn ($model) => $model !== '')
-            ->unique()
-            ->values()
-            ->all();
-
-        return empty($normalized) ? ['gpt-audio-1.5'] : $normalized;
-    }
 
     private function runEmbeddingPreflight(string $apiKey, string $embeddingModel): void
     {

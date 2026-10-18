@@ -24,12 +24,6 @@ return [
         'text-embedding-3-large' => ['text-embedding-3-small'],
     ],
 
-    // Audio-capable chat models that support generated voice responses.
-    'audio_response_models' => array_values(array_filter(array_map(
-        'trim',
-        explode(',', (string) env('INTELLIREPLY_AUDIO_RESPONSE_MODELS', 'gpt-audio-1.5,gpt-audio,gpt-audio-mini,gpt-4o-audio-preview'))
-    ))),
-
     // Bot disclosure, sent once at the start of each conversation before the first AI reply.
     // Each organization can override the text from the AI settings page. {business} = organization name.
     'disclosure' => [
@@ -103,6 +97,20 @@ return [
             'gpt-4o-mini-transcribe' => (float) env('INTELLIREPLY_PRICE_PER_MINUTE_GPT_4O_MINI_TRANSCRIBE', 0.003),
             'gpt-4o-transcribe' => (float) env('INTELLIREPLY_PRICE_PER_MINUTE_GPT_4O_TRANSCRIBE', 0.006),
             'whisper-1' => (float) env('INTELLIREPLY_PRICE_PER_MINUTE_WHISPER_1', 0.006),
+        ],
+    ],
+
+    // Spoken replies: when a customer sends a voice note and the organization turned audio
+    // responses on, the text reply is also sent as a WhatsApp voice message (Ogg/Opus).
+    'speech' => [
+        'model' => env('INTELLIREPLY_SPEECH_MODEL', 'gpt-4o-mini-tts'),
+        'default_voice' => env('INTELLIREPLY_SPEECH_VOICE', 'alloy'),
+        // Longer replies are sent as text: a long voice message is hard to follow and costs more.
+        'max_characters' => (int) env('INTELLIREPLY_SPEECH_MAX_CHARACTERS', 600),
+        'timeout_seconds' => (int) env('INTELLIREPLY_SPEECH_TIMEOUT_SECONDS', 30),
+        // USD per minute of generated audio, for the cost in ai_usage_logs. Check the provider's price list.
+        'price_per_minute_usd' => [
+            'gpt-4o-mini-tts' => (float) env('INTELLIREPLY_PRICE_PER_MINUTE_GPT_4O_MINI_TTS', 0.015),
         ],
     ],
 

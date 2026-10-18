@@ -5510,5 +5510,8 @@
     "Question saved": "تم حفظ السؤال",
     "Unable to generate embeddings": "تعذّر إنشاء الـ embeddings",
     "Maghrebi Arabic (Darija)": "دارجة مغاربية",
-    "Transcript": "النص"
+    "Transcript": "النص",
+    "When a customer sends a voice note, the assistant replies with a voice message too. Long replies are sent as text. Voice replies cost more than text.": "عندما يرسل العميل رسالة صوتية، يرد المساعد برسالة صوتية أيضاً. الردود الطويلة تُرسل نصاً. الردود الصوتية أعلى تكلفة من النصية.",
+    "The AI provider returned no audio.": "لم يُرجع مزوّد الذكاء الاصطناعي أي صوت.",
+    "Unable to store the voice reply.": "تعذّر حفظ الرد الصوتي."
 }

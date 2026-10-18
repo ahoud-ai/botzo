@@ -14,6 +14,7 @@ class AiUsageLogService
     public const PURPOSE_AUTO_REPLY = 'auto_reply';
     public const PURPOSE_SUGGESTION = 'suggestion';
     public const PURPOSE_TRANSCRIPTION = 'transcription';
+    public const PURPOSE_SPEECH = 'speech';
 
     /**
      * @param  array{provider?:string,model?:string,input_tokens?:int,output_tokens?:int,audio_seconds?:float|null,cost_usd?:float|null}  $usage

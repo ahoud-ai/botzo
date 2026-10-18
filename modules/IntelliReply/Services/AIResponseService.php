@@ -19,6 +19,7 @@ use App\Services\IntelliReply\AiReplyFallbackService;
 use App\Services\IntelliReply\AiReplySafetyGuard;
 use App\Services\IntelliReply\AiUsageLimiterService;
 use App\Services\IntelliReply\AiUsageLogService;
+use App\Services\IntelliReply\AiVoiceReplyService;
 use App\Services\IntelliReply\AiVoiceTranscriptionService;
 use App\Services\Whatsapp\WhatsappTokenVault;
 use App\Services\WhatsappService;
@@ -305,9 +306,7 @@ class AIResponseService
                     }
 
                     if ($res) {
-                        $responseType = $expectsAudioResponse && !empty(data_get($res, 'audio.data'))
-                            ? 'audio'
-                            : 'text';
+                        $whatsapp = $this->initializeWhatsappService($organizationId);
 
                         // Bot disclosure, once per conversation (WhatsApp policy for AI replies).
                         $disclosureService = app(AiDisclosureService::class);
@@ -318,22 +317,29 @@ class AIResponseService
                             Organization::where('id', $organizationId)->value('name')
                         );
 
-                        if ($responseType === 'text') {
+                        // A voice note gets a voice message back when the organization turned audio responses on;
+                        // if that is not possible the same reply goes out as text.
+                        $sentAsVoice = false;
+                        if ($expectsAudioResponse) {
+                            if ($disclosure !== null && ($whatsapp->sendMessage($contact->uuid, $disclosure)->success ?? false) === true) {
+                                $disclosureService->markDisclosed((int) $organizationId, (int) $contact->id);
+                                $disclosure = null;
+                            }
+
+                            $sentAsVoice = app(AiVoiceReplyService::class)->send($contact, $whatsapp, $metadataArray, $apiKey, $keySource, (string) $res['text']);
+                        }
+
+                        if (!$sentAsVoice) {
                             $reply = $disclosure !== null ? $disclosure."\n\n".$res['text'] : $res['text'];
-                            $sent = $this->initializeWhatsappService($organizationId)->sendMessage($contact->uuid, $reply);
+                            $sent = $whatsapp->sendMessage($contact->uuid, $reply);
                             if ($disclosure !== null && ($sent->success ?? false) === true) {
                                 $disclosureService->markDisclosed((int) $organizationId, (int) $contact->id);
                             }
-                            $usageLimiter->consumeText($organizationId, $keySource);
-                        } else if ($responseType === 'audio') {
-                            if ($disclosure !== null
-                                && ($this->initializeWhatsappService($organizationId)->sendMessage($contact->uuid, $disclosure)->success ?? false) === true) {
-                                $disclosureService->markDisclosed((int) $organizationId, (int) $contact->id);
-                            }
-                            $file = $this->saveBase64Audio($res['audio']['data'], $organizationId, $res['audio']['id']);
-                            $this->initializeWhatsappService($organizationId)->sendMedia($contact->uuid, 'audio', $res['audio']['id'], $file['filePath'], $file['mediaUrl'], $file['location']);
-                            $usageLimiter->consumeAudio($organizationId, $keySource);
                         }
+
+                        $sentAsVoice
+                            ? $usageLimiter->consumeAudio($organizationId, $keySource)
+                            : $usageLimiter->consumeText($organizationId, $keySource);
                         $safetyGuard->recordReplyToContact((int) $organizationId, (int) $contact->id);
                         return true; // Indicates that an AI response was sent
                     }
@@ -361,8 +367,7 @@ class AIResponseService
         }
 
         $model = (string) data_get($organizationConfig, 'ai.model', 'gpt-4o-mini');
-        $wantsAudio = in_array($model, $this->audioResponseModels(), true);
-        $timeout = max(5, (int) config('intellireply.request_timeout_seconds', 20)) + ($wantsAudio ? 15 : 0);
+        $timeout = max(5, (int) config('intellireply.request_timeout_seconds', 20));
 
         try {
             $result = app(AiProviderManager::class)
@@ -373,7 +378,6 @@ class AIResponseService
                     maxTokens: app(AiReplySafetyGuard::class)->maxOutputTokens((int) data_get($organizationConfig, 'ai.max_tokens', 512)),
                     temperature: (float) data_get($organizationConfig, 'ai.temperature', 0.7),
                     timeoutSeconds: $timeout,
-                    audioVoice: $wantsAudio ? (string) data_get($organizationConfig, 'ai.voice') : null,
                 ));
         } catch (AiProviderException $exception) {
             Log::channel('intellireply')->warning('intellireply.chat.request_failed', [
@@ -564,36 +568,6 @@ class AIResponseService
         return trim($result->text) !== '' ? trim($result->text) : null;
     }
 
-    protected function saveBase64Audio($base64Data, $organizationId, $fileName)
-    {
-        $storage = Setting::where('key', 'storage_system')->first()->value;
-        $audioData = base64_decode($base64Data);
-
-        // Create a temporary stream and write the audio data into it
-        $stream = fopen('php://temp', 'rb+');
-        fwrite($stream, $audioData);
-        rewind($stream);
-
-        if($storage === 'local'){
-            // Get the public URL for accessing the audio file
-            $filePath = 'public/audios/' . $fileName . '.mp3';
-            $file = \Storage::disk('local')->put($filePath, $stream);
-            $mediaUrl = rtrim(config('app.url'), '/') . '/media/public/audios/' . $fileName . '.mp3';
-        } else if($storage === 'aws') {
-            $filePath = 'uploads/media/sent/'  . $organizationId . '/' . $fileName . '.mp3';
-            $file = \Storage::disk('s3')->put($filePath, $stream);
-            $mediaUrl = \Storage::disk('s3')->url($filePath);
-        }
-
-        // Close the temporary stream
-        fclose($stream);
-
-        return [
-            'filePath' => $storage == 'aws' ? $mediaUrl : $filePath,
-            'mediaUrl' => $mediaUrl,
-            'location' => $storage == 'aws' ? 'amazon' : 'local'
-        ];
-    }
 
 
 
@@ -766,22 +740,6 @@ class AIResponseService
         );
     }
 
-    private function audioResponseModels(): array
-    {
-        $models = config('intellireply.audio_response_models', ['gpt-audio-1.5']);
-        if (!is_array($models)) {
-            return ['gpt-audio-1.5'];
-        }
-
-        $normalized = collect($models)
-            ->map(fn ($model) => is_string($model) ? trim($model) : '')
-            ->filter(fn ($model) => $model !== '')
-            ->unique()
-            ->values()
-            ->all();
-
-        return empty($normalized) ? ['gpt-audio-1.5'] : $normalized;
-    }
 
 
 

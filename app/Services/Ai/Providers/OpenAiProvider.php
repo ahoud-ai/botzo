@@ -4,9 +4,12 @@ namespace App\Services\Ai\Providers;
 
 use App\Services\Ai\Contracts\AiChatProvider;
 use App\Services\Ai\Contracts\AiEmbeddingProvider;
+use App\Services\Ai\Contracts\AiSpeechProvider;
 use App\Services\Ai\Contracts\AiTranscriptionProvider;
 use App\Services\Ai\Data\AiChatRequest;
 use App\Services\Ai\Data\AiChatResult;
+use App\Services\Ai\Data\AiSpeechRequest;
+use App\Services\Ai\Data\AiSpeechResult;
 use App\Services\Ai\Data\AiTranscriptionRequest;
 use App\Services\Ai\Data\AiTranscriptionResult;
 use App\Services\Ai\Exceptions\AiProviderException;
@@ -15,7 +18,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
-class OpenAiProvider implements AiChatProvider, AiEmbeddingProvider, AiTranscriptionProvider
+class OpenAiProvider implements AiChatProvider, AiEmbeddingProvider, AiSpeechProvider, AiTranscriptionProvider
 {
     public const NAME = 'openai';
 
@@ -63,6 +66,40 @@ class OpenAiProvider implements AiChatProvider, AiEmbeddingProvider, AiTranscrip
         }
 
         return $embedding;
+    }
+
+    public function speak(AiSpeechRequest $request): AiSpeechResult
+    {
+        $payload = array_filter([
+            'model' => $request->model,
+            'input' => $request->text,
+            'voice' => $request->voice,
+            'response_format' => $request->format,
+            'instructions' => $request->instructions,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        try {
+            $response = Http::withToken($this->apiKey)
+                ->timeout(max(5, $request->timeoutSeconds))
+                ->post(self::BASE_URL.'/audio/speech', $payload);
+        } catch (ConnectionException|RequestException $exception) {
+            throw new AiProviderException(__('Could not reach the AI provider.'), null, 'connection_failed', $exception);
+        }
+
+        if (! $response->successful()) {
+            throw $this->failure($response);
+        }
+
+        if ($response->body() === '') {
+            throw new AiProviderException(__('The AI provider returned no audio.'));
+        }
+
+        return new AiSpeechResult(
+            audio: $response->body(),
+            mimeType: $request->format === 'opus' ? 'audio/ogg' : 'audio/'.$request->format,
+            provider: self::NAME,
+            model: $request->model,
+        );
     }
 
     public function transcribe(AiTranscriptionRequest $request): AiTranscriptionResult

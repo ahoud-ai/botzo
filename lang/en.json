@@ -5437,5 +5437,8 @@
     "Question saved": "Question saved",
     "Unable to generate embeddings": "Unable to generate embeddings",
     "Maghrebi Arabic (Darija)": "Maghrebi Arabic (Darija)",
-    "Transcript": "Transcript"
+    "Transcript": "Transcript",
+    "When a customer sends a voice note, the assistant replies with a voice message too. Long replies are sent as text. Voice replies cost more than text.": "When a customer sends a voice note, the assistant replies with a voice message too. Long replies are sent as text. Voice replies cost more than text.",
+    "The AI provider returned no audio.": "The AI provider returned no audio.",
+    "Unable to store the voice reply.": "Unable to store the voice reply."
 }

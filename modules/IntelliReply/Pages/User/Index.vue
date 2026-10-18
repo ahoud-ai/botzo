@@ -92,13 +92,13 @@
                         <div class="flex flex-wrap items-start gap-4">
                             <div class="min-w-[180px] flex-1">
                                 <label class="ui-form-label mb-1 block">{{ $t('Activate audio responses') }}</label>
-                                <FormToggleSwitch v-model="form2.allow_audio_response" :error="form2.errors.allow_audio_response" :disabled="!isAudioResponseModelSelected"/>
+                                <FormToggleSwitch v-model="form2.allow_audio_response" :error="form2.errors.allow_audio_response"/>
                             </div>
                             <FormSelect v-model="form2.voice" :error="form2.errors.voice" :name="$t('Audio voice')" :type="'text'" :options="voices" :class="'min-w-[180px] flex-1'"/>
                         </div>
-                        <div class="ai-warning-note mt-3">
-                            {{ $t('Audio responses require an audio-capable model.') }}
-                        </div>
+                        <p class="mt-3 text-xs leading-5 text-[var(--ui-muted)]">
+                            {{ $t('When a customer sends a voice note, the assistant replies with a voice message too. Long replies are sent as text. Voice replies cost more than text.') }}
+                        </p>
                     </div>
 
                     <div class="flex flex-wrap items-center justify-end gap-3 sm:col-span-6">
@@ -357,7 +357,7 @@
     import FormToggleSwitch from '@/Components/FormToggleSwitch.vue';
     import Pagination from '@/Components/Pagination.vue';
 
-    const props = defineProps(['rows', 'filters', 'settings', 'aimodule', 'fbmodule', 'models', 'embeddingModels', 'audioResponseModels', 'voices', 'aiUsageSummary', 'maxOutputTokens', 'defaultDisclosureText', 'persona', 'personaLimits', 'faqs', 'faqLimits']);
+    const props = defineProps(['rows', 'filters', 'settings', 'aimodule', 'fbmodule', 'models', 'embeddingModels', 'voices', 'aiUsageSummary', 'maxOutputTokens', 'defaultDisclosureText', 'persona', 'personaLimits', 'faqs', 'faqLimits']);
     const config = ref(props.settings.metadata);
     const settings = ref(config.value ? JSON.parse(config.value) : null);
     const aiConfigured = computed(() => Boolean(settings.value?.ai?.has_api_key || settings.value?.ai?.api_key));
@@ -391,11 +391,6 @@
 
         return options;
     });
-    const audioResponseModelSet = computed(() => {
-        const models = Array.isArray(props.audioResponseModels) ? props.audioResponseModels : [];
-        return new Set(models);
-    });
-    const isAudioResponseModelSelected = computed(() => audioResponseModelSet.value.has(form2.model));
     const isOpenModal = ref(false);
     const setupForm = ref(false);
     const showSetupCard = computed(() => aiConfigured.value || form2.active);
@@ -540,12 +535,6 @@
             }
         })
     }
-
-    watch(() => form2.model, (newValue) => {
-        if (!audioResponseModelSet.value.has(newValue)) {
-            form2.allow_audio_response = false;
-        }
-    });
 
     watch([canSetOrgKey, hasGlobalKey, keyPolicy], ([allowed, globalKeyAvailable, policy]) => {
         if (allowed || form2.key_source !== 'organization') {
