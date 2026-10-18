@@ -7,6 +7,7 @@ Route::post('/chats/update-sort-direction', [App\Http\Controllers\User\ChatContr
 Route::post('/chats/bulk-action', [App\Http\Controllers\User\ChatController::class, 'bulkAction']);
 Route::get('/chats/{uuid?}', [App\Http\Controllers\User\ChatController::class, 'index']);
 Route::get('/chats/{id}/media', [App\Http\Controllers\User\ChatController::class, 'getMedia']);
+Route::get('/chat-media/{id}', [App\Http\Controllers\User\ChatMediaController::class, 'show'])->whereNumber('id');
 Route::post('/chats', [App\Http\Controllers\User\ChatController::class, 'sendMessage']);
 Route::delete('/chats/{uuid}', [App\Http\Controllers\User\ChatController::class, 'deleteChats']);
 Route::post('/chat/{uuid}/send/template', [App\Http\Controllers\User\ChatController::class, 'sendTemplateMessage']);

@@ -18,7 +18,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Str;
 
 class ProcessWebhookMediaJob implements ShouldQueue
 {
@@ -71,14 +70,18 @@ class ProcessWebhookMediaJob implements ShouldQueue
             if (is_array($media) && isset($media['url'])) {
                 $downloadedFile = $this->downloadMedia($media, $organization);
 
-                // Upload media
+                // Customer media is private: the chat view opens it through the authenticated /chat-media route.
                 $chatMedia = new ChatMedia;
                 $chatMedia->name = $type === 'document' ? ($this->messageData[$type]['filename'] ?? 'N/A') : 'N/A';
-                $chatMedia->path = $downloadedFile['media_url'];
+                $chatMedia->storage_path = $downloadedFile['storage_path'];
+                $chatMedia->visibility = ChatMedia::VISIBILITY_PRIVATE;
                 $chatMedia->type = $media['mime_type'];
                 $chatMedia->size = $media['file_size'];
                 $chatMedia->location = $downloadedFile['location'];
                 $chatMedia->created_at = now();
+                $chatMedia->save();
+
+                $chatMedia->path = ChatMedia::privateUrl((int) $chatMedia->id);
                 $chatMedia->save();
 
                 // Update chat
@@ -163,32 +166,38 @@ class ProcessWebhookMediaJob implements ShouldQueue
 
         $response = $client->request('GET', $mediaInfo['url'], $requestOptions);
 
-        $fileContent = $response->getBody();
-        $mimeType = $mediaInfo['mime_type'] ?? 'application/octet-stream';
-        $fileName = $this->generateFilename($fileContent, $mediaInfo['mime_type']);
+        return $this->storeReceivedMedia(
+            (string) $response->getBody(),
+            (string) ($mediaInfo['mime_type'] ?? 'application/octet-stream'),
+            (int) $organization->id
+        );
+    }
 
-        $storage = app(SettingValueService::class)->getString('storage_system', 'local');
+    /**
+     * Store a file received from a customer where no public URL can reach it.
+     *
+     * @return array{storage_path:string,location:string}
+     */
+    protected function storeReceivedMedia(string $fileContent, string $mimeType, int $organizationId): array
+    {
+        $fileName = $this->generateFilename($fileContent, $mimeType);
+        $storagePath = ChatMedia::PRIVATE_FOLDER.'/'.$organizationId.'/'.$fileName;
 
-        if ($storage === 'local') {
-            $location = 'local';
-            $file = Storage::disk('local')->put('public/' . $fileName, $fileContent);
-            $mediaFilePath = $file;
-            $mediaUrl = rtrim(config('app.url'), '/') . '/media/' . 'public/' . $fileName;
-        } else if ($storage === 'aws') {
-            $location = 'amazon';
-            $filePath = 'uploads/media/received/' . $organization->id . '/' . Str::random(40) . time();
-            $file = Storage::disk('s3')->put($filePath, $fileContent, [
-                'ContentType' => $mimeType
+        if (app(SettingValueService::class)->getString('storage_system', 'local') === 'aws') {
+            Storage::disk('s3')->put($storagePath, $fileContent, [
+                'ContentType' => $mimeType,
+                'visibility' => 'private',
             ]);
-            $mediaUrl = Storage::disk('s3')->url($filePath);
+
+            return ['storage_path' => $storagePath, 'location' => 'amazon'];
         }
 
-        $mediaData = [
-            'media_url' => $mediaUrl,
-            'location' => $location,
-        ];
+        // storage/app/private is outside storage/app/public, which the public /media route serves.
+        if (! Storage::disk('local')->put($storagePath, $fileContent)) {
+            throw new \RuntimeException('Unable to store received media.');
+        }
 
-        return $mediaData;
+        return ['storage_path' => $storagePath, 'location' => 'local'];
     }
 
     private function generateFilename($fileContent, $mimeType)

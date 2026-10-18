@@ -10,6 +10,7 @@ use App\Services\Ai\AiProviderManager;
 use App\Services\Ai\Data\AiTranscriptionRequest;
 use App\Support\AudioDuration;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 /**
@@ -76,7 +77,7 @@ class AiVoiceTranscriptionService
             return $this->fail($chat, self::STATUS_UNSUPPORTED, 'format_unsupported', ['mime_type' => $mimeType]);
         }
 
-        $audio = $this->readAudioBinary((string) $media->path);
+        $audio = $media->isPrivate() ? $this->readPrivateMedia($media) : $this->readAudioBinary((string) $media->path);
         if ($audio === null || $audio === '') {
             return $this->fail($chat, self::STATUS_NOT_READY, 'media_unreadable');
         }
@@ -127,6 +128,22 @@ class AiVoiceTranscriptionService
         }
 
         return $this->fail($chat, self::STATUS_FAILED, 'transcription_failed', [], $seconds);
+    }
+
+    /**
+     * Private customer media is read from its disk; it has no public URL.
+     */
+    private function readPrivateMedia(ChatMedia $media): ?string
+    {
+        $disk = Storage::disk($media->location === 'amazon' ? 's3' : 'local');
+
+        try {
+            return $disk->exists($media->storage_path) ? $disk->get($media->storage_path) : null;
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return null;
+        }
     }
 
     public function storedTranscript(array $chatMetadata): ?string

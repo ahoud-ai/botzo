@@ -58,6 +58,27 @@ class AiVoiceNoteTest extends TestCase
         Http::assertSent(fn (Request $request) => str_contains($request->url(), '/audio/transcriptions'));
     }
 
+    public function test_a_private_voice_note_is_read_from_its_disk(): void
+    {
+        [$contact, $chat] = $this->voiceConversation();
+        $storagePath = \App\Models\ChatMedia::PRIVATE_FOLDER.'/'.$contact->organization_id.'/'.Str::random(10).'.ogg';
+        \Illuminate\Support\Facades\Storage::disk('local')->put($storagePath, 'OggS-private-voice');
+        $this->files[] = storage_path('app/'.$storagePath);
+        ChatMedia::where('id', $chat->media_id)->update([
+            'storage_path' => $storagePath,
+            'visibility' => \App\Models\ChatMedia::VISIBILITY_PRIVATE,
+            'path' => \App\Models\ChatMedia::privateUrl((int) $chat->media_id),
+        ]);
+        $this->fakeOpenAi('عندكم توصيل؟', 'أيوه، بنوصّل.');
+
+        $whatsapp = Mockery::mock(WhatsappService::class);
+        $whatsapp->shouldReceive('sendMessage')->once()->andReturn((object) ['success' => true]);
+
+        $this->assertTrue($this->serviceWith($whatsapp)->handleAIResponse($chat->fresh(), ''));
+        Http::assertSent(fn (Request $request) => str_contains($request->url(), '/audio/transcriptions')
+            && collect($request->data())->firstWhere('name', 'file')['contents'] === 'OggS-private-voice');
+    }
+
     public function test_nothing_is_sent_to_the_provider_when_the_assistant_is_off(): void
     {
         [, $chat] = $this->voiceConversation(['active' => false]);
