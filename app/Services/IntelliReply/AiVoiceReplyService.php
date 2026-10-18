@@ -66,6 +66,11 @@ class AiVoiceReplyService
         }
 
         $seconds = AudioDuration::seconds($speech->audio, $speech->mimeType, 0);
+
+        // Upload first and send by id: WhatsApp then never has to download the file from our host
+        // (shared hosting firewalls can block Meta, error 131053). Falls back to the public link.
+        $mediaId = $whatsapp->uploadMedia($speech->audio, $speech->mimeType, $file['name']);
+
         $sent = $whatsapp->sendMedia(
             $contact->uuid,
             'audio',
@@ -75,7 +80,7 @@ class AiVoiceReplyService
             $file['location'],
             null,
             $text,
-            ['voice' => true, 'content_type' => $speech->mimeType, 'size' => strlen($speech->audio)]
+            array_filter(['voice' => true, 'content_type' => $speech->mimeType, 'size' => strlen($speech->audio), 'media_id' => $mediaId])
         );
         $delivered = ($sent->success ?? false) === true;
 

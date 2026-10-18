@@ -853,6 +853,36 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
      * @param  string  $imageUrl  The URL of the stored image.
      * @return mixed Returns the response from the HTTP request.
      */
+    /**
+     * Upload a file to WhatsApp and return its media id (null on failure). Sending by id avoids
+     * WhatsApp downloading the file from our server, which some hosts block.
+     */
+    public function uploadMedia(string $content, string $mimeType, string $fileName): ?string
+    {
+        try {
+            $response = Http::withToken((string) $this->accessToken)
+                ->timeout(30)
+                ->attach('file', $content, $fileName, ['Content-Type' => $mimeType])
+                ->post("https://graph.facebook.com/{$this->apiVersion}/{$this->phoneNumberId}/media", [
+                    'messaging_product' => 'whatsapp',
+                    'type' => $mimeType,
+                ]);
+        } catch (\Throwable $exception) {
+            Log::warning('WhatsApp media upload failed.', ['organization_id' => $this->organizationId, 'error' => $exception->getMessage()]);
+
+            return null;
+        }
+
+        $mediaId = $response->successful() ? data_get($response->json(), 'id') : null;
+        if (! is_string($mediaId) || $mediaId === '') {
+            Log::warning('WhatsApp media upload failed.', ['organization_id' => $this->organizationId, 'status' => $response->status(), 'error' => data_get($response->json(), 'error.message')]);
+
+            return null;
+        }
+
+        return $mediaId;
+    }
+
     public function sendMedia($contactUuId, $mediaType, $mediaFileName, $mediaFilePath, $mediaUrl, $location, $caption = null, $transcription = null, array $mediaMetadata = [], ?int $userId = null)
     {
         $contact = $this->resolveContactForCurrentOrganization($contactUuId);
@@ -886,7 +916,12 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
         $requestData['recipient_type'] = 'individual';
         $requestData['to'] = $contact->phone;
         $requestData['type'] = $mediaType;
-        $requestData[$mediaType]['link'] = $mediaUrl;
+        // A file uploaded to WhatsApp beforehand is sent by id, so WhatsApp never has to download it from us.
+        if (! empty($mediaMetadata['media_id'])) {
+            $requestData[$mediaType]['id'] = (string) $mediaMetadata['media_id'];
+        } else {
+            $requestData[$mediaType]['link'] = $mediaUrl;
+        }
 
         // Ogg/Opus audio sent with voice: true shows as a voice message instead of an audio file.
         if ($mediaType === 'audio' && ($mediaMetadata['voice'] ?? false) === true) {

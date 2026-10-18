@@ -59,12 +59,16 @@ class AiVoiceReplyTest extends TestCase
 
         $whatsapp = Mockery::mock(WhatsappService::class);
         $whatsapp->shouldNotReceive('sendMessage');
+        $whatsapp->shouldReceive('uploadMedia')->once()
+            ->withArgs(fn ($content, $mime, $name) => $mime === 'audio/ogg' && str_ends_with($name, '.ogg') && str_starts_with($content, 'OggS'))
+            ->andReturn('wa-media-123');
         $whatsapp->shouldReceive('sendMedia')->once()
             ->withArgs(fn ($uuid, $type, $name, $path, $url, $location, $caption, $transcription, $metadata) => $uuid === (string) $contact->uuid
                 && $type === 'audio'
                 && str_ends_with($url, '.ogg')
                 && $transcription === 'كبسة الدجاج بـ 35 ريال.'
                 && $metadata['voice'] === true
+                && $metadata['media_id'] === 'wa-media-123'
                 && $metadata['content_type'] === 'audio/ogg')
             ->andReturn((object) ['success' => true]);
 
@@ -85,6 +89,46 @@ class AiVoiceReplyTest extends TestCase
             'audio_seconds' => 3.0,
             'cost_usd' => 0.00075,
         ]);
+    }
+
+    public function test_when_the_upload_fails_the_voice_message_is_sent_by_link(): void
+    {
+        [, $chat] = $this->conversation(type: 'audio');
+        $this->fakeOpenAi('عندكم توصيل؟', 'أيوه نوصل.', speech: AudioDurationTest::opus(2));
+
+        $whatsapp = Mockery::mock(WhatsappService::class);
+        $whatsapp->shouldReceive('uploadMedia')->once()->andReturn(null);
+        $whatsapp->shouldReceive('sendMedia')->once()
+            ->withArgs(fn (...$args) => ! array_key_exists('media_id', $args[8]) && $args[8]['voice'] === true)
+            ->andReturn((object) ['success' => true]);
+
+        $this->assertTrue($this->serviceWith($whatsapp)->handleAIResponse($chat, ''));
+    }
+
+    public function test_media_is_uploaded_to_whatsapp_and_sent_by_id(): void
+    {
+        [$contact] = $this->conversation(type: 'text');
+        Http::fake([
+            'graph.facebook.com/*/phone-1/media' => Http::sequence()
+                ->push(['id' => 'wa-media-777'])
+                ->push(['error' => ['message' => 'bad file']], 400),
+        ]);
+        $whatsapp = Mockery::mock(WhatsappService::class, ['token', 'v20.0', 'app', 'phone-1', 'waba-1', (int) $contact->organization_id])
+            ->makePartial()
+            ->shouldAllowMockingProtectedMethods();
+
+        $this->assertSame('wa-media-777', $whatsapp->uploadMedia('OggS-bytes', 'audio/ogg', 'reply.ogg'));
+        Http::assertSent(fn (Request $request) => str_contains($request->url(), '/phone-1/media')
+            && collect($request->data())->firstWhere('name', 'type')['contents'] === 'audio/ogg'
+            && collect($request->data())->firstWhere('name', 'messaging_product')['contents'] === 'whatsapp');
+        $this->assertNull($whatsapp->uploadMedia('OggS-bytes', 'audio/ogg', 'reply.ogg'));
+
+        $whatsapp->shouldReceive('sendHttpRequest')->once()
+            ->withArgs(fn ($method, $url, $data) => ($data['audio']['id'] ?? null) === 'wa-media-777' && ! isset($data['audio']['link']))
+            ->andReturn((object) ['success' => true, 'data' => (object) ['messages' => [(object) ['id' => 'wamid.by-id']]]]);
+
+        $result = $whatsapp->sendMedia((string) $contact->uuid, 'audio', 'reply.ogg', 'public/audios/reply.ogg', 'https://botzo.test/media/public/audios/reply.ogg', 'local', null, 'نص', ['voice' => true, 'content_type' => 'audio/ogg', 'size' => 10, 'media_id' => 'wa-media-777']);
+        $this->assertTrue($result->success);
     }
 
     public function test_a_failed_speech_request_sends_the_reply_as_text(): void
