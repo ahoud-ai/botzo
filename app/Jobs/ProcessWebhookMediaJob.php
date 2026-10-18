@@ -7,6 +7,7 @@ use App\Models\Chat;
 use App\Models\ChatLog;
 use App\Models\ChatMedia;
 use App\Models\Organization;
+use App\Services\AutoReplyDispatchService;
 use App\Services\SettingValueService;
 use App\Services\Whatsapp\WhatsappAccessTokenRefreshService;
 use GuzzleHttp\Client;
@@ -29,15 +30,19 @@ class ProcessWebhookMediaJob implements ShouldQueue
     protected $messageData;
     protected $chatId;
     protected $organizationId;
+    protected bool $replyAfterDownload;
 
     /**
      * Create a new job instance.
+     *
+     * @param  bool  $replyAfterDownload  queue mode: schedule the automatic reply to this voice note once the file is in
      */
-    public function __construct(array $messageData, int $chatId, int $organizationId)
+    public function __construct(array $messageData, int $chatId, int $organizationId, bool $replyAfterDownload = false)
     {
         $this->messageData = $messageData;
         $this->chatId = $chatId;
         $this->organizationId = $organizationId;
+        $this->replyAfterDownload = $replyAfterDownload;
     }
 
     /**
@@ -95,6 +100,28 @@ class ProcessWebhookMediaJob implements ShouldQueue
                 'trace' => $e->getTraceAsString()
             ]);
             throw $e;
+        }
+
+        $this->replyIfDeferred();
+    }
+
+    /**
+     * Every attempt failed: still answer the voice note, so the customer is asked to type instead of waiting forever.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        $this->replyIfDeferred();
+    }
+
+    private function replyIfDeferred(): void
+    {
+        if (!$this->replyAfterDownload) {
+            return;
+        }
+
+        $chat = Chat::find($this->chatId);
+        if ($chat) {
+            app(AutoReplyDispatchService::class)->dispatchDeferred($chat);
         }
     }
 

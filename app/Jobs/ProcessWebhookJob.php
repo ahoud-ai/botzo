@@ -35,6 +35,9 @@ class ProcessWebhookJob implements ShouldQueue
 
     /** @var array<int, array{chat: Chat, is_new_contact: bool}> */
     protected array $pendingAutoReplies = [];
+
+    /** @var array<int, string> contact id => created_at of a voice note whose reply waits for its download */
+    protected array $deferredVoiceAt = [];
     protected $organizationId;
 
     /**
@@ -265,8 +268,18 @@ class ProcessWebhookJob implements ShouldQueue
             ->where('deleted_at', null)
             ->first();
 
+        $replyEligible = $autoReplyAllowed
+            && in_array($response['type'] ?? null, ['text', 'button', 'audio', 'interactive'], true)
+            && !SubscriptionService::isSubscriptionFeatureLimitReached($organization->id, 'message_limit');
+
+        // In queue mode the media download runs in its own job; a voice note must not be answered
+        // before its file is there, so the download job schedules the reply when it finishes.
+        $deferReply = $replyEligible
+            && ($response['type'] ?? null) === 'audio'
+            && config('graph.webhook_processing') === 'queue';
+
         if ($isMediaMessage) {
-            $this->dispatchMediaDownload($response, (int) $chat->id, (int) $organization->id);
+            $this->dispatchMediaDownload($response, (int) $chat->id, (int) $organization->id, $deferReply);
         } elseif ($chatLogArray) {
             $chatArray = [
                 [
@@ -277,33 +290,45 @@ class ProcessWebhookJob implements ShouldQueue
             event(new NewChatEvent($chatArray, $organization->id));
         }
 
-        if (!$autoReplyAllowed) {
+        if (!$replyEligible) {
             return;
         }
 
-        $isMessageLimitReached = SubscriptionService::isSubscriptionFeatureLimitReached(
-            $organization->id,
-            'message_limit'
-        );
+        $createdAt = $chat->getRawOriginal('created_at');
 
-        if (!$isMessageLimitReached && in_array($response['type'] ?? null, ['text', 'button', 'audio', 'interactive'], true)) {
+        if ($deferReply) {
             $pending = $this->pendingAutoReplies[$contact->id] ?? null;
+            app(AutoReplyDispatchService::class)->markLatest($chat, $isNewContact || (bool) ($pending['is_new_contact'] ?? false));
+            $this->deferredVoiceAt[$contact->id] = max($createdAt, $this->deferredVoiceAt[$contact->id] ?? $createdAt);
 
-            // Raw UTC values: the created_at accessor formats for display in the organization timezone.
-            if ($pending === null || $chat->getRawOriginal('created_at') >= $pending['chat']->getRawOriginal('created_at')) {
-                $this->pendingAutoReplies[$contact->id] = [
-                    'chat' => $chat,
-                    'is_new_contact' => $isNewContact || (bool) ($pending['is_new_contact'] ?? false),
-                ];
+            // An older message from the same delivery must not take over the "latest" marker again.
+            if ($pending !== null && $pending['chat']->getRawOriginal('created_at') <= $createdAt) {
+                unset($this->pendingAutoReplies[$contact->id]);
             }
+
+            return;
+        }
+
+        if (isset($this->deferredVoiceAt[$contact->id]) && $createdAt < $this->deferredVoiceAt[$contact->id]) {
+            return;
+        }
+
+        $pending = $this->pendingAutoReplies[$contact->id] ?? null;
+
+        // Raw UTC values: the created_at accessor formats for display in the organization timezone.
+        if ($pending === null || $createdAt >= $pending['chat']->getRawOriginal('created_at')) {
+            $this->pendingAutoReplies[$contact->id] = [
+                'chat' => $chat,
+                'is_new_contact' => $isNewContact || (bool) ($pending['is_new_contact'] ?? false),
+            ];
         }
     }
 
-    protected function dispatchMediaDownload(array $response, int $chatId, int $organizationId): void
+    protected function dispatchMediaDownload(array $response, int $chatId, int $organizationId, bool $replyAfterDownload = false): void
     {
         // Without a queue worker the media job would never run, so download in-process unless queue mode is on.
         if (config('graph.webhook_processing') === 'queue') {
-            ProcessWebhookMediaJob::dispatch($response, $chatId, $organizationId)->onQueue('webhook-media');
+            ProcessWebhookMediaJob::dispatch($response, $chatId, $organizationId, $replyAfterDownload)->onQueue('webhook-media');
 
             return;
         }

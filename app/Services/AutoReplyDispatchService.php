@@ -35,14 +35,8 @@ class AutoReplyDispatchService
         $delay = 0;
 
         foreach ($items as $item) {
-            $chat = $item['chat'];
-            Cache::put($this->latestKey($chat), (int) $chat->id, now()->addMinutes(self::STATE_TTL_MINUTES));
-
-            if ($item['is_new_contact']) {
-                Cache::put($this->newContactKey($chat), true, now()->addMinutes(self::STATE_TTL_MINUTES));
-            }
-
-            $delay = max($delay, $this->debounceSeconds($chat));
+            $this->markLatest($item['chat'], $item['is_new_contact']);
+            $delay = max($delay, $this->debounceSeconds($item['chat']));
         }
 
         if ($delay > 0 && config('graph.webhook_processing') === 'queue') {
@@ -63,6 +57,33 @@ class AutoReplyDispatchService
         foreach ($items as $item) {
             $this->run($item['chat']);
         }
+    }
+
+    /**
+     * Record $chat as the contact's latest message, so the reply to any older message is skipped.
+     */
+    public function markLatest(Chat $chat, bool $isNewContact): void
+    {
+        Cache::put($this->latestKey($chat), (int) $chat->id, now()->addMinutes(self::STATE_TTL_MINUTES));
+
+        if ($isNewContact) {
+            Cache::put($this->newContactKey($chat), true, now()->addMinutes(self::STATE_TTL_MINUTES));
+        }
+    }
+
+    /**
+     * Queue mode: reply to a voice note only once its file has been downloaded (or definitely
+     * failed). It was marked latest when it arrived; a newer message since then wins.
+     */
+    public function dispatchDeferred(Chat $chat): void
+    {
+        if ($this->isSuperseded($chat)) {
+            return;
+        }
+
+        RunAutoReplyJob::dispatch((int) $chat->id)
+            ->onQueue((string) config('graph.webhook_queue', 'whatsapp-webhooks'))
+            ->delay(now()->addSeconds($this->debounceSeconds($chat)));
     }
 
     public function run(Chat $chat): void
