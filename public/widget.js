@@ -159,7 +159,9 @@
     var state = {
         token: readStore('localStorage', TOKEN_KEY),
         settings: null,
-        theme: 'botzo',
+        theme: 'mochi',
+        revealing: false,
+        revealTimer: null,
         messages: [],
         lastId: 0,
         open: false,
@@ -212,7 +214,7 @@
                 writeStore('localStorage', TOKEN_KEY, state.token);
             }
             state.settings = result.data.settings;
-            state.theme = state.settings.theme === 'classic' ? 'classic' : 'botzo';
+            state.theme = ['classic', 'botzo'].indexOf(state.settings.theme) !== -1 ? state.settings.theme : 'mochi';
             state.messages = [];
             state.lastId = 0;
             addMessages(result.data.messages || []);
@@ -225,7 +227,7 @@
     /**
      * @return {number} how many of the given messages were new and not written by the visitor
      */
-    function addMessages(list) {
+    function addMessages(list, live) {
         var fresh = 0;
         list.forEach(function (message) {
             if (!message || typeof message.id !== 'number') {
@@ -235,6 +237,9 @@
                 return item.id === message.id;
             });
             if (!exists) {
+                if (live && state.theme === 'mochi' && message.from !== 'visitor') {
+                    message.revealed = false;
+                }
                 state.messages.push(message);
                 if (message.from !== 'visitor') {
                     fresh++;
@@ -452,6 +457,12 @@
     }
 
     function drawMessages() {
+        if (state.theme === 'mochi') {
+            mochi.draw();
+            mochi.reveal();
+            return;
+        }
+
         var body = ui.body;
         var lastDay = null;
         var previousSide = null;
@@ -551,7 +562,12 @@
         }
     }
 
-    function toggle() {
+    function toggle(force) {
+        if (state.theme === 'mochi') {
+            toggleMochi(force === true);
+            return;
+        }
+
         state.open = !state.open;
         ui.root.classList.toggle('open', state.open);
         ui.launcher.classList.toggle('is-open', state.open);
@@ -597,7 +613,11 @@
         syncSend();
         drawMessages();
 
-        request('POST', '/messages', { text: text }).then(function (result) {
+        request('POST', '/messages', {
+            text: text,
+            page_url: window.location.href.slice(0, 2000),
+            page_title: (document.title || '').slice(0, 300)
+        }).then(function (result) {
             if (result.status === 401 && !retried) {
                 state.token = null;
                 writeStore('localStorage', TOKEN_KEY, null);
@@ -625,7 +645,7 @@
             state.messages = state.messages.filter(function (item) {
                 return !item.pending;
             });
-            addMessages(result.data.messages || []);
+            addMessages(result.data.messages || [], true);
             state.note = result.data.awaiting_team ? TEXT.awaiting : null;
             done();
         }).catch(function () {
@@ -672,7 +692,7 @@
                 if (result.status !== 200 || !result.data.messages || !result.data.messages.length) {
                     return;
                 }
-                var fresh = addMessages(result.data.messages);
+                var fresh = addMessages(result.data.messages, true);
                 if (fresh > 0) {
                     state.note = null;
                 }
@@ -691,10 +711,589 @@
         state.pollTimer = setInterval(run, seconds * 1000);
     }
 
+    // ---------------------------------------------------------------------------------------
+    // Mochi look: the animated mascot, a dark glass panel with a welcome and a conversation
+    // state, typed-out replies, the pricing card and page navigation.
+    // ---------------------------------------------------------------------------------------
+
+    var MOCHI_TEXT = {
+        ar: {
+            bubble: 'هلا! عندك سؤال؟ 👋',
+            talkToMe: 'تكلّم معي',
+            welcomeTitle: 'هلا وغلا في {business} 👋',
+            welcomeSub: 'أنا {name}، مساعدك الذكي — أعرّفك على خدماتنا وأرد على كل أسئلتك',
+            pressTalk: 'اضغط وتكلم',
+            placeholder: 'اكتب سؤالك…',
+            replyByText: 'رد بالكتابة',
+            end: 'إنهاء',
+            assistantOf: '{name} — مساعد {business}',
+            online: 'متصل الآن',
+            typing: 'يكتب الآن…',
+            speaking: 'يتكلم…',
+            newChat: 'محادثة جديدة',
+            mostRequested: 'الأكثر طلباً',
+            perMonth: 'ر.س / شهر',
+            startNow: 'ابدأ الآن',
+            failed: 'النت فيه شوية مشكلة، جرّب مرة ثانية',
+            mic: 'تكلّم مع المساعد',
+            voiceSoon: 'المكالمة الصوتية جاية قريب، اكتب لي الحين 👇'
+        },
+        en: {
+            bubble: 'Hi! Got a question? 👋',
+            talkToMe: 'Talk to me',
+            welcomeTitle: 'Welcome to {business} 👋',
+            welcomeSub: "I'm {name}, your smart assistant. Ask me anything.",
+            pressTalk: 'Press and talk',
+            placeholder: 'Type your question…',
+            replyByText: 'Reply by typing',
+            end: 'End',
+            assistantOf: '{name} — {business} assistant',
+            online: 'Online now',
+            typing: 'Typing…',
+            speaking: 'Speaking…',
+            newChat: 'New chat',
+            mostRequested: 'Most popular',
+            perMonth: 'SAR / month',
+            startNow: 'Start now',
+            failed: 'Connection problem, please try again',
+            mic: 'Talk to the assistant',
+            voiceSoon: 'Voice calls are coming soon. Type to me for now 👇'
+        }
+    }[LOCALE];
+
+    var MOCHI_SEEN_KEY = 'botzo_widget_mochi_bubble_' + KEY;
+    var OPEN_KEY = 'botzo_widget_open_' + KEY;
+    var REDUCED_MOTION = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+    function fill(template, values) {
+        return template.replace(/\{(\w+)\}/g, function (all, key) {
+            return values[key] !== undefined ? values[key] : all;
+        });
+    }
+
+    // botzo-mochi.svg, used as supplied; a customer's two colours replace the headset gradient.
+    var mochiCount = 0;
+    function mochiMarkup(primary, secondary) {
+        var uid = 'bzm' + (++mochiCount);
+        var custom = /^#[0-9a-fA-F]{6}$/.test(primary) && /^#[0-9a-fA-F]{6}$/.test(secondary)
+            && (primary.toUpperCase() !== '#22D366' || secondary.toUpperCase() !== '#2F7BFF');
+        var start = custom ? primary : '#3CF28E';
+        var end = custom ? secondary : '#2F7BFF';
+        var tip = custom ? primary : '#22D366';
+        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 230" aria-hidden="true" class="mochi-svg">'
+            + '<defs><radialGradient id="' + uid + 'b" cx="0.4" cy="0.3" r="0.8"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.55" stop-color="#F1F3F6"/><stop offset="0.85" stop-color="#D3D8DF"/><stop offset="1" stop-color="#B9C0CA"/></radialGradient>'
+            + '<linearGradient id="' + uid + 'g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + start + '"/><stop offset="1" stop-color="' + end + '"/></linearGradient></defs>'
+            + '<ellipse cx="120" cy="220" rx="80" ry="8" fill="#000" opacity="0.45"/>'
+            + '<path d="M120 42 C192 42 228 104 228 154 C228 198 190 216 120 216 C50 216 12 198 12 154 C12 104 48 42 120 42 Z" fill="url(#' + uid + 'b)"/>'
+            + '<ellipse cx="86" cy="78" rx="30" ry="14" fill="#FFFFFF" opacity="0.9" transform="rotate(-20 86 78)"/>'
+            + '<path d="M30 120 C 34 20 206 20 210 120" fill="none" stroke="url(#' + uid + 'g)" stroke-width="9" stroke-linecap="round"/>'
+            + '<rect x="14" y="110" width="26" height="46" rx="13" fill="url(#' + uid + 'g)"/>'
+            + '<rect x="200" y="110" width="26" height="46" rx="13" fill="url(#' + uid + 'g)"/>'
+            + '<path d="M214 156 Q214 190 170 192" stroke="#9AA6B6" stroke-width="4" fill="none" stroke-linecap="round"/>'
+            + '<circle cx="166" cy="192" r="6" fill="' + tip + '"/>'
+            + '<g class="mochi-face"><g class="mochi-eyes"><ellipse cx="90" cy="132" rx="11" ry="15" fill="#0E0F12"/><ellipse cx="150" cy="132" rx="11" ry="15" fill="#0E0F12"/><circle cx="94" cy="126" r="3.5" fill="#FFFFFF"/><circle cx="154" cy="126" r="3.5" fill="#FFFFFF"/></g>'
+            + '<path class="mochi-mouth" d="M104 162 Q120 176 136 162" stroke="#0E0F12" stroke-width="5" fill="none" stroke-linecap="round"/></g></svg>';
+    }
+
+    var mochis = [];
+    function mochiEl(className) {
+        var wrap = el('span', { 'class': 'mochi ' + className, 'aria-hidden': 'true' });
+        var breath = el('span', { 'class': 'mochi-breath' });
+        breath.innerHTML = mochiMarkup(state.settings.accent || '#22D366', state.settings.accent_secondary || '#2F7BFF');
+        wrap.appendChild(breath);
+        mochis.push(wrap);
+        return wrap;
+    }
+
+    // Eyes follow the cursor (rAF-throttled); the body tilts a little toward it.
+    var eyeFrame = null;
+    var lastPointer = null;
+    function trackEyes(event) {
+        lastPointer = event ? { x: event.clientX, y: event.clientY } : null;
+        if (eyeFrame || REDUCED_MOTION) {
+            return;
+        }
+        eyeFrame = requestAnimationFrame(function () {
+            eyeFrame = null;
+            mochis.forEach(function (wrap) {
+                var svgNode = wrap.querySelector('svg');
+                var face = wrap.querySelector('.mochi-face');
+                if (!svgNode || !face || !wrap.isConnected) {
+                    return;
+                }
+                if (!lastPointer) {
+                    face.style.transform = '';
+                    svgNode.style.transform = '';
+                    return;
+                }
+                var box = wrap.getBoundingClientRect();
+                var nx = Math.max(-1, Math.min(1, (lastPointer.x - (box.left + box.width / 2)) / 320));
+                var ny = Math.max(-1, Math.min(1, (lastPointer.y - (box.top + box.height / 2)) / 320));
+                face.style.transform = 'translate(' + (nx * 10).toFixed(2) + 'px,' + (ny * 7).toFixed(2) + 'px)';
+                svgNode.style.transform = 'rotate(' + (nx * 5).toFixed(2) + 'deg)';
+            });
+        });
+    }
+
+    function setSpeaking(on) {
+        mochis.forEach(function (wrap) {
+            wrap.classList.toggle('is-speaking', !!on);
+        });
+    }
+
+    function mochiStyles(accent) {
+        var side = state.settings.position === 'right' ? 'right' : 'left';
+        return [
+            ':host{all:initial}',
+            '*{box-sizing:border-box}',
+            '.root{position:fixed;bottom:20px;' + side + ':20px;z-index:2147483000;font-family:"IBM Plex Sans Arabic",-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;color:#F2F5F9;font-size:14px;line-height:1.7;--accent:' + accent + '}',
+            'button{font:inherit;cursor:pointer;color:inherit}',
+            'button:focus-visible,a:focus-visible{outline:3px solid #5AA8FF;outline-offset:2px}',
+            '.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}',
+            // mascot and its motion
+            '.mochi{display:inline-block;line-height:0}',
+            '.mochi-breath{display:block;transform-origin:50% 100%;animation:bz-breath 3s ease-in-out infinite}',
+            '.mochi-svg{display:block;width:100%;height:auto;overflow:visible;transition:transform .12s ease-out}',
+            '.mochi-face{transition:transform .12s ease-out}',
+            '.mochi-eyes{transform-box:fill-box;transform-origin:center;animation:bz-blink 4.2s infinite}',
+            '.mochi-mouth{transform-box:fill-box;transform-origin:center}',
+            '.mochi.is-speaking .mochi-mouth{animation:bz-talk .28s ease-in-out infinite alternate}',
+            '@keyframes bz-breath{0%,100%{transform:none}45%{transform:scale(1.04,.95) translateY(4px)}70%{transform:scale(.98,1.03) translateY(-6px)}}',
+            '@keyframes bz-blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}',
+            '@keyframes bz-talk{from{transform:scaleY(1)}to{transform:scaleY(1.9)}}',
+            // closed state
+            '.launcher-wrap{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px}',
+            '.launcher{width:84px;height:84px;padding:0;border:0;background:transparent;display:flex;align-items:flex-end;justify-content:center;transition:transform .15s ease}',
+            '.launcher:hover{transform:translateY(-2px)}',
+            '.launcher .mochi{width:84px}',
+            '.launcher-label{font-size:13px;color:#DCE3EC;text-shadow:0 1px 3px rgba(0,0,0,.55);pointer-events:none}',
+            '.bubble{position:absolute;bottom:100%;margin-bottom:6px;' + side + ':-4px;white-space:nowrap;background:#fff;color:#0A0E16;font-size:12px;font-weight:700;border:0;border-radius:12px 12px 12px 4px;padding:8px 12px;box-shadow:0 8px 24px rgba(0,0,0,.25)}',
+            '.rtl .bubble{border-radius:12px 12px 4px 12px}',
+            '.bubble[hidden],.launcher-wrap[hidden]{display:none}',
+            '.badge{position:absolute;top:2px;' + (side === 'left' ? 'right' : 'left') + ':4px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#FF4D4F;color:#fff;font-size:12px;font-weight:700;line-height:18px;text-align:center;border:2px solid #0A0E16}',
+            '.badge[hidden]{display:none}',
+            // panel
+            '.panel{position:absolute;bottom:0;' + side + ':0;width:400px;height:min(680px,calc(100vh - 40px));border-radius:28px;'
+                + 'background:linear-gradient(rgba(255,255,255,.07),rgba(255,255,255,.07)),rgba(12,15,21,.9);'
+                + '-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.16);box-shadow:0 30px 80px rgba(0,0,0,.6);'
+                + 'display:flex;flex-direction:column;overflow:hidden;opacity:0;transform:scale(.9);transform-origin:bottom ' + side + ';transition:opacity .2s ease,transform .2s ease}',
+            '.panel.show{opacity:1;transform:scale(1)}',
+            '.panel[hidden]{display:none}',
+            '.glow{position:absolute;inset:-30% -20% auto;height:70%;background:radial-gradient(closest-side,rgba(34,211,102,.35),rgba(47,123,255,.18),transparent);pointer-events:none;filter:blur(10px)}',
+            '.icon-btn{width:32px;height:32px;border-radius:999px;border:0;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0}',
+            '.icon-btn:hover{background:rgba(255,255,255,.14)}',
+            // welcome
+            '.welcome{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 22px 0;overflow-y:auto}',
+            '.welcome[hidden],.convo[hidden]{display:none}',
+            '.welcome .icon-btn{position:absolute;top:16px;inset-inline-end:16px}',
+            '.w-title{margin:18px 0 0;font-size:24px;font-weight:700;line-height:1.4}',
+            '.w-sub{margin:8px 0 0;font-size:14px;color:#A3ADBD;max-width:320px}',
+            '.w-mochi{margin:auto 0 0;width:230px;max-width:62%;filter:drop-shadow(0 0 40px rgba(34,211,102,.28))}',
+            '.w-talk{margin-top:10px;display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#A3ADBD}',
+            '.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:12px 0 0}',
+            '.chip{min-height:34px;padding:6px 14px;border-radius:18px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);font-size:13px;transition:border-color .15s}',
+            '.chip:hover{border-color:#22D366}',
+            // conversation
+            '.convo{position:relative;flex:1;display:flex;flex-direction:column;min-height:0}',
+            '.c-head{position:relative;display:flex;align-items:center;gap:10px;padding:14px 14px 12px;border-bottom:1px solid rgba(255,255,255,.08)}',
+            '.c-head .mochi{width:46px;flex-shrink:0}',
+            '.c-who{flex:1;min-width:0}.c-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.c-status{font-size:12px;color:#22D366}',
+            '.c-body{position:relative;flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;overscroll-behavior:contain}',
+            '.row{display:flex;flex-direction:column;max-width:100%}',
+            '.row.user{align-self:flex-end;align-items:flex-end}',
+            '.row.bot{align-self:flex-start;align-items:flex-start}',
+            '.msg{max-width:290px;padding:10px 14px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.7}',
+            '.user .msg{background:var(--user-bg);color:#0A0E16;font-weight:500;border-radius:20px 20px 20px 6px}',
+            '.rtl .user .msg{border-radius:20px 20px 6px 20px}',
+            '.bot .msg{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px 20px 6px 20px}',
+            '.rtl .bot .msg{border-radius:20px 20px 20px 6px}',
+            '.agent-label{display:block;font-size:12px;font-weight:600;color:#A3ADBD;margin-bottom:2px}',
+            '.meta{font-size:11px;color:#7C8799;margin-top:3px}',
+            '.pending{opacity:.65}',
+            '.note{align-self:center;text-align:center;font-size:12.5px;color:#A3ADBD;background:rgba(255,255,255,.06);border-radius:12px;padding:6px 12px;max-width:90%}',
+            '.retry{display:block;margin-top:8px;border:1px solid #22D366;color:#22D366;background:transparent;border-radius:16px;padding:4px 12px;font-size:13px}',
+            '.typing{display:flex;gap:5px;padding:13px 16px}',
+            '.dot{width:7px;height:7px;border-radius:999px;animation:bz-pulse 1.2s infinite ease-in-out}',
+            '.dot:nth-child(1){background:#22D366}.dot:nth-child(2){background:#5AA8FF;animation-delay:.2s}.dot:nth-child(3){background:#2F7BFF;animation-delay:.4s}',
+            '@keyframes bz-pulse{0%,80%,100%{opacity:.35;transform:scale(.85)}40%{opacity:1;transform:scale(1)}}',
+            '.card{margin-top:10px;border-radius:16px;border:1px solid rgba(34,211,102,.4);background:linear-gradient(135deg,rgba(34,211,102,.2),rgba(47,123,255,.2));padding:12px;white-space:normal}',
+            '.card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:700}',
+            '.card-badge{font-size:11px;font-weight:700;color:#0A0E16;background:#22D366;border-radius:8px;padding:2px 8px;white-space:nowrap}',
+            '.card-price{margin-top:8px;font-size:20px;font-weight:700}.card-price small{font-size:12px;font-weight:400;color:#A3ADBD;margin-inline-start:6px}',
+            '.card-cta{display:block;margin-top:10px;text-align:center;border-radius:12px;background:#22D366;color:#0A0E16;font-weight:700;padding:9px;text-decoration:none}',
+            '.c-chips{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;padding:8px 14px 0}',
+            '.rtl .c-chips{justify-content:flex-end}',
+            // input pill
+            '.form{display:flex;align-items:center;gap:8px;margin:10px 14px 0;padding:4px;border-radius:26px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05)}',
+            '.field{flex:1;min-width:0;height:40px;border:0;outline:none;background:transparent;padding:0 10px;font:inherit;font-size:16px;color:#F2F5F9}',
+            '.form:focus-within{border-color:rgba(34,211,102,.7);box-shadow:0 0 0 3px rgba(34,211,102,.18)}',
+            '.field::placeholder{color:#7C8799}',
+            '.round{width:40px;height:40px;border-radius:999px;border:0;display:flex;align-items:center;justify-content:center;flex-shrink:0}',
+            '.send{background:var(--accent);color:#0A0E16;box-shadow:0 0 16px rgba(34,211,102,.6)}',
+            '.send:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}',
+            '.mic{background:rgba(255,255,255,.1);color:#F2F5F9}',
+            '.mic.green{background:var(--accent);color:#0A0E16;box-shadow:0 0 16px rgba(34,211,102,.6)}',
+            '.foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 18px 12px;font-size:12px;color:#A3ADBD}',
+            '.foot.center{justify-content:center}',
+            '.foot[hidden]{display:none}',
+            '.foot button{border:0;background:transparent;color:#A3ADBD;padding:4px}',
+            '.foot button:hover{color:#F2F5F9}',
+            '.foot a{color:var(--accent);font-weight:700;text-decoration:none}',
+            '@media (max-width:480px){.panel{position:fixed;inset:0;width:auto;height:auto;border-radius:0;border:0;transform-origin:center}}',
+            '@media (prefers-reduced-motion:reduce){.mochi-breath,.mochi-eyes,.dot,.mochi.is-speaking .mochi-mouth{animation:none}.panel,.launcher,.mochi-svg,.mochi-face{transition:none}}'
+        ].join('');
+    }
+
+    var mochi = {
+        render: function () {
+            var settings = state.settings;
+            var accent = /^#[0-9a-fA-F]{6}$/.test(settings.accent || '') ? settings.accent : '#22D366';
+            var host = el('div', { id: 'botzo-widget' });
+            var shadow = host.attachShadow({ mode: 'open' });
+            var name = settings.assistant_name || '';
+            var business = settings.business_label || name;
+            var rtl = LOCALE === 'ar';
+
+            shadow.appendChild(el('style', { text: mochiStyles(accent) }));
+            ui.root = el('div', { 'class': 'root mochi-theme' + (rtl ? ' rtl' : ''), dir: rtl ? 'rtl' : 'ltr', lang: LOCALE });
+            ui.root.style.setProperty('--user-bg', accent);
+
+            // ① closed: Mochi, the label and a one-time bubble
+            ui.badge = el('span', { 'class': 'badge', hidden: '' });
+            ui.launcher = el('button', { type: 'button', 'class': 'launcher', 'aria-label': TEXT.open, 'aria-expanded': 'false', onclick: toggle }, [mochiEl('launcher-mochi'), ui.badge]);
+            ui.teaser = el('button', { type: 'button', 'class': 'bubble', text: MOCHI_TEXT.bubble, hidden: '', onclick: toggle });
+            ui.launcherWrap = el('div', { 'class': 'launcher-wrap' }, [ui.teaser, ui.launcher, el('span', { 'class': 'launcher-label', text: MOCHI_TEXT.talkToMe })]);
+
+            // ② welcome
+            ui.welcome = el('div', { 'class': 'welcome' }, [
+                el('button', { type: 'button', 'class': 'icon-btn', 'aria-label': TEXT.close, onclick: toggle }, [svg(['M6 6l12 12M18 6L6 18'], 16)]),
+                el('h2', { 'class': 'w-title', text: fill(MOCHI_TEXT.welcomeTitle, { business: business }) }),
+                el('p', { 'class': 'w-sub', text: settings.welcome_text || fill(MOCHI_TEXT.welcomeSub, { name: name }) }),
+                mochiEl('w-mochi'),
+                settings.voice ? el('span', { 'class': 'w-talk' }, [svg(['M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z', 'M5 11a7 7 0 0 0 14 0M12 18v3'], 14), MOCHI_TEXT.pressTalk]) : null
+            ]);
+            ui.welcomeChips = el('div', { 'class': 'chips' });
+            ui.welcome.appendChild(ui.welcomeChips);
+
+            // ③ conversation
+            ui.status = el('div', { 'class': 'c-status', text: MOCHI_TEXT.online });
+            ui.body = el('div', { 'class': 'c-body', 'aria-live': 'polite' });
+            ui.convChips = el('div', { 'class': 'c-chips' });
+            ui.convo = el('div', { 'class': 'convo', hidden: '' }, [
+                el('div', { 'class': 'c-head' }, [
+                    el('span', { 'class': 'glow', 'aria-hidden': 'true' }),
+                    mochiEl('head-mochi'),
+                    el('div', { 'class': 'c-who' }, [
+                        el('div', { 'class': 'c-name', text: fill(MOCHI_TEXT.assistantOf, { name: name, business: business }) }),
+                        ui.status
+                    ]),
+                    el('button', { type: 'button', 'class': 'icon-btn', 'aria-label': MOCHI_TEXT.newChat, onclick: mochi.newChat }, [svg(['M12 5v14M5 12h14'], 16)]),
+                    el('button', { type: 'button', 'class': 'icon-btn', 'aria-label': TEXT.close, onclick: toggle }, [svg(['M6 6l12 12M18 6L6 18'], 16)])
+                ]),
+                ui.body,
+                ui.convChips
+            ]);
+
+            // input pill (shared by both states)
+            ui.field = el('input', { 'class': 'field', id: 'bz-field', type: 'text', maxlength: String(settings.max_length || 500), placeholder: MOCHI_TEXT.placeholder, autocomplete: 'off', oninput: syncSend });
+            ui.send = el('button', { type: 'submit', 'class': 'round send', 'aria-label': TEXT.send, disabled: '' }, [svg(['M12 19V5M5 12l7-7 7 7'], 18)]);
+            ui.mic = settings.voice ? el('button', { type: 'button', 'class': 'round mic', 'aria-label': MOCHI_TEXT.mic, onclick: mochi.micPressed }, [svg(['M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z', 'M5 11a7 7 0 0 0 14 0M12 18v3'], 18)]) : null;
+            ui.form = el('form', { 'class': 'form', onsubmit: function (event) {
+                event.preventDefault();
+                send(ui.field.value);
+            } }, [el('label', { 'for': 'bz-field', 'class': 'sr', text: TEXT.input }), ui.mic, ui.field, ui.send]);
+
+            ui.footWelcome = el('div', { 'class': 'foot' }, [
+                el('button', { type: 'button', text: MOCHI_TEXT.replyByText, onclick: function () {
+                    ui.field.focus();
+                } }),
+                settings.branding === false ? el('span') : el('span', { dir: 'ltr' }, ['Powered by ', el('a', { href: 'https://botzo.net', target: '_blank', rel: 'noopener', text: 'botzo' })]),
+                el('button', { type: 'button', text: MOCHI_TEXT.end, onclick: toggle })
+            ]);
+            ui.footConvo = el('div', { 'class': 'foot center', hidden: '' }, settings.branding === false ? [] : [
+                el('span', { dir: 'ltr' }, ['Powered by ', el('a', { href: 'https://botzo.net', target: '_blank', rel: 'noopener', text: 'botzo' })])
+            ]);
+
+            ui.panel = el('section', { 'class': 'panel', role: 'dialog', 'aria-label': TEXT.label, hidden: '', onkeydown: function (event) {
+                if (event.key === 'Escape') {
+                    toggle();
+                }
+            } }, [el('span', { 'class': 'glow', 'aria-hidden': 'true' }), ui.welcome, ui.convo, ui.form, ui.footWelcome, ui.footConvo]);
+
+            ui.root.appendChild(ui.panel);
+            ui.root.appendChild(ui.launcherWrap);
+            shadow.appendChild(ui.root);
+            document.body.appendChild(host);
+
+            window.addEventListener('mousemove', trackEyes, { passive: true });
+            document.addEventListener('mouseleave', function () {
+                trackEyes(null);
+            });
+
+            if (!readStore('sessionStorage', MOCHI_SEEN_KEY)) {
+                setTimeout(function () {
+                    if (!state.open) {
+                        ui.teaser.removeAttribute('hidden');
+                    }
+                }, 5000);
+            }
+
+            mochi.draw();
+            if (readStore('sessionStorage', OPEN_KEY) === '1') {
+                toggle(true);
+            }
+            poll();
+        },
+
+        // The welcome state until the visitor sends something, then the conversation.
+        draw: function () {
+            var conversation = state.messages.length > 0 || state.sending;
+            ui.welcome.hidden = conversation;
+            ui.convo.hidden = !conversation;
+            ui.footWelcome.hidden = conversation;
+            ui.footConvo.hidden = !conversation;
+
+            var suggestions = (state.settings.suggestions || []).filter(function (item) {
+                return typeof item === 'string' && item.trim() !== '';
+            });
+            var asked = state.messages.filter(function (m) {
+                return m.from === 'visitor';
+            }).map(function (m) {
+                return m.text;
+            });
+            var chips = function (list) {
+                return list.map(function (item) {
+                    return el('button', { type: 'button', 'class': 'chip', text: item, onclick: function () {
+                        send(item);
+                        ui.field.focus();
+                    } });
+                });
+            };
+
+            ui.welcomeChips.textContent = '';
+            chips(suggestions).forEach(function (chip) {
+                ui.welcomeChips.appendChild(chip);
+            });
+
+            ui.convChips.textContent = '';
+            if (!state.sending) {
+                chips(suggestions.filter(function (item) {
+                    return asked.indexOf(item) === -1;
+                }).slice(0, 3)).forEach(function (chip) {
+                    ui.convChips.appendChild(chip);
+                });
+            }
+
+            ui.status.textContent = state.revealing ? MOCHI_TEXT.speaking : (state.typing ? MOCHI_TEXT.typing : MOCHI_TEXT.online);
+
+            if (!conversation) {
+                return;
+            }
+
+            var body = ui.body;
+            body.textContent = '';
+            state.messages.forEach(function (message) {
+                var date = message.at ? new Date(message.at) : new Date();
+                if (message.from === 'visitor') {
+                    body.appendChild(el('div', { 'class': 'row user' }, [
+                        el('div', { 'class': 'msg' + (message.pending ? ' pending' : ''), text: message.text }),
+                        el('span', { 'class': 'meta' }, [timeLabel(date) + (message.pending ? '' : ' ✓✓')])
+                    ]));
+                    return;
+                }
+
+                var bubble = el('div', { 'class': 'msg' });
+                if (message.from === 'agent') {
+                    bubble.appendChild(el('span', { 'class': 'agent-label', text: (message.name ? message.name + ' · ' : '') + TEXT.team }));
+                }
+                var textNode = document.createTextNode(message.revealed === false ? (message.shown || '') : message.text);
+                bubble.appendChild(textNode);
+                message.node = textNode;
+                if (message.revealed !== false && message.action && message.action.type === 'pricing') {
+                    bubble.appendChild(mochi.card(message.action));
+                }
+                body.appendChild(el('div', { 'class': 'row bot' }, [bubble]));
+            });
+
+            if (state.typing) {
+                body.appendChild(el('div', { 'class': 'row bot' }, [
+                    el('div', { 'class': 'msg typing', role: 'status', 'aria-label': TEXT.typing }, [
+                        el('span', { 'class': 'dot' }), el('span', { 'class': 'dot' }), el('span', { 'class': 'dot' })
+                    ])
+                ]));
+            }
+
+            if (state.failedText) {
+                var failed = el('div', { 'class': 'msg' }, [MOCHI_TEXT.failed]);
+                failed.appendChild(el('button', { type: 'button', 'class': 'retry', text: TEXT.retry, onclick: function () {
+                    var text = state.failedText;
+                    state.failedText = null;
+                    send(text);
+                } }));
+                body.appendChild(el('div', { 'class': 'row bot' }, [failed]));
+            } else if (state.note) {
+                body.appendChild(el('div', { 'class': 'note', text: state.note }));
+            }
+
+            body.scrollTop = body.scrollHeight;
+        },
+
+        card: function (card) {
+            var price = Number(card.price || 0).toLocaleString(LOCALE === 'ar' ? 'ar-SA' : 'en-US', { maximumFractionDigits: 0 });
+            var name = LOCALE === 'ar' ? card.name : (card.name_en || card.name);
+            var href = safeUrl(card.cta_url || '/signup');
+            return el('div', { 'class': 'card' }, [
+                el('div', { 'class': 'card-top' }, [el('span', { text: name }), el('span', { 'class': 'card-badge', text: MOCHI_TEXT.mostRequested })]),
+                el('div', { 'class': 'card-price' }, [price, el('small', { text: MOCHI_TEXT.perMonth })]),
+                href ? el('a', { 'class': 'card-cta', href: href, text: MOCHI_TEXT.startNow }) : null
+            ]);
+        },
+
+        // Reveal new assistant replies a few characters at a time, then run their action.
+        reveal: function () {
+            var next = state.messages.filter(function (m) {
+                return m.revealed === false;
+            })[0];
+            if (!next || state.revealTimer) {
+                return;
+            }
+
+            state.revealing = true;
+            setSpeaking(true);
+            next.shown = '';
+            mochi.draw();
+
+            var finish = function () {
+                clearInterval(state.revealTimer);
+                state.revealTimer = null;
+                next.revealed = true;
+                next.shown = next.text;
+                state.revealing = false;
+                setSpeaking(false);
+                mochi.draw();
+                if (next.action && next.action.type === 'navigate') {
+                    setTimeout(function () {
+                        mochi.navigate(next.action);
+                    }, 900);
+                }
+                mochi.reveal();
+            };
+
+            if (REDUCED_MOTION) {
+                finish();
+                return;
+            }
+
+            var chars = Array.from(next.text);
+            var step = Math.max(1, Math.ceil(chars.length / 100));
+            var index = 0;
+            state.revealTimer = setInterval(function () {
+                index = Math.min(chars.length, index + step);
+                next.shown = chars.slice(0, index).join('');
+                if (next.node) {
+                    next.node.nodeValue = next.shown;
+                    ui.body.scrollTop = ui.body.scrollHeight;
+                }
+                if (index >= chars.length) {
+                    finish();
+                }
+            }, 25);
+        },
+
+        // Only links the server resolved from the widget's own page list are followed.
+        navigate: function (action) {
+            var href = safeUrl(action.url);
+            if (!href) {
+                return;
+            }
+            var target = new URL(href);
+            var samePage = target.origin === window.location.origin && target.pathname === window.location.pathname;
+            if (samePage && target.hash) {
+                var section = document.getElementById(decodeURIComponent(target.hash.slice(1)));
+                if (section) {
+                    section.scrollIntoView({ behavior: REDUCED_MOTION ? 'auto' : 'smooth', block: 'start' });
+                    var previous = section.style.boxShadow;
+                    section.style.transition = 'box-shadow .3s ease';
+                    section.style.boxShadow = '0 0 0 3px rgba(34,211,102,.7), 0 0 30px rgba(34,211,102,.45)';
+                    setTimeout(function () {
+                        section.style.boxShadow = previous;
+                    }, 1500);
+                    return;
+                }
+            }
+            if (samePage && !target.hash) {
+                return;
+            }
+            writeStore('sessionStorage', OPEN_KEY, '1');
+            window.location.assign(target.href);
+        },
+
+        newChat: function () {
+            state.token = null;
+            writeStore('localStorage', TOKEN_KEY, null);
+            state.messages = [];
+            state.lastId = 0;
+            state.note = null;
+            state.failedText = null;
+            openSession().then(function () {
+                mochi.draw();
+                ui.field.focus();
+            });
+        },
+
+        micPressed: function () {
+            // Voice calls arrive with the next phase; until then Mochi asks to type.
+            state.note = MOCHI_TEXT.voiceSoon;
+            ui.field.focus();
+            mochi.draw();
+        }
+    };
+
+    function safeUrl(url) {
+        try {
+            var parsed = new URL(String(url || ''), window.location.href);
+            return /^https?:$/.test(parsed.protocol) ? parsed.href : null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function toggleMochi(restoring) {
+        state.open = !state.open;
+        writeStore('sessionStorage', OPEN_KEY, state.open ? '1' : null);
+        writeStore('sessionStorage', MOCHI_SEEN_KEY, '1');
+        ui.teaser.setAttribute('hidden', '');
+        ui.launcher.setAttribute('aria-expanded', state.open ? 'true' : 'false');
+        clearTimeout(state.hideTimer);
+
+        if (state.open) {
+            setUnread(0);
+            ui.launcherWrap.setAttribute('hidden', '');
+            ui.panel.removeAttribute('hidden');
+            drawMessages();
+            if (restoring || REDUCED_MOTION) {
+                ui.panel.classList.add('show');
+            } else {
+                requestAnimationFrame(function () {
+                    ui.panel.classList.add('show');
+                });
+            }
+            ui.field.focus();
+        } else {
+            ui.panel.classList.remove('show');
+            state.hideTimer = setTimeout(function () {
+                ui.panel.setAttribute('hidden', '');
+                ui.launcherWrap.removeAttribute('hidden');
+                ui.launcher.focus();
+            }, REDUCED_MOTION ? 0 : 200);
+        }
+        poll();
+    }
+
     function start() {
         openSession().then(function (ok) {
             if (ok) {
-                render();
+                (state.theme === 'mochi' ? mochi.render : render)();
             }
         });
     }

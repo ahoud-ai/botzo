@@ -57,7 +57,7 @@ class VoiceSamplesCommand extends Command
 
         $this->newLine();
         $this->components->info(count($samples).' samples ready. Open:');
-        $this->line(url('/voice-samples/'.$folder.'/'));
+        $this->line(url('/voice-samples/'.$folder.'/index.html'));
         $this->line('Delete them afterwards with: php artisan botzo:voice-samples --cleanup');
 
         return self::SUCCESS;
