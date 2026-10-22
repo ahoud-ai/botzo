@@ -1,0 +1,12 @@
+
+.automation-tab-item[data-v-57f70077] {
+    color: var(--ui-text);
+}
+.automation-tab-item[data-v-57f70077]:hover {
+    background: var(--ui-surface-soft);
+}
+.automation-tab-item--active[data-v-57f70077] {
+    background: var(--ui-surface-soft);
+    color: var(--ui-secondary);
+    font-weight: 600;
+}
