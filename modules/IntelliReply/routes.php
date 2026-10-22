@@ -5,6 +5,7 @@ use Modules\IntelliReply\Controllers\ChatController as AiChatController;
 use Modules\IntelliReply\Controllers\DocumentController;
 use Modules\IntelliReply\Controllers\FaqController;
 use Modules\IntelliReply\Controllers\MainController;
+use Modules\IntelliReply\Controllers\WidgetController;
 
 Route::get('/automation/ai', [MainController::class, 'index']);
 Route::post('/automation/ai/activate', [MainController::class, 'activate']);
@@ -20,3 +21,7 @@ Route::delete('/automation/upload/document/{uuid}', [DocumentController::class, 
 Route::post('/automation/ai/faqs', [FaqController::class, 'store']);
 Route::put('/automation/ai/faqs/{uuid}', [FaqController::class, 'update']);
 Route::delete('/automation/ai/faqs/{uuid}', [FaqController::class, 'delete']);
+
+Route::get('/automation/widget', [WidgetController::class, 'index']);
+Route::post('/automation/widget', [WidgetController::class, 'update']);
+Route::post('/automation/widget/regenerate-key', [WidgetController::class, 'regenerateKey']);

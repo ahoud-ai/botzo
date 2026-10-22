@@ -50,6 +50,16 @@
                                 <div class="overflow-hidden text-ellipsis">{{ $t('AI Reply Assistant') }}</div>
                             </Link>
                         </li>
+                            <li
+                                v-if="aimodule"
+                                class="truncate rounded-xl px-1 transition"
+                                :class="$page.url.startsWith('/automation/widget') ? 'automation-tab-item automation-tab-item--active' : 'automation-tab-item'"
+                            >
+                                <Link rel="noopener noreferrer" href="/automation/widget" class="flex items-center gap-x-3 rounded-xl px-3 py-2.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 8h18"/><path d="M14 13.5a2.5 2.5 0 0 1-3.6 2.2L9 16l.3-1.4A2.5 2.5 0 1 1 14 13.5z"/></g></svg>
+                                <div class="overflow-hidden text-ellipsis">{{ $t('Website widget') }}</div>
+                            </Link>
+                        </li>
                         </ul>
                     </div>
                 </div>
