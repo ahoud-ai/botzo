@@ -8,6 +8,7 @@ return new class extends Migration
 {
     /**
      * A website visitor's conversation. Only a hash of the visitor's token and of their IP is kept.
+     * The contact is created with the visitor's first message, so opening the widget adds nothing to the inbox.
      */
     public function up(): void
     {
@@ -20,7 +21,7 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('web_widget_id');
             $table->unsignedBigInteger('organization_id');
-            $table->unsignedBigInteger('contact_id');
+            $table->unsignedBigInteger('contact_id')->nullable();
             $table->char('token_hash', 64)->unique();
             $table->char('ip_hash', 64)->nullable();
             $table->string('origin', 255)->nullable();

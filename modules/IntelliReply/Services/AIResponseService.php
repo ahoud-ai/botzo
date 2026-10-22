@@ -21,7 +21,7 @@ use App\Services\IntelliReply\AiUsageLimiterService;
 use App\Services\IntelliReply\AiUsageLogService;
 use App\Services\IntelliReply\AiVoiceTranscriptionService;
 use App\Services\IntelliReply\Channels\AiReplyChannel;
-use App\Services\IntelliReply\Channels\WhatsappReplyChannel;
+use App\Services\IntelliReply\Channels\AiReplyChannels;
 use App\Services\Whatsapp\WhatsappTokenVault;
 use App\Services\WhatsappService;
 use Illuminate\Support\Facades\Log;
@@ -717,7 +717,7 @@ class AIResponseService
      */
     protected function replyChannel(Contact $contact): AiReplyChannel
     {
-        return new WhatsappReplyChannel(fn () => $this->initializeWhatsappService((int) $contact->organization_id));
+        return AiReplyChannels::for($contact, fn () => $this->initializeWhatsappService((int) $contact->organization_id));
     }
 
     protected function initializeWhatsappService($organizationId)

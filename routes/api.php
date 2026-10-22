@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 require base_path('routes/api/public.php');
 require base_path('routes/api/utilities.php');
+require base_path('routes/api/widget.php');
 
 Route::middleware([AuthenticateBearerToken::class, 'throttle:developer-api'])->group(function () {
     require base_path('routes/api/messages.php');

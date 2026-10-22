@@ -5529,5 +5529,6 @@
     "Showing {from} to {to} of {total} contacts": "عرض {from} إلى {to} من {total} جهة اتصال",
     "Previous page": "الصفحة السابقة",
     "Next page": "الصفحة التالية",
-    "You can add up to {count} questions.": "يمكنك إضافة حتى {count} سؤالاً."
+    "You can add up to {count} questions.": "يمكنك إضافة حتى {count} سؤالاً.",
+    "Website visitor": "زائر الموقع"
 }

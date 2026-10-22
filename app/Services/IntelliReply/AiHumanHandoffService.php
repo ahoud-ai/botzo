@@ -7,6 +7,8 @@ use App\Models\Contact;
 use App\Models\Organization;
 use App\Services\AddonStateService;
 use App\Services\AutomationFlows\AutomationFlowConversationHandoffService;
+use App\Services\IntelliReply\Channels\AiReplyChannel;
+use App\Services\IntelliReply\Channels\AiReplyChannels;
 use App\Services\Whatsapp\WhatsappAccessTokenRefreshService;
 use App\Services\WhatsappService;
 use Illuminate\Support\Facades\Log;
@@ -48,7 +50,7 @@ class AiHumanHandoffService
 
         $confirmation = trim((string) config('intellireply.handoff.confirmation_text', ''));
         if ($confirmation !== '') {
-            $this->whatsapp((int) $organization->id, $metadata)->sendMessage($contact->uuid, $confirmation);
+            $this->replyChannel($contact, $metadata)->sendText($contact, $confirmation);
         }
 
         Log::channel('intellireply')->info('intellireply.handoff.requested', [
@@ -82,6 +84,11 @@ class AiHumanHandoffService
     {
         return (bool) data_get($metadata, 'ai.active', false)
             && app(AddonStateService::class)->isModuleEnabledForOrganization('AI Assistant', $organizationId);
+    }
+
+    protected function replyChannel(Contact $contact, array $metadata): AiReplyChannel
+    {
+        return AiReplyChannels::for($contact, fn () => $this->whatsapp((int) $contact->organization_id, $metadata));
     }
 
     protected function whatsapp(int $organizationId, array $metadata): WhatsappService
