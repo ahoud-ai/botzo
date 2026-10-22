@@ -38,4 +38,10 @@ return [
     'moyasar' => [
         'class' => App\Services\MoyasarService::class,
     ],
+
+    // Text-to-speech voices to compare with OpenAI for the widget's voice calls.
+    'elevenlabs' => [
+        'key' => env('ELEVENLABS_API_KEY'),
+        'model' => env('ELEVENLABS_TTS_MODEL', 'eleven_multilingual_v2'),
+    ],
 ];
