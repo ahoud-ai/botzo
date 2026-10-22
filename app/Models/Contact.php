@@ -16,6 +16,9 @@ class Contact extends Model {
     use HasUuid;
     use SoftDeletes;
 
+    public const CHANNEL_WHATSAPP = 'whatsapp';
+    public const CHANNEL_WEB = 'web';
+
     protected $guarded = [];
     protected $appends = ['full_name', 'formatted_phone_number'];
     protected $dates = ['deleted_at'];
@@ -29,6 +32,11 @@ class Contact extends Model {
     public function getUpdatedAtAttribute($value)
     {
         return DateTimeHelper::convertToOrganizationTimezone($value)->toDateTimeString();
+    }
+
+    public function isWebVisitor(): bool
+    {
+        return ($this->channel ?? self::CHANNEL_WHATSAPP) === self::CHANNEL_WEB;
     }
 
     public function getAllContacts($organizationId, $searchTerm, $groupUuid = null)
