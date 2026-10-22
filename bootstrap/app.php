@@ -115,6 +115,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('queue:prune-batches --hours=48 --unfinished=72')
             ->daily();
 
+        // Webhook retries (1, 5, 30, 120 minutes after a failure) and log cleanup.
+        $schedule->command('webhooks:retry')
+            ->everyMinute()
+            ->withoutOverlapping();
+
+        $schedule->command('webhooks:retry --prune')
+            ->dailyAt('03:30')
+            ->withoutOverlapping();
+
         // Refresh due WhatsApp tokens proactively to avoid manual re-entry.
         $schedule->command('whatsapp:refresh-tokens')
             ->hourly()

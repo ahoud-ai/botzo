@@ -158,6 +158,12 @@
                     </div>
                 </section>
 
+                <section id="developer-webhooks" class="dev-panel">
+                    <div class="mx-auto w-full max-w-5xl">
+                        <WebhooksPanel :webhooks="webhooks" />
+                    </div>
+                </section>
+
                 <section id="developer-api-docs" class="dev-panel dev-panel--tight">
                     <Documentation :apirequests="apirequests" :base-url="url" />
                 </section>
@@ -173,6 +179,7 @@ import AppLayout from './../Layout/App.vue';
 import Documentation from './Documentation.vue';
 import Menu from './Menu.vue';
 import TokenTable from '@/Components/Tables/TokenTable.vue';
+import WebhooksPanel from '@/Components/Developer/WebhooksPanel.vue';
 import { useClipboard } from '@/Composables/useClipboard';
 import { useI18n } from 'vue-i18n';
 
@@ -189,9 +196,13 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    webhooks: {
+        type: Object,
+        default: () => ({ endpoints: [], deliveries: [], events: [], max: 3, inspector_url: '', inspector_requests: [] }),
+    },
 });
 
-const { rows, url, apirequests } = toRefs(props);
+const { rows, url, apirequests, webhooks } = toRefs(props);
 
 const { t } = useI18n();
 const loadIcon = ref(false);

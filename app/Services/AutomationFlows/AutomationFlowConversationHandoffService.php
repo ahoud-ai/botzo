@@ -2,6 +2,9 @@
 
 namespace App\Services\AutomationFlows;
 
+use App\Models\WebhookEndpoint;
+use App\Services\Webhooks\WebhookDispatcher;
+use App\Services\Webhooks\WebhookEvents;
 use App\Models\ChatLog;
 use App\Models\ChatTicket;
 use App\Models\ChatTicketLog;
@@ -65,6 +68,9 @@ class AutomationFlowConversationHandoffService
         bool $reopenClosed = true,
         string $reason = 'flow_assignment',
     ): array {
+        // The customer's own systems hear about every move to a human, even without ticketing.
+        app(WebhookDispatcher::class)->dispatch((int) $contact->organization_id, WebhookEndpoint::EVENT_CONVERSATION_HANDOFF, WebhookEvents::handoff($contact, $reason));
+
         $capabilities = $this->capabilitiesForOrganization((int) $contact->organization_id);
 
         if (!($capabilities['ticketing_active'] ?? false)) {

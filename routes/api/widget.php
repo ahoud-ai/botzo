@@ -13,3 +13,6 @@ Route::middleware('throttle:120,1')->prefix('widget/{key}')->group(function () {
     Route::post('/voice/{call}/transcript', [WebWidgetController::class, 'voiceTranscript']);
     Route::post('/voice/{call}/tool', [WebWidgetController::class, 'voiceTool']);
 });
+
+// Test receiver for webhooks: a private per-organization URL whose requests show in Developer tools.
+Route::middleware('throttle:60,1')->post('/webhook-inspector/{token}', [App\Http\Controllers\WebhookInspectorController::class, 'store']);

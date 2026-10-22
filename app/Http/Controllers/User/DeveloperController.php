@@ -33,6 +33,7 @@ class DeveloperController extends BaseController
         $data['title'] = __('API keys');
         $data['url'] = url('/');
         $data['apirequests'] = config('apiguide');
+        $data['webhooks'] = DeveloperWebhookController::pageData((int) $organizationId);
 
         return Inertia::render('User/Developer/Index', $data);
     }

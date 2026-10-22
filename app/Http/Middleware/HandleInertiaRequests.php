@@ -131,6 +131,7 @@ class HandleInertiaRequests extends Middleware
                 'status'=> session('status'),
                 'generated_api_token' => session('generated_api_token'),
                 'generated_api_token_action' => session('generated_api_token_action'),
+                'generated_webhook_secret' => session('generated_webhook_secret'),
             ],
             'refresh_lang' => session('refresh_lang', false),
             'response_data' => fn () => $request->session()->get('response_data'),

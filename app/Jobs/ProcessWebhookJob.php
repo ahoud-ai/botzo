@@ -2,6 +2,9 @@
 
 namespace App\Jobs;
 
+use App\Models\WebhookEndpoint;
+use App\Services\Webhooks\WebhookDispatcher;
+use App\Services\Webhooks\WebhookEvents;
 use App\Events\NewChatEvent;
 use App\Models\AutoReply;
 use App\Models\Contact;
@@ -140,6 +143,10 @@ class ProcessWebhookJob implements ShouldQueue
 
                 if ($statusChanged) {
                     $this->broadcastChatUpdate($chat, (int) $organization->id);
+
+                    if ($chat->type === 'outbound') {
+                        app(WebhookDispatcher::class)->dispatch((int) $organization->id, WebhookEndpoint::EVENT_MESSAGE_STATUS, WebhookEvents::messageStatus($chat, $chat->contact, $response));
+                    }
                 }
             }
         }
@@ -251,6 +258,8 @@ class ProcessWebhookJob implements ShouldQueue
             // Another delivery of the same message won the race (organization_id + wam_id is unique).
             return;
         }
+
+        app(WebhookDispatcher::class)->dispatch((int) $organization->id, WebhookEndpoint::EVENT_MESSAGE_RECEIVED, WebhookEvents::messageReceived($contact, $chat, $response));
 
         $isMediaMessage = in_array($response['type'] ?? null, ['image', 'video', 'audio', 'document', 'sticker'], true);
 
