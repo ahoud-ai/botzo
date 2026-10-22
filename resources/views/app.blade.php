@@ -560,6 +560,10 @@
 
         @inertia
 
+        @if ($isPublicFrontendPage && ($siteWidgetKey = app(\App\Services\WebWidget\SiteWidget::class)->embedKey()))
+        <script src="{{ url('/widget.js') }}" data-key="{{ $siteWidgetKey }}" async></script>
+        @endif
+
         @if ($isPublicFrontendPage && !empty($body_scripts))
         <!-- Custom Body Scripts -->
         @if(str_contains($body_scripts, '<script>'))

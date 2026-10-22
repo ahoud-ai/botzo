@@ -50,6 +50,15 @@ Route::post('/settings/features/flow-builder', [App\Http\Controllers\Admin\Addon
     ->defaults('feature', 'Flow builder')
     ->middleware('admin.permission:settings,general');
 
+Route::get('/settings/features/web-widget', [App\Http\Controllers\Admin\WebWidgetSettingsController::class, 'index'])
+    ->middleware('admin.permission:settings,general');
+
+Route::post('/settings/features/web-widget/defaults', [App\Http\Controllers\Admin\WebWidgetSettingsController::class, 'updateDefaults'])
+    ->middleware('admin.permission:settings,general');
+
+Route::post('/settings/features/web-widget/site', [App\Http\Controllers\Admin\WebWidgetSettingsController::class, 'updateSite'])
+    ->middleware('admin.permission:settings,general');
+
 Route::put('/settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])
     ->middleware('admin.permission:settings,auto');
 

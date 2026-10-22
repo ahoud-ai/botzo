@@ -70,6 +70,7 @@
                 { labelKey: 'Embedded Signup', href: '/admin/settings/features/embedded-signup', permission: ['settings', 'general'], icon: Sparkles },
                 { labelKey: 'AI Assistant', href: '/admin/settings/features/ai-assistant', permission: ['settings', 'general'], icon: Sparkles },
                 { labelKey: 'Flow builder', href: '/admin/settings/features/flow-builder', permission: ['settings', 'general'], icon: Sparkles },
+                { labelKey: 'Website widget', href: '/admin/settings/features/web-widget', permission: ['settings', 'general'], icon: Sparkles },
             ],
         },
         {

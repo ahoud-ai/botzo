@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\WebWidget;
 use App\Services\OrganizationService;
 use App\Services\WebWidget\SiteKnowledgeSync;
+use App\Services\WebWidget\SiteWidget;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -81,6 +82,7 @@ class SetupSiteWidgetCommand extends Command
                 $report[] = 'Organization found: '.$organization->name.'.';
             }
 
+            app(SiteWidget::class)->remember($organization);
             $report[] = $this->ensureYearSubscription($organization, $plan);
             $refresh = (bool) $this->option('knowledge');
             $report[] = $this->ensureAssistant($organization, $content['persona'], $refresh);
