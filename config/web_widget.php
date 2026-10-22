@@ -60,4 +60,20 @@ return [
         'daily_minutes_cap' => 300,
     ],
 
+    // Voice calls run on the OpenAI Realtime API (WebRTC from the visitor's browser). The server
+    // only hands out short-lived client secrets; the API key never leaves it.
+    'voice' => [
+        'model' => env('WEB_WIDGET_VOICE_MODEL', 'gpt-realtime-2.1-mini'),
+        'transcription_model' => env('WEB_WIDGET_VOICE_TRANSCRIPTION_MODEL', 'gpt-4o-mini-transcribe'),
+        'calls_url' => 'https://api.openai.com/v1/realtime/calls',
+        'client_secrets_url' => 'https://api.openai.com/v1/realtime/client_secrets',
+        'secret_ttl_seconds' => 60,
+        'silence_ms' => 700,
+        'speed' => 1.05,
+        'max_output_tokens' => 400,
+        'transcript_lines_per_call' => 200,
+        // Words that help the transcription hear product names right.
+        'transcription_hint' => 'بوتزو، واتساب، باقة، ربط الرقم، عرض توضيحي، أتمتة، موتشي',
+    ],
+
 ];

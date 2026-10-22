@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Organization;
 use App\Models\WebWidget;
 use App\Models\WebWidgetSession;
+use App\Models\WebWidgetVoiceCall;
+use App\Services\WebWidget\WebWidgetAssistantContext;
 use App\Services\WebWidget\WebWidgetEntitlements;
 use App\Services\WebWidget\WebWidgetPages;
 use App\Services\WebWidget\WebWidgetService;
+use App\Services\WebWidget\WebWidgetVoiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -66,6 +69,7 @@ class WebWidgetController extends Controller
                 'poll_interval' => max(5, (int) config('web_widget.poll_interval_seconds', 15)),
                 'max_length' => (int) config('web_widget.limits.message_max_length', 500),
                 'branding' => ! ($entitlements['remove_branding'] && ! empty($settings['hide_branding'])),
+                'voice' => app(WebWidgetVoiceService::class)->availability($widget)['available'],
             ],
             'messages' => $this->widgets->messages($opened['session']),
         ], fn ($value) => $value !== null));
@@ -119,6 +123,95 @@ class WebWidgetController extends Controller
         return response()->json([
             'messages' => $this->widgets->messages($session, is_numeric($after) ? (int) $after : null),
         ]);
+    }
+
+    public function voiceStart(Request $request, string $key, WebWidgetVoiceService $voice): JsonResponse
+    {
+        [$widget, $session] = $this->resolveSession($request, $key);
+        if (! $widget) {
+            return $this->unavailable();
+        }
+        if (! $session) {
+            return response()->json(['error' => 'session_expired'], 401);
+        }
+
+        $data = $request->validate([
+            'page_url' => ['nullable', 'string', 'max:2000'],
+            'page_title' => ['nullable', 'string', 'max:300'],
+            'locale' => ['nullable', 'string', 'max:10'],
+        ]);
+
+        app(WebWidgetAssistantContext::class)->rememberPage($this->widgets->contactFor($session), $data['page_url'] ?? $session->page_url, $data['page_title'] ?? null);
+        $started = $voice->start($widget, $session, ($data['locale'] ?? 'ar') === 'en' ? 'en' : 'ar');
+
+        if (isset($started['error'])) {
+            return response()->json(['error' => $started['error']], $started['error'] === WebWidgetVoiceService::UNAVAILABLE_PROVIDER ? 502 : 409);
+        }
+
+        return response()->json([
+            'call_id' => $started['call']->uuid,
+            'client_secret' => $started['client_secret'],
+            'expires_at' => $started['expires_at'],
+            'max_seconds' => $started['call']->max_seconds,
+            'calls_url' => (string) config('web_widget.voice.calls_url'),
+        ]);
+    }
+
+    public function voiceEnd(Request $request, string $key, string $call, WebWidgetVoiceService $voice): JsonResponse
+    {
+        $found = $this->voiceCall($request, $key, $call);
+        if ($found instanceof JsonResponse) {
+            return $found;
+        }
+
+        $ended = $voice->end($found, (int) $request->integer('seconds'));
+
+        return response()->json(['seconds' => $ended->seconds]);
+    }
+
+    public function voiceTranscript(Request $request, string $key, string $call, WebWidgetVoiceService $voice): JsonResponse
+    {
+        $found = $this->voiceCall($request, $key, $call);
+        if ($found instanceof JsonResponse) {
+            return $found;
+        }
+
+        $data = $request->validate([
+            'role' => ['required', 'in:user,assistant'],
+            'text' => ['required', 'string', 'max:2000'],
+        ]);
+
+        return response()->json(['stored' => $voice->transcript($found, $data['role'], $data['text'])]);
+    }
+
+    public function voiceTool(Request $request, string $key, string $call, WebWidgetVoiceService $voice): JsonResponse
+    {
+        $found = $this->voiceCall($request, $key, $call);
+        if ($found instanceof JsonResponse) {
+            return $found;
+        }
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'in:search_knowledge,request_human'],
+            'arguments' => ['nullable', 'array'],
+        ]);
+
+        return response()->json($voice->tool($found, $data['name'], (array) ($data['arguments'] ?? [])));
+    }
+
+    private function voiceCall(Request $request, string $key, string $callUuid): WebWidgetVoiceCall|JsonResponse
+    {
+        [$widget, $session] = $this->resolveSession($request, $key);
+        if (! $widget) {
+            return $this->unavailable();
+        }
+        if (! $session) {
+            return response()->json(['error' => 'session_expired'], 401);
+        }
+
+        $call = WebWidgetVoiceCall::where('uuid', $callUuid)->where('web_widget_session_id', $session->id)->first();
+
+        return $call ?? response()->json(['error' => 'call_not_found'], 404);
     }
 
     /**

@@ -158,7 +158,7 @@ class WebWidgetService
         return null;
     }
 
-    private function contactFor(WebWidgetSession $session): Contact
+    public function contactFor(WebWidgetSession $session): Contact
     {
         $contact = $session->contact_id
             ? Contact::where('id', $session->contact_id)->where('organization_id', $session->organization_id)->first()
