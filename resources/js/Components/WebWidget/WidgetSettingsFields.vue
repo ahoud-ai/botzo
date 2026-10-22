@@ -166,8 +166,10 @@
 </template>
 
 <script setup>
-    import { trans } from 'laravel-vue-i18n';
+    import { useI18n } from 'vue-i18n';
     import FormToggleSwitch from '@/Components/FormToggleSwitch.vue';
+
+    const { t } = useI18n();
 
     defineProps({
         form: { type: Object, required: true },
@@ -182,9 +184,9 @@
     });
 
     const themeLabel = (theme) => ({
-        mochi: trans('Mochi (animated mascot)'),
-        botzo: trans('Dark, Botzo style'),
-        classic: trans('Light, in your color'),
+        mochi: t('Mochi (animated mascot)'),
+        botzo: t('Dark, Botzo style'),
+        classic: t('Light, in your color'),
     }[theme] ?? theme);
 
     const removeRow = (rows, index, emptyValue = null) => {

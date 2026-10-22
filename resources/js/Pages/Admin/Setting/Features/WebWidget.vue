@@ -127,12 +127,14 @@
 
 <script setup>
     import { Link, useForm } from '@inertiajs/vue3';
-    import { trans } from 'laravel-vue-i18n';
+    import { useI18n } from 'vue-i18n';
     import AppLayout from '../Layout/App.vue';
     import UiPageHeader from '@/Components/UI/UiPageHeader.vue';
     import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
     import WidgetSettingsFields, { widgetFormFields } from '@/Components/WebWidget/WidgetSettingsFields.vue';
     import WidgetPreview from '@/Components/WebWidget/WidgetPreview.vue';
+
+    const { t } = useI18n();
 
     const props = defineProps({
         defaults: { type: Object, required: true },
@@ -159,9 +161,9 @@
     const siteForm = useForm(widgetFormFields(props.site));
 
     const themeLabel = (theme) => ({
-        mochi: trans('Mochi (animated mascot)'),
-        botzo: trans('Dark, Botzo style'),
-        classic: trans('Light, in your color'),
+        mochi: t('Mochi (animated mascot)'),
+        botzo: t('Dark, Botzo style'),
+        classic: t('Light, in your color'),
     }[theme] ?? theme);
 
     const saveDefaults = () => defaultsForm.post('/admin/settings/features/web-widget/defaults', { preserveScroll: true });
