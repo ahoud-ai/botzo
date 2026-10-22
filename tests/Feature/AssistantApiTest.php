@@ -119,6 +119,9 @@ class AssistantApiTest extends TestCase
             ->assertOk()
             ->assertJsonPath('conversation_id', $conversation);
 
+        // Without a user name the inbox shows "App user", not "Website visitor".
+        $this->assertStringStartsWith(__('App user'), Contact::where('organization_id', $organization->id)->latest('id')->value('first_name'));
+
         // A public key reaches nothing outside Mochi.
         $this->api($key)->getJson('/api/contacts')->assertForbidden()->assertJsonPath('code', 'api_key_scope_denied');
         $this->api($key)->postJson('/api/send', ['phone' => '+966500000001', 'message' => 'x'])->assertForbidden();

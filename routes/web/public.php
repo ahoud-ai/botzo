@@ -91,6 +91,7 @@ Route::get('/meta-verification-requests/{metaVerificationRequest}/documents/{doc
     ->name('meta-verification-requests.download-document');
 Route::match(['get', 'post'], '/product', [App\Http\Controllers\FrontendController::class, 'product']);
 Route::match(['get', 'post'], '/api-documentation', [App\Http\Controllers\FrontendController::class, 'apiDocumentation']);
+Route::get('/developers/{page?}', [App\Http\Controllers\DeveloperDocsController::class, 'show'])->where('page', '[a-z-]+')->name('developers.docs');
 Route::match(['get', 'post'], '/faqs', [App\Http\Controllers\FrontendController::class, 'faqs']);
 Route::match(['get', 'post'], '/cookie-policy', [App\Http\Controllers\FrontendController::class, 'cookiePolicy']);
 Route::match(['get', 'post'], '/pages/{slug}', [App\Http\Controllers\FrontendController::class, 'pages']);

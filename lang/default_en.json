@@ -5232,5 +5232,8 @@
     "The message is empty.": "The message is empty.",
     "Messages are being sent too fast. Please wait a moment.": "Messages are being sent too fast. Please wait a moment.",
     "The AI assistant is turned off for this account.": "The AI assistant is turned off for this account.",
-    "This customer is chatting from your app through the Mochi API. Text replies only.": "This customer is chatting from your app through the Mochi API. Text replies only."
+    "This customer is chatting from your app through the Mochi API. Text replies only.": "This customer is chatting from your app through the Mochi API. Text replies only.",
+    "Read the full developer guide: keys, WhatsApp rules, Mochi API, webhooks, errors and complete examples": "Read the full developer guide: keys, WhatsApp rules, Mochi API, webhooks, errors and complete examples",
+    "Developer guide": "Developer guide",
+    "App user": "App user"
 }

@@ -13,6 +13,20 @@ $examples = static function (string $method, string $route, ?array $payload = nu
     $javaBody = $body ? str_replace('"', '\"', $body) : '';
     $rubyBody = $body ? "\nrequest.body = <<~JSON\n{$body}\nJSON\n" : '';
     $rubyRequestClass = $upperMethod === 'DELETE' ? 'Delete' : ucfirst(strtolower($upperMethod));
+    $dartBody = $body ? ",
+  body: jsonEncode({$body})" : '';
+    $swiftBody = $body ? "
+request.httpBody = \"\"\"
+{$body}
+\"\"\".data(using: .utf8)" : '';
+    $kotlinBody = $body ? "\"\"\"
+{$body}
+\"\"\".toRequestBody(\"application/json\".toMediaType())" : 'null';
+    $kotlinCall = match ($upperMethod) {
+        'GET' => '.get()',
+        'DELETE' => '.delete()',
+        default => '.'.strtolower($upperMethod)."({$kotlinBody})",
+    };
 
     return [
         'curl' => "curl -X {$upperMethod} \"{$url}\" \\\n  -H \"Authorization: Bearer {{token}}\"{$curlBody}",
@@ -20,6 +34,36 @@ $examples = static function (string $method, string $route, ?array $payload = nu
         'nodejs' => "import axios from 'axios';\n\nconst response = await axios({\n  method: '{$method}',\n  url: '{$url}',\n  headers: {\n    Authorization: 'Bearer {{token}}',\n    Accept: 'application/json',\n    'Content-Type': 'application/json'\n  }{$nodeData}\n});\n\nconsole.log(response.data);",
         'python' => "import requests\n\nurl = \"{$url}\"{$pythonBody}headers = {\n    \"Authorization\": \"Bearer {{token}}\",\n    \"Accept\": \"application/json\",\n    \"Content-Type\": \"application/json\",\n}\n\nresponse = requests.request(\"{$upperMethod}\", url, headers=headers, json=payload)\nprint(response.json())",
         'java' => "OkHttpClient client = new OkHttpClient();\nMediaType mediaType = MediaType.parse(\"application/json\");\nRequestBody body = ".($body ? "RequestBody.create(mediaType, \"{$javaBody}\")" : 'RequestBody.create(mediaType, "")').";\nRequest request = new Request.Builder()\n  .url(\"{$url}\")\n  .method(\"{$upperMethod}\", ".($upperMethod === 'GET' ? 'null' : 'body').")\n  .addHeader(\"Authorization\", \"Bearer {{token}}\")\n  .addHeader(\"Accept\", \"application/json\")\n  .addHeader(\"Content-Type\", \"application/json\")\n  .build();\nResponse response = client.newCall(request).execute();",
+        'dart' => "import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+final response = await http.".strtolower($upperMethod === 'DELETE' ? 'delete' : $method)."(
+  Uri.parse('{$url}'),
+  headers: {
+    'Authorization': 'Bearer {{token}}',
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+  }{$dartBody},
+);
+
+print(jsonDecode(response.body));",
+        'swift' => "var request = URLRequest(url: URL(string: \"{$url}\")!)
+request.httpMethod = \"{$upperMethod}\"
+request.setValue(\"Bearer {{token}}\", forHTTPHeaderField: \"Authorization\")
+request.setValue(\"application/json\", forHTTPHeaderField: \"Accept\")
+request.setValue(\"application/json\", forHTTPHeaderField: \"Content-Type\"){$swiftBody}
+
+let (data, _) = try await URLSession.shared.data(for: request)
+print(String(data: data, encoding: .utf8) ?? \"\")",
+        'kotlin' => "val client = OkHttpClient()
+val request = Request.Builder()
+    .url(\"{$url}\")
+    .header(\"Authorization\", \"Bearer {{token}}\")
+    .header(\"Accept\", \"application/json\")
+    {$kotlinCall}
+    .build()
+
+client.newCall(request).execute().use { println(it.body?.string()) }",
         'ruby' => "require 'net/http'\nrequire 'json'\n\nuri = URI('{$url}')\nrequest = Net::HTTP::{$rubyRequestClass}.new(uri)\nrequest['Authorization'] = 'Bearer {{token}}'\nrequest['Accept'] = 'application/json'\nrequest['Content-Type'] = 'application/json'{$rubyBody}\nresponse = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|\n  http.request(request)\nend\n\nputs response.body",
     ];
 };
@@ -32,6 +76,9 @@ $errorExample = [
 ];
 
 $errorExamples = [
+    'dart' => $json($errorExample),
+    'swift' => $json($errorExample),
+    'kotlin' => $json($errorExample),
     'curl' => $json($errorExample),
     'php' => $json($errorExample),
     'nodejs' => $json($errorExample),
@@ -228,7 +275,8 @@ return [
                     'skip_schedule' => true,
                     'body' => [
                         'parameters' => [
-                            ['type' => 'text', 'text' => 'Ahmed'],
+                            ['type' => 'text', 'selection' => 'dynamic', 'value' => 'first name'],
+                            ['type' => 'text', 'selection' => 'static', 'value' => '20%'],
                         ],
                     ],
                 ]),
@@ -254,6 +302,34 @@ return [
                 'method' => 'get',
                 'route' => '/api/verify',
                 'request' => $examples('get', '/api/verify'),
+            ],
+        ],
+    ],
+    [
+        'title' => 'Mochi AI assistant',
+        'value' => [
+            [
+                'title' => 'Open or resume a conversation',
+                'method' => 'post',
+                'route' => '/api/v1/assistant/conversations',
+                'request' => $examples('post', '/api/v1/assistant/conversations', [
+                    'user' => ['id' => 'customer-42', 'name' => 'Sara'],
+                    'locale' => 'ar',
+                ]),
+            ],
+            [
+                'title' => 'Send a message to Mochi',
+                'method' => 'post',
+                'route' => '/api/v1/assistant/conversations/{conversation_id}/messages',
+                'request' => $examples('post', '/api/v1/assistant/conversations/{{uuid}}/messages', [
+                    'text' => 'How much is the Growth plan?',
+                ]),
+            ],
+            [
+                'title' => 'Get new messages',
+                'method' => 'get',
+                'route' => '/api/v1/assistant/conversations/{conversation_id}/messages',
+                'request' => $examples('get', '/api/v1/assistant/conversations/{{uuid}}/messages?after=0'),
             ],
         ],
     ],

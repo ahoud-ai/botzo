@@ -9,6 +9,9 @@
                 <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
                     {{ $t('Integrate with our REST API to send messages, manage contacts, and automate your WhatsApp communication workflows') }}
                 </p>
+                <a href="/developers" class="inline-flex items-center rounded-full bg-primary px-6 py-3 font-semibold text-white mb-8">
+                    {{ $t('Developer guide') }}
+                </a>
             </div>
         </section>
 
@@ -86,7 +89,7 @@
                                     <div class="border-b border-gray-300 mb-4">
                                         <div class="flex gap-x-1 overflow-x-auto">
                                             <button type="button"
-                                                v-for="lang in ['curl', 'php', 'nodejs', 'python', 'java', 'ruby']"
+                                                v-for="lang in ['curl', 'php', 'nodejs', 'python', 'java', 'ruby', 'dart', 'swift', 'kotlin']"
                                                 :key="lang"
                                                 @click="selectedLanguage = lang"
                                                 :class="[

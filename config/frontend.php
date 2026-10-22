@@ -23,6 +23,7 @@ return [
         'contact',
         'product',
         'api-documentation',
+        'developers',
         'faqs',
         'cookie-policy',
         'privacy',

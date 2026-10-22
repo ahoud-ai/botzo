@@ -68,7 +68,12 @@ class RouteServiceProvider extends ServiceProvider
 
             return Limit::perMinute($limit)
                 ->by($key)
-                ->response(fn () => DeveloperApiResponse::error(429, __('Too many API requests. Please retry shortly.'), 'rate_limited'));
+                ->response(function (Request $request, array $headers) {
+                    $response = DeveloperApiResponse::error(429, __('Too many API requests. Please retry shortly.'), 'rate_limited');
+                    $response->headers->add($headers);
+
+                    return $response;
+                });
         });
     }
 }

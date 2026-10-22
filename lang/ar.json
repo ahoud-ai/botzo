@@ -5695,5 +5695,8 @@
     "The message is empty.": "الرسالة فاضية.",
     "Messages are being sent too fast. Please wait a moment.": "الرسايل بتتبعت بسرعة زيادة. استنى لحظة.",
     "The AI assistant is turned off for this account.": "المساعد الذكي مقفول في الحساب ده.",
-    "This customer is chatting from your app through the Mochi API. Text replies only.": "العميل ده بيكلّمك من تطبيقك عن طريق API موتشي. الرد بالنص بس."
+    "This customer is chatting from your app through the Mochi API. Text replies only.": "العميل ده بيكلّمك من تطبيقك عن طريق API موتشي. الرد بالنص بس.",
+    "Read the full developer guide: keys, WhatsApp rules, Mochi API, webhooks, errors and complete examples": "اقرأ دليل المطوّرين الكامل: المفاتيح، قواعد واتساب، API موتشي، الـ Webhooks، الأخطاء، وأمثلة كاملة",
+    "Developer guide": "دليل المطوّرين",
+    "App user": "مستخدم التطبيق"
 }

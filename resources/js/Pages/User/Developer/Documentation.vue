@@ -24,6 +24,10 @@
                     <p class="dev-doc-hero-inset-label">{{ $t('Base URL') }}</p>
                     <code class="dev-doc-hero-inset-value">{{ baseUrl }}</code>
                 </div>
+
+                <a href="/developers" target="_blank" rel="noopener" class="dev-doc-guide-link">
+                    {{ $t('Read the full developer guide: keys, WhatsApp rules, Mochi API, webhooks, errors and complete examples') }}
+                </a>
             </div>
         </div>
 
@@ -147,6 +151,9 @@ const languageTabs = [
     { key: 'python', label: 'PYTHON', requestKey: 'python', codeLang: 'python' },
     { key: 'java', label: 'JAVA', requestKey: 'java', codeLang: 'java' },
     { key: 'ruby', label: 'RUBY', requestKey: 'ruby', codeLang: 'ruby' },
+    { key: 'dart', label: 'FLUTTER', requestKey: 'dart', codeLang: 'dart' },
+    { key: 'swift', label: 'SWIFT', requestKey: 'swift', codeLang: 'swift' },
+    { key: 'kotlin', label: 'KOTLIN', requestKey: 'kotlin', codeLang: 'kotlin' },
 ];
 
 const selectedLanguage = ref(0);
@@ -193,6 +200,23 @@ const methodClass = (method) => {
 </script>
 
 <style scoped>
+.dev-doc-guide-link {
+    display: block;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(34, 197, 94, 0.45);
+    background: rgba(34, 197, 94, 0.12);
+    padding: 0.75rem 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #bbf7d0;
+    text-decoration: none;
+}
+
+.dev-doc-guide-link:hover {
+    background: rgba(34, 197, 94, 0.2);
+}
+
 .dev-doc-hero {
     overflow: hidden;
     border-radius: 1.5rem;

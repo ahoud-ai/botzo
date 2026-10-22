@@ -150,10 +150,15 @@ class AssistantConversationService
             return;
         }
 
+        // Without a name, the inbox says "App user 1234" rather than the widget's "Website visitor 1234".
+        $fallback = str_starts_with((string) $contact->first_name, __('Website visitor'))
+            ? __('App user').' '.random_int(1000, 9999)
+            : $contact->first_name;
+
         $metadata['source_app'] = $appName;
         $contact->forceFill([
             'metadata' => json_encode($metadata, JSON_UNESCAPED_UNICODE),
-            'first_name' => $name !== '' ? mb_substr($name, 0, 100) : $contact->first_name,
+            'first_name' => $name !== '' ? mb_substr($name, 0, 100) : $fallback,
         ])->save();
     }
 }
