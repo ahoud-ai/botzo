@@ -40,6 +40,7 @@ class AuthenticateBearerToken
         // Attach organization to the request
         $request->merge(['organization' => $organizationApiKey->organization_id]);
         $request->attributes->set('developer_api_key_id', $organizationApiKey->id);
+        $request->attributes->set('developer_api_key', $organizationApiKey);
         $organizationApiService->recordUsage($organizationApiKey);
 
         return $next($request);

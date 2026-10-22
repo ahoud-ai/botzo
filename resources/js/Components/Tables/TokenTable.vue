@@ -79,6 +79,8 @@ const { t } = useI18n();
 const scopeLabel = (scope) => ({
     send: t('Send messages only'),
     read: t('Read only'),
+    assistant: t('Mochi only (server)'),
+    public: t('Mochi public key (inside apps)'),
 }[scope] || t('Full access'));
 
 const isBusy = (uuid) => actionUuid.value === uuid && (deleteForm.processing || rotateForm.processing);

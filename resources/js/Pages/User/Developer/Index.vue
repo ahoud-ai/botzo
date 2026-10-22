@@ -54,6 +54,8 @@
                                         <option value="full">{{ $t('Full access') }}</option>
                                         <option value="send">{{ $t('Send messages only') }}</option>
                                         <option value="read">{{ $t('Read only') }}</option>
+                                        <option value="assistant">{{ $t('Mochi only (server)') }}</option>
+                                        <option value="public">{{ $t('Mochi public key (inside apps)') }}</option>
                                     </select>
                                     <p class="dev-field-help">{{ scopeHelp }}</p>
                                 </div>
@@ -219,6 +221,8 @@ const scopeHelp = computed(() => ({
     full: t('Can use every endpoint: messages, contacts, groups and campaigns.'),
     send: t('Can only send messages, check their status and list templates. Best for apps.'),
     read: t('Can only read data, never send or change anything.'),
+    assistant: t('Can only talk to Mochi. Keep it on your server; your server sends the user id.'),
+    public: t('Can only open Mochi conversations, with strict limits per device. Safe to put inside a mobile app.'),
 }[form.scope] || ''));
 
 const canAdd = computed(() => {

@@ -5681,5 +5681,19 @@
     "Test event failed: :error": "الإشعار التجريبي فشل: :error",
     "Webhook deleted.": "الـ Webhook اتحذف.",
     "The webhook URL must be a public https link.": "رابط الـ Webhook لازم يكون رابط https عام.",
-    "Test event from Botzo. If you can read this, your webhook works.": "إشعار تجريبي من بوتزو. لو قدرت تقرا ده يبقى الـ Webhook شغال."
+    "Test event from Botzo. If you can read this, your webhook works.": "إشعار تجريبي من بوتزو. لو قدرت تقرا ده يبقى الـ Webhook شغال.",
+    "Mochi only (server)": "موتشي فقط (للسيرفر)",
+    "Mochi public key (inside apps)": "مفتاح موتشي العام (جوه التطبيقات)",
+    "Can only talk to Mochi. Keep it on your server; your server sends the user id.": "بيكلّم موتشي بس. خليه على سيرفرك، وسيرفرك هو اللي يبعت رقم المستخدم.",
+    "Can only open Mochi conversations, with strict limits per device. Safe to put inside a mobile app.": "بيفتح محادثات موتشي بس، بحدود صارمة لكل جهاز. آمن تحطه جوه تطبيق الموبايل.",
+    "Assistant or team reply": "رد المساعد أو الفريق",
+    "Mochi or your team answered in a website or app conversation.": "موتشي أو فريقك ردّوا في محادثة من الموقع أو التطبيق.",
+    "App": "تطبيق",
+    "Chatting from your app through the Mochi API": "بيكلّمك من تطبيقك عن طريق API موتشي",
+    "Too many new conversations from this device. Please try again later.": "محادثات جديدة كتير من الجهاز ده. حاول تاني بعد شوية.",
+    "Conversation not found.": "المحادثة مش موجودة.",
+    "The message is empty.": "الرسالة فاضية.",
+    "Messages are being sent too fast. Please wait a moment.": "الرسايل بتتبعت بسرعة زيادة. استنى لحظة.",
+    "The AI assistant is turned off for this account.": "المساعد الذكي مقفول في الحساب ده.",
+    "This customer is chatting from your app through the Mochi API. Text replies only.": "العميل ده بيكلّمك من تطبيقك عن طريق API موتشي. الرد بالنص بس."
 }

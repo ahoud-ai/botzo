@@ -21,7 +21,7 @@ const { copy, isCopied } = useClipboard();
 const { isOpenAlert: isOpenDeleteAlert, openAlert: openDeleteAlert, confirmAlert: confirmDeleteAlert } = useAlertModal();
 const { isOpenAlert: isOpenRotateAlert, openAlert: openRotateAlert, confirmAlert: confirmRotateAlert } = useAlertModal();
 
-const form = useForm({ url: '', events: ['message.received', 'message.status', 'conversation.handoff'] });
+const form = useForm({ url: '', events: ['message.received', 'message.status', 'conversation.handoff', 'conversation.reply'] });
 const busyUuid = ref(null);
 const inspectorRequests = ref(webhooks.value.inspector_requests || []);
 const inspectorLoading = ref(false);
@@ -40,6 +40,7 @@ const eventLabels = computed(() => ({
     'message.received': { title: t('Message received'), help: t('A customer sent you a WhatsApp message.') },
     'message.status': { title: t('Message status'), help: t('A message you sent was sent, delivered, read or failed.') },
     'conversation.handoff': { title: t('Handed to a human'), help: t('The customer asked for a person, or the assistant handed over.') },
+    'conversation.reply': { title: t('Assistant or team reply'), help: t('Mochi or your team answered in a website or app conversation.') },
 }));
 
 const deliveryStatus = (status) => ({
@@ -298,7 +299,8 @@ const prettyBody = (body) => {
 .wh-url-row { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
 .wh-url-row > .ui-input, .wh-url--box { flex: 1 1 18rem; min-width: 0; }
 .wh-events { display: grid; gap: 0.6rem; }
-@media (min-width: 768px) { .wh-events { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 768px) { .wh-events { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1280px) { .wh-events { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .wh-event { display: flex; gap: 0.6rem; align-items: flex-start; border-radius: 0.9rem; border: 1px solid var(--ui-border); background: var(--ui-surface); padding: 0.75rem; cursor: pointer; }
 .wh-event input { margin-top: 0.2rem; width: 1rem; height: 1rem; accent-color: var(--ui-primary); }
 .wh-event--compact { padding: 0.5rem 0.7rem; align-items: center; }

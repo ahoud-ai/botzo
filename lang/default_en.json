@@ -5218,5 +5218,19 @@
     "Test event failed: :error": "Test event failed: :error",
     "Webhook deleted.": "Webhook deleted.",
     "The webhook URL must be a public https link.": "The webhook URL must be a public https link.",
-    "Test event from Botzo. If you can read this, your webhook works.": "Test event from Botzo. If you can read this, your webhook works."
+    "Test event from Botzo. If you can read this, your webhook works.": "Test event from Botzo. If you can read this, your webhook works.",
+    "Mochi only (server)": "Mochi only (server)",
+    "Mochi public key (inside apps)": "Mochi public key (inside apps)",
+    "Can only talk to Mochi. Keep it on your server; your server sends the user id.": "Can only talk to Mochi. Keep it on your server; your server sends the user id.",
+    "Can only open Mochi conversations, with strict limits per device. Safe to put inside a mobile app.": "Can only open Mochi conversations, with strict limits per device. Safe to put inside a mobile app.",
+    "Assistant or team reply": "Assistant or team reply",
+    "Mochi or your team answered in a website or app conversation.": "Mochi or your team answered in a website or app conversation.",
+    "App": "App",
+    "Chatting from your app through the Mochi API": "Chatting from your app through the Mochi API",
+    "Too many new conversations from this device. Please try again later.": "Too many new conversations from this device. Please try again later.",
+    "Conversation not found.": "Conversation not found.",
+    "The message is empty.": "The message is empty.",
+    "Messages are being sent too fast. Please wait a moment.": "Messages are being sent too fast. Please wait a moment.",
+    "The AI assistant is turned off for this account.": "The AI assistant is turned off for this account.",
+    "This customer is chatting from your app through the Mochi API. Text replies only.": "This customer is chatting from your app through the Mochi API. Text replies only."
 }

@@ -56,5 +56,19 @@ class RouteServiceProvider extends ServiceProvider
                 });
         });
 
+        // Mochi API: a public (in-app) key is shared by every install, so it is limited per device IP;
+        // secret keys share the organization's developer API budget.
+        RateLimiter::for('assistant-api', function (Request $request) {
+            $apiKey = $request->attributes->get('developer_api_key');
+            $isPublic = $apiKey && $apiKey->isPublic();
+            $key = $isPublic
+                ? 'assistant-public:'.$apiKey->id.':'.$request->ip()
+                : 'organization:'.(int) $request->input('organization', 0);
+            $limit = $isPublic ? 60 : max(1, (int) config('services.developer_api.rate_limit_per_minute', 120));
+
+            return Limit::perMinute($limit)
+                ->by($key)
+                ->response(fn () => DeveloperApiResponse::error(429, __('Too many API requests. Please retry shortly.'), 'rate_limited'));
+        });
     }
 }

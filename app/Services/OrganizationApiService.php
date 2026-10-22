@@ -15,6 +15,10 @@ class OrganizationApiService
     {
         $organizationId = $organizationId ?? (int) session()->get('current_organization');
         $plainTextToken = $this->tokenHasher->generatePlainTextToken();
+        if ($scope === OrganizationApiKey::SCOPE_PUBLIC) {
+            // Public keys live inside apps; the prefix makes them easy to tell apart from secret keys.
+            $plainTextToken = 'pk_'.$plainTextToken;
+        }
 
         $apiKey = OrganizationApiKey::create([
             'organization_id' => $organizationId,
@@ -42,7 +46,7 @@ class OrganizationApiService
             throw new ModelNotFoundException(__('Organization API key not found.'));
         }
 
-        $plainTextToken = $this->tokenHasher->generatePlainTextToken();
+        $plainTextToken = ($apiKey->isPublic() ? 'pk_' : '').$this->tokenHasher->generatePlainTextToken();
         $apiKey->update([
             'token' => $this->tokenHasher->hashToken($plainTextToken),
             'token_last_four' => $this->tokenHasher->lastFour($plainTextToken),

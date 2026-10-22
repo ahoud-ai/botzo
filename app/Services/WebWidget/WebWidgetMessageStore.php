@@ -6,6 +6,9 @@ use App\Events\NewChatEvent;
 use App\Models\Chat;
 use App\Models\ChatLog;
 use App\Models\Contact;
+use App\Models\WebhookEndpoint;
+use App\Models\WebWidgetSession;
+use App\Services\Webhooks\WebhookDispatcher;
 use Carbon\Carbon;
 
 /**
@@ -44,6 +47,26 @@ class WebWidgetMessageStore
             event(new NewChatEvent([['type' => 'chat', 'value' => $chatLog->relatedEntities]], $contact->organization_id));
         }
 
+        if ($direction !== 'inbound') {
+            $this->notifyReply($contact, $chat, $text, $userId);
+        }
+
         return Chat::with('contact', 'media')->where('id', $chat->id)->first();
+    }
+
+    // Apps using the Mochi API (and anyone listening to widget chats) hear about every answer.
+    private function notifyReply(Contact $contact, Chat $chat, string $text, ?int $userId): void
+    {
+        $session = WebWidgetSession::where('contact_id', $contact->id)->latest('id')->first();
+
+        app(WebhookDispatcher::class)->dispatch((int) $contact->organization_id, WebhookEndpoint::EVENT_CONVERSATION_REPLY, [
+            'conversation_id' => $session?->uuid,
+            'source' => $session?->source ?? 'widget',
+            'user_id' => $session?->external_user_id,
+            'message_id' => (int) $chat->id,
+            'from' => $userId ? 'agent' : 'assistant',
+            'text' => $text,
+            'timestamp' => now('UTC')->toIso8601String(),
+        ]);
     }
 }

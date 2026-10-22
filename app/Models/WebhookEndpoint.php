@@ -15,7 +15,9 @@ class WebhookEndpoint extends Model
     public const EVENT_MESSAGE_RECEIVED = 'message.received';
     public const EVENT_MESSAGE_STATUS = 'message.status';
     public const EVENT_CONVERSATION_HANDOFF = 'conversation.handoff';
-    public const EVENTS = [self::EVENT_MESSAGE_RECEIVED, self::EVENT_MESSAGE_STATUS, self::EVENT_CONVERSATION_HANDOFF];
+    // A reply from Mochi or from the team in a website widget or Mochi API conversation.
+    public const EVENT_CONVERSATION_REPLY = 'conversation.reply';
+    public const EVENTS = [self::EVENT_MESSAGE_RECEIVED, self::EVENT_MESSAGE_STATUS, self::EVENT_CONVERSATION_HANDOFF, self::EVENT_CONVERSATION_REPLY];
 
     public const MAX_PER_ORGANIZATION = 3;
 

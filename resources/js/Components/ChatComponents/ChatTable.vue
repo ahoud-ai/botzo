@@ -98,6 +98,16 @@
 
     const contactChannel = (contact) => (contact?.channel === 'web' ? 'web' : 'whatsapp');
 
+    // Conversations opened through the Mochi API carry the name of the app they came from.
+    const contactSourceApp = (contact) => {
+        try {
+            const metadata = typeof contact?.metadata === 'string' ? JSON.parse(contact.metadata) : contact?.metadata;
+            return metadata?.source_app || null;
+        } catch (error) {
+            return null;
+        }
+    };
+
     const contactDisplayName = (contact) => {
         return contact?.full_name
             || '';
@@ -122,8 +132,9 @@
         }
 
         if (channel === 'web') {
+            const app = contactSourceApp(contact);
             return {
-                label: t('Website'),
+                label: app ? `${t('App')}: ${app}` : t('Website'),
                 class: 'bg-blue-50 text-blue-700 ring-1 ring-blue-100 dark:bg-blue-500/10 dark:text-blue-300 dark:ring-blue-500/20',
             };
         }

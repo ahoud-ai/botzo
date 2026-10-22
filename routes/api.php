@@ -17,3 +17,7 @@ Route::middleware([DeveloperApiTiming::class, AuthenticateBearerToken::class, 't
     require base_path('routes/api/templates.php');
     require base_path('routes/api/verification.php');
 });
+
+Route::middleware([DeveloperApiTiming::class, AuthenticateBearerToken::class, 'throttle:assistant-api'])->group(function () {
+    require base_path('routes/api/assistant.php');
+});

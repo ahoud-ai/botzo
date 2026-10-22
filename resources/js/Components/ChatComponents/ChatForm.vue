@@ -179,6 +179,14 @@
     });
     // Website widget visitors have no WhatsApp 24-hour window and get text replies only.
     const isWebVisitor = computed(() => props.contact?.channel === 'web');
+    const fromApp = computed(() => {
+        try {
+            const metadata = typeof props.contact?.metadata === 'string' ? JSON.parse(props.contact.metadata) : props.contact?.metadata;
+            return Boolean(metadata?.source_app);
+        } catch (error) {
+            return false;
+        }
+    });
     const replyWindowOpen = computed(() => isWebVisitor.value || isInboundChatWithin24Hours.value);
     const replyWindowTitle = computed(() => '24 hour limit');
     const replyWindowDescription = computed(() => 'Whatsapp does not allow sending messages 24 hours after they last messaged you. However, you can send them a template message');
@@ -442,7 +450,7 @@
                 {{ sendError }}
             </div>
             <div v-if="isWebVisitor" class="mb-2 text-[13px] text-slate-600 dark:text-slate-400">
-                {{ $t('This visitor is chatting from your website widget. Text replies only.') }}
+                {{ fromApp ? $t('This customer is chatting from your app through the Mochi API. Text replies only.') : $t('This visitor is chatting from your website widget. Text replies only.') }}
             </div>
             <div>
                 <textarea 

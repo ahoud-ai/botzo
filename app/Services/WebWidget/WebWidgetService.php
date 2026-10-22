@@ -69,11 +69,12 @@ class WebWidgetService
     }
 
     /**
-     * Store the visitor's message (creating their contact on the first one) and answer it.
+     * Store the visitor's message (creating their contact on the first one) and answer it, in this
+     * request or, with $deferReply, right after the response is sent.
      *
      * @return array{chat: Chat, replied: bool}|array{limited: string}
      */
-    public function receive(WebWidgetSession $session, string $text, ?string $pageUrl = null, ?string $pageTitle = null): array
+    public function receive(WebWidgetSession $session, string $text, ?string $pageUrl = null, ?string $pageTitle = null, bool $deferReply = false): array
     {
         $limited = $this->messageLimit($session);
         if ($limited !== null) {
@@ -90,6 +91,13 @@ class WebWidgetService
 
         $replyAllowed = ! SubscriptionService::isSubscriptionLimitReachedForInboundMessages($session->organization_id)
             && ! SubscriptionService::isSubscriptionFeatureLimitReached($session->organization_id, 'message_limit');
+
+        if ($replyAllowed && $deferReply) {
+            $widget = $session->widget;
+            app()->terminating(fn () => app(WebWidgetReplyService::class)->reply($widget, $chat));
+
+            return ['chat' => $chat, 'replied' => false];
+        }
 
         $replied = $replyAllowed && app(WebWidgetReplyService::class)->reply($session->widget, $chat);
 

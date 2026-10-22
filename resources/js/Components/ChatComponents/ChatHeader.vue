@@ -63,14 +63,29 @@
         return normalizeConversationChannel(props.activeConversationChannel) || 'whatsapp';
     });
     const isWebVisitor = computed(() => props.contact?.channel === 'web');
-    const activeChannelLabel = computed(() => (isWebVisitor.value ? t('Website') : t('WhatsApp')));
+    // Conversations opened through the Mochi API carry the name of the app they came from.
+    const sourceApp = computed(() => {
+        try {
+            const metadata = typeof props.contact?.metadata === 'string' ? JSON.parse(props.contact.metadata) : props.contact?.metadata;
+            return metadata?.source_app || null;
+        } catch (error) {
+            return null;
+        }
+    });
+    const activeChannelLabel = computed(() => {
+        if (!isWebVisitor.value) {
+            return t('WhatsApp');
+        }
+
+        return sourceApp.value ? `${t('App')}: ${sourceApp.value}` : t('Website');
+    });
     const showChannelBadge = computed(() => isWebVisitor.value);
     const contactDisplayName = computed(() => props.contact?.full_name || '');
     const contactAvatar = computed(() => props.contact?.avatar || '');
     const contactInitial = computed(() => (contactDisplayName.value || '?').substring(0, 1).toUpperCase());
     const contactSubtitle = computed(() => {
         if (isWebVisitor.value) {
-            return t('Chatting from your website widget');
+            return sourceApp.value ? t('Chatting from your app through the Mochi API') : t('Chatting from your website widget');
         }
 
         if (props.contact?.formatted_phone_number) {
