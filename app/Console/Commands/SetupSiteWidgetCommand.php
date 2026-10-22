@@ -115,8 +115,7 @@ class SetupSiteWidgetCommand extends Command
         }
 
         $this->newLine();
-        $this->components->info('Paste this into Admin → Settings → Frontend → SEO → Body scripts:');
-        $this->line($this->snippet($report['widget']));
+        $this->components->info('The widget appears on botzo.net by itself; manage it in Admin → Settings → Features → Website widget. Nothing to paste.');
 
         return self::SUCCESS;
     }
@@ -248,18 +247,5 @@ class SetupSiteWidgetCommand extends Command
             'suggestions' => $settings['suggestions'],
             'pages' => $settings['pages'] ?? [],
         ];
-    }
-
-    /**
-     * The admin "Body scripts" field only outputs content as-is when it contains "<script>",
-     * so the widget is added by a small inline loader instead of a <script src> tag.
-     */
-    private function snippet(WebWidget $widget): string
-    {
-        return sprintf(
-            "<script>(function(){var s=document.createElement('script');s.src='%s';s.async=true;s.setAttribute('data-key','%s');document.body.appendChild(s);})();</script>",
-            url('/widget.js'),
-            $widget->public_key
-        );
     }
 }

@@ -26,7 +26,7 @@ class SetupSiteWidgetCommandTest extends TestCase
         $top = $this->topPlan();
 
         $this->artisan('botzo:setup-site-widget', ['email' => $email])
-            ->expectsOutputToContain('Body scripts')
+            ->expectsOutputToContain('Nothing to paste')
             ->assertSuccessful();
 
         $user = User::where('email', $email)->sole();
