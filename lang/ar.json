@@ -5530,5 +5530,8 @@
     "Previous page": "الصفحة السابقة",
     "Next page": "الصفحة التالية",
     "You can add up to {count} questions.": "يمكنك إضافة حتى {count} سؤالاً.",
-    "Website visitor": "زائر الموقع"
+    "Website visitor": "زائر الموقع",
+    "Chatting from your website widget": "بيكلّمك من ويدجت موقعك",
+    "This visitor is chatting from your website widget. Text replies only.": "الزائر ده بيكلّمك من ويدجت موقعك. الرد بالكتابة بس.",
+    "Only text replies can be sent to website visitors.": "زوار الموقع ينفع ترد عليهم بالكتابة بس."
 }

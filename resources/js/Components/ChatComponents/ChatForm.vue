@@ -177,7 +177,9 @@
     const activeReplyChannel = computed(() => {
         return normalizeConversationChannel(props.activeConversationChannel) || 'whatsapp';
     });
-    const replyWindowOpen = computed(() => isInboundChatWithin24Hours.value);
+    // Website widget visitors have no WhatsApp 24-hour window and get text replies only.
+    const isWebVisitor = computed(() => props.contact?.channel === 'web');
+    const replyWindowOpen = computed(() => isWebVisitor.value || isInboundChatWithin24Hours.value);
     const replyWindowTitle = computed(() => '24 hour limit');
     const replyWindowDescription = computed(() => 'Whatsapp does not allow sending messages 24 hours after they last messaged you. However, you can send them a template message');
 
@@ -439,6 +441,9 @@
             <div v-if="sendError" class="mb-2 text-sm text-red-600">
                 {{ sendError }}
             </div>
+            <div v-if="isWebVisitor" class="mb-2 text-[13px] text-slate-600 dark:text-slate-400">
+                {{ $t('This visitor is chatting from your website widget. Text replies only.') }}
+            </div>
             <div>
                 <textarea 
                     ref="textInputRef" 
@@ -500,11 +505,13 @@
                 <audio ref="audioPlayer" :src="audioPreviewUrl" @loadedmetadata="handleAudioLoaded" @ended="handlePlaybackEnded" class="hidden" />
             </div>
             <div class="flex gap-x-1 items-center text-gray-600 dark:text-slate-400 flex-wrap">
-                <button type="submit" class="chat-toolbar-btn chat-toolbar-btn--wide" @click="viewTemplate()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256"><path fill="currentColor" d="M216 80h-32V48a16 16 0 0 0-16-16H40a16 16 0 0 0-16 16v128a8 8 0 0 0 13 6.22L72 154v30a16 16 0 0 0 16 16h93.59L219 230.22a8 8 0 0 0 5 1.78a8 8 0 0 0 8-8V96a16 16 0 0 0-16-16M66.55 137.78L40 159.25V48h128v88H71.58a8 8 0 0 0-5.03 1.78M216 207.25l-26.55-21.47a8 8 0 0 0-5-1.78H88v-32h80a16 16 0 0 0 16-16V96h32Z"></path></svg>
-                    <span class="text-sm">{{ $t('Templates') }}</span>
-                </button>
-                <span class="chat-toolbar-divider"></span>
+                <template v-if="!isWebVisitor">
+                    <button type="submit" class="chat-toolbar-btn chat-toolbar-btn--wide" @click="viewTemplate()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256"><path fill="currentColor" d="M216 80h-32V48a16 16 0 0 0-16-16H40a16 16 0 0 0-16 16v128a8 8 0 0 0 13 6.22L72 154v30a16 16 0 0 0 16 16h93.59L219 230.22a8 8 0 0 0 5 1.78a8 8 0 0 0 8-8V96a16 16 0 0 0-16-16M66.55 137.78L40 159.25V48h128v88H71.58a8 8 0 0 0-5.03 1.78M216 207.25l-26.55-21.47a8 8 0 0 0-5-1.78H88v-32h80a16 16 0 0 0 16-16V96h32Z"></path></svg>
+                        <span class="text-sm">{{ $t('Templates') }}</span>
+                    </button>
+                    <span class="chat-toolbar-divider"></span>
+                </template>
                 <div class="flex items-center gap-x-1">
                     <div class="relative">
                         <button type="button" class="chat-toolbar-btn" @click="toggleEmojiPicker">
@@ -514,6 +521,7 @@
                             <EmojiPicker :native="true" @select="addEmoji" />
                         </div>
                     </div>
+                    <template v-if="!isWebVisitor">
                     <label class="chat-toolbar-btn" @click="form.type = 'document'" for="file-upload">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 56 56"><path fill="currentColor" d="M44.09 28.867L26.863 46.094c-4.476 4.5-10.5 4.054-14.343.164c-3.867-3.844-4.313-9.82.187-14.32L36.191 8.453c2.696-2.695 6.657-3.07 9.235-.515c2.555 2.601 2.18 6.539-.492 9.234L21.988 40.14c-1.171 1.195-2.554.843-3.375.047c-.796-.82-1.125-2.18.047-3.376l16.031-16.007c.704-.727.75-1.758.07-2.438c-.679-.656-1.71-.61-2.413.094L16.246 34.563c-2.39 2.39-2.297 6.046-.187 8.156c2.297 2.297 5.789 2.25 8.18-.164l23.085-23.063c4.383-4.383 4.172-10.148.375-13.969c-3.75-3.726-9.586-4.007-13.992.375L10.082 29.547c-5.789 5.789-5.344 14.062-.117 19.289c5.227 5.203 13.5 5.648 19.289-.117l17.344-17.344c.703-.68.68-1.922-.024-2.555c-.68-.726-1.78-.633-2.484.047"/></svg>
                     </label>
@@ -526,13 +534,14 @@
                     <label class="chat-toolbar-btn" @click="form.type = 'image'" for="file-upload">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M6.5 8a2 2 0 1 0 4 0a2 2 0 0 0-4 0Zm14.427 1.99c-6.61-.908-12.31 4-11.927 10.51"/><path d="M3 13.066c2.78-.385 5.275.958 6.624 3.1"/><path d="M3 12c0-4.243 0-6.364 1.318-7.682C5.636 3 7.758 3 12 3c4.243 0 6.364 0 7.682 1.318C21 5.636 21 7.758 21 12c0 4.243 0 6.364-1.318 7.682C18.364 21 16.242 21 12 21c-4.243 0-6.364 0-7.682-1.318C3 18.364 3 16.242 3 12Z"/></g></svg>
                     </label>
+                    </template>
                 </div>
                 <span class="chat-toolbar-divider"></span>
                 <button
                     type="button"
                     class="chat-toolbar-btn"
                     @click="startRecording"
-                    v-if="!isRecording && !audioPreviewUrl">
+                    v-if="!isWebVisitor && !isRecording && !audioPreviewUrl">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 1024 1024">
                         <path fill="currentColor" d="M842 454c0-4.4-3.6-8-8-8h-60c-4.4 0-8 3.6-8 8c0 140.3-113.7 254-254 254S258 594.3 258 454c0-4.4-3.6-8-8-8h-60c-4.4 0-8 3.6-8 8c0 168.7 126.6 307.9 290 327.6V884H326.7c-13.7 0-24.7 14.3-24.7 32v36c0 4.4 2.8 8 6.2 8h407.6c3.4 0 6.2-3.6 6.2-8v-36c0-17.7-11-32-24.7-32H548V782.1c165.3-18 294-158 294-328.1M512 624c93.9 0 170-75.2 170-168V232c0-92.8-76.1-168-170-168s-170 75.2-170 168v224c0 92.8 76.1 168 170 168m-94-392c0-50.6 41.9-92 94-92s94 41.4 94 92v224c0 50.6-41.9 92-94 92s-94-41.4-94-92z"/>
                     </svg>

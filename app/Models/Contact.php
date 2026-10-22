@@ -166,6 +166,7 @@ class Contact extends Model {
             'contacts.last_name',
             'contacts.phone',
             'contacts.email',
+            'contacts.channel',
             'contacts.avatar',
             'contacts.address',
             'contacts.is_favorite',

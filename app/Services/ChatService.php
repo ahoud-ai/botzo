@@ -18,6 +18,7 @@ use App\Models\Setting;
 use App\Models\Team;
 use App\Models\Template;
 use App\Services\IntelliReply\AiConversationPauseService;
+use App\Services\WebWidget\WebWidgetMessageStore;
 use App\Services\IntelliReply\AiKeyResolver;
 use App\Services\IntelliReply\AiUsageLimiterService;
 use App\Services\Chat\ChatAccessService;
@@ -390,6 +391,17 @@ class ChatService
         }
 
         if (SubscriptionService::isSubscriptionFeatureLimitReached($this->organizationId, 'message_limit')) return response()->json(['success' => false, 'message' => __('You have reached your message limit for the current subscription cycle. Please upgrade your plan to continue sending messages.')], 403);
+
+        // A website widget visitor reads replies in the widget: store the text, nothing goes to WhatsApp.
+        if ($contact->isWebVisitor()) {
+            if ($request->type !== 'text' || trim((string) $request->message) === '') {
+                return response()->json(['success' => false, 'message' => __('Only text replies can be sent to website visitors.')], 422);
+            }
+
+            $chat = app(WebWidgetMessageStore::class)->storeText($contact, trim((string) $request->message), 'outbound', auth()->user()->id);
+
+            return $this->afterAgentReply($contact, (object) ['success' => true, 'data' => (object) ['chat' => $chat]]);
+        }
 
         $settings = app(SettingValueService::class);
         if (!filled($contact->phone)) {

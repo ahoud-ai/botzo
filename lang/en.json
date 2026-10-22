@@ -5457,5 +5457,8 @@
     "Previous page": "Previous page",
     "Next page": "Next page",
     "You can add up to {count} questions.": "You can add up to {count} questions.",
-    "Website visitor": "Website visitor"
+    "Website visitor": "Website visitor",
+    "Chatting from your website widget": "Chatting from your website widget",
+    "This visitor is chatting from your website widget. Text replies only.": "This visitor is chatting from your website widget. Text replies only.",
+    "Only text replies can be sent to website visitors.": "Only text replies can be sent to website visitors."
 }

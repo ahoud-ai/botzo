@@ -62,12 +62,17 @@
     const activeChannel = computed(() => {
         return normalizeConversationChannel(props.activeConversationChannel) || 'whatsapp';
     });
-    const activeChannelLabel = computed(() => t('WhatsApp'));
-    const showChannelBadge = computed(() => false);
+    const isWebVisitor = computed(() => props.contact?.channel === 'web');
+    const activeChannelLabel = computed(() => (isWebVisitor.value ? t('Website') : t('WhatsApp')));
+    const showChannelBadge = computed(() => isWebVisitor.value);
     const contactDisplayName = computed(() => props.contact?.full_name || '');
     const contactAvatar = computed(() => props.contact?.avatar || '');
     const contactInitial = computed(() => (contactDisplayName.value || '?').substring(0, 1).toUpperCase());
     const contactSubtitle = computed(() => {
+        if (isWebVisitor.value) {
+            return t('Chatting from your website widget');
+        }
+
         if (props.contact?.formatted_phone_number) {
             return props.contact.formatted_phone_number;
         }

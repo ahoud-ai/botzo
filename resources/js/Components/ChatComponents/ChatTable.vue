@@ -96,7 +96,7 @@
 
     const previewText = (metadata) => chatPreviewText(metadata, t);
 
-    const contactChannel = () => 'whatsapp';
+    const contactChannel = (contact) => (contact?.channel === 'web' ? 'web' : 'whatsapp');
 
     const contactDisplayName = (contact) => {
         return contact?.full_name
@@ -118,6 +118,13 @@
             return {
                 label: t('WhatsApp'),
                 class: 'bg-green-50 text-green-700 ring-1 ring-green-100 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20',
+            };
+        }
+
+        if (channel === 'web') {
+            return {
+                label: t('Website'),
+                class: 'bg-blue-50 text-blue-700 ring-1 ring-blue-100 dark:bg-blue-500/10 dark:text-blue-300 dark:ring-blue-500/20',
             };
         }
 
@@ -948,7 +955,7 @@
                             :class="{ 'opacity-0': hoveredContact === contact.uuid && !selectedContacts.has(contact.uuid) }">
                             <img v-if="contactAvatar(contact)" class="rounded-full w-10 h-10 object-cover" :src="contactAvatar(contact)" alt="">
                             <div v-else class="rounded-full w-10 h-10 flex items-center justify-center bg-slate-200 dark:bg-white/10 capitalize text-sm font-medium">{{ contactInitial(contact) }}</div>
-                            <span v-if="channelBadge(contact)" class="chat-channel-dot" :title="channelBadge(contact).label"></span>
+                            <span v-if="channelBadge(contact)" class="chat-channel-dot" :class="{ 'chat-channel-dot--web': contactChannel(contact) === 'web' }" :title="channelBadge(contact).label"></span>
                         </div>
 
                         <!-- Checkbox Overlay (shown when selected) -->
@@ -978,6 +985,7 @@
                     <div class="flex items-start justify-between gap-3">
                         <div class="min-w-0 flex items-center gap-2">
                             <h3 class="truncate text-[16px]" :class="contact.unread_messages > 0 ? 'font-bold text-[var(--ui-text)]' : 'font-semibold text-[var(--ui-text)]'">{{ contactDisplayName(contact) }}</h3>
+                            <span v-if="contactChannel(contact) === 'web'" class="shrink-0 rounded-md px-1.5 py-0.5 text-[11px] font-medium" :class="channelBadge(contact).class">{{ channelBadge(contact).label }}</span>
                         </div>
                         <span class="shrink-0 text-slate-500 dark:text-slate-400 text-[12.5px] font-medium">{{ formatTime(contact?.last_chat?.created_at) }}</span>
                     </div>
@@ -1187,6 +1195,10 @@
     border-radius: 999px;
     background: #25d366;
     border: 2px solid var(--ui-surface);
+}
+
+.chat-channel-dot--web {
+    background: #2563eb;
 }
 
 .chat-unread-badge {
