@@ -34,7 +34,7 @@ class SiteKnowledgeSync
         $apiKey = $this->keys->resolveForOrganization($metadata, data_get($metadata, 'ai.key_source', 'auto'), (int) $organization->id)['key'] ?? null;
 
         if (! $apiKey) {
-            throw new RuntimeException('No AI key is available for this organization.');
+            throw new RuntimeException(__('No AI key is available for this organization.'));
         }
 
         $report = ['added' => [], 'updated' => [], 'unchanged' => []];
