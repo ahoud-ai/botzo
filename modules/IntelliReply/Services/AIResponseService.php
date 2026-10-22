@@ -19,8 +19,9 @@ use App\Services\IntelliReply\AiReplyFallbackService;
 use App\Services\IntelliReply\AiReplySafetyGuard;
 use App\Services\IntelliReply\AiUsageLimiterService;
 use App\Services\IntelliReply\AiUsageLogService;
-use App\Services\IntelliReply\AiVoiceReplyService;
 use App\Services\IntelliReply\AiVoiceTranscriptionService;
+use App\Services\IntelliReply\Channels\AiReplyChannel;
+use App\Services\IntelliReply\Channels\WhatsappReplyChannel;
 use App\Services\Whatsapp\WhatsappTokenVault;
 use App\Services\WhatsappService;
 use Illuminate\Support\Facades\Log;
@@ -306,7 +307,7 @@ class AIResponseService
                     }
 
                     if ($res) {
-                        $whatsapp = $this->initializeWhatsappService($organizationId);
+                        $channel = $this->replyChannel($contact);
 
                         // Bot disclosure, once per conversation (WhatsApp policy for AI replies).
                         $disclosureService = app(AiDisclosureService::class);
@@ -321,18 +322,18 @@ class AIResponseService
                         // if that is not possible the same reply goes out as text.
                         $sentAsVoice = false;
                         if ($expectsAudioResponse) {
-                            if ($disclosure !== null && ($whatsapp->sendMessage($contact->uuid, $disclosure)->success ?? false) === true) {
+                            if ($disclosure !== null && $channel->sendText($contact, $disclosure)) {
                                 $disclosureService->markDisclosed((int) $organizationId, (int) $contact->id);
                                 $disclosure = null;
                             }
 
-                            $sentAsVoice = app(AiVoiceReplyService::class)->send($contact, $whatsapp, $metadataArray, $apiKey, $keySource, (string) $res['text']);
+                            $sentAsVoice = $channel->sendVoice($contact, $metadataArray, $apiKey, $keySource, (string) $res['text']);
                         }
 
                         if (!$sentAsVoice) {
                             $reply = $disclosure !== null ? $disclosure."\n\n".$res['text'] : $res['text'];
-                            $sent = $whatsapp->sendMessage($contact->uuid, $reply);
-                            if ($disclosure !== null && ($sent->success ?? false) === true) {
+                            $sent = $channel->sendText($contact, $reply);
+                            if ($disclosure !== null && $sent) {
                                 $disclosureService->markDisclosed((int) $organizationId, (int) $contact->id);
                             }
                         }
@@ -710,6 +711,14 @@ class AIResponseService
     }
 
 
+
+    /**
+     * The channel the contact's automatic replies go out on.
+     */
+    protected function replyChannel(Contact $contact): AiReplyChannel
+    {
+        return new WhatsappReplyChannel(fn () => $this->initializeWhatsappService((int) $contact->organization_id));
+    }
 
     protected function initializeWhatsappService($organizationId)
     {

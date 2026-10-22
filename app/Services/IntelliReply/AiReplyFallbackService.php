@@ -5,6 +5,8 @@ namespace App\Services\IntelliReply;
 use App\Models\Contact;
 use App\Models\Organization;
 use App\Services\AutomationFlows\AutomationFlowConversationHandoffService;
+use App\Services\IntelliReply\Channels\AiReplyChannel;
+use App\Services\IntelliReply\Channels\WhatsappReplyChannel;
 use App\Services\Whatsapp\WhatsappAccessTokenRefreshService;
 use App\Services\WhatsappService;
 use Illuminate\Support\Facades\Cache;
@@ -117,9 +119,7 @@ class AiReplyFallbackService
         $disclosure = $disclosureService->pendingFor($organizationId, (int) $contact->id, $metadata, $organization?->name);
         $message = $disclosure !== null ? $disclosure."\n\n".$text : $text;
 
-        $sent = $this->whatsapp($organizationId, $metadata)->sendMessage($contact->uuid, $message);
-
-        if (($sent->success ?? false) !== true) {
+        if (! $this->replyChannel($organizationId, $metadata)->sendText($contact, $message)) {
             return false;
         }
 
@@ -128,6 +128,11 @@ class AiReplyFallbackService
         }
 
         return true;
+    }
+
+    protected function replyChannel(int $organizationId, array $metadata): AiReplyChannel
+    {
+        return new WhatsappReplyChannel(fn () => $this->whatsapp($organizationId, $metadata));
     }
 
     protected function whatsapp(int $organizationId, array $metadata): WhatsappService
