@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller as BaseController;
+use App\Services\Admin\OrganizationContactDirectory;
 use App\Http\Requests\StoreOrganization;
 use App\Models\SubscriptionPlan;
 use App\Services\BillingInvoiceService;
@@ -91,6 +92,7 @@ class OrganizationController extends BaseController
             'usageSummary' => $res['usageSummary'],
             'billingSummary' => $res['billingSummary'],
             'branches' => $res['branches'],
+            'contactsCount' => $res['organization'] ? app(OrganizationContactDirectory::class)->count($res['organization']) : 0,
             'mode' => $mode,
             'filters' => $request->all()
         ]);

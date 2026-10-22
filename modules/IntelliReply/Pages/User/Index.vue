@@ -316,7 +316,7 @@
                         </button>
                     </div>
                 </form>
-                <p v-else class="text-xs text-[var(--ui-muted)]">{{ $t('You can add up to :count questions.', { count: faqLimit('items') }) }}</p>
+                <p v-else class="text-xs text-[var(--ui-muted)]">{{ $t('You can add up to {count} questions.', { count: faqLimit('items') }) }}</p>
             </section>
 
             <!-- Card 5: Knowledge Base -->

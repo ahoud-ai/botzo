@@ -13,6 +13,7 @@ Route::middleware('admin.permission:customers')->group(function () {
 
 Route::middleware('admin.permission:organizations')->group(function () {
     Route::resource('organizations', App\Http\Controllers\Admin\OrganizationController::class);
+    Route::get('organizations/{organization}/contacts', [App\Http\Controllers\Admin\OrganizationContactController::class, 'index'])->name('organizations.contacts.index');
     Route::get('organizations/{organization}/invoices/{invoice}', [App\Http\Controllers\Admin\OrganizationController::class, 'showInvoice'])->name('organizations.invoices.show');
     Route::get('organizations/{organization}/invoices/{invoice}/preview', [App\Http\Controllers\Admin\OrganizationController::class, 'previewInvoice'])->name('organizations.invoices.preview');
     Route::get('organizations/{organization}/invoices/{invoice}/print', [App\Http\Controllers\Admin\OrganizationController::class, 'printInvoice'])->name('organizations.invoices.print');

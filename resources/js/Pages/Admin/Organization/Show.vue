@@ -253,6 +253,12 @@
                             </UiSectionCard>
                         </div>
 
+                        <div v-if="contactsTabOpened" v-show="tab === 'contacts'">
+                            <UiSectionCard :title="$t('Contacts')" :subtitle="$t('All contacts of this organization and its branch workspaces. View only.')">
+                                <OrganizationContactsTab :organization-uuid="props.organization.uuid" />
+                            </UiSectionCard>
+                        </div>
+
                         <div v-show="tab === 'billing'" class="space-y-6">
                             <UiSectionCard :title="$t('Billing')">
                                 <div class="text-sm leading-7" :class="isParentManaged ? 'org-banner org-banner--warning' : 'org-banner org-banner--info'">
@@ -429,7 +435,8 @@
     import UiSectionCard from '@/Components/UI/UiSectionCard.vue';
     import UiStatCard from '@/Components/UI/UiStatCard.vue';
     import UserTable from '@/Components/Tables/UserTable.vue';
-    import { ArrowLeft, BarChart3, Building2, CreditCard, GitBranch, Info as InfoIcon, Landmark, PencilLine, Users2 } from 'lucide-vue-next';
+    import { ArrowLeft, BarChart3, BookUser, Building2, CreditCard, GitBranch, Info as InfoIcon, Landmark, PencilLine, Users2 } from 'lucide-vue-next';
+    import OrganizationContactsTab from '@/Components/Admin/OrganizationContactsTab.vue';
     import { useI18n } from 'vue-i18n';
 
     const { t } = useI18n();
@@ -447,6 +454,7 @@
         usageSummary: { type: Object, default: null },
         billingSummary: { type: Object, default: null },
         branches: { type: Array, default: () => [] },
+        contactsCount: { type: Number, default: 0 },
         filters: Object,
         mode: String,
     });
@@ -454,8 +462,9 @@
     const existingOrganization = computed(() => Boolean(props.organization));
     const isParentManaged = computed(() => props.organization?.subscription_managed_by_parent === true);
     const isBranchOrganization = computed(() => props.organization?.organization_type === 'branch');
-    const allowedTabs = ['overview', 'branches', 'usage', 'team', 'billing', 'edit'];
+    const allowedTabs = ['overview', 'branches', 'usage', 'team', 'contacts', 'billing', 'edit'];
     const tab = ref(props.organization && allowedTabs.includes(props.filters?.tab) ? props.filters.tab : (props.organization ? 'overview' : 'organization'));
+    const contactsTabOpened = ref(tab.value === 'contacts');
     const isOpenFormModal = ref(false);
     const isLoading = ref(false);
     const iconMap = {
@@ -488,6 +497,7 @@
         { key: 'branches', label: t('Branch workspaces'), icon: GitBranch, count: props.profileSummary?.branches_count ?? 0 },
         { key: 'usage', label: t('Usage and limits'), icon: BarChart3, count: null },
         { key: 'team', label: t('Team'), icon: Users2, count: teamMemberCount.value },
+        { key: 'contacts', label: t('Contacts'), icon: BookUser, count: props.contactsCount ?? 0 },
         { key: 'billing', label: t('Billing'), icon: CreditCard, count: null },
         { key: 'edit', label: t('Edit'), icon: PencilLine, count: null },
     ]));
@@ -611,6 +621,7 @@
     });
     const changeTab = (value) => {
         tab.value = value;
+        contactsTabOpened.value = contactsTabOpened.value || value === 'contacts';
 
         if (!props.organization || typeof window === 'undefined') {
             return;

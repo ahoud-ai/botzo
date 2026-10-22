@@ -5048,5 +5048,21 @@
     "Transcript": "Transcript",
     "When a customer sends a voice note, the assistant replies with a voice message too. Long replies are sent as text. Voice replies cost more than text.": "When a customer sends a voice note, the assistant replies with a voice message too. Long replies are sent as text. Voice replies cost more than text.",
     "The AI provider returned no audio.": "The AI provider returned no audio.",
-    "Unable to store the voice reply.": "Unable to store the voice reply."
+    "Unable to store the voice reply.": "Unable to store the voice reply.",
+    "All contacts of this organization and its branch workspaces. View only.": "All contacts of this organization and its branch workspaces. View only.",
+    "Search contacts": "Search contacts",
+    "Name, phone or email": "Name, phone or email",
+    "Contacts could not be loaded.": "Contacts could not be loaded.",
+    "Try again": "Try again",
+    "No contacts match your search.": "No contacts match your search.",
+    "This organization has no contacts yet.": "This organization has no contacts yet.",
+    "AI assistant": "AI assistant",
+    "Added on": "Added on",
+    "Last message": "Last message",
+    "On": "On",
+    "No messages": "No messages",
+    "Showing {from} to {to} of {total} contacts": "Showing {from} to {to} of {total} contacts",
+    "Previous page": "Previous page",
+    "Next page": "Next page",
+    "You can add up to {count} questions.": "You can add up to {count} questions."
 }
