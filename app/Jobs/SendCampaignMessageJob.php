@@ -107,9 +107,7 @@ class SendCampaignMessageJob implements ShouldQueue
                     'rate_limit_status' => WhatsappRateLimiter::getStatus($organizationId)
                 ]);
 
-                self::dispatch($this->campaignLogId)
-                    ->onQueue('campaign-messages')
-                    ->delay(now()->addSeconds(1));
+                $this->requeue($this->campaignLogId, now()->addSeconds(1));
 
                 return;
             }
@@ -121,9 +119,7 @@ class SendCampaignMessageJob implements ShouldQueue
                     'rate_limit_status' => WhatsappRateLimiter::getStatus($organizationId)
                 ]);
 
-                self::dispatch($this->campaignLogId)
-                    ->onQueue('campaign-messages')
-                    ->delay(now()->addSeconds(1));
+                $this->requeue($this->campaignLogId, now()->addSeconds(1));
 
                 return;
             }
@@ -292,9 +288,7 @@ class SendCampaignMessageJob implements ShouldQueue
         $log->save();
 
         // Dispatch job for retry with available_at set
-        self::dispatch($log->id)
-            ->onQueue('campaign-messages')
-            ->delay($scheduledAt);
+        $this->requeue($log->id, $scheduledAt);
 
         Log::info('Scheduled retry for failed log', [
             'campaign_log_id' => $log->id,
@@ -376,6 +370,19 @@ class SendCampaignMessageJob implements ShouldQueue
     /**
      * Initialize WhatsApp service
      */
+    // Without a queue worker ("sync") the message stays pending and campaigns:dispatch picks it up
+    // later; dispatching here would run the job again at once, inside this one.
+    protected function requeue(int $campaignLogId, $at): void
+    {
+        if (config('queue.default') === 'sync') {
+            return;
+        }
+
+        self::dispatch($campaignLogId)
+            ->onQueue('campaign-messages')
+            ->delay($at);
+    }
+
     protected function initializeWhatsappService(array $orgMetadata, int $organizationId)
     {
         $accessToken = app(WhatsappAccessTokenRefreshService::class)

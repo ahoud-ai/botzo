@@ -5,18 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller as BaseController;
 use App\Http\Resources\FaqResource;
 use App\Http\Resources\PageResource;
-use App\Jobs\ProcessCampaignMessagesJob;
-use App\Jobs\SendCampaignMessageJob;
 use App\Models\Addon;
-use App\Models\Campaign;
-use App\Models\CampaignLog;
 use App\Models\Faq;
 use App\Models\Page;
 use App\Models\Review;
 use App\Models\Setting;
 use App\Models\SubscriptionPlan;
+use App\Services\Campaigns\CampaignDispatchRunner;
 use App\Support\SaClientPlanProfile;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -571,14 +567,7 @@ class FrontendController extends BaseController
     public function campaignSend()
     {
         try {
-            $this->markCompletedCampaigns();
-
-            app(ProcessCampaignMessagesJob::class)->handle();
-            $this->processPendingCampaignMessages(50);
-            $this->processPendingCampaignMessages(50);
-            $this->processPendingCampaignMessages(50);
-
-            $this->markCompletedCampaigns();
+            app(CampaignDispatchRunner::class)->run();
 
             return response()->json(['status' => 'success']);
         } catch (\Throwable $e) {
@@ -592,103 +581,5 @@ class FrontendController extends BaseController
                 'message' => __('Request unable to be processed'),
             ], 500);
         }
-    }
-
-    private function processPendingCampaignMessages($limit = 50)
-    {
-        $processedCount = 0;
-        $now = Carbon::now('UTC');
-
-        $pendingLogs = CampaignLog::with(['campaign', 'contact'])
-            ->whereHas('campaign', static function ($query) {
-                $query->where('status', 'ongoing')
-                    ->whereNull('deleted_at');
-            })
-            ->whereIn('status', ['pending', 'retrying'])
-            ->where(static function ($query) use ($now) {
-                $query->whereNull('scheduled_at')
-                    ->orWhereRaw('scheduled_at <= ?', [$now->toDateTimeString()]);
-            })
-            ->orderByRaw('COALESCE(scheduled_at, "1970-01-01 00:00:00") ASC')
-            ->limit($limit)
-            ->get();
-
-        foreach ($pendingLogs as $log) {
-            $rawScheduledAt = $log->getAttributes()['scheduled_at'] ?? null;
-
-            if ($rawScheduledAt !== null && Carbon::parse($rawScheduledAt, 'UTC')->gt($now)) {
-                continue;
-            }
-
-            try {
-                $log->refresh(['campaign', 'contact']);
-
-                if (! in_array($log->status, ['pending', 'retrying'], true) || $log->campaign->status !== 'ongoing') {
-                    continue;
-                }
-
-                (new SendCampaignMessageJob($log->id))->handle();
-                $log->refresh();
-
-                if (in_array($log->status, ['success', 'failed'], true)) {
-                    $processedCount++;
-                }
-            } catch (\Throwable $e) {
-                Log::warning('Synchronous campaign message processing failed.', [
-                    'campaign_log_id' => $log->id,
-                    'campaign_id' => $log->campaign_id,
-                    'message' => $e->getMessage(),
-                    'exception' => get_class($e),
-                ]);
-
-                try {
-                    $failedLog = CampaignLog::find($log->id);
-                    if ($failedLog && in_array($failedLog->status, ['pending', 'retrying'], true)) {
-                        $failedLog->status = 'failed';
-                        $failedLog->metadata = json_encode([
-                            'error' => $e->getMessage(),
-                            'failed_at' => now()->toDateTimeString(),
-                            'sync_processing_error' => true,
-                        ]);
-                        $failedLog->save();
-                    }
-                } catch (\Throwable $saveError) {
-                    Log::warning('Unable to persist failed campaign log state during synchronous dispatch.', [
-                        'campaign_log_id' => $log->id,
-                        'message' => $saveError->getMessage(),
-                        'exception' => get_class($saveError),
-                    ]);
-                }
-            }
-        }
-
-        return $processedCount;
-    }
-
-    private function markCompletedCampaigns()
-    {
-        $ongoingCampaignIds = Campaign::where('status', 'ongoing')->pluck('id')->toArray();
-
-        if ($ongoingCampaignIds === []) {
-            return [];
-        }
-
-        $campaignsWithPending = CampaignLog::whereIn('campaign_id', $ongoingCampaignIds)
-            ->whereIn('status', ['pending', 'ongoing', 'retrying'])
-            ->distinct()
-            ->pluck('campaign_id')
-            ->toArray();
-
-        $campaignsToComplete = array_diff($ongoingCampaignIds, $campaignsWithPending);
-
-        if ($campaignsToComplete === []) {
-            return [];
-        }
-
-        Campaign::whereIn('id', $campaignsToComplete)
-            ->where('status', 'ongoing')
-            ->update(['status' => 'completed']);
-
-        return $campaignsToComplete;
     }
 }

@@ -2078,7 +2078,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
      */
     private function sendHttpRequestAsync($method, $url, $data = [], $headers = [])
     {
-        $client = new Client;
+        $client = app(Client::class);
         $startTime = microtime(true);
 
         $requestOptions = [

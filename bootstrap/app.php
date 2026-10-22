@@ -116,13 +116,19 @@ return Application::configure(basePath: dirname(__DIR__))
             ->daily();
 
         // Webhook retries (1, 5, 30, 120 minutes after a failure) and log cleanup.
+        // Lock expiry in minutes, so a killed run does not block the task for a whole day.
         $schedule->command('webhooks:retry')
             ->everyMinute()
-            ->withoutOverlapping();
+            ->withoutOverlapping(10);
 
         $schedule->command('webhooks:retry --prune')
             ->dailyAt('03:30')
-            ->withoutOverlapping();
+            ->withoutOverlapping(30);
+
+        // Automation flows whose "wait" step has ended (the only way they continue without a worker).
+        $schedule->command('automation:resume-delayed')
+            ->everyMinute()
+            ->withoutOverlapping(10);
 
         // Refresh due WhatsApp tokens proactively to avoid manual re-entry.
         $schedule->command('whatsapp:refresh-tokens')
@@ -133,5 +139,12 @@ return Application::configure(basePath: dirname(__DIR__))
             '--model' => \App\Models\CampaignLog::class,
             '--hours' => 72,
         ])->daily();
+
+        // Without a queue worker ("sync", shared hosting) campaign messages are sent here in batches.
+        // Kept last: it can take a couple of minutes and the scheduler runs tasks one after another.
+        $schedule->command('campaigns:dispatch')
+            ->everyMinute()
+            ->withoutOverlapping(10)
+            ->when(fn () => config('queue.default') === 'sync');
     })
     ->create();

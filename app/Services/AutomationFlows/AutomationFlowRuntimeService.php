@@ -643,9 +643,12 @@ class AutomationFlowRuntimeService
                         'last_activity_at' => now(),
                     ]);
 
-                    ResumeAutomationFlowRunJob::dispatch($run->id)
-                        ->onQueue((string) config('automation_flows.resume_queue', 'default'))
-                        ->delay($resumeAt);
+                    // Without a queue worker ("sync") the job would run now and skip the wait; automation:resume-delayed continues it instead.
+                    if (config('queue.default') !== 'sync') {
+                        ResumeAutomationFlowRunJob::dispatch($run->id)
+                            ->onQueue((string) config('automation_flows.resume_queue', 'default'))
+                            ->delay($resumeAt);
+                    }
                     return;
                 case 'end':
                     $this->recordStep($run, $currentNodeId, 'executed', $context, ['type' => 'end']);

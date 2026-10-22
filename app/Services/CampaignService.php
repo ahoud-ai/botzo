@@ -334,6 +334,12 @@ class CampaignService
                         ->select('id', 'scheduled_at')
                         ->get();
                     
+                    // Without a queue worker ("sync") a job would send right here, inside this request;
+                    // the campaigns:dispatch command sends the pending messages in batches instead.
+                    if (config('queue.default') === 'sync') {
+                        continue;
+                    }
+
                     // Dispatch individual jobs for each log with available_at based on scheduled_at
                     foreach ($insertedLogs as $log) {
                         $job = SendCampaignMessageJob::dispatch($log->id)
