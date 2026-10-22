@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, toRefs } from 'vue';
+import { computed, ref, toRefs, watch } from 'vue';
 import { router, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
@@ -25,6 +25,10 @@ const form = useForm({ url: '', events: ['message.received', 'message.status', '
 const busyUuid = ref(null);
 const inspectorRequests = ref(webhooks.value.inspector_requests || []);
 const inspectorLoading = ref(false);
+// A test send or any other action reloads the page data; show the receiver's latest requests then too.
+watch(() => webhooks.value.inspector_requests, (requests) => {
+    inspectorRequests.value = requests || [];
+});
 const openRequest = ref(null);
 
 const permissions = computed(() => (Array.isArray(page.props.permissions) ? page.props.permissions : []));

@@ -19,7 +19,14 @@ echo
 PASS=0
 FAIL=0
 ok() { PASS=$((PASS + 1)); echo "  ✅ $1"; }
-bad() { FAIL=$((FAIL + 1)); echo "  ❌ $1"; }
+bad() {
+    FAIL=$((FAIL + 1))
+    echo "  ❌ $1" | cut -c1-400
+    case "${BODY:-}" in
+        *display_name_not_approved*|*meta_payment_issue*|*whatsapp_account_restricted*|*whatsapp_account_locked*|*whatsapp_token_expired*)
+            echo "     ⚠️  Meta refused this for the WhatsApp account itself (see the code above), not Botzo." ;;
+    esac
+}
 field() { sed -n "s/.*\"$1\":\"\{0,1\}\([^\",}]*\).*/\1/p" | head -1; }
 
 call() { # method path [json] [extra header]
