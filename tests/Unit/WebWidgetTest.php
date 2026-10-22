@@ -35,7 +35,8 @@ class WebWidgetTest extends TestCase
         $settings = $widget->settingsWithDefaults();
 
         $this->assertSame('#112233', $settings['accent']);
-        $this->assertSame('right', $settings['position']);
+        $this->assertSame('left', $settings['position']);
+        $this->assertSame('mochi', $settings['theme']);
         $this->assertArrayNotHasKey('injected', $settings);
     }
 

@@ -45,6 +45,8 @@ class StoreSubscriptionPlan extends FormRequest
             'flow_builder_nodes_per_flow_limit' => 'required|numeric|gte:-1',
             'flow_builder_monthly_runs_limit' => 'required|numeric|gte:-1',
             'flow_builder_advanced_enabled' => 'required|boolean',
+            'widget_voice_minutes_monthly' => 'nullable|numeric|gte:-1',
+            'widget_remove_branding' => 'nullable|boolean',
             'receive_messages_after_expiration' => 'required|boolean',
             'addons' => 'nullable|array',
             'addons.*' => 'boolean',

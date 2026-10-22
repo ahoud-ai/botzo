@@ -55,7 +55,8 @@ class WebWidgetApiTest extends TestCase
         $response = $this->postJson($this->url($widget, 'session'), ['locale' => 'ar'], ['Origin' => self::ORIGIN])->assertOk();
 
         $this->assertSame(64, strlen((string) $response->json('token')));
-        $response->assertJsonPath('settings.theme', 'botzo')
+        $response->assertJsonPath('settings.theme', 'mochi')
+            ->assertJsonPath('settings.branding', true)
             ->assertJsonPath('settings.welcome_text', 'أهلاً بيك')
             ->assertJsonPath('settings.suggestions.0', 'الأسعار')
             ->assertJsonPath('messages', []);
@@ -64,6 +65,21 @@ class WebWidgetApiTest extends TestCase
         // Reopening with the token resumes the same session and issues no new token.
         $again = $this->postJson($this->url($widget, 'session'), ['token' => $response->json('token')], ['Origin' => self::ORIGIN])->assertOk();
         $this->assertNull($again->json('token'));
+    }
+
+    public function test_the_botzo_credit_can_be_hidden_only_when_the_plan_allows_it(): void
+    {
+        $widget = $this->widget(['hide_branding' => true]);
+
+        $this->postJson($this->url($widget, 'session'), [], ['Origin' => self::ORIGIN])->assertJsonPath('settings.branding', true);
+
+        $subscription = \App\Models\Subscription::where('organization_id', $widget->organization_id)->latest('id')->first();
+        $plan = $subscription->plan;
+        $metadata = $plan->metadataArray();
+        $metadata['widget_remove_branding'] = 1;
+        $plan->update(['metadata' => json_encode($metadata)]);
+
+        $this->postJson($this->url($widget, 'session'), [], ['Origin' => self::ORIGIN])->assertJsonPath('settings.branding', false);
     }
 
     public function test_a_visitor_message_is_answered_in_the_widget_and_never_sent_to_whatsapp(): void

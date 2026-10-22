@@ -5501,5 +5501,12 @@
     "Dark, Botzo style": "Dark, Botzo style",
     "Light, in your color": "Light, in your color",
     "The color is used by the light style only.": "The color is used by the light style only.",
-    "No AI key is available for this organization.": "No AI key is available for this organization."
+    "No AI key is available for this organization.": "No AI key is available for this organization.",
+    "Enter a page name of up to :count characters.": "Enter a page name of up to :count characters.",
+    "Use a link on your own website, like /pricing or https://yoursite.com/pricing.": "Use a link on your own website, like /pricing or https://yoursite.com/pricing.",
+    "Voice calls and branding of the website chat widget.": "Voice calls and branding of the website chat widget.",
+    "Voice call minutes per month": "Voice call minutes per month",
+    "Allow hiding \"Powered by botzo\"": "Allow hiding \"Powered by botzo\"",
+    "Organizations on this plan can remove the Botzo credit from their widget.": "Organizations on this plan can remove the Botzo credit from their widget.",
+    "0 turns voice calls off for this plan; -1 means unlimited minutes.": "0 turns voice calls off for this plan; -1 means unlimited minutes."
 }

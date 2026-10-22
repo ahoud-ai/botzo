@@ -5574,5 +5574,12 @@
     "Dark, Botzo style": "داكن بستايل بوتزو",
     "Light, in your color": "فاتح بلونك",
     "The color is used by the light style only.": "اللون بيتطبق على الشكل الفاتح بس.",
-    "No AI key is available for this organization.": "مفيش مفتاح ذكاء اصطناعي متاح للمؤسسة دي."
+    "No AI key is available for this organization.": "مفيش مفتاح ذكاء اصطناعي متاح للمؤسسة دي.",
+    "Enter a page name of up to :count characters.": "اكتب اسم للصفحة لحد :count حرف.",
+    "Use a link on your own website, like /pricing or https://yoursite.com/pricing.": "استخدم لينك من موقعك أنت، زي /pricing أو https://yoursite.com/pricing.",
+    "Voice calls and branding of the website chat widget.": "المكالمات الصوتية والعلامة التجارية في ويدجت الموقع.",
+    "Voice call minutes per month": "دقائق المكالمات الصوتية شهرياً",
+    "Allow hiding \"Powered by botzo\"": "السماح بإخفاء «Powered by botzo»",
+    "Organizations on this plan can remove the Botzo credit from their widget.": "المؤسسات على الباقة دي تقدر تشيل اسم بوتزو من الويدجت.",
+    "0 turns voice calls off for this plan; -1 means unlimited minutes.": "0 يعني مفيش مكالمات صوتية في الباقة دي، و-1 يعني دقائق غير محدودة."
 }

@@ -6,9 +6,9 @@ use App\Helpers\CustomHelper;
 use App\Http\Controllers\Controller as BaseController;
 use App\Models\Organization;
 use App\Models\WebWidget;
+use App\Services\WebWidget\WebWidgetEntitlements;
+use App\Services\WebWidget\WebWidgetSettingsUpdater;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 /**
@@ -39,7 +39,11 @@ class WidgetController extends BaseController
                 'daily_reply_limit' => (int) ($widget?->daily_reply_limit ?? 300),
             ],
             'embedCode' => $widget ? $this->embedCode($widget) : null,
+            'entitlements' => app(WebWidgetEntitlements::class)->for($organizationId),
+            'voices' => array_values((array) config('web_widget.voices', ['alloy'])),
             'limits' => [
+                'pages' => (int) config('web_widget.max_pages', 10),
+                'page_label_length' => (int) config('web_widget.max_page_label_length', 40),
                 'domains' => (int) config('web_widget.max_domains', 10),
                 'suggestions' => (int) config('web_widget.max_suggestions', 4),
                 'suggestion_length' => (int) config('web_widget.max_suggestion_length', 60),
@@ -48,63 +52,13 @@ class WidgetController extends BaseController
         ]);
     }
 
-    public function update(Request $request)
+    public function update(Request $request, WebWidgetSettingsUpdater $updater)
     {
         $organizationId = (int) session()->get('current_organization');
         $this->checkPermission('automations.edit', $organizationId);
         $this->ensureAiAssistantEnabled($organizationId);
 
-        $data = $request->validate([
-            'is_enabled' => ['required', 'boolean'],
-            'allowed_domains' => ['present', 'array', 'max:'.(int) config('web_widget.max_domains', 10)],
-            'allowed_domains.*' => ['nullable', 'string', 'max:255'],
-            'theme' => ['required', Rule::in((array) config('web_widget.themes', ['botzo', 'classic']))],
-            'accent' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
-            'position' => ['required', Rule::in(['right', 'left'])],
-            'assistant_name' => ['nullable', 'string', 'max:60'],
-            'welcome_text' => ['nullable', 'string', 'max:'.(int) config('web_widget.max_welcome_length', 300)],
-            'suggestions' => ['present', 'array', 'max:'.(int) config('web_widget.max_suggestions', 4)],
-            'suggestions.*' => ['nullable', 'string', 'max:'.(int) config('web_widget.max_suggestion_length', 60)],
-            'daily_reply_limit' => ['required', 'integer', 'min:0', 'max:5000'],
-        ]);
-
-        $domains = [];
-        foreach ($data['allowed_domains'] as $index => $value) {
-            if (trim((string) $value) === '') {
-                continue;
-            }
-
-            $domain = WebWidget::normalizeDomain((string) $value);
-            if ($domain === null) {
-                throw ValidationException::withMessages(["allowed_domains.$index" => __('Enter a domain like example.com.')]);
-            }
-            $domains[] = $domain;
-        }
-        $domains = array_values(array_unique($domains));
-
-        if ($data['is_enabled'] && $domains === []) {
-            throw ValidationException::withMessages(['allowed_domains' => __('Add at least one website domain before turning the widget on.')]);
-        }
-
-        $widget = WebWidget::firstOrNew(['organization_id' => $organizationId]);
-        if (! $widget->exists) {
-            $widget->public_key = WebWidget::generatePublicKey();
-            $widget->created_by = auth()->id();
-        }
-
-        $widget->fill([
-            'is_enabled' => (bool) $data['is_enabled'],
-            'allowed_domains' => $domains,
-            'daily_reply_limit' => (int) $data['daily_reply_limit'],
-            'settings' => [
-                'theme' => $data['theme'],
-                'accent' => strtoupper($data['accent']),
-                'position' => $data['position'],
-                'assistant_name' => trim((string) ($data['assistant_name'] ?? '')),
-                'welcome_text' => trim((string) ($data['welcome_text'] ?? '')),
-                'suggestions' => array_values(array_filter(array_map(fn ($item) => trim((string) $item), $data['suggestions']), fn ($item) => $item !== '')),
-            ],
-        ])->save();
+        $updater->save($organizationId, $request->validate($updater->rules()), auth()->id());
 
         return back()->with('status', ['type' => 'success', 'message' => __('Website widget saved')]);
     }

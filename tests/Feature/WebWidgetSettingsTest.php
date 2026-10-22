@@ -33,8 +33,9 @@ class WebWidgetSettingsTest extends TestCase
             ->assertInertia(fn ($page) => $page
                 ->component('IntelliReply::User/Widget', false)
                 ->where('widget.exists', false)
-                ->where('widget.settings.accent', '#034737')
-                ->where('widget.settings.theme', 'botzo')
+                ->where('widget.settings.accent', '#22D366')
+                ->where('widget.settings.theme', 'mochi')
+                ->where('widget.settings.assistant_name', 'موتشي')
                 ->where('embedCode', null));
     }
 
@@ -89,6 +90,31 @@ class WebWidgetSettingsTest extends TestCase
             ->assertSessionHasErrors('theme');
 
         $this->assertSame(0, WebWidget::where('organization_id', $organization->id)->count());
+    }
+
+    public function test_navigation_pages_must_be_on_the_customers_own_site(): void
+    {
+        [$user, $organization] = $this->createOwnerContext([], true);
+
+        $this->actingAs($user, 'user')
+            ->withSession(['current_organization' => $organization->id])
+            ->post('/automation/widget', $this->payload(['pages' => [
+                ['label' => 'الأسعار', 'url' => '/pricing'],
+                ['label' => 'المميزات', 'url' => '#features'],
+                ['label' => 'المدونة', 'url' => 'https://www.mystore.com/blog'],
+                ['label' => '', 'url' => ''],
+            ]]))
+            ->assertSessionHasNoErrors();
+
+        $pages = WebWidget::where('organization_id', $organization->id)->sole()->settings['pages'];
+        $this->assertSame(['/pricing', '#features', 'https://www.mystore.com/blog'], array_column($pages, 'url'));
+
+        foreach (['https://evil.example.com/x', 'javascript:alert(1)', '//evil.example.com', 'pricing page'] as $url) {
+            $this->actingAs($user, 'user')
+                ->withSession(['current_organization' => $organization->id])
+                ->post('/automation/widget', $this->payload(['pages' => [['label' => 'X', 'url' => $url]]]))
+                ->assertSessionHasErrors('pages.0.url');
+        }
     }
 
     public function test_a_new_code_replaces_the_old_key(): void

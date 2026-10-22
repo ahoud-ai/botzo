@@ -272,6 +272,8 @@ class SubscriptionPlanService
             'flow_builder_nodes_per_flow_limit' => $this->normalizeLimit($request->input('flow_builder_nodes_per_flow_limit')),
             'flow_builder_monthly_runs_limit' => $this->normalizeLimit($request->input('flow_builder_monthly_runs_limit')),
             'flow_builder_advanced_enabled' => $request->boolean('flow_builder_advanced_enabled') ? 1 : 0,
+            'widget_voice_minutes_monthly' => $this->normalizeLimit($request->input('widget_voice_minutes_monthly', 0)),
+            'widget_remove_branding' => $request->boolean('widget_remove_branding') ? 1 : 0,
             'addons' => $this->normalizeAddons($request->input('addons', [])),
             'custom_features' => $this->normalizeCustomFeatures($request->input('custom_features', [])),
         ]);

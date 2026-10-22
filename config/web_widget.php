@@ -29,17 +29,35 @@ return [
     'max_suggestions' => 4,
     'max_suggestion_length' => 60,
     'max_welcome_length' => 300,
+    'max_pages' => 10,
+    'max_page_label_length' => 40,
 
-    'themes' => ['botzo', 'classic'],
+    // "mochi": the Mochi mascot (default); "botzo": dark with Botzo's brand icons; "classic": light.
+    'themes' => ['mochi', 'botzo', 'classic'],
 
+    // OpenAI Realtime voices a customer may pick for voice calls.
+    'voices' => ['alloy', 'marin', 'cedar', 'coral', 'sage', 'shimmer', 'ash', 'ballad', 'verse', 'echo'],
+
+    // Platform defaults; the admin can override them (setting "web_widget_defaults").
     'defaults' => [
-        // "botzo": dark with Botzo's brand icons; "classic": light in the customer's own colour.
-        'theme' => 'botzo',
-        'accent' => '#034737',
-        'position' => 'right',
-        'assistant_name' => '',
+        'theme' => 'mochi',
+        'accent' => '#22D366',
+        'accent_secondary' => '#2F7BFF',
+        'position' => 'left',
+        'assistant_name' => 'موتشي',
+        'business_label' => '',
         'welcome_text' => '',
         'suggestions' => [],
+        'pages' => [],
+        'hide_branding' => false,
+        'voice_enabled' => false,
+        'voice' => 'alloy',
+    ],
+
+    // Voice call limits shared by every organization; admin-editable.
+    'voice_limits' => [
+        'call_max_minutes' => 5,
+        'daily_minutes_cap' => 300,
     ],
 
 ];

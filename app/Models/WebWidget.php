@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Http\Traits\HasUuid;
+use App\Services\WebWidget\WebWidgetDefaults;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -24,11 +25,12 @@ class WebWidget extends Model {
     }
 
     /**
-     * The display settings with every missing key filled from config('web_widget.defaults').
+     * The display settings with every missing key filled from the platform defaults
+     * (config('web_widget.defaults') with the admin's overrides).
      */
     public function settingsWithDefaults(): array
     {
-        $defaults = (array) config('web_widget.defaults', []);
+        $defaults = app(WebWidgetDefaults::class)->settings();
 
         return array_replace($defaults, array_intersect_key((array) $this->settings, $defaults));
     }

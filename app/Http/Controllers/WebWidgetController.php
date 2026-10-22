@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Organization;
 use App\Models\WebWidget;
 use App\Models\WebWidgetSession;
+use App\Services\WebWidget\WebWidgetEntitlements;
+use App\Services\WebWidget\WebWidgetPages;
 use App\Services\WebWidget\WebWidgetService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -46,19 +48,24 @@ class WebWidgetController extends Controller
         }
 
         $settings = $widget->settingsWithDefaults();
+        $organizationName = (string) Organization::where('id', $widget->organization_id)->value('name');
+        $entitlements = app(WebWidgetEntitlements::class)->for((int) $widget->organization_id);
 
         return response()->json(array_filter([
             'token' => $opened['token'],
             'settings' => [
-                'theme' => in_array($settings['theme'], (array) config('web_widget.themes', []), true) ? $settings['theme'] : 'botzo',
+                'theme' => in_array($settings['theme'], (array) config('web_widget.themes', []), true) ? $settings['theme'] : 'mochi',
                 'accent' => $settings['accent'],
+                'accent_secondary' => $settings['accent_secondary'],
                 'position' => $settings['position'],
-                'assistant_name' => trim((string) $settings['assistant_name']) ?: (string) Organization::where('id', $widget->organization_id)->value('name'),
+                'assistant_name' => trim((string) $settings['assistant_name']) ?: $organizationName,
+                'business_label' => trim((string) $settings['business_label']) ?: $organizationName,
                 'welcome_text' => (string) $settings['welcome_text'],
                 'suggestions' => array_values((array) $settings['suggestions']),
+                'pages' => WebWidgetPages::forWidget($settings),
                 'poll_interval' => max(5, (int) config('web_widget.poll_interval_seconds', 15)),
                 'max_length' => (int) config('web_widget.limits.message_max_length', 500),
-                'branding' => true,
+                'branding' => ! ($entitlements['remove_branding'] && ! empty($settings['hide_branding'])),
             ],
             'messages' => $this->widgets->messages($opened['session']),
         ], fn ($value) => $value !== null));

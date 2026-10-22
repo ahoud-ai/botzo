@@ -101,6 +101,23 @@
                     </div>
                 </UiSectionCard>
 
+                <UiSectionCard v-if="isAddonEnabled('AI Assistant')" :title="$t('Website widget')" :subtitle="$t('Voice calls and branding of the website chat widget.')">
+                    <div class="grid gap-x-6 gap-y-4 sm:grid-cols-6">
+                        <FormInput v-model="form.widget_voice_minutes_monthly" :name="$t('Voice call minutes per month')" :error="form.errors.widget_voice_minutes_monthly" :type="'number'" :class="'sm:col-span-3'"/>
+                        <div class="sm:col-span-3 pl-tile">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <div class="pl-tile-title">{{ $t('Allow hiding "Powered by botzo"') }}</div>
+                                    <p class="pl-hint mt-1">{{ $t('Organizations on this plan can remove the Botzo credit from their widget.') }}</p>
+                                </div>
+                                <FormToggleSwitch v-model="form.widget_remove_branding"/>
+                            </div>
+                            <div v-if="form.errors.widget_remove_branding" class="ui-form-error mt-2">{{ form.errors.widget_remove_branding }}</div>
+                        </div>
+                    </div>
+                    <p class="pl-hint mt-3">{{ $t('0 turns voice calls off for this plan; -1 means unlimited minutes.') }}</p>
+                </UiSectionCard>
+
                 <UiSectionCard v-if="isAddonEnabled('Flow builder')" :title="$t('Flow Builder limits')">
                     <div class="pl-banner pl-banner--warning mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
@@ -290,6 +307,8 @@
         flow_builder_nodes_per_flow_limit: getDetail(props.plan?.metadata, 'flow_builder_nodes_per_flow_limit') ?? '-1',
         flow_builder_monthly_runs_limit: getDetail(props.plan?.metadata, 'flow_builder_monthly_runs_limit') ?? '-1',
         flow_builder_advanced_enabled: getDetail(props.plan?.metadata, 'flow_builder_advanced_enabled') == 0 ? false : true,
+        widget_voice_minutes_monthly: getDetail(props.plan?.metadata, 'widget_voice_minutes_monthly') ?? '0',
+        widget_remove_branding: getDetail(props.plan?.metadata, 'widget_remove_branding') == 1,
         receive_messages_after_expiration: getDetail(props.plan?.metadata, 'receive_messages_after_expiration') == 1 || getDetail(props.plan?.metadata, 'receive_messages_after_expiration') == null ? true : false,
         addons: getAddons(props.plan?.metadata, 'addons'),
         custom_features: normalizeCustomFeatures(props.plan?.metadata),
