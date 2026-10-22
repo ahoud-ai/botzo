@@ -11,7 +11,7 @@ class OrganizationApiService
     {
     }
 
-    public function generate(?int $organizationId = null): array
+    public function generate(?int $organizationId = null, ?string $name = null, string $scope = OrganizationApiKey::SCOPE_FULL): array
     {
         $organizationId = $organizationId ?? (int) session()->get('current_organization');
         $plainTextToken = $this->tokenHasher->generatePlainTextToken();
@@ -20,6 +20,8 @@ class OrganizationApiService
             'organization_id' => $organizationId,
             'token' => $this->tokenHasher->hashToken($plainTextToken),
             'token_last_four' => $this->tokenHasher->lastFour($plainTextToken),
+            'name' => $name !== null && trim($name) !== '' ? trim($name) : null,
+            'scope' => in_array($scope, OrganizationApiKey::SCOPES, true) ? $scope : OrganizationApiKey::SCOPE_FULL,
         ]);
 
         return [
@@ -66,14 +68,10 @@ class OrganizationApiService
 
     public function findActiveTokenRecord(string $plainTextToken): ?OrganizationApiKey
     {
-        $hashedToken = $this->tokenHasher->hashToken($plainTextToken);
-
+        // Only the hash of the presented token is compared, so a leaked stored hash is useless as a token.
         return OrganizationApiKey::query()
             ->whereNull('deleted_at')
-            ->where(function ($query) use ($hashedToken, $plainTextToken) {
-                $query->where('token', $hashedToken)
-                    ->orWhere('token', $plainTextToken);
-            })
+            ->where('token', $this->tokenHasher->hashToken($plainTextToken))
             ->first();
     }
 

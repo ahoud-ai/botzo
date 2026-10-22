@@ -5618,5 +5618,21 @@
     "Not set up yet. Run on the server: php artisan botzo:setup-site-widget EMAIL": "لسه ماتظبطش. شغّل على السيرفر: php artisan botzo:setup-site-widget EMAIL",
     "Save Botzo widget": "حفظ ويدجت بوتزو",
     "Widget defaults saved": "اتحفظت الإعدادات الافتراضية للويدجت",
-    "Botzo website widget saved": "اتحفظ ويدجت موقع بوتزو"
+    "Botzo website widget saved": "اتحفظ ويدجت موقع بوتزو",
+    "Key name": "اسم المفتاح",
+    "e.g. Mobile app": "مثلًا: تطبيق الموبايل",
+    "Full access": "كل الصلاحيات",
+    "Send messages only": "إرسال الرسائل فقط",
+    "Read only": "قراءة فقط",
+    "Can use every endpoint: messages, contacts, groups and campaigns.": "يقدر يستخدم كل الـ API: الرسائل وجهات الاتصال والمجموعات والحملات.",
+    "Can only send messages, check their status and list templates. Best for apps.": "يبعت رسائل ويعرف حالتها ويجيب القوالب بس. الأنسب للتطبيقات.",
+    "Can only read data, never send or change anything.": "يقرا البيانات بس، ما يبعتش ولا يعدّل حاجة.",
+    "Unnamed key": "مفتاح بدون اسم",
+    "This API key is not allowed to use this endpoint.": "مفتاح الـ API ده مش مسموح له يستخدم الطلب ده.",
+    "The Idempotency-Key header may not be longer than 100 characters.": "هيدر Idempotency-Key لازم يكون 100 حرف أو أقل.",
+    "A request with this Idempotency-Key is still being processed.": "فيه طلب بنفس Idempotency-Key لسه بيتنفذ.",
+    "This Idempotency-Key was already used for a different request.": "الـ Idempotency-Key ده اتستخدم قبل كده مع طلب مختلف.",
+    "The message could not be sent.": "الرسالة ما اتبعتتش.",
+    "The media URL must be a public https link.": "رابط الميديا لازم يكون رابط https عام.",
+    "Message not found.": "الرسالة مش موجودة."
 }

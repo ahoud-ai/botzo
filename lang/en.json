@@ -5545,5 +5545,21 @@
     "Not set up yet. Run on the server: php artisan botzo:setup-site-widget EMAIL": "Not set up yet. Run on the server: php artisan botzo:setup-site-widget EMAIL",
     "Save Botzo widget": "Save Botzo widget",
     "Widget defaults saved": "Widget defaults saved",
-    "Botzo website widget saved": "Botzo website widget saved"
+    "Botzo website widget saved": "Botzo website widget saved",
+    "Key name": "Key name",
+    "e.g. Mobile app": "e.g. Mobile app",
+    "Full access": "Full access",
+    "Send messages only": "Send messages only",
+    "Read only": "Read only",
+    "Can use every endpoint: messages, contacts, groups and campaigns.": "Can use every endpoint: messages, contacts, groups and campaigns.",
+    "Can only send messages, check their status and list templates. Best for apps.": "Can only send messages, check their status and list templates. Best for apps.",
+    "Can only read data, never send or change anything.": "Can only read data, never send or change anything.",
+    "Unnamed key": "Unnamed key",
+    "This API key is not allowed to use this endpoint.": "This API key is not allowed to use this endpoint.",
+    "The Idempotency-Key header may not be longer than 100 characters.": "The Idempotency-Key header may not be longer than 100 characters.",
+    "A request with this Idempotency-Key is still being processed.": "A request with this Idempotency-Key is still being processed.",
+    "This Idempotency-Key was already used for a different request.": "This Idempotency-Key was already used for a different request.",
+    "The message could not be sent.": "The message could not be sent.",
+    "The media URL must be a public https link.": "The media URL must be a public https link.",
+    "Message not found.": "Message not found."
 }

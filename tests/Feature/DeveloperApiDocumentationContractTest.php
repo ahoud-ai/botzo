@@ -18,6 +18,7 @@ class DeveloperApiDocumentationContractTest extends TestCase
             '/api/contact-groups/{uuid}',
             '/api/contacts',
             '/api/contacts/{uuid}',
+            '/api/messages/{message_id}',
             '/api/send',
             '/api/send/media',
             '/api/send/template',

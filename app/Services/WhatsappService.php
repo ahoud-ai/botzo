@@ -16,6 +16,7 @@ use App\Modules\WhatsApp\Infrastructure\Contracts\WhatsappTransportContract;
 use App\Services\Concerns\InteractsWithWhatsappServiceSupport;
 use App\Services\Whatsapp\WhatsappTemplateRequestGuardService;
 use App\Services\Whatsapp\WhatsappTokenVault;
+use App\Support\ServerTiming;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
@@ -168,7 +169,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
         $response = $this->formatOutboundMessageMetadata($type, $decodedMessageContent, $requestData);
 
         if ($responseObject->success === true) {
-            // Success case - create chat with delivered status
+            // Success case - Meta accepted it; delivered/read arrive later through the status webhook
             $chat = Chat::create([
                 'organization_id' => $contact->organization_id,
                 'wam_id' => $responseObject->data->messages[0]->id,
@@ -176,7 +177,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
                 'type' => 'outbound',
                 'user_id' => $userId,
                 'metadata' => json_encode($response),
-                'status' => 'delivered',
+                'status' => 'sent',
                 'created_at' => Carbon::now('UTC'),
             ]);
 
@@ -2144,7 +2145,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
     // Private method to send an HTTP request (synchronous - kept for backward compatibility)
     protected function sendHttpRequest($method, $url, $data = [], $headers = [])
     {
-        $client = new Client;
+        $client = app(Client::class);
         $responseObject = new \stdClass;
 
         // Track timing for performance monitoring
@@ -2195,6 +2196,8 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
             $responseObject->data->error = new \stdClass;
             $responseObject->data->error->message = $e->getMessage();
         }
+
+        ServerTiming::add('meta', (microtime(true) - $startTime) * 1000);
 
         return $responseObject;
     }

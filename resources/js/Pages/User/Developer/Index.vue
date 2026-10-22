@@ -36,6 +36,29 @@
                                 </div>
                             </div>
 
+                            <div v-if="canAdd" class="grid gap-3 sm:grid-cols-2 lg:max-w-3xl">
+                                <div>
+                                    <label for="dev-key-name" class="dev-field-label">{{ $t('Key name') }}</label>
+                                    <input
+                                        id="dev-key-name"
+                                        v-model="form.name"
+                                        type="text"
+                                        maxlength="60"
+                                        class="ui-input"
+                                        :placeholder="$t('e.g. Mobile app')"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="dev-key-scope" class="dev-field-label">{{ $t('Permissions') }}</label>
+                                    <select id="dev-key-scope" v-model="form.scope" class="ui-input">
+                                        <option value="full">{{ $t('Full access') }}</option>
+                                        <option value="send">{{ $t('Send messages only') }}</option>
+                                        <option value="read">{{ $t('Read only') }}</option>
+                                    </select>
+                                    <p class="dev-field-help">{{ scopeHelp }}</p>
+                                </div>
+                            </div>
+
                             <div class="flex flex-wrap items-center gap-3 pt-1">
                                 <button
                                     type="button"
@@ -151,6 +174,7 @@ import Documentation from './Documentation.vue';
 import Menu from './Menu.vue';
 import TokenTable from '@/Components/Tables/TokenTable.vue';
 import { useClipboard } from '@/Composables/useClipboard';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
     rows: {
@@ -169,16 +193,22 @@ const props = defineProps({
 
 const { rows, url, apirequests } = toRefs(props);
 
+const { t } = useI18n();
 const loadIcon = ref(false);
 const { copy, isCopied } = useClipboard();
 const page = usePage();
-const form = useForm({});
+const form = useForm({ name: '', scope: 'full' });
 
 const generatedApiToken = computed(() => page.props.flash?.generated_api_token || null);
 const generatedApiTokenAction = computed(() => page.props.flash?.generated_api_token_action || 'created');
 const totalTokens = computed(() => rows.value?.meta?.total ?? rows.value?.data?.length ?? 0);
 const docsEndpointCount = computed(() => apirequests.value.reduce((count, section) => count + (section?.value?.length ?? 0), 0));
 const authHeaderPreview = 'Authorization: Bearer YOUR_API_TOKEN';
+const scopeHelp = computed(() => ({
+    full: t('Can use every endpoint: messages, contacts, groups and campaigns.'),
+    send: t('Can only send messages, check their status and list templates. Best for apps.'),
+    read: t('Can only read data, never send or change anything.'),
+}[form.scope] || ''));
 
 const canAdd = computed(() => {
     const permissions = page.props.permissions;
@@ -199,7 +229,7 @@ const generateToken = () => {
 
     form.post('/developer-tools/access-tokens', {
         preserveScroll: true,
-        onSuccess: () => form.reset(),
+        onSuccess: () => form.reset('name'),
         onFinish: () => {
             loadIcon.value = false;
         },
@@ -217,6 +247,21 @@ const scrollToDocs = () => {
 </script>
 
 <style scoped>
+.dev-field-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+
+.dev-field-help {
+    margin-top: 0.4rem;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--ui-muted);
+}
+
 .dev-hero {
     position: relative;
     overflow: hidden;

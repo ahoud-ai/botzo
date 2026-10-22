@@ -186,6 +186,12 @@ return [
                 ]),
             ],
             [
+                'title' => 'Get message status',
+                'method' => 'get',
+                'route' => '/api/messages/{message_id}',
+                'request' => $examples('get', '/api/messages/wamid.HBgMOTY2NTAwMDAwMDAxFQIAERgSQjE2'),
+            ],
+            [
                 'title' => 'Send template message',
                 'method' => 'post',
                 'route' => '/api/send/template',

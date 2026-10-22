@@ -10,6 +10,7 @@ use App\Models\Setting;
 use App\Services\OrganizationApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class DeveloperController extends BaseController
@@ -39,8 +40,17 @@ class DeveloperController extends BaseController
     public function store(Request $request){
         $organizationId = session()->get('current_organization');
         $this->checkPermission('developer_tools.add', $organizationId);
-        
-        $token = $this->organizationApiService->generate((int) $organizationId);
+
+        $validated = $request->validate([
+            'name' => ['nullable', 'string', 'max:60'],
+            'scope' => ['nullable', Rule::in(OrganizationApiKey::SCOPES)],
+        ]);
+
+        $token = $this->organizationApiService->generate(
+            (int) $organizationId,
+            $validated['name'] ?? null,
+            $validated['scope'] ?? OrganizationApiKey::SCOPE_FULL
+        );
 
         return Redirect::back()->with(
             [

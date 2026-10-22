@@ -5,6 +5,7 @@ import AlertModal from '@/Components/AlertModal.vue';
 import Pagination from '@/Components/Pagination.vue';
 import UiEmptyState from '@/Components/UI/UiEmptyState.vue';
 import { useAlertModal } from '@/Composables/useAlertModal';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
     rows: {
@@ -74,6 +75,12 @@ const rotateAction = (uuid) => {
     });
 };
 
+const { t } = useI18n();
+const scopeLabel = (scope) => ({
+    send: t('Send messages only'),
+    read: t('Read only'),
+}[scope] || t('Full access'));
+
 const isBusy = (uuid) => actionUuid.value === uuid && (deleteForm.processing || rotateForm.processing);
 </script>
 
@@ -92,6 +99,11 @@ const isBusy = (uuid) => actionUuid.value === uuid && (deleteForm.processing || 
                         {{ $t('Active') }}
                     </span>
                 </div>
+
+                <p class="token-name">
+                    <span class="token-name-text">{{ item.name || $t('Unnamed key') }}</span>
+                    <span class="token-scope">{{ scopeLabel(item.scope) }}</span>
+                </p>
 
                 <div class="token-meta">
                     <div class="token-meta-item">
@@ -220,6 +232,30 @@ const isBusy = (uuid) => actionUuid.value === uuid && (deleteForm.processing || 
     gap: 0.4rem;
     min-width: 13rem;
     flex: 2;
+}
+
+.token-name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+
+.token-name-text {
+    overflow-wrap: anywhere;
+}
+
+.token-scope {
+    border-radius: 999px;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface-soft);
+    padding: 0.1rem 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ui-muted);
 }
 
 .token-mask {

@@ -1,13 +1,14 @@
 <?php
 
 use App\Http\Middleware\AuthenticateBearerToken;
+use App\Http\Middleware\DeveloperApiTiming;
 use Illuminate\Support\Facades\Route;
 
 require base_path('routes/api/public.php');
 require base_path('routes/api/utilities.php');
 require base_path('routes/api/widget.php');
 
-Route::middleware([AuthenticateBearerToken::class, 'throttle:developer-api'])->group(function () {
+Route::middleware([DeveloperApiTiming::class, AuthenticateBearerToken::class, 'throttle:developer-api'])->group(function () {
     require base_path('routes/api/messages.php');
     require base_path('routes/api/campaigns.php');
     require base_path('routes/api/contacts.php');

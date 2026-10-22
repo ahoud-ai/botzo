@@ -30,8 +30,16 @@ class AuthenticateBearerToken
             );
         }
 
+        if (!$organizationApiKey->allows($request)) {
+            return DeveloperApiResponse::forbidden(
+                __('This API key is not allowed to use this endpoint.'),
+                'api_key_scope_denied'
+            );
+        }
+
         // Attach organization to the request
         $request->merge(['organization' => $organizationApiKey->organization_id]);
+        $request->attributes->set('developer_api_key_id', $organizationApiKey->id);
         $organizationApiService->recordUsage($organizationApiKey);
 
         return $next($request);

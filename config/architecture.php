@@ -15,6 +15,7 @@ return [
             ['method' => 'POST', 'uri' => 'api/send', 'name' => null],
             ['method' => 'POST', 'uri' => 'api/send/template', 'name' => null],
             ['method' => 'POST', 'uri' => 'api/send/media', 'name' => null],
+            ['method' => 'GET', 'uri' => 'api/messages/{messageId}', 'name' => null],
             ['method' => 'POST', 'uri' => 'api/campaigns', 'name' => null],
             ['method' => 'GET', 'uri' => 'api/contacts', 'name' => null],
             ['method' => 'GET', 'uri' => 'api/templates', 'name' => null],

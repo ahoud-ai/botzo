@@ -17,6 +17,8 @@ class DeveloperResource extends JsonResource
     {
         return [
             'uuid' => $this->uuid,
+            'name' => $this->name,
+            'scope' => $this->scope ?: 'full',
             'token_last_four' => $this->token_last_four,
             'masked_token' => '************************************' . ($this->token_last_four ?? '----'),
             'last_used_at' => $this->last_used_at ? DateTimeHelper::formatDate((string) $this->last_used_at) : null,

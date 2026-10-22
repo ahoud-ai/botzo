@@ -27,6 +27,8 @@ use App\Services\SubscriptionService;
 use App\Services\Whatsapp\WhatsappAccessTokenRefreshService;
 use App\Services\WhatsappService;
 use App\Support\DeveloperApiResponse;
+use App\Support\DeveloperApiSendResult;
+use App\Support\PublicMediaUrl;
 use App\Traits\TemplateTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -42,6 +44,9 @@ class ApiController extends Controller
     use TemplateTrait;
 
     private $whatsappService;
+
+    // The organization is read once per request and reused by the checks below.
+    private ?Organization $organization = null;
 
     /**
      * List all contacts.
@@ -489,11 +494,8 @@ class ApiController extends Controller
         }
 
         $message = $this->whatsappService->sendMessage($contact->uuid, $request->message, 0, $type, $request->buttons, $header, $request->footer);
-        
-        return response()->json([
-            'statusCode' => 200,
-            'data' => $message
-        ], 200);
+
+        return DeveloperApiSendResult::response($message);
     }
 
     public function sendTemplateMessage(Request $request){
@@ -541,10 +543,7 @@ class ApiController extends Controller
         $this->initializeWhatsappService($request->organization);
         $responseObject = $this->whatsappService->sendTemplateMessage($contact->uuid, $request->template, 0);
 
-        return response()->json([
-            'statusCode' => 200,
-            'data' => $responseObject
-        ], 200);
+        return DeveloperApiSendResult::response($responseObject);
     }
 
     public function sendMediaMessage(Request $request){
@@ -554,10 +553,14 @@ class ApiController extends Controller
                     $fail(__('The phone number is not valid.'));
                 }
             }],
-            'media_type' => 'required',
-            'media_url' => 'required',
-            'caption' => 'required',
-            'file_name' => 'required',
+            'media_type' => 'required|in:image,video,audio,document',
+            'media_url' => ['required', 'string', function ($attribute, $value, $fail) {
+                if (!PublicMediaUrl::isAllowed($value)) {
+                    $fail(__('The media URL must be a public https link.'));
+                }
+            }],
+            'caption' => 'nullable|string|max:1024',
+            'file_name' => 'nullable|string|max:255',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -592,14 +595,13 @@ class ApiController extends Controller
 
         // Extract the UUID of the contact
         $this->initializeWhatsappService($request->organization);
-        $type = !isset($request->buttons) ? 'text' : 'interactive';
+        $fileName = $request->file_name ?: (basename((string) parse_url($request->media_url, PHP_URL_PATH)) ?: $request->media_type);
+        // Type and size are given up front so the server never fetches the caller's link itself.
+        $mediaMetadata = ['content_type' => PublicMediaUrl::contentType($request->media_url, $request->media_type), 'size' => 0];
 
-        $message = $this->whatsappService->sendMedia($contact->uuid, $request->media_type, $request->file_name, $request->media_url, $request->media_url, 'amazon');
-        
-        return response()->json([
-            'statusCode' => 200,
-            'data' => $message
-        ], 200);
+        $message = $this->whatsappService->sendMedia($contact->uuid, $request->media_type, $fileName, null, $request->media_url, 'amazon', $request->caption, null, $mediaMetadata);
+
+        return DeveloperApiSendResult::response($message);
     }
 
     /**
@@ -625,7 +627,7 @@ class ApiController extends Controller
             'template' => 'required|string',
             'contacts' => 'required|string',
             'skip_schedule' => 'nullable|boolean',
-            'time' => 'required_unless:skip_schedule,1,true|date',
+            'time' => 'required_if:skip_schedule,0,false|nullable|date',
             'header' => 'nullable|array',
             'body' => 'nullable|array',
             'footer' => 'nullable|array',
@@ -798,8 +800,17 @@ class ApiController extends Controller
         }
     }
 
+    private function organization($organizationId): ?Organization
+    {
+        if (!$this->organization || $this->organization->id !== (int) $organizationId) {
+            $this->organization = Organization::where('id', $organizationId)->first();
+        }
+
+        return $this->organization;
+    }
+
     private function isWhatsAppConnected($organizationId){
-        $settings = Organization::where('id', $organizationId)->first();
+        $settings = $this->organization($organizationId);
         if (!$settings) {
             return false;
         }
@@ -868,7 +879,7 @@ class ApiController extends Controller
 
     private function initializeWhatsappService($organizationId)
     {
-        $organization = Organization::where('id', $organizationId)->first();
+        $organization = $this->organization($organizationId);
         if (!$organization) {
             throw new HttpException(404, __('Organization not found.'));
         }
