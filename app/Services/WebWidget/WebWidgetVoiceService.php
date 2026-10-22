@@ -234,7 +234,7 @@ class WebWidgetVoiceService
         $parts = [
             app(AiPersonaPromptBuilder::class)->replySystemPrompt($metadata, $organization?->name, $faqs),
             (string) $this->context->instructions($contact),
-            'This is a live voice call. Speak naturally and briefly: one or two short sentences, one question at a time. Never read out links, lists, prices tables or emojis; say numbers simply. If you need details you do not have, call search_knowledge before answering. If the visitor wants a person, call request_human. To open a page of the website, say one short line and call navigate_to with its key instead of writing a marker.',
+            'This is a live voice call. When the call opens, you speak first with a short warm greeting and ask how you can help. Speak naturally and briefly: one or two short sentences, one question at a time. Never read out links, lists, prices tables or emojis; say numbers simply. If you need details you do not have, call search_knowledge before answering. If the visitor wants a person, call request_human. To open a page of the website, say one short line and call navigate_to with its key instead of writing a marker.',
         ];
 
         return trim(implode("\n\n", array_filter($parts)));

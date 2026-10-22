@@ -1415,8 +1415,10 @@
             dc.onopen = function () {
                 call.startedAt = Date.now();
                 voice.status(VOICE_TEXT.listening);
-                // Mochi says hello first.
-                voice.send({ type: 'response.create' });
+                // Mochi speaks first: a short greeting and an open question, then it listens.
+                voice.send({ type: 'response.create', response: { instructions: LOCALE === 'en'
+                    ? 'Start the call now: greet the visitor warmly in one short sentence, say you are ' + (state.settings.assistant_name || 'the assistant') + ' from ' + (state.settings.business_label || 'us') + ', and ask how you can help. Then stop and listen.'
+                    : 'ابدأ المكالمة الحين: رحّب بالزائر بجملة وحدة قصيرة باللهجة السعودية الخفيفة، عرّف بنفسك إنك ' + (state.settings.assistant_name || 'المساعد') + ' من ' + (state.settings.business_label || 'فريقنا') + '، واسأله وش تقدر تساعده فيه. بعدها اسكت واسمعه.' } });
                 call.timers.push(setTimeout(function () {
                     voice.stop();
                 }, Math.max(30, session.max_seconds || 300) * 1000));
