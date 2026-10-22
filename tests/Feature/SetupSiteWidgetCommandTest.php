@@ -56,6 +56,15 @@ class SetupSiteWidgetCommandTest extends TestCase
         $this->assertSame(1, Organization::where('created_by', $user->id)->where('name', 'Botzo')->count());
         $this->assertSame($faqCount, Faq::where('organization_id', $organization->id)->count());
         $this->assertSame($widget->public_key, WebWidget::where('organization_id', $organization->id)->sole()->public_key);
+
+        // --update-widget re-applies the look and texts but keeps the key and domains.
+        $widget->update(['settings' => ['theme' => 'classic', 'welcome_text' => 'old'], 'allowed_domains' => ['botzo.net', 'www.botzo.net']]);
+        $this->artisan('botzo:setup-site-widget', ['email' => $email, '--update-widget' => true])->assertSuccessful();
+        $widget->refresh();
+        $this->assertSame('botzo', $widget->settings['theme']);
+        $this->assertSame('مساعد بوتزو الذكي', $widget->settings['assistant_name']);
+        $this->assertSame(['botzo.net', 'www.botzo.net'], $widget->allowed_domains);
+        $this->assertSame($widget->public_key, WebWidget::where('organization_id', $organization->id)->sole()->public_key);
     }
 
     public function test_an_invalid_email_is_refused(): void

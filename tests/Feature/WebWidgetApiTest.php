@@ -55,7 +55,8 @@ class WebWidgetApiTest extends TestCase
         $response = $this->postJson($this->url($widget, 'session'), ['locale' => 'ar'], ['Origin' => self::ORIGIN])->assertOk();
 
         $this->assertSame(64, strlen((string) $response->json('token')));
-        $response->assertJsonPath('settings.welcome_text', 'أهلاً بيك')
+        $response->assertJsonPath('settings.theme', 'botzo')
+            ->assertJsonPath('settings.welcome_text', 'أهلاً بيك')
             ->assertJsonPath('settings.suggestions.0', 'الأسعار')
             ->assertJsonPath('messages', []);
         $this->assertSame($contacts, Contact::where('organization_id', $widget->organization_id)->count());

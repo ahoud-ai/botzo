@@ -43,6 +43,19 @@
 
                     <section class="wg-card">
                         <h2 class="wg-card-title">{{ $t('Look') }}</h2>
+                        <fieldset class="mt-4">
+                            <legend class="ui-form-label">{{ $t('Widget style') }}</legend>
+                            <div class="flex flex-wrap gap-2">
+                                <label class="wg-choice" :class="form.theme === 'botzo' ? 'wg-choice--active' : ''">
+                                    <input v-model="form.theme" type="radio" value="botzo" class="sr-only" />
+                                    {{ $t('Dark, Botzo style') }}
+                                </label>
+                                <label class="wg-choice" :class="form.theme === 'classic' ? 'wg-choice--active' : ''">
+                                    <input v-model="form.theme" type="radio" value="classic" class="sr-only" />
+                                    {{ $t('Light, in your color') }}
+                                </label>
+                            </div>
+                        </fieldset>
                         <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <label for="wg-accent" class="ui-form-label">{{ $t('Main color') }}</label>
@@ -50,6 +63,7 @@
                                     <input id="wg-accent" v-model="form.accent" type="color" class="h-10 w-12 cursor-pointer rounded-lg border border-[var(--ui-border)] bg-transparent p-1" />
                                     <input v-model="form.accent" type="text" dir="ltr" maxlength="7" class="ui-input sm:text-sm sm:leading-6" :aria-label="$t('Main color')" />
                                 </div>
+                                <p v-if="form.theme === 'botzo'" class="mt-1 text-xs text-[var(--ui-muted)]">{{ $t('The color is used by the light style only.') }}</p>
                                 <p v-if="form.errors.accent" class="mt-1 text-xs text-red-600">{{ form.errors.accent }}</p>
                             </div>
                             <fieldset>
@@ -112,10 +126,11 @@
                 <aside class="min-w-0 flex-[1_1_320px] space-y-4">
                     <section class="wg-card">
                         <h2 class="wg-card-title">{{ $t('Preview') }}</h2>
-                        <div class="wg-preview mt-4" :class="form.position === 'left' ? 'items-start' : 'items-end'">
+                        <div class="wg-preview mt-4" :class="[form.position === 'left' ? 'items-start' : 'items-end', isBotzo ? 'wg-preview--botzo' : '']">
                             <div class="wg-preview-panel">
-                                <div class="wg-preview-header" :style="{ background: previewAccent }">
-                                    <div class="wg-preview-avatar" aria-hidden="true">{{ previewInitial }}</div>
+                                <div class="wg-preview-header" :style="{ background: isBotzo ? 'linear-gradient(135deg, #22D366, #2F7BFF)' : previewAccent }">
+                                    <div v-if="isBotzo" class="wg-preview-avatar wg-preview-avatar--icon" aria-hidden="true" v-html="BOTZO_HEADER_ICON"></div>
+                                    <div v-else class="wg-preview-avatar" aria-hidden="true">{{ previewInitial }}</div>
                                     <div class="min-w-0">
                                         <div class="truncate text-sm font-semibold">{{ previewName }}</div>
                                         <div class="text-xs opacity-90">{{ $t('Online · replies instantly') }}</div>
@@ -124,13 +139,14 @@
                                 <div class="wg-preview-body">
                                     <div class="wg-preview-bubble">{{ form.welcome_text || $t('Hi! How can I help you today?') }}</div>
                                     <div class="flex flex-wrap gap-1.5">
-                                        <span v-for="(item, index) in previewSuggestions" :key="index" class="wg-preview-chip" :style="{ color: previewAccent, borderColor: previewAccent }">{{ item }}</span>
+                                        <span v-for="(item, index) in previewSuggestions" :key="index" class="wg-preview-chip" :style="{ color: chipColor, borderColor: chipColor }">{{ item }}</span>
                                     </div>
                                 </div>
                                 <div class="wg-preview-input">{{ $t('Type your question...') }}</div>
                                 <div class="wg-preview-footer">{{ $t('An AI assistant replies to you') }} · Powered by <strong>Botzo</strong></div>
                             </div>
-                            <div class="wg-preview-launcher" :style="{ background: previewAccent }" aria-hidden="true">
+                            <div v-if="isBotzo" class="wg-preview-launcher wg-preview-launcher--icon" aria-hidden="true" v-html="BOTZO_LAUNCHER_ICON"></div>
+                            <div v-else class="wg-preview-launcher" :style="{ background: previewAccent }" aria-hidden="true">
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
                             </div>
                         </div>
@@ -174,7 +190,12 @@
 
     const initialSuggestions = Array.from({ length: props.limits.suggestions }, (_, index) => props.widget.settings.suggestions?.[index] ?? '');
 
+    // The same fixed brand icons the widget script shows in the dark Botzo style.
+    const BOTZO_HEADER_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="22" fill="#0A0E16"/><g transform="translate(6 6) scale(0.2667)"><path d="M18 62a42 42 0 0 1 84 0" fill="none" stroke="#F2F5F9" stroke-width="8" stroke-linecap="round"/><rect x="24" y="30" width="72" height="66" rx="26" fill="#22D366"/><rect x="8" y="54" width="18" height="30" rx="9" fill="#F2F5F9"/><rect x="94" y="54" width="18" height="30" rx="9" fill="#F2F5F9"/><circle cx="48" cy="60" r="8" fill="#0A0E16"/><circle cx="72" cy="60" r="8" fill="#0A0E16"/><path d="M50 76q10 6 20 0" stroke="#0A0E16" stroke-width="6" fill="none" stroke-linecap="round"/></g><circle cx="7" cy="37" r="5" fill="#22D366" stroke="#0A0E16" stroke-width="2"/></svg>';
+    const BOTZO_LAUNCHER_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#22D366"/><g transform="translate(11 11) scale(0.35)"><path d="M18 62a42 42 0 0 1 84 0" fill="none" stroke="#0A0E16" stroke-width="8" stroke-linecap="round"/><rect x="24" y="30" width="72" height="66" rx="26" fill="#0A0E16"/><rect x="8" y="54" width="18" height="30" rx="9" fill="#0A0E16"/><rect x="94" y="54" width="18" height="30" rx="9" fill="#0A0E16"/><circle cx="48" cy="60" r="8" fill="#22D366"/><circle cx="72" cy="60" r="8" fill="#22D366"/><path d="M50 76q10 6 20 0" stroke="#22D366" stroke-width="6" fill="none" stroke-linecap="round"/></g></svg>';
+
     const form = useForm({
+        theme: props.widget.settings.theme || 'botzo',
         is_enabled: props.widget.is_enabled,
         allowed_domains: props.widget.allowed_domains.length ? [...props.widget.allowed_domains] : [''],
         accent: props.widget.settings.accent || '#034737',
@@ -188,7 +209,9 @@
     const copied = ref(false);
     const copyMessage = ref('');
 
+    const isBotzo = computed(() => form.theme === 'botzo');
     const previewAccent = computed(() => (/^#[0-9a-fA-F]{6}$/.test(form.accent) ? form.accent : '#034737'));
+    const chipColor = computed(() => (isBotzo.value ? '#22D366' : previewAccent.value));
     const previewName = computed(() => form.assistant_name.trim() || props.organizationName);
     const previewInitial = computed(() => (previewName.value || '?').trim().substring(0, 1).toUpperCase());
     const previewSuggestions = computed(() => form.suggestions.map((item) => (item || '').trim()).filter(Boolean));
@@ -413,6 +436,57 @@
     text-align: center;
     font-size: 0.68rem;
     color: #5b6670;
+}
+
+.wg-preview-avatar--icon,
+.wg-preview-launcher--icon {
+    padding: 0;
+    background: transparent;
+}
+
+.wg-preview-avatar--icon :deep(svg),
+.wg-preview-launcher--icon :deep(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.wg-preview--botzo .wg-preview-panel {
+    background: #0f1520;
+    color: #f2f5f9;
+    border: 1px solid #1e2838;
+}
+
+.wg-preview--botzo .wg-preview-header {
+    color: #0a0e16;
+}
+
+.wg-preview--botzo .wg-preview-body {
+    background: #0f1520;
+}
+
+.wg-preview--botzo .wg-preview-bubble {
+    background: #1a2333;
+    border-color: #1a2333;
+    color: #f2f5f9;
+}
+
+.wg-preview--botzo .wg-preview-chip {
+    background: transparent;
+}
+
+.wg-preview--botzo .wg-preview-input {
+    background: #161e2c;
+    border-color: #263044;
+    color: #7c8799;
+}
+
+.wg-preview--botzo .wg-preview-footer {
+    color: #7c8799;
+}
+
+.wg-preview--botzo .wg-preview-footer strong {
+    color: #22d366;
 }
 
 .wg-preview-launcher {

@@ -5496,5 +5496,9 @@
     "Save the settings once to get your embed code.": "Save the settings once to get your embed code.",
     "The current code will stop working. Continue?": "The current code will stop working. Continue?",
     "The code is copied. Paste it into your website.": "The code is copied. Paste it into your website.",
-    "Copy failed. Select the code and copy it manually.": "Copy failed. Select the code and copy it manually."
+    "Copy failed. Select the code and copy it manually.": "Copy failed. Select the code and copy it manually.",
+    "Widget style": "Widget style",
+    "Dark, Botzo style": "Dark, Botzo style",
+    "Light, in your color": "Light, in your color",
+    "The color is used by the light style only.": "The color is used by the light style only."
 }

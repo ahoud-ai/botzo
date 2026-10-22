@@ -50,6 +50,7 @@ class WebWidgetController extends Controller
         return response()->json(array_filter([
             'token' => $opened['token'],
             'settings' => [
+                'theme' => in_array($settings['theme'], (array) config('web_widget.themes', []), true) ? $settings['theme'] : 'botzo',
                 'accent' => $settings['accent'],
                 'position' => $settings['position'],
                 'assistant_name' => trim((string) $settings['assistant_name']) ?: (string) Organization::where('id', $widget->organization_id)->value('name'),

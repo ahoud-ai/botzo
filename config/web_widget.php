@@ -30,7 +30,11 @@ return [
     'max_suggestion_length' => 60,
     'max_welcome_length' => 300,
 
+    'themes' => ['botzo', 'classic'],
+
     'defaults' => [
+        // "botzo": dark with Botzo's brand icons; "classic": light in the customer's own colour.
+        'theme' => 'botzo',
         'accent' => '#034737',
         'position' => 'right',
         'assistant_name' => '',

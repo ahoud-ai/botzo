@@ -21,7 +21,8 @@ use Modules\IntelliReply\Models\Faq;
 class SetupSiteWidgetCommand extends Command
 {
     protected $signature = 'botzo:setup-site-widget
-        {email : Email of the account that owns the organization (created when missing)}';
+        {email : Email of the account that owns the organization (created when missing)}
+        {--update-widget : Re-apply the widget look and texts from the content file (key and domains are kept)}';
 
     protected $description = 'Create the Botzo organization and website widget that answer visitors on botzo.net.';
 
@@ -170,8 +171,14 @@ class SetupSiteWidgetCommand extends Command
     private function ensureWidget(Organization $organization, User $user, array $settings): array
     {
         $widget = WebWidget::where('organization_id', $organization->id)->first();
-        if ($widget) {
+        if ($widget && ! $this->option('update-widget')) {
             return ['Website widget kept (existing settings unchanged).', $widget];
+        }
+
+        if ($widget) {
+            $widget->update(['settings' => $this->widgetSettings($settings)]);
+
+            return ['Website widget look and texts updated (key and domains kept).', $widget];
         }
 
         $widget = WebWidget::create([
@@ -181,16 +188,22 @@ class SetupSiteWidgetCommand extends Command
             'allowed_domains' => $settings['domains'],
             'daily_reply_limit' => (int) $settings['daily_reply_limit'],
             'created_by' => $user->id,
-            'settings' => [
-                'accent' => $settings['accent'],
-                'position' => $settings['position'],
-                'assistant_name' => $settings['assistant_name'],
-                'welcome_text' => $settings['welcome_text'],
-                'suggestions' => $settings['suggestions'],
-            ],
+            'settings' => $this->widgetSettings($settings),
         ]);
 
         return ['Website widget created and turned on for '.implode(', ', $settings['domains']).'.', $widget];
+    }
+
+    private function widgetSettings(array $settings): array
+    {
+        return [
+            'theme' => $settings['theme'] ?? 'botzo',
+            'accent' => $settings['accent'],
+            'position' => $settings['position'],
+            'assistant_name' => $settings['assistant_name'],
+            'welcome_text' => $settings['welcome_text'],
+            'suggestions' => $settings['suggestions'],
+        ];
     }
 
     /**

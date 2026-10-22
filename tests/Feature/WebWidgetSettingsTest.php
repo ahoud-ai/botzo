@@ -34,6 +34,7 @@ class WebWidgetSettingsTest extends TestCase
                 ->component('IntelliReply::User/Widget', false)
                 ->where('widget.exists', false)
                 ->where('widget.settings.accent', '#034737')
+                ->where('widget.settings.theme', 'botzo')
                 ->where('embedCode', null));
     }
 
@@ -54,6 +55,7 @@ class WebWidgetSettingsTest extends TestCase
         $this->assertTrue($widget->is_enabled);
         $this->assertSame(['www.mystore.com', 'mystore.com'], $widget->allowed_domains);
         $this->assertSame(['الأسعار', 'مواعيد العمل'], $widget->settings['suggestions']);
+        $this->assertSame('botzo', $widget->settings['theme']);
         $this->assertStringStartsWith('wgt_', $widget->public_key);
 
         $this->actingAs($user, 'user')
@@ -80,6 +82,11 @@ class WebWidgetSettingsTest extends TestCase
             ->withSession(['current_organization' => $organization->id])
             ->post('/automation/widget', $this->payload(['accent' => 'red']))
             ->assertSessionHasErrors('accent');
+
+        $this->actingAs($user, 'user')
+            ->withSession(['current_organization' => $organization->id])
+            ->post('/automation/widget', $this->payload(['theme' => 'neon']))
+            ->assertSessionHasErrors('theme');
 
         $this->assertSame(0, WebWidget::where('organization_id', $organization->id)->count());
     }
@@ -114,6 +121,7 @@ class WebWidgetSettingsTest extends TestCase
         return array_merge([
             'is_enabled' => true,
             'allowed_domains' => ['mystore.com'],
+            'theme' => 'botzo',
             'accent' => '#034737',
             'position' => 'right',
             'assistant_name' => '',

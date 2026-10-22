@@ -5569,5 +5569,9 @@
     "Save the settings once to get your embed code.": "احفظ الإعدادات مرة عشان يظهرلك كود التركيب.",
     "The current code will stop working. Continue?": "الكود الحالي هيبطل يشتغل. نكمّل؟",
     "The code is copied. Paste it into your website.": "الكود اتنسخ. حطه في موقعك.",
-    "Copy failed. Select the code and copy it manually.": "النسخ ماشتغلش. حدد الكود وانسخه بإيدك."
+    "Copy failed. Select the code and copy it manually.": "النسخ ماشتغلش. حدد الكود وانسخه بإيدك.",
+    "Widget style": "شكل الويدجت",
+    "Dark, Botzo style": "داكن بستايل بوتزو",
+    "Light, in your color": "فاتح بلونك",
+    "The color is used by the light style only.": "اللون بيتطبق على الشكل الفاتح بس."
 }
