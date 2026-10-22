@@ -125,6 +125,8 @@ class SiteKnowledgeSync
                 '- ربط واتساب بالتسجيل المضمن: '.$this->yesNo(data_get($meta, 'addons.Embedded Signup')),
                 '- المساعد الذكي: '.$this->assistantLine($meta),
                 '- منشئ التدفقات: '.$this->flowLine($meta),
+                '- مكالمات موتشي الصوتية في ويدجت الموقع: '.$this->voiceLine($meta),
+                '- إخفاء «Powered by Botzo» من الويدجت: '.$this->yesNo($meta['widget_remove_branding'] ?? 0),
                 '- إمكانية استخدام مفتاح OpenAI خاص: '.$this->yesNo($meta['ai_organization_key_enabled'] ?? 0),
                 '- استقبال رسائل العملاء بعد انتهاء الاشتراك: '.$this->yesNo($meta['receive_messages_after_expiration'] ?? 0),
             ]);
@@ -154,6 +156,16 @@ class SiteKnowledgeSync
         }
 
         return sprintf('متوفر، حتى %s رد نصي و%s رد صوتي شهرياً', $this->limit($meta['ai_text_response_limit'] ?? null), $this->limit($meta['ai_audio_response_limit'] ?? null));
+    }
+
+    private function voiceLine(array $meta): string
+    {
+        $minutes = (int) ($meta['widget_voice_minutes_monthly'] ?? 0);
+        if ($minutes === 0) {
+            return 'غير متوفرة';
+        }
+
+        return ($minutes < 0 ? 'دقائق غير محدودة' : 'حتى '.$this->number((float) $minutes).' دقيقة').' شهرياً (المكالمة حتى 5 دقائق)';
     }
 
     private function flowLine(array $meta): string

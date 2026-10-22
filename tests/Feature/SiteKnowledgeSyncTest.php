@@ -40,6 +40,8 @@ class SiteKnowledgeSyncTest extends TestCase
                 'contacts_limit' => -1,
                 'ai_text_response_limit' => 1500,
                 'ai_audio_response_limit' => 100,
+                'widget_voice_minutes_monthly' => 120,
+                'widget_remove_branding' => 1,
                 'addons' => ['AI Assistant' => true, 'Flow builder' => false, 'Embedded Signup' => true],
                 'custom_features' => [['text_ar' => 'جلسة إعداد وتدريب 60 دقيقة', 'text_en' => '60-minute setup']],
             ]),
@@ -53,6 +55,8 @@ class SiteKnowledgeSyncTest extends TestCase
         $this->assertStringContainsString('جهات الاتصال: غير محدود', $text);
         $this->assertStringContainsString('المساعد الذكي: متوفر، حتى 1,500 رد نصي و100 رد صوتي شهرياً', $text);
         $this->assertStringContainsString('منشئ التدفقات: غير متوفر', $text);
+        $this->assertStringContainsString('مكالمات موتشي الصوتية في ويدجت الموقع: حتى 120 دقيقة شهرياً', $text);
+        $this->assertStringContainsString('إخفاء «Powered by Botzo» من الويدجت: نعم', $text);
         $this->assertStringContainsString('جلسة إعداد وتدريب 60 دقيقة', $text);
     }
 
