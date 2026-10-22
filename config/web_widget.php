@@ -70,7 +70,8 @@ return [
         'secret_ttl_seconds' => 60,
         'silence_ms' => 700,
         'speed' => 1.05,
-        'max_output_tokens' => 400,
+        // Spoken audio counts toward the output tokens; a low cap cuts replies off before their end.
+        'max_output_tokens' => 4096,
         'transcript_lines_per_call' => 200,
         // Words that help the transcription hear product names right.
         'transcription_hint' => 'بوتزو، واتساب، باقة، ربط الرقم، عرض توضيحي، أتمتة، موتشي',

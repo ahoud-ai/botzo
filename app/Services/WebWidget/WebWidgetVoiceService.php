@@ -237,6 +237,12 @@ class WebWidgetVoiceService
             'This is a live voice call. When the call opens, you speak first with a short warm greeting and ask how you can help. Speak naturally and briefly: one or two short sentences, one question at a time. Never read out links, lists, prices tables or emojis; say numbers simply. If you need details you do not have, call search_knowledge before answering. If the visitor wants a person, call request_human. To open a page of the website, say one short line and call navigate_to with its key instead of writing a marker.',
         ];
 
+        // Brand names the voice tends to run together.
+        $names = mb_strtolower((string) $organization?->name.' '.(string) data_get($metadata, 'ai.persona.business_name', ''));
+        if (str_contains($names, 'botzo') || str_contains($names, 'بوتزو')) {
+            $parts[] = 'Pronounce the name «بوتزو» / "Botzo" as two clear parts: «بوت زو» (Bot-Zo), never as one word.';
+        }
+
         return trim(implode("\n\n", array_filter($parts)));
     }
 
