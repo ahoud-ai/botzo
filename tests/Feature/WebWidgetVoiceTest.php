@@ -114,6 +114,20 @@ class WebWidgetVoiceTest extends TestCase
         $this->assertSame($callId, json_decode($lines[0]->metadata, true)['voice_call']);
     }
 
+    public function test_a_new_call_continues_from_the_earlier_conversation(): void
+    {
+        $widget = $this->widget(voiceEnabled: true, planMinutes: 30);
+        $token = $this->openSession($widget);
+        $first = $this->postJson($this->url($widget, 'voice/start'), [], $this->headers($token))->json('call_id');
+        $this->postJson($this->url($widget, "voice/{$first}/transcript"), ['role' => 'user', 'text' => 'أبي أعرف باقة النمو'], $this->headers($token));
+        $this->postJson($this->url($widget, "voice/{$first}/end"), ['seconds' => 5], $this->headers($token));
+
+        $this->postJson($this->url($widget, 'voice/start'), [], $this->headers($token))->assertOk();
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'realtime/client_secrets')
+            && str_contains($request['session']['instructions'], 'Visitor: أبي أعرف باقة النمو'));
+    }
+
     public function test_tools_search_the_knowledge_and_hand_over_to_the_team(): void
     {
         $widget = $this->widget(voiceEnabled: true, planMinutes: 30);

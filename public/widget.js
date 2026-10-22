@@ -1260,9 +1260,10 @@
         },
 
         micPressed: function () {
+            var resuming = state.resumeCall;
             state.resumeCall = false;
             state.note = null;
-            voice.start();
+            voice.start({ resume: resuming });
         }
     };
 
@@ -1298,6 +1299,7 @@
             failed: 'النت فيه شوية مشكلة، جرّب مرة ثانية أو كلمني كتابة 👇',
             ended: 'خلصت المكالمة. يعطيك العافية 👋',
             resume: 'تابع المكالمة 🎙️',
+            reconnecting: 'النت قطع لحظة، بحاول أرجع الاتصال…',
             stillThere: 'لسا معي؟'
         },
         en: {
@@ -1316,21 +1318,26 @@
             failed: 'Connection problem. Try again or type to me 👇',
             ended: 'Call ended. Thanks! 👋',
             resume: 'Continue the call 🎙️',
+            reconnecting: 'Connection dropped, reconnecting…',
             stillThere: 'Are you still there?'
         }
     }[LOCALE];
 
     var RESUME_KEY = 'botzo_widget_resume_call_' + KEY;
     var IDLE_SECONDS = 60;
+    var MAX_RECONNECTS = 2;
+    var DEBUG = readStore('localStorage', 'botzo_widget_debug') === '1';
 
     var call = null;
+    var reconnectTimer = null;
 
     var voice = {
         supported: function () {
             return !!(window.RTCPeerConnection && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
         },
 
-        start: function () {
+        start: function (options) {
+            options = options || {};
             if (call) {
                 return;
             }
@@ -1342,9 +1349,19 @@
                 return voice.fallback(VOICE_TEXT.noMic);
             }
 
-            call = { id: null, pc: null, dc: null, mic: null, audio: null, startedAt: 0, muted: false, timers: [], lines: [], userLine: null, botLine: null, pendingNav: null, ended: false };
+            call = { id: null, pc: null, dc: null, mic: null, audio: null, startedAt: 0, muted: false, timers: [], lines: [], userLine: null, botLine: null, pendingNav: null, ended: false,
+                resume: !!options.resume, retries: options.retries || 0, stoppedSpeakingAt: 0 };
+            // iOS plays call audio only from an element started inside the tap.
+            call.audio = document.createElement('audio');
+            call.audio.autoplay = true;
+            call.audio.setAttribute('playsinline', '');
+            call.audio.hidden = true;
+            ui.root.appendChild(call.audio);
+            try {
+                call.audio.play().catch(function () {});
+            } catch (error) {}
             state.inCall = true;
-            voice.status(VOICE_TEXT.connecting);
+            voice.status(options.retries ? VOICE_TEXT.reconnecting : VOICE_TEXT.connecting);
             voice.show();
 
             navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } })
@@ -1387,8 +1404,6 @@
         connect: function (session) {
             var pc = new RTCPeerConnection();
             call.pc = pc;
-            call.audio = document.createElement('audio');
-            call.audio.autoplay = true;
             pc.ontrack = function (event) {
                 call.audio.srcObject = event.streams[0];
                 voice.meter(event.streams[0], 'reply');
@@ -1397,9 +1412,19 @@
                 pc.addTrack(track, call.mic);
             });
             pc.onconnectionstatechange = function () {
-                if (call && ['failed', 'disconnected', 'closed'].indexOf(pc.connectionState) !== -1 && !call.ended) {
-                    voice.stop();
-                    voice.fallback(VOICE_TEXT.failed);
+                if (!call || call.ended || call.pc !== pc) {
+                    return;
+                }
+                if (pc.connectionState === 'failed') {
+                    voice.dropped();
+                } else if (pc.connectionState === 'disconnected') {
+                    // Often recovers on its own; give it a few seconds first.
+                    clearTimeout(call.dropTimer);
+                    call.dropTimer = setTimeout(function () {
+                        if (call && call.pc === pc && pc.connectionState === 'disconnected') {
+                            voice.dropped();
+                        }
+                    }, 4000);
                 }
             };
 
@@ -1416,7 +1441,9 @@
                 call.startedAt = Date.now();
                 voice.status(VOICE_TEXT.listening);
                 // Mochi speaks first: a short greeting and an open question, then it listens.
-                voice.send({ type: 'response.create', response: { instructions: LOCALE === 'en'
+                voice.send({ type: 'response.create', response: { instructions: call.resume ? (LOCALE === 'en'
+                    ? 'The call just continued after a page change or a short drop: say "We are back" in two or three words and continue from where you were. Then listen.'
+                    : 'المكالمة رجعت بعد ما انتقلتوا لصفحة ثانية أو قطع النت لحظة: قل «كمّلنا» بكلمة قصيرة وكمّل من حيث وقفتوا، بعدها اسمعه.') : LOCALE === 'en'
                     ? 'Start the call now: greet the visitor warmly in one short sentence, say you are ' + (state.settings.assistant_name || 'the assistant') + ' from ' + (state.settings.business_label || 'us') + ', and ask how you can help. Then stop and listen.'
                     : 'ابدأ المكالمة الحين: رحّب بالزائر بجملة وحدة قصيرة باللهجة السعودية الخفيفة، عرّف بنفسك إنك ' + (state.settings.assistant_name || 'المساعد') + ' من ' + (state.settings.business_label || 'فريقنا') + '، واسأله وش تقدر تساعده فيه. بعدها اسكت واسمعه.' } });
                 call.timers.push(setTimeout(function () {
@@ -1443,6 +1470,28 @@
             });
         },
 
+        // The connection dropped mid-call: try again a couple of times, then continue by text.
+        dropped: function () {
+            if (!call || call.ended) {
+                return;
+            }
+            var retries = call.retries;
+            var started = call.startedAt > 0;
+            voice.stop(true, true);
+            if (started && retries < MAX_RECONNECTS && navigator.onLine !== false) {
+                voice.status(VOICE_TEXT.reconnecting);
+                reconnectTimer = setTimeout(function () {
+                    reconnectTimer = null;
+                    state.inCall = false;
+                    voice.start({ resume: true, retries: retries + 1 });
+                }, retries === 0 ? 1000 : 3000);
+                return;
+            }
+            state.inCall = false;
+            voice.hide();
+            voice.fallback(VOICE_TEXT.failed);
+        },
+
         send: function (payload) {
             if (call && call.dc && call.dc.readyState === 'open') {
                 call.dc.send(JSON.stringify(payload));
@@ -1466,7 +1515,14 @@
                     voice.captions();
                     break;
                 case 'input_audio_buffer.speech_stopped':
+                    call.stoppedSpeakingAt = Date.now();
                     voice.status(VOICE_TEXT.thinking);
+                    break;
+                case 'output_audio_buffer.started':
+                    if (DEBUG && call.stoppedSpeakingAt) {
+                        console.info('[botzo widget] reply latency: ' + (Date.now() - call.stoppedSpeakingAt) + ' ms');
+                    }
+                    call.stoppedSpeakingAt = 0;
                     break;
                 case 'conversation.item.input_audio_transcription.delta':
                     call.userLine = call.userLine || { text: '', partial: true };
@@ -1601,6 +1657,9 @@
             }
             try {
                 var ctx = new AudioCtx();
+                if (ctx.state === 'suspended' && ctx.resume) {
+                    ctx.resume().catch(function () {});
+                }
                 var analyser = ctx.createAnalyser();
                 analyser.fftSize = 512;
                 ctx.createMediaStreamSource(stream).connect(analyser);
@@ -1656,13 +1715,22 @@
             ui.muteBtn.classList.toggle('is-muted', call.muted);
         },
 
-        stop: function (silent) {
+        stop: function (silent, keepView) {
             if (!call) {
+                // Hung up while waiting to reconnect.
+                if (reconnectTimer) {
+                    clearTimeout(reconnectTimer);
+                    reconnectTimer = null;
+                    state.inCall = false;
+                    voice.hide();
+                    drawMessages();
+                }
                 return;
             }
             var ending = call;
             ending.ended = true;
             clearTimeout(ending.idleTimer);
+            clearTimeout(ending.dropTimer);
             ending.timers.forEach(function (timer) { clearTimeout(timer); });
             if (ending.botLine && !ending.botLine.done) {
                 voice.saveLine('assistant', ending.botLine.text);
@@ -1674,14 +1742,18 @@
             }
             if (ending.audio) {
                 ending.audio.srcObject = null;
+                ending.audio.remove();
             }
             if (ending.id) {
                 var seconds = ending.startedAt ? Math.round((Date.now() - ending.startedAt) / 1000) : 0;
                 request('POST', '/voice/' + encodeURIComponent(ending.id) + '/end', { seconds: seconds }).catch(function () {});
             }
             call = null;
-            state.inCall = false;
+            state.inCall = !!keepView;
             voice.mouth(0);
+            if (keepView) {
+                return;
+            }
             voice.hide();
             if (!silent && ending.id) {
                 state.note = VOICE_TEXT.ended;

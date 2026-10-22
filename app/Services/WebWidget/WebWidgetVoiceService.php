@@ -237,6 +237,20 @@ class WebWidgetVoiceService
             'This is a live voice call. When the call opens, you speak first with a short warm greeting and ask how you can help. Speak naturally and briefly: one or two short sentences, one question at a time. Never read out links, lists, prices tables or emojis; say numbers simply. If you need details you do not have, call search_knowledge before answering. If the visitor wants a person, call request_human. To open a page of the website, say one short line and call navigate_to with its key instead of writing a marker.',
         ];
 
+        // The conversation so far (text and earlier calls), so a new call picks up where it was.
+        $history = \App\Models\Chat::where('contact_id', $contact->id)->whereNull('deleted_at')->orderByDesc('id')->take(12)->get(['type', 'metadata'])
+            ->reverse()
+            ->map(function ($chat) {
+                $text = trim((string) data_get(json_decode((string) $chat->metadata, true), 'text.body', ''));
+
+                return $text === '' ? null : ($chat->type === 'inbound' ? 'Visitor: ' : 'You: ').mb_substr($text, 0, 300);
+            })
+            ->filter()
+            ->implode("\n");
+        if ($history !== '') {
+            $parts[] = "Recent conversation with this visitor (continue from it, do not repeat what was already said):\n".$history;
+        }
+
         // Brand names the voice tends to run together.
         $names = mb_strtolower((string) $organization?->name.' '.(string) data_get($metadata, 'ai.persona.business_name', ''));
         if (str_contains($names, 'botzo') || str_contains($names, 'بوتزو')) {
