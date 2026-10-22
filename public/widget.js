@@ -160,6 +160,8 @@
         token: readStore('localStorage', TOKEN_KEY),
         settings: null,
         theme: 'mochi',
+        inCall: false,
+        resumeCall: false,
         revealing: false,
         revealTimer: null,
         messages: [],
@@ -685,7 +687,7 @@
         }
 
         var run = function () {
-            if (document.hidden || state.sending || !state.token || state.lastId === 0) {
+            if (document.hidden || state.sending || state.inCall || !state.token || state.lastId === 0) {
                 return;
             }
             request('GET', '/messages?after=' + state.lastId).then(function (result) {
@@ -911,6 +913,7 @@
             '.meta{font-size:11px;color:#7C8799;margin-top:3px}',
             '.pending{opacity:.65}',
             '.note{align-self:center;text-align:center;font-size:12.5px;color:#A3ADBD;background:rgba(255,255,255,.06);border-radius:12px;padding:6px 12px;max-width:90%}',
+            '.w-note{margin:12px 0 0}.w-note[hidden]{display:none}',
             '.retry{display:block;margin-top:8px;border:1px solid #22D366;color:#22D366;background:transparent;border-radius:16px;padding:4px 12px;font-size:13px}',
             '.typing{display:flex;gap:5px;padding:13px 16px}',
             '.dot{width:7px;height:7px;border-radius:999px;animation:bz-pulse 1.2s infinite ease-in-out}',
@@ -954,7 +957,7 @@
             var business = settings.business_label || name;
             var rtl = LOCALE === 'ar';
 
-            shadow.appendChild(el('style', { text: mochiStyles(accent) }));
+            shadow.appendChild(el('style', { text: mochiStyles(accent) + voiceStyles() }));
             ui.root = el('div', { 'class': 'root mochi-theme' + (rtl ? ' rtl' : ''), dir: rtl ? 'rtl' : 'ltr', lang: LOCALE });
             ui.root.style.setProperty('--user-bg', accent);
 
@@ -973,7 +976,9 @@
                 settings.voice ? el('span', { 'class': 'w-talk' }, [svg(['M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z', 'M5 11a7 7 0 0 0 14 0M12 18v3'], 14), MOCHI_TEXT.pressTalk]) : null
             ]);
             ui.welcomeChips = el('div', { 'class': 'chips' });
+            ui.welcomeNote = el('p', { 'class': 'note w-note', role: 'status', hidden: '' });
             ui.welcome.appendChild(ui.welcomeChips);
+            ui.welcome.appendChild(ui.welcomeNote);
 
             // ③ conversation
             ui.status = el('div', { 'class': 'c-status', text: MOCHI_TEXT.online });
@@ -1018,7 +1023,7 @@
                 if (event.key === 'Escape') {
                     toggle();
                 }
-            } }, [el('span', { 'class': 'glow', 'aria-hidden': 'true' }), ui.welcome, ui.convo, ui.form, ui.footWelcome, ui.footConvo]);
+            } }, [el('span', { 'class': 'glow', 'aria-hidden': 'true' }), ui.welcome, ui.convo, ui.callView = callView(), ui.form, ui.footWelcome, ui.footConvo]);
 
             ui.root.appendChild(ui.panel);
             ui.root.appendChild(ui.launcherWrap);
@@ -1038,8 +1043,9 @@
                 }, 5000);
             }
 
+            state.resumeCall = readStore('sessionStorage', RESUME_KEY) === '1' && !!settings.voice;
             mochi.draw();
-            if (readStore('sessionStorage', OPEN_KEY) === '1') {
+            if (readStore('sessionStorage', OPEN_KEY) === '1' || state.resumeCall) {
                 toggle(true);
             }
             poll();
@@ -1047,7 +1053,13 @@
 
         // The welcome state until the visitor sends something, then the conversation.
         draw: function () {
+            if (state.inCall) {
+                return;
+            }
             var conversation = state.messages.length > 0 || state.sending;
+            if (ui.mic) {
+                ui.mic.classList.toggle('green', !conversation);
+            }
             ui.welcome.hidden = conversation;
             ui.convo.hidden = !conversation;
             ui.footWelcome.hidden = conversation;
@@ -1087,6 +1099,8 @@
             ui.status.textContent = state.revealing ? MOCHI_TEXT.speaking : (state.typing ? MOCHI_TEXT.typing : MOCHI_TEXT.online);
 
             if (!conversation) {
+                ui.welcomeNote.textContent = state.note || '';
+                ui.welcomeNote.hidden = !state.note;
                 return;
             }
 
@@ -1133,6 +1147,10 @@
                 body.appendChild(el('div', { 'class': 'row bot' }, [failed]));
             } else if (state.note) {
                 body.appendChild(el('div', { 'class': 'note', text: state.note }));
+            }
+
+            if (state.resumeCall && state.settings.voice) {
+                body.appendChild(el('div', { 'class': 'note' }, [el('button', { type: 'button', 'class': 'resume', text: VOICE_TEXT.resume, onclick: mochi.micPressed })]));
             }
 
             body.scrollTop = body.scrollHeight;
@@ -1242,10 +1260,9 @@
         },
 
         micPressed: function () {
-            // Voice calls arrive with the next phase; until then Mochi asks to type.
-            state.note = MOCHI_TEXT.voiceSoon;
-            ui.field.focus();
-            mochi.draw();
+            state.resumeCall = false;
+            state.note = null;
+            voice.start();
         }
     };
 
@@ -1256,6 +1273,524 @@
         } catch (error) {
             return null;
         }
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Voice calls (Mochi look): WebRTC straight to the OpenAI Realtime API with a short-lived
+    // secret from our server. Live captions for both sides, lip-sync from the reply audio,
+    // barge-in, tools (knowledge, handover, page navigation) and the call's own time limit.
+    // ---------------------------------------------------------------------------------------
+
+    var VOICE_TEXT = {
+        ar: {
+            connecting: 'لحظة أوصلك…',
+            listening: 'أسمعك…',
+            thinking: 'لحظة أفكر…',
+            speaking: 'يتكلم…',
+            endCall: 'إنهاء المكالمة',
+            mute: 'كتم المايك',
+            unmute: 'تشغيل المايك',
+            toText: 'كمّل كتابة',
+            noMic: 'ما قدرت أوصل للمايك. تقدر تكلمني كتابة 👇',
+            insecure: 'المكالمة تحتاج موقع آمن (https). كلمني كتابة 👇',
+            minutesUsed: 'خلصت دقايق المكالمات لهالشهر، بس أنا معك كتابة 👇',
+            busy: 'المكالمات زحمة اليوم، كلمني كتابة 👇',
+            failed: 'النت فيه شوية مشكلة، جرّب مرة ثانية أو كلمني كتابة 👇',
+            ended: 'خلصت المكالمة. يعطيك العافية 👋',
+            resume: 'تابع المكالمة 🎙️',
+            stillThere: 'لسا معي؟'
+        },
+        en: {
+            connecting: 'Connecting…',
+            listening: 'Listening…',
+            thinking: 'Thinking…',
+            speaking: 'Speaking…',
+            endCall: 'End call',
+            mute: 'Mute',
+            unmute: 'Unmute',
+            toText: 'Switch to text',
+            noMic: "I couldn't reach your microphone. You can type to me 👇",
+            insecure: 'Voice needs a secure (https) site. Type to me 👇',
+            minutesUsed: 'Voice minutes are used up for this month, but I can chat by text 👇',
+            busy: 'Voice is busy today, please type to me 👇',
+            failed: 'Connection problem. Try again or type to me 👇',
+            ended: 'Call ended. Thanks! 👋',
+            resume: 'Continue the call 🎙️',
+            stillThere: 'Are you still there?'
+        }
+    }[LOCALE];
+
+    var RESUME_KEY = 'botzo_widget_resume_call_' + KEY;
+    var IDLE_SECONDS = 60;
+
+    var call = null;
+
+    var voice = {
+        supported: function () {
+            return !!(window.RTCPeerConnection && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        },
+
+        start: function () {
+            if (call) {
+                return;
+            }
+            writeStore('sessionStorage', RESUME_KEY, null);
+            if (!window.isSecureContext) {
+                return voice.fallback(VOICE_TEXT.insecure);
+            }
+            if (!voice.supported()) {
+                return voice.fallback(VOICE_TEXT.noMic);
+            }
+
+            call = { id: null, pc: null, dc: null, mic: null, audio: null, startedAt: 0, muted: false, timers: [], lines: [], userLine: null, botLine: null, pendingNav: null, ended: false };
+            state.inCall = true;
+            voice.status(VOICE_TEXT.connecting);
+            voice.show();
+
+            navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } })
+                .then(function (stream) {
+                    if (!call || call.ended) {
+                        stream.getTracks().forEach(function (track) { track.stop(); });
+                        return null;
+                    }
+                    call.mic = stream;
+                    voice.meter(stream, 'mic');
+                    return request('POST', '/voice/start', {
+                        page_url: window.location.href.slice(0, 2000),
+                        page_title: (document.title || '').slice(0, 300),
+                        locale: LOCALE
+                    });
+                }, function () {
+                    voice.stop(true);
+                    voice.fallback(VOICE_TEXT.noMic);
+                    return null;
+                })
+                .then(function (result) {
+                    if (!result || !call || call.ended) {
+                        return;
+                    }
+                    if (result.status !== 200) {
+                        var reason = result.data && result.data.error;
+                        voice.stop(true);
+                        voice.fallback(reason === 'plan_minutes_used' ? VOICE_TEXT.minutesUsed : (reason === 'platform_daily_cap' ? VOICE_TEXT.busy : VOICE_TEXT.failed));
+                        return;
+                    }
+                    call.id = result.data.call_id;
+                    return voice.connect(result.data);
+                })
+                .catch(function () {
+                    voice.stop(true);
+                    voice.fallback(VOICE_TEXT.failed);
+                });
+        },
+
+        connect: function (session) {
+            var pc = new RTCPeerConnection();
+            call.pc = pc;
+            call.audio = document.createElement('audio');
+            call.audio.autoplay = true;
+            pc.ontrack = function (event) {
+                call.audio.srcObject = event.streams[0];
+                voice.meter(event.streams[0], 'reply');
+            };
+            call.mic.getTracks().forEach(function (track) {
+                pc.addTrack(track, call.mic);
+            });
+            pc.onconnectionstatechange = function () {
+                if (call && ['failed', 'disconnected', 'closed'].indexOf(pc.connectionState) !== -1 && !call.ended) {
+                    voice.stop();
+                    voice.fallback(VOICE_TEXT.failed);
+                }
+            };
+
+            var dc = pc.createDataChannel('oai-events');
+            call.dc = dc;
+            dc.onmessage = function (event) {
+                try {
+                    voice.event(JSON.parse(event.data));
+                } catch (error) {
+                    // Ignore malformed events.
+                }
+            };
+            dc.onopen = function () {
+                call.startedAt = Date.now();
+                voice.status(VOICE_TEXT.listening);
+                // Mochi says hello first.
+                voice.send({ type: 'response.create' });
+                call.timers.push(setTimeout(function () {
+                    voice.stop();
+                }, Math.max(30, session.max_seconds || 300) * 1000));
+                voice.idle();
+            };
+
+            return pc.createOffer().then(function (offer) {
+                return pc.setLocalDescription(offer).then(function () {
+                    return fetch(session.calls_url, {
+                        method: 'POST',
+                        body: offer.sdp,
+                        headers: { 'Authorization': 'Bearer ' + session.client_secret, 'Content-Type': 'application/sdp' }
+                    });
+                });
+            }).then(function (response) {
+                if (!response.ok) {
+                    throw new Error('sdp');
+                }
+                return response.text();
+            }).then(function (answer) {
+                return pc.setRemoteDescription({ type: 'answer', sdp: answer });
+            });
+        },
+
+        send: function (payload) {
+            if (call && call.dc && call.dc.readyState === 'open') {
+                call.dc.send(JSON.stringify(payload));
+            }
+        },
+
+        event: function (data) {
+            switch (data.type) {
+                case 'input_audio_buffer.speech_started':
+                    voice.idle();
+                    if (call.botLine && !call.botLine.done) {
+                        // Barge-in: stop Mochi right away and keep what was said so far.
+                        voice.send({ type: 'output_audio_buffer.clear' });
+                        call.botLine.done = true;
+                        call.botLine.interrupted = true;
+                        voice.saveLine('assistant', call.botLine.text);
+                        call.botLine = null;
+                    }
+                    call.userLine = { text: '', partial: true };
+                    voice.status(VOICE_TEXT.listening);
+                    voice.captions();
+                    break;
+                case 'input_audio_buffer.speech_stopped':
+                    voice.status(VOICE_TEXT.thinking);
+                    break;
+                case 'conversation.item.input_audio_transcription.delta':
+                    call.userLine = call.userLine || { text: '', partial: true };
+                    call.userLine.text += data.delta || '';
+                    voice.captions();
+                    break;
+                case 'conversation.item.input_audio_transcription.completed':
+                    var heard = String(data.transcript || (call.userLine && call.userLine.text) || '').trim();
+                    call.userLine = null;
+                    if (heard) {
+                        call.lines.push({ from: 'visitor', text: heard });
+                        voice.saveLine('user', heard);
+                    }
+                    voice.captions();
+                    break;
+                case 'response.output_audio_transcript.delta':
+                    if (!call.botLine || call.botLine.done) {
+                        call.botLine = { text: '', done: false };
+                        call.lines.push({ from: 'assistant', line: call.botLine });
+                    }
+                    call.botLine.text += data.delta || '';
+                    voice.status(VOICE_TEXT.speaking);
+                    voice.captions();
+                    break;
+                case 'response.output_audio_transcript.done':
+                    if (call.botLine && !call.botLine.done) {
+                        call.botLine.text = String(data.transcript || call.botLine.text);
+                        call.botLine.done = true;
+                        voice.saveLine('assistant', call.botLine.text);
+                    }
+                    voice.captions();
+                    break;
+                case 'output_audio_buffer.stopped':
+                    voice.status(VOICE_TEXT.listening);
+                    voice.idle();
+                    if (call.pendingNav) {
+                        var action = call.pendingNav;
+                        call.pendingNav = null;
+                        voice.navigate(action);
+                    }
+                    break;
+                case 'response.done':
+                    ((data.response && data.response.output) || []).forEach(function (item) {
+                        if (item.type === 'function_call') {
+                            voice.tool(item);
+                        }
+                    });
+                    break;
+            }
+        },
+
+        tool: function (item) {
+            var args = {};
+            try {
+                args = JSON.parse(item.arguments || '{}');
+            } catch (error) {
+                args = {};
+            }
+            var reply = function (output, speakAgain) {
+                voice.send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: item.call_id, output: JSON.stringify(output) } });
+                if (speakAgain) {
+                    voice.send({ type: 'response.create' });
+                }
+            };
+
+            if (item.name === 'navigate_to') {
+                // Only pages from the widget's own list; the link comes from the server's settings.
+                var page = (state.settings.pages || []).filter(function (p) {
+                    return p.key === args.page;
+                })[0];
+                reply({ ok: !!page }, false);
+                if (page) {
+                    call.pendingNav = { type: 'navigate', url: page.url, label: page.label };
+                }
+                return;
+            }
+
+            request('POST', '/voice/' + encodeURIComponent(call.id) + '/tool', { name: item.name, arguments: args }).then(function (result) {
+                reply(result.status === 200 ? result.data : { result: 'Tool unavailable.' }, true);
+            }).catch(function () {
+                reply({ result: 'Tool unavailable.' }, true);
+            });
+        },
+
+        // Same-page sections scroll during the call; another page ends the call first and offers
+        // to continue it after the page loads (browsers need a tap before audio can start again).
+        navigate: function (action) {
+            var href = safeUrl(action.url);
+            if (!href) {
+                return;
+            }
+            var target = new URL(href);
+            var samePage = target.origin === window.location.origin && target.pathname === window.location.pathname;
+            if (samePage) {
+                mochi.navigate(action);
+                return;
+            }
+            writeStore('sessionStorage', RESUME_KEY, '1');
+            voice.stop();
+            mochi.navigate(action);
+        },
+
+        saveLine: function (role, text) {
+            text = String(text || '').trim();
+            if (!text || !call || !call.id) {
+                return;
+            }
+            request('POST', '/voice/' + encodeURIComponent(call.id) + '/transcript', { role: role, text: text }).catch(function () {});
+        },
+
+        idle: function () {
+            if (!call) {
+                return;
+            }
+            clearTimeout(call.idleTimer);
+            call.idleTimer = setTimeout(function () {
+                if (!call) {
+                    return;
+                }
+                voice.send({ type: 'response.create', response: { instructions: 'Ask the visitor briefly, in the same language, whether they are still there (for example: ' + VOICE_TEXT.stillThere + ').' } });
+                call.idleTimer = setTimeout(function () {
+                    voice.stop();
+                }, 15000);
+            }, IDLE_SECONDS * 1000);
+        },
+
+        // Mic level drives the ring; reply level drives Mochi's mouth.
+        meter: function (stream, kind) {
+            var AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx || REDUCED_MOTION) {
+                return;
+            }
+            try {
+                var ctx = new AudioCtx();
+                var analyser = ctx.createAnalyser();
+                analyser.fftSize = 512;
+                ctx.createMediaStreamSource(stream).connect(analyser);
+                var samples = new Uint8Array(analyser.fftSize);
+                var loop = function () {
+                    if (!call || call.ended) {
+                        ctx.close().catch(function () {});
+                        voice.mouth(0);
+                        return;
+                    }
+                    analyser.getByteTimeDomainData(samples);
+                    var sum = 0;
+                    for (var i = 0; i < samples.length; i++) {
+                        var v = (samples[i] - 128) / 128;
+                        sum += v * v;
+                    }
+                    var level = Math.min(1, Math.sqrt(sum / samples.length) * 4);
+                    if (kind === 'mic') {
+                        if (ui.ring) {
+                            ui.ring.style.transform = 'scale(' + (1 + (call.muted ? 0 : level) * 0.18).toFixed(3) + ')';
+                            ui.ring.style.opacity = (0.35 + level * 0.65).toFixed(2);
+                        }
+                    } else {
+                        voice.mouth(level);
+                    }
+                    requestAnimationFrame(loop);
+                };
+                loop();
+            } catch (error) {
+                // No metering: the call still works.
+            }
+        },
+
+        mouth: function (level) {
+            mochis.forEach(function (wrap) {
+                var mouth = wrap.querySelector('.mochi-mouth');
+                if (mouth) {
+                    mouth.style.transform = level > 0.04 ? 'scaleY(' + (1 + level * 1.6).toFixed(2) + ')' : '';
+                }
+            });
+        },
+
+        toggleMute: function () {
+            if (!call || !call.mic) {
+                return;
+            }
+            call.muted = !call.muted;
+            call.mic.getAudioTracks().forEach(function (track) {
+                track.enabled = !call.muted;
+            });
+            ui.muteBtn.setAttribute('aria-pressed', call.muted ? 'true' : 'false');
+            ui.muteBtn.setAttribute('aria-label', call.muted ? VOICE_TEXT.unmute : VOICE_TEXT.mute);
+            ui.muteBtn.classList.toggle('is-muted', call.muted);
+        },
+
+        stop: function (silent) {
+            if (!call) {
+                return;
+            }
+            var ending = call;
+            ending.ended = true;
+            clearTimeout(ending.idleTimer);
+            ending.timers.forEach(function (timer) { clearTimeout(timer); });
+            if (ending.botLine && !ending.botLine.done) {
+                voice.saveLine('assistant', ending.botLine.text);
+            }
+            try { ending.dc && ending.dc.close(); } catch (error) {}
+            try { ending.pc && ending.pc.close(); } catch (error) {}
+            if (ending.mic) {
+                ending.mic.getTracks().forEach(function (track) { track.stop(); });
+            }
+            if (ending.audio) {
+                ending.audio.srcObject = null;
+            }
+            if (ending.id) {
+                var seconds = ending.startedAt ? Math.round((Date.now() - ending.startedAt) / 1000) : 0;
+                request('POST', '/voice/' + encodeURIComponent(ending.id) + '/end', { seconds: seconds }).catch(function () {});
+            }
+            call = null;
+            state.inCall = false;
+            voice.mouth(0);
+            voice.hide();
+            if (!silent && ending.id) {
+                state.note = VOICE_TEXT.ended;
+            }
+            // The call's lines come back from the server as normal messages.
+            setTimeout(function () {
+                request('GET', '/messages?after=' + state.lastId).then(function (result) {
+                    if (result.status === 200 && result.data.messages) {
+                        addMessages(result.data.messages);
+                    }
+                    drawMessages();
+                }).catch(function () {
+                    drawMessages();
+                });
+            }, 800);
+        },
+
+        fallback: function (message) {
+            state.note = message;
+            voice.hide();
+            drawMessages();
+            ui.field.focus();
+        },
+
+        status: function (text) {
+            if (ui.callStatus) {
+                ui.callStatus.textContent = text;
+            }
+            if (ui.status) {
+                ui.status.textContent = text;
+            }
+        },
+
+        // Live captions: the visitor's words as they speak (faint), then Mochi's reply.
+        captions: function () {
+            if (!ui.captions || !call) {
+                return;
+            }
+            ui.captions.textContent = '';
+            var recent = call.lines.slice(-2);
+            recent.forEach(function (line) {
+                var text = line.from === 'visitor' ? line.text : line.line.text;
+                ui.captions.appendChild(el('p', { 'class': 'cap ' + (line.from === 'visitor' ? 'cap-user' : 'cap-bot') + (line.line && line.line.interrupted ? ' cap-cut' : ''), text: text }));
+            });
+            if (call.userLine && call.userLine.text) {
+                ui.captions.appendChild(el('p', { 'class': 'cap cap-user cap-partial', text: call.userLine.text }));
+            }
+            ui.captions.scrollTop = ui.captions.scrollHeight;
+        },
+
+        show: function () {
+            ui.callView.hidden = false;
+            ui.welcome.hidden = true;
+            ui.convo.hidden = true;
+            ui.form.hidden = true;
+            ui.footWelcome.hidden = true;
+            ui.footConvo.hidden = true;
+            ui.captions.textContent = '';
+            ui.muteBtn.classList.remove('is-muted');
+        },
+
+        hide: function () {
+            if (ui.callView) {
+                ui.callView.hidden = true;
+                ui.form.hidden = false;
+            }
+        }
+    };
+
+    function callView() {
+        ui.ring = el('span', { 'class': 'call-ring', 'aria-hidden': 'true' });
+        ui.callStatus = el('div', { 'class': 'call-status', role: 'status', text: VOICE_TEXT.connecting });
+        ui.captions = el('div', { 'class': 'captions', 'aria-live': 'polite' });
+        ui.muteBtn = el('button', { type: 'button', 'class': 'call-btn', 'aria-label': VOICE_TEXT.mute, 'aria-pressed': 'false', onclick: voice.toggleMute },
+            [svg(['M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z', 'M5 11a7 7 0 0 0 14 0M12 18v3'], 20)]);
+        return el('div', { 'class': 'call', hidden: '' }, [
+            el('div', { 'class': 'call-stage' }, [ui.ring, mochiEl('call-mochi')]),
+            ui.callStatus,
+            ui.captions,
+            el('div', { 'class': 'call-controls' }, [
+                ui.muteBtn,
+                el('button', { type: 'button', 'class': 'call-btn call-end', 'aria-label': VOICE_TEXT.endCall, onclick: function () {
+                    voice.stop();
+                } }, [svg(['M3 15c5-5 13-5 18 0l-2.5 2.5-3-1.5v-2.5a10 10 0 0 0-7 0V16l-3 1.5z'], 22)]),
+                el('button', { type: 'button', 'class': 'call-btn call-text', onclick: function () {
+                    voice.stop();
+                    ui.field.focus();
+                } }, [VOICE_TEXT.toText])
+            ])
+        ]);
+    }
+
+    function voiceStyles() {
+        return [
+            '.call{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;padding:30px 20px 18px;min-height:0}',
+            '.call[hidden],.form[hidden]{display:none}',
+            '.call-stage{position:relative;width:230px;max-width:66%;margin-top:10px;display:flex;align-items:center;justify-content:center}',
+            '.call-ring{position:absolute;inset:-12%;border-radius:999px;border:2px solid rgba(34,211,102,.55);box-shadow:0 0 40px rgba(34,211,102,.35);opacity:.4;transition:transform .08s linear,opacity .08s linear}',
+            '.call-mochi{position:relative;width:100%}',
+            '.call-status{margin-top:22px;font-size:14px;color:#22D366;font-weight:600}',
+            '.captions{margin-top:12px;width:100%;max-height:calc(18px * 1.6 * 2 + 8px);overflow:hidden;text-align:center}',
+            '.cap{margin:0;font-size:18px;line-height:1.6;color:#F2F5F9;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}',
+            '.cap-user{color:#A3ADBD}.cap-partial{opacity:.65}.cap-cut::after{content:" …";color:#7C8799}',
+            '.call-controls{margin-top:auto;display:flex;align-items:center;gap:14px}',
+            '.call-btn{min-width:52px;height:52px;border-radius:999px;border:0;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;padding:0 16px}',
+            '.call-btn.is-muted{background:#FF4D4F;color:#fff}',
+            '.call-end{background:#FF4D4F;color:#fff;width:64px;height:64px}',
+            '.call-text{font-size:13px}',
+            '.mic{position:relative}',
+            '.resume{display:inline-block;margin-top:8px;border:0;border-radius:16px;background:var(--accent);color:#0A0E16;font-weight:700;padding:6px 14px}'
+        ].join('');
     }
 
     function toggleMochi(restoring) {
@@ -1280,6 +1815,9 @@
             }
             ui.field.focus();
         } else {
+            if (state.inCall) {
+                voice.stop(true);
+            }
             ui.panel.classList.remove('show');
             state.hideTimer = setTimeout(function () {
                 ui.panel.setAttribute('hidden', '');
