@@ -3,6 +3,7 @@
 namespace App\Services\IntelliReply\Channels;
 
 use App\Models\Contact;
+use App\Services\WebWidget\WebWidgetAssistantContext;
 use App\Services\WebWidget\WebWidgetMessageStore;
 
 /**
@@ -13,7 +14,8 @@ class WebReplyChannel implements AiReplyChannel
 {
     public function sendText(Contact $contact, string $text): bool
     {
-        app(WebWidgetMessageStore::class)->storeText($contact, $text, 'outbound');
+        $reply = WebWidgetAssistantContext::extractActions($text);
+        app(WebWidgetMessageStore::class)->storeText($contact, $reply['text'], 'outbound', null, $reply['action'] ? ['widget_action' => $reply['action']] : []);
 
         return true;
     }

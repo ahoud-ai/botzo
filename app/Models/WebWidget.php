@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Http\Traits\HasUuid;
 use App\Services\WebWidget\WebWidgetDefaults;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 class WebWidget extends Model {
@@ -18,6 +19,11 @@ class WebWidget extends Model {
         'settings' => 'array',
         'daily_reply_limit' => 'integer',
     ];
+
+    public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class);
+    }
 
     public static function generatePublicKey(): string
     {

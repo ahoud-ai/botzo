@@ -83,6 +83,8 @@ class WebWidgetController extends Controller
 
         $data = $request->validate([
             'text' => ['required', 'string', 'max:'.(int) config('web_widget.limits.message_max_length', 500)],
+            'page_url' => ['nullable', 'string', 'max:2000'],
+            'page_title' => ['nullable', 'string', 'max:300'],
         ]);
 
         // Control characters have no place in a chat message.
@@ -91,7 +93,7 @@ class WebWidgetController extends Controller
             return response()->json(['error' => 'empty_message'], 422);
         }
 
-        $received = $this->widgets->receive($session, $text);
+        $received = $this->widgets->receive($session, $text, $data['page_url'] ?? null, $data['page_title'] ?? null);
         if (isset($received['limited'])) {
             return response()->json(['error' => $received['limited']], 429);
         }

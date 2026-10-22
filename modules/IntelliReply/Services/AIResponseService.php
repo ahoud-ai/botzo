@@ -22,6 +22,7 @@ use App\Services\IntelliReply\AiUsageLogService;
 use App\Services\IntelliReply\AiVoiceTranscriptionService;
 use App\Services\IntelliReply\Channels\AiReplyChannel;
 use App\Services\IntelliReply\Channels\AiReplyChannels;
+use App\Services\WebWidget\WebWidgetAssistantContext;
 use App\Services\Whatsapp\WhatsappTokenVault;
 use App\Services\WhatsappService;
 use Illuminate\Support\Facades\Log;
@@ -652,6 +653,13 @@ class AIResponseService
                 $documentation
             ),
         ]];
+
+        // Website visitors: the page they are on, the pages the assistant may open, the pricing card.
+        $contact = Contact::find($chat->contact_id);
+        $widgetInstructions = $contact ? app(WebWidgetAssistantContext::class)->instructions($contact) : null;
+        if ($widgetInstructions !== null) {
+            $context[] = ['role' => 'system', 'content' => $widgetInstructions];
+        }
 
         // The last 10 messages, oldest first; voice notes take part through their transcript.
         $messages = Chat::where('contact_id', $chat->contact_id)

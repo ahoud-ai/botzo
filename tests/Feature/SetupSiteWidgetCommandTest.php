@@ -58,8 +58,9 @@ class SetupSiteWidgetCommandTest extends TestCase
         $widget->update(['settings' => ['theme' => 'classic', 'welcome_text' => 'old'], 'allowed_domains' => ['botzo.net', 'www.botzo.net']]);
         $this->artisan('botzo:setup-site-widget', ['email' => $email, '--update-widget' => true])->assertSuccessful();
         $widget->refresh();
-        $this->assertSame('botzo', $widget->settings['theme']);
-        $this->assertSame('مساعد بوتزو الذكي', $widget->settings['assistant_name']);
+        $this->assertSame('mochi', $widget->settings['theme']);
+        $this->assertSame('موتشي', $widget->settings['assistant_name']);
+        $this->assertSame('/pricing', $widget->settings['pages'][3]['url']);
         $this->assertSame(['botzo.net', 'www.botzo.net'], $widget->allowed_domains);
         $this->assertSame($widget->public_key, WebWidget::where('organization_id', $organization->id)->sole()->public_key);
     }

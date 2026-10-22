@@ -4,6 +4,7 @@ namespace App\Services\IntelliReply\Channels;
 
 use App\Models\Contact;
 use App\Services\IntelliReply\AiVoiceReplyService;
+use App\Services\WebWidget\WebWidgetAssistantContext;
 use App\Services\WhatsappService;
 use Closure;
 
@@ -24,6 +25,9 @@ class WhatsappReplyChannel implements AiReplyChannel
 
     public function sendText(Contact $contact, string $text): bool
     {
+        // Widget action markers mean nothing on WhatsApp.
+        $text = WebWidgetAssistantContext::extractActions($text)['text'];
+
         return ($this->whatsapp()->sendMessage($contact->uuid, $text)->success ?? false) === true;
     }
 

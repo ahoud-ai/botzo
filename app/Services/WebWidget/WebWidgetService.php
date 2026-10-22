@@ -73,7 +73,7 @@ class WebWidgetService
      *
      * @return array{chat: Chat, replied: bool}|array{limited: string}
      */
-    public function receive(WebWidgetSession $session, string $text): array
+    public function receive(WebWidgetSession $session, string $text, ?string $pageUrl = null, ?string $pageTitle = null): array
     {
         $limited = $this->messageLimit($session);
         if ($limited !== null) {
@@ -81,11 +81,12 @@ class WebWidgetService
         }
 
         $contact = $this->contactFor($session);
+        app(WebWidgetAssistantContext::class)->rememberPage($contact, $pageUrl ?? $session->page_url, $pageTitle);
         // The widget itself tells visitors an AI assistant answers, so no disclosure message is sent.
         app(AiDisclosureService::class)->markDisclosed((int) $session->organization_id, (int) $contact->id);
         (new ChatService((int) $session->organization_id))->handleTicketAssignment($contact->id);
         $chat = app(WebWidgetMessageStore::class)->storeText($contact, $text, 'inbound');
-        $session->forceFill(['last_seen_at' => now()])->save();
+        $session->forceFill(['last_seen_at' => now(), 'page_url' => $this->clip($pageUrl, 500) ?? $session->page_url])->save();
 
         $replyAllowed = ! SubscriptionService::isSubscriptionLimitReachedForInboundMessages($session->organization_id)
             && ! SubscriptionService::isSubscriptionFeatureLimitReached($session->organization_id, 'message_limit');
@@ -118,8 +119,10 @@ class WebWidgetService
 
         $chats = $query->get(['id', 'type', 'user_id', 'metadata', 'created_at'])->sortBy('id');
         $agentNames = User::whereIn('id', $chats->pluck('user_id')->filter()->unique())->pluck('first_name', 'id');
+        $context = app(WebWidgetAssistantContext::class);
+        $widget = $session->widget;
 
-        return $chats->map(function (Chat $chat) use ($agentNames) {
+        return $chats->map(function (Chat $chat) use ($agentNames, $context, $widget) {
             $metadata = json_decode((string) $chat->metadata, true);
             $text = is_array($metadata) && ($metadata['type'] ?? null) === 'text' ? (string) data_get($metadata, 'text.body', '') : '';
             if ($text === '') {
@@ -128,13 +131,14 @@ class WebWidgetService
 
             $from = $chat->type === 'inbound' ? 'visitor' : ($chat->user_id ? 'agent' : 'assistant');
 
-            return [
+            return array_filter([
                 'id' => (int) $chat->id,
                 'from' => $from,
                 'name' => $from === 'agent' ? ($agentNames[$chat->user_id] ?? null) : null,
                 'text' => $text,
                 'at' => Carbon::parse($chat->getRawOriginal('created_at'), 'UTC')->toIso8601String(),
-            ];
+                'action' => $from === 'assistant' && $widget ? $context->resolveAction($widget, $metadata['widget_action'] ?? null) : null,
+            ], fn ($value, $key) => $value !== null || in_array($key, ['name'], true), ARRAY_FILTER_USE_BOTH);
         })->filter()->values()->all();
     }
 

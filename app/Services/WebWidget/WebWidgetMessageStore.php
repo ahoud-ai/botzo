@@ -14,7 +14,7 @@ use Carbon\Carbon;
  */
 class WebWidgetMessageStore
 {
-    public function storeText(Contact $contact, string $text, string $direction, ?int $userId = null): Chat
+    public function storeText(Contact $contact, string $text, string $direction, ?int $userId = null, array $extraMetadata = []): Chat
     {
         $chat = Chat::create([
             'organization_id' => $contact->organization_id,
@@ -27,7 +27,7 @@ class WebWidgetMessageStore
                 'text' => ['body' => $text],
                 'channel' => Contact::CHANNEL_WEB,
                 'provider' => 'web_widget',
-            ], JSON_UNESCAPED_UNICODE),
+            ] + $extraMetadata, JSON_UNESCAPED_UNICODE),
             'status' => 'delivered',
             'created_at' => Carbon::now('UTC'),
         ]);

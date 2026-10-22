@@ -238,12 +238,15 @@ class SetupSiteWidgetCommand extends Command
     private function widgetSettings(array $settings): array
     {
         return [
-            'theme' => $settings['theme'] ?? 'botzo',
+            'theme' => $settings['theme'] ?? 'mochi',
             'accent' => $settings['accent'],
+            'accent_secondary' => $settings['accent_secondary'] ?? '#2F7BFF',
             'position' => $settings['position'],
             'assistant_name' => $settings['assistant_name'],
+            'business_label' => $settings['business_label'] ?? '',
             'welcome_text' => $settings['welcome_text'],
             'suggestions' => $settings['suggestions'],
+            'pages' => $settings['pages'] ?? [],
         ];
     }
 
