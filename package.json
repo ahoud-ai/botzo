@@ -4,6 +4,7 @@
     "scripts": {
         "dev": "vite",
         "build": "node scripts/ensure-vite-i18n-placeholders.mjs && vite build",
+        "build:widget": "esbuild resources/widget/widget.js --minify --target=es2017 --charset=utf8 --legal-comments=none --banner:js=\"/* Botzo widget. Built from resources/widget/widget.js, edit that file and run npm run build:widget. */\" --outfile=public/widget.js",
         "lint": "eslint resources/js/Pages/User/Automation resources/js/Components/AutomationFlows --ext .js,.vue",
         "test:flow-builder:e2e": "playwright test tests/Playwright/flow-builder-canvas.spec.js"
     },

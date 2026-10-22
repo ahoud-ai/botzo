@@ -95,6 +95,7 @@
         ],
         "build:prebuilt": [
             "npm run build",
+            "npm run build:widget",
             "@php scripts/refresh-prebuilt-build.php --format=json"
         ],
         "assets:ensure-prebuilt": [
