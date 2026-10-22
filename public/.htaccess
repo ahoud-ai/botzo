@@ -60,6 +60,11 @@ DirectoryIndex index.php
     Header set Cache-Control "public, max-age=31536000, immutable" env=IS_PREBUILT_ASSET
     Header set Cache-Control "public, max-age=300, must-revalidate" env=IS_BUILD_MANIFEST
 
+    # The website widget script keeps one URL on customers' sites: cache it briefly so updates reach them.
+    SetEnvIfExpr "%{REQUEST_URI} =~ m#^/widget\\.js$#" IS_WIDGET_SCRIPT=1
+    Header set Cache-Control "public, max-age=3600" env=IS_WIDGET_SCRIPT
+    Header unset Expires env=IS_WIDGET_SCRIPT
+
     # Keep compressed variants safe for shared caches.
     <FilesMatch "\.(css|js|mjs|map|json|png|jpe?g|gif|svg|webp|avif|ico|woff2?|ttf|otf)$">
         Header merge Vary "Accept-Encoding"
