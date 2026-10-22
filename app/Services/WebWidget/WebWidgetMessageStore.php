@@ -9,6 +9,7 @@ use App\Models\Contact;
 use App\Models\WebhookEndpoint;
 use App\Models\WebWidgetSession;
 use App\Services\Webhooks\WebhookDispatcher;
+use App\Services\WhatsappService;
 use Carbon\Carbon;
 
 /**
@@ -44,7 +45,9 @@ class WebWidgetMessageStore
 
         $chatLog = ChatLog::where('id', $chatLogId)->whereNull('deleted_at')->first();
         if ($chatLog) {
-            event(new NewChatEvent([['type' => 'chat', 'value' => $chatLog->relatedEntities]], $contact->organization_id));
+            $broadcast = fn () => event(new NewChatEvent([['type' => 'chat', 'value' => $chatLog->relatedEntities]], $contact->organization_id));
+            // Mochi API calls answer the app first; the inbox update (a Pusher call) follows right after.
+            WhatsappService::$deferBroadcasts ? app()->terminating($broadcast) : $broadcast();
         }
 
         if ($direction !== 'inbound') {
@@ -59,7 +62,7 @@ class WebWidgetMessageStore
     {
         $session = WebWidgetSession::where('contact_id', $contact->id)->latest('id')->first();
 
-        app(WebhookDispatcher::class)->dispatch((int) $contact->organization_id, WebhookEndpoint::EVENT_CONVERSATION_REPLY, [
+        $notify = fn () => app(WebhookDispatcher::class)->dispatch((int) $contact->organization_id, WebhookEndpoint::EVENT_CONVERSATION_REPLY, [
             'conversation_id' => $session?->uuid,
             'source' => $session?->source ?? 'widget',
             'user_id' => $session?->external_user_id,
@@ -68,5 +71,8 @@ class WebWidgetMessageStore
             'text' => $text,
             'timestamp' => now('UTC')->toIso8601String(),
         ]);
+
+        // In a Mochi API call the app gets its answer first; a slow customer server cannot delay it.
+        WhatsappService::$deferBroadcasts ? app()->terminating($notify) : $notify();
     }
 }

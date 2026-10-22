@@ -45,7 +45,8 @@ call "$KEY" POST "/api/v1/assistant/conversations/$CONVERSATION/messages" '{"tex
 MS=$(( ($(date +%s%N) - START) / 1000000 ))
 REPLY=$(echo "$BODY" | sed -n 's/.*"from":"assistant"[^}]*"text":"\([^"]*\)".*/\1/p' | head -1)
 [ "$STATUS" = 200 ] && [ -n "$REPLY" ] && ok "Mochi answered in $MS ms ($TIMING)" || bad "send → $STATUS $BODY"
-[ -n "$REPLY" ] && echo "     💬 $(printf '%b' "$REPLY" | cut -c1-200)"
+# Emoji arrive as surrogate pairs the terminal cannot print; they are dropped from the preview only.
+[ -n "$REPLY" ] && echo "     💬 $(printf '%b' "$(echo "$REPLY" | sed 's/\\ud[89a-f][0-9a-f][0-9a-f]//g')" | cut -c1-200)"
 
 echo "3) Send without waiting, then fetch the answer"
 sleep 4
