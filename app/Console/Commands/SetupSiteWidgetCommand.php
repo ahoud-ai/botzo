@@ -8,6 +8,7 @@ use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Models\WebWidget;
 use App\Services\OrganizationService;
+use App\Services\WebWidget\SiteKnowledgeSync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -22,11 +23,12 @@ class SetupSiteWidgetCommand extends Command
 {
     protected $signature = 'botzo:setup-site-widget
         {email : Email of the account that owns the organization (created when missing)}
-        {--update-widget : Re-apply the widget look and texts from the content file (key and domains are kept)}';
+        {--update-widget : Re-apply the widget look and texts from the content file (key and domains are kept)}
+        {--knowledge : Load the Botzo knowledge files and the live pricing into the assistant documents}';
 
     protected $description = 'Create the Botzo organization and website widget that answer visitors on botzo.net.';
 
-    public function handle(OrganizationService $organizations): int
+    public function handle(OrganizationService $organizations, SiteKnowledgeSync $sync): int
     {
         $content = require database_path('data/botzo_site_assistant.php');
         $email = strtolower(trim((string) $this->argument('email')));
@@ -80,16 +82,34 @@ class SetupSiteWidgetCommand extends Command
             }
 
             $report[] = $this->ensureYearSubscription($organization, $plan);
-            $report[] = $this->ensureAssistant($organization, $content['persona']);
-            $report[] = $this->ensureFaqs($organization, $content['faqs']);
+            $refresh = (bool) $this->option('knowledge');
+            $report[] = $this->ensureAssistant($organization, $content['persona'], $refresh);
+            $report[] = $this->ensureFaqs($organization, $content['faqs'], $refresh);
             [$widgetLine, $widget] = $this->ensureWidget($organization, $user, $content['widget']);
             $report[] = $widgetLine;
 
-            return ['lines' => $report, 'widget' => $widget];
+            return ['lines' => $report, 'widget' => $widget, 'organization' => $organization];
         });
 
         foreach ($report['lines'] as $line) {
             $this->line('• '.$line);
+        }
+
+        if ($this->option('knowledge')) {
+            try {
+                $knowledge = $sync->sync($report['organization']->fresh());
+            } catch (\Throwable $exception) {
+                $this->components->error('Knowledge files were not loaded: '.$exception->getMessage());
+
+                return self::FAILURE;
+            }
+
+            $this->line(sprintf(
+                '• Knowledge documents: %d added, %d updated, %d unchanged.',
+                count($knowledge['added']),
+                count($knowledge['updated']),
+                count($knowledge['unchanged'])
+            ));
         }
 
         $this->newLine();
@@ -125,7 +145,11 @@ class SetupSiteWidgetCommand extends Command
         return 'Subscription: '.$plan->name.', active for one year.';
     }
 
-    private function ensureAssistant(Organization $organization, array $persona): string
+    /**
+     * With $refresh the persona is replaced by the content file's; otherwise edits made on the
+     * assistant page are kept and only empty fields are filled.
+     */
+    private function ensureAssistant(Organization $organization, array $persona, bool $refresh = false): string
     {
         $metadata = json_decode((string) $organization->metadata, true) ?: [];
         $ai = (array) ($metadata['ai'] ?? []);
@@ -139,7 +163,9 @@ class SetupSiteWidgetCommand extends Command
         ];
         $ai['active'] = true;
         $ai['enable_automatic_responses'] = true;
-        $ai['persona'] = array_merge($persona, array_filter((array) ($ai['persona'] ?? []), fn ($value) => $value !== '' && $value !== null));
+        $ai['persona'] = $refresh
+            ? $persona
+            : array_merge($persona, array_filter((array) ($ai['persona'] ?? []), fn ($value) => $value !== '' && $value !== null));
 
         $metadata['ai'] = $ai;
         $organization->forceFill(['metadata' => json_encode($metadata, JSON_UNESCAPED_UNICODE)])->save();
@@ -147,22 +173,35 @@ class SetupSiteWidgetCommand extends Command
         return 'AI assistant on (Saudi dialect, Botzo key).';
     }
 
-    private function ensureFaqs(Organization $organization, array $faqs): string
+    /**
+     * Adds the missing FAQs; with $refresh the answers of existing ones are updated from the file too.
+     */
+    private function ensureFaqs(Organization $organization, array $faqs, bool $refresh = false): string
     {
-        $existing = Faq::where('organization_id', $organization->id)->pluck('question')->map(fn ($question) => trim((string) $question))->all();
-        $room = max(0, Faq::MAX_PER_ORGANIZATION - count($existing));
+        $existing = Faq::where('organization_id', $organization->id)->get()->keyBy(fn (Faq $faq) => trim((string) $faq->question));
+        $room = max(0, Faq::MAX_PER_ORGANIZATION - $existing->count());
         $added = 0;
+        $updated = 0;
 
         foreach ($faqs as [$question, $answer]) {
-            if ($added >= $room || in_array($question, $existing, true)) {
+            $faq = $existing->get($question);
+
+            if ($faq) {
+                if ($refresh && $faq->answer !== $answer) {
+                    $faq->update(['answer' => $answer]);
+                    $updated++;
+                }
+
                 continue;
             }
 
-            Faq::create(['organization_id' => $organization->id, 'question' => $question, 'answer' => $answer]);
-            $added++;
+            if ($added < $room) {
+                Faq::create(['organization_id' => $organization->id, 'question' => $question, 'answer' => $answer]);
+                $added++;
+            }
         }
 
-        return "FAQs: {$added} added, ".count($existing).' already there.';
+        return "FAQs: {$added} added, {$updated} updated, ".$existing->count().' already there.';
     }
 
     /**
