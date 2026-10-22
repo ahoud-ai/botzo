@@ -2,9 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\WhatsappService;
 use App\Support\ServerTiming;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class DeveloperApiTiming
@@ -16,8 +18,14 @@ class DeveloperApiTiming
     {
         ServerTiming::reset();
         $startedAt = microtime(true);
+        DB::listen(fn ($query) => ServerTiming::add('db', (float) $query->time));
 
-        $response = $next($request);
+        WhatsappService::$deferBroadcasts = true;
+        try {
+            $response = $next($request);
+        } finally {
+            WhatsappService::$deferBroadcasts = false;
+        }
 
         $totalMs = (microtime(true) - $startedAt) * 1000;
         $header = ServerTiming::header($totalMs);

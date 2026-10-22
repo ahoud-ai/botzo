@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Events\NewChatEvent;
 use App\Models\Chat;
 use App\Models\Contact;
 use App\Models\OrganizationApiKey;
 use App\Services\OrganizationApiTokenHasher;
+use App\Services\WhatsappService;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
@@ -14,6 +16,7 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request as PsrRequest;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Tests\Concerns\CreatesOrganizationContext;
 use Tests\TestCase;
@@ -45,6 +48,18 @@ class DeveloperApiSendTest extends TestCase
 
         $this->assertStringContainsString('meta;dur=', (string) $response->headers->get('Server-Timing'));
         $this->assertSame('sent', Chat::where('organization_id', $organization->id)->where('wam_id', 'wamid.OK1')->value('status'));
+    }
+
+    public function test_the_live_inbox_update_still_goes_out_but_after_the_api_has_answered(): void
+    {
+        [, $token] = $this->connectedOrganization();
+        $this->fakeMeta([new Response(200, [], json_encode(['messages' => [['id' => 'wamid.LIVE']]]))]);
+        Event::fake([NewChatEvent::class]);
+
+        $this->send($token, '/api/send', ['phone' => self::PHONE, 'message' => 'Hi'])->assertOk();
+
+        Event::assertDispatchedTimes(NewChatEvent::class, 1);
+        $this->assertFalse(WhatsappService::$deferBroadcasts, 'Only developer API requests defer the update.');
     }
 
     public function test_a_message_meta_refuses_returns_a_clear_error_instead_of_success(): void

@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Contracts\MessagingGatewayContract;
-use App\Events\NewChatEvent;
 use App\Models\Campaign;
 use App\Models\Chat;
 use App\Models\ChatLog;
@@ -200,7 +199,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
                         'value' => $chatLogArray->relatedEntities,
                     ],
                 ];
-                event(new NewChatEvent($chatArray, $contact->organization_id));
+                $this->broadcastNewChat($chatArray, (int) $contact->organization_id);
             }
         } else {
             // Failure case - create chat with failed status and log error
@@ -276,7 +275,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
                         'value' => $relatedChat,
                     ],
                 ];
-                event(new NewChatEvent($chatArray, $contact->organization_id));
+                $this->broadcastNewChat($chatArray, (int) $contact->organization_id);
             }
         }
 
@@ -356,7 +355,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
                                 'value' => $chatLogArray->relatedEntities,
                             ],
                         ];
-                        event(new NewChatEvent($chatArray, $contact->organization_id));
+                        $this->broadcastNewChat($chatArray, (int) $contact->organization_id);
                     }
                 } else {
                     // Failure case - create chat with failed status and log error
@@ -438,7 +437,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
                                 'value' => $relatedChat,
                             ],
                         ];
-                        event(new NewChatEvent($chatArray, $contact->organization_id));
+                        $this->broadcastNewChat($chatArray, (int) $contact->organization_id);
                     }
                 }
 
@@ -506,7 +505,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
                         'value' => $chatLogArray->relatedEntities,
                     ],
                 ];
-                event(new NewChatEvent($chatArray, $contact->organization_id));
+                $this->broadcastNewChat($chatArray, (int) $contact->organization_id);
             }
         } else {
             // Failure case - create chat with failed status and log error
@@ -588,7 +587,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
                         'value' => $relatedChat,
                     ],
                 ];
-                event(new NewChatEvent($chatArray, $contact->organization_id));
+                $this->broadcastNewChat($chatArray, (int) $contact->organization_id);
             }
         }
 
@@ -978,7 +977,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
                         'value' => $chatLogArray->relatedEntities,
                     ],
                 ];
-                event(new NewChatEvent($chatArray, $contact->organization_id));
+                $this->broadcastNewChat($chatArray, (int) $contact->organization_id);
             }
         } else {
             // Failure case - create chat with failed status and log error
@@ -1058,7 +1057,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
                         'value' => $relatedChat,
                     ],
                 ];
-                event(new NewChatEvent($chatArray, $contact->organization_id));
+                $this->broadcastNewChat($chatArray, (int) $contact->organization_id);
             }
 
             $chat = Chat::with('contact', 'media', 'user')->where('id', $chat->id)->first();

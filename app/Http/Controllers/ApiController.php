@@ -29,6 +29,7 @@ use App\Services\WhatsappService;
 use App\Support\DeveloperApiResponse;
 use App\Support\DeveloperApiSendResult;
 use App\Support\PublicMediaUrl;
+use App\Support\ServerTiming;
 use App\Traits\TemplateTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -886,8 +887,10 @@ class ApiController extends Controller
 
         $config = $organization->metadata;
         $config = $config ? json_decode($config, true) : [];
+        $tokenStartedAt = microtime(true);
         $accessToken = app(WhatsappAccessTokenRefreshService::class)
             ->resolveTokenForOrganization((int) $organizationId, true);
+        ServerTiming::add('token', (microtime(true) - $tokenStartedAt) * 1000);
         $apiVersion = config('graph.api_version');
         $appId = $config['whatsapp']['app_id'] ?? null;
         $phoneNumberId = $config['whatsapp']['phone_number_id'] ?? null;

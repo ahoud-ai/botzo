@@ -2,11 +2,13 @@
 
 namespace App\Services\Concerns;
 
+use App\Events\NewChatEvent;
 use App\Models\Contact;
 use App\Models\Organization;
 use App\Modules\WhatsApp\Infrastructure\CloudApi\WhatsappAccountInspectionService;
 use App\Services\ChatTicketProvisioningService;
 use App\Services\Whatsapp\WhatsappTemplateReadinessService;
+use App\Support\ServerTiming;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -14,6 +16,33 @@ use Illuminate\Support\Facades\Storage;
 
 trait InteractsWithWhatsappServiceSupport
 {
+    /**
+     * Developer API requests set this so the live inbox update (a Pusher call) goes out after the
+     * response, and the calling app does not wait for it.
+     */
+    public static bool $deferBroadcasts = false;
+
+    private function broadcastNewChat(array $chatArray, int $organizationId): void
+    {
+        $broadcast = function () use ($chatArray, $organizationId) {
+            $startedAt = microtime(true);
+            try {
+                event(new NewChatEvent($chatArray, $organizationId));
+            } catch (\Throwable $e) {
+                Log::warning('Live inbox update failed.', ['organization_id' => $organizationId, 'message' => $e->getMessage()]);
+            }
+            ServerTiming::add('broadcast', (microtime(true) - $startedAt) * 1000);
+        };
+
+        if (self::$deferBroadcasts) {
+            app()->terminating($broadcast);
+
+            return;
+        }
+
+        $broadcast();
+    }
+
     private function ensureTicketProvisioned(?Contact $contact): void
     {
         if (! $contact) {
