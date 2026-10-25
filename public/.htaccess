@@ -51,19 +51,30 @@ DirectoryIndex index.php
 </IfModule>
 
 <IfModule mod_headers.c>
-    # Detect build assets by request URI (works even with symlinked docroots).
-    SetEnvIfExpr "%{REQUEST_URI} =~ m#^/build/assets/.+#" IS_BUILD_ASSET=1
-    SetEnvIfExpr "%{REQUEST_URI} =~ m#^/prebuilt-build/assets/.+#" IS_PREBUILT_ASSET=1
-    SetEnvIfExpr "%{REQUEST_URI} =~ m#^/build/manifest\\.json$#" IS_BUILD_MANIFEST=1
+    # Rules match file names with <FilesMatch>: LiteSpeed ignores SetEnvIfExpr + "Header ... env=".
 
-    Header set Cache-Control "public, max-age=31536000, immutable" env=IS_BUILD_ASSET
-    Header set Cache-Control "public, max-age=31536000, immutable" env=IS_PREBUILT_ASSET
-    Header set Cache-Control "public, max-age=300, must-revalidate" env=IS_BUILD_MANIFEST
+    # Build output is named by content (app-1a2b3c4d.js): cache it for good.
+    <FilesMatch "-[0-9a-f]{8}\.(css|js|mjs|woff2?|ttf|otf|png|jpe?g|gif|svg|webp|avif)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+        Header unset Expires
+    </FilesMatch>
 
-    # The website widget script keeps one URL on customers' sites: cache it briefly so updates reach them.
-    SetEnvIfExpr "%{REQUEST_URI} =~ m#^/widget\\.js$#" IS_WIDGET_SCRIPT=1
-    Header set Cache-Control "public, max-age=3600" env=IS_WIDGET_SCRIPT
-    Header unset Expires env=IS_WIDGET_SCRIPT
+    <FilesMatch "^manifest\.json$">
+        Header set Cache-Control "public, max-age=300, must-revalidate"
+        Header unset Expires
+    </FilesMatch>
+
+    # Website widget: customers embed the loader (/widget.js), so it is cached briefly and picks up
+    # new versions; the widget itself (/widget/widget.<hash>.js) is named by content.
+    <FilesMatch "^widget\.js$">
+        Header set Cache-Control "public, max-age=300"
+        Header unset Expires
+    </FilesMatch>
+
+    <FilesMatch "^widget\.[0-9a-f]{10}\.js$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+        Header unset Expires
+    </FilesMatch>
 
     # Translation files are named by their content (/i18n/ar.<hash>.json): cache them for good.
     <FilesMatch "^[a-z]{2}(_[a-z]{2})?\.[0-9a-f]{12}\.json$">

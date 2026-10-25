@@ -52,6 +52,10 @@ for path in "$(asset app css)" "$(asset app js)"; do
     [ -n "$path" ] && check "$BASE$path"
 done
 
+# The versioned widget file the loader points to.
+WIDGET_FILE=$(curl -s "$BASE/widget.js" | grep -o '/widget/widget\.[0-9a-f]*\.js' | head -1)
+[ -n "$WIDGET_FILE" ] && check "$BASE$WIDGET_FILE"
+
 # The translations file the page asks for (versioned name in the page props).
 I18N=$(printf '%s' "$HOME_HTML" | grep -o '\\/i18n\\/[a-z_]*\.[0-9a-f]*\.json' | head -1 | tr -d '\\')
 [ -n "$I18N" ] && check "$BASE$I18N"
