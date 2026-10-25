@@ -113,11 +113,7 @@ class DashboardController extends BaseController
                     'uuid' => $contact->uuid,
                     'full_name' => $contact->full_name,
                     'avatar' => $contact->avatar,
-                    'unread_messages' => $contact->chats()
-                        ->where('type', 'inbound')
-                        ->whereNull('deleted_at')
-                        ->where('is_read', 0)
-                        ->count(),
+                    'unread_messages' => (int) $contact->unread_messages_count,
                     'last_chat' => $lastChat ? [
                         'created_at' => $lastChat->created_at,
                         'deleted_at' => $lastChat->deleted_at,
@@ -263,18 +259,18 @@ class DashboardController extends BaseController
 
     private function getChatCounts($type){
         $organizationId = session()->get('current_organization');
-        $chatCounts = [];
+        $days = array_map(fn ($dateString) => Carbon::parse($dateString)->toDateString(), $this->period());
 
-        foreach ($this->period() as $dateString) {
-            $date = Carbon::parse($dateString);
-            $chatCount = Chat::where('organization_id', $organizationId)
-                ->where('type', $type)
-                ->whereNull('deleted_at')
-                ->whereDate('created_at', $date->toDateString())
-                ->count();
-            $chatCounts[] = $chatCount;
-        }
+        // One grouped query for the whole chart instead of one count per day.
+        $counts = Chat::where('organization_id', $organizationId)
+            ->where('type', $type)
+            ->whereNull('deleted_at')
+            ->whereDate('created_at', '>=', min($days))
+            ->whereDate('created_at', '<=', max($days))
+            ->selectRaw('DATE(created_at) as day, COUNT(*) as total')
+            ->groupBy('day')
+            ->pluck('total', 'day');
 
-        return $chatCounts;
+        return array_map(fn ($day) => (int) ($counts[$day] ?? 0), $days);
     }
 }

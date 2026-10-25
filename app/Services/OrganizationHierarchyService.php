@@ -3,14 +3,16 @@
 namespace App\Services;
 
 use App\Models\Organization;
+use App\Support\RequestMemo;
 
 class OrganizationHierarchyService
 {
     public function find(int $organizationId): ?Organization
     {
-        return Organization::query()
+        // Billing, permission and plan checks ask for the same organization many times per page.
+        return RequestMemo::remember('organization', $organizationId, fn () => Organization::query()
             ->with('parentOrganization')
-            ->find($organizationId);
+            ->find($organizationId));
     }
 
     public function billingOwner(?int $organizationId): ?Organization

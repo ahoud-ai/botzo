@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\OrganizationRole;
 use App\Models\Team;
+use App\Support\RequestMemo;
 use Illuminate\Support\Facades\Auth;
 
 class PermissionService
@@ -136,12 +137,13 @@ class PermissionService
             return null;
         }
 
-        return Team::query()
+        // Each can()/isOwner() check needs the same membership; read it once per request.
+        return RequestMemo::remember('team', $userId.':'.$organizationId, fn () => Team::query()
             ->where('user_id', $userId)
             ->where('organization_id', $organizationId)
             ->whereNull('deleted_at')
             ->with('organizationRole')
-            ->first();
+            ->first());
     }
 
     private function inheritedBranchOwnerTeam(int $userId, int $organizationId): ?Team

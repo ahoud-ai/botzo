@@ -9,9 +9,14 @@ use App\Modules\Platform\Application\Context\OrganizationContextResolver;
 use App\Modules\Platform\Application\Environment\DatabaseConfigMode;
 use App\Modules\Platform\Application\Environment\DemoModeService;
 use App\Modules\Platform\Http\Support\DomainExceptionResponder;
+use App\Models\Organization;
+use App\Models\Subscription;
+use App\Models\SubscriptionPlan;
+use App\Models\Team;
 use App\Services\AddonStateService;
 use App\Services\QueueProfileService;
 use App\Services\Webhooks\WhatsappWebhookVerificationService;
+use App\Support\RequestMemo;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -39,6 +44,17 @@ class AppServiceProvider extends ServiceProvider
     {
         // Set default string length for migrations (MySQL compatibility)
         Schema::defaultStringLength(191);
+
+        // Per-request lookups (App\Support\RequestMemo) must not outlive a change made in the same request.
+        $forgetOrganization = fn () => RequestMemo::forget('organization', 'organization_timezone', 'subscription');
+        Organization::saved($forgetOrganization);
+        Organization::deleted($forgetOrganization);
+        Team::saved(fn () => RequestMemo::forget('team'));
+        Team::deleted(fn () => RequestMemo::forget('team'));
+        Subscription::saved(fn () => RequestMemo::forget('subscription'));
+        Subscription::deleted(fn () => RequestMemo::forget('subscription'));
+        SubscriptionPlan::saved(fn () => RequestMemo::forget('subscription'));
+        SubscriptionPlan::deleted(fn () => RequestMemo::forget('subscription'));
 
         // Force HTTPS in non-local environments
         if (! app()->environment('local')) {

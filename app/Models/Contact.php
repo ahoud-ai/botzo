@@ -89,10 +89,10 @@ class Contact extends Model {
             });
         }
         
-        return $query->orderByDesc('contacts.is_favorite')
+        return self::withUnreadCounts($query->orderByDesc('contacts.is_favorite')
             ->orderByDesc('contacts.created_at')
             ->orderBy('contacts.id')
-            ->paginate(10);
+            ->paginate(10));
     }
 
     public function getAllContactGroups($organizationId)
@@ -294,8 +294,20 @@ class Contact extends Model {
             });
         }
 
-        return $query->orderBy('contacts.latest_chat_created_at', $sortDirection)
-            ->paginate(10);
+        return self::withUnreadCounts($query->orderBy('contacts.latest_chat_created_at', $sortDirection)
+            ->paginate(10));
+    }
+
+    /**
+     * One query for the unread badges of a whole page, instead of one per contact in ContactResource.
+     */
+    public static function withUnreadCounts($paginator)
+    {
+        $paginator->getCollection()->loadCount(['chats as unread_messages_count' => function ($query) {
+            $query->where('type', 'inbound')->whereNull('deleted_at')->where('is_read', 0);
+        }]);
+
+        return $paginator;
     }
 
     /**

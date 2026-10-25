@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Models\Organization;
 use App\Services\SettingValueService;
+use App\Support\RequestMemo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -47,19 +48,12 @@ class DateTimeHelper
      */
     private static function organizationTimezone(int $organizationId): ?string
     {
-        $key = 'organization_timezone:'.$organizationId;
-        $attributes = request()->attributes;
-        if ($attributes->has($key)) {
-            return $attributes->get($key);
-        }
+        return RequestMemo::remember('organization_timezone', $organizationId, function () use ($organizationId) {
+            $metadata = Organization::whereKey($organizationId)->value('metadata');
+            $metadata = isset($metadata) ? json_decode($metadata, true) : null;
 
-        $metadata = Organization::whereKey($organizationId)->value('metadata');
-        $metadata = isset($metadata) ? json_decode($metadata, true) : null;
-        $timezone = is_array($metadata) && isset($metadata['timezone']) ? $metadata['timezone'] : null;
-
-        $attributes->set($key, $timezone);
-
-        return $timezone;
+            return is_array($metadata) && isset($metadata['timezone']) ? $metadata['timezone'] : null;
+        });
     }
 
     public static function convertToCompanyTimezone($date)

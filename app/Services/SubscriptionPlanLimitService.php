@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Subscription;
+use App\Support\RequestMemo;
 use App\Support\SaClientPlanProfile;
 use Illuminate\Support\Carbon;
 
@@ -27,9 +28,10 @@ class SubscriptionPlanLimitService
             return null;
         }
 
-        $subscriptions = Subscription::with(['plan', 'scheduledPlan'])
+        // Plan and limit checks read the subscription several times per page.
+        $subscriptions = RequestMemo::remember('subscription', $billingOwnerId, fn () => Subscription::with(['plan', 'scheduledPlan'])
             ->where('organization_id', $billingOwnerId)
-            ->get();
+            ->get());
 
         if ($subscriptions->isEmpty()) {
             return null;
