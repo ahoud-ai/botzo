@@ -7,7 +7,16 @@
 // the parent decorative wrapper is `hidden lg:block`, matching the previous
 // 2D canvas network this replaces.
 import { ref, onMounted, onUnmounted } from "vue";
-import * as THREE from "three";
+
+// three.js (~115 KB gzip) is fetched only on wide screens, once the page is idle.
+let THREE = null;
+let disposed = false;
+let idleHandle = null;
+let running = false;
+let tabVisible = true;
+let onScreen = true;
+let visibilityHandler = null;
+let intersectionObserver = null;
 
 const container = ref(null);
 const canvas = ref(null);
@@ -220,6 +229,7 @@ function updateParallax() {
 }
 
 function animate() {
+  if (!running) return;
   if (wireframeSphere && !prefersReducedMotion) {
     wireframeSphere.rotation.y += 0.004;
     wireframeSphere.rotation.x += 0.0018;
@@ -230,8 +240,40 @@ function animate() {
   animationFrame = requestAnimationFrame(animate);
 }
 
-function init() {
+// Only draw while the tab is visible and the hero is on screen.
+function updateRunning() {
+  const shouldRun = tabVisible && onScreen;
+  if (shouldRun && !running) {
+    running = true;
+    animate();
+  } else if (!shouldRun && running) {
+    running = false;
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    animationFrame = null;
+  }
+}
+
+async function load() {
+  idleHandle = null;
+  try {
+    THREE = await import("./heroNetworkThree.js");
+  } catch (e) {
+    return;
+  }
+  if (disposed) return;
+  init();
+}
+
+function scheduleLoad() {
   if (!window.matchMedia("(min-width: 1024px)").matches) return;
+  if ("requestIdleCallback" in window) {
+    idleHandle = window.requestIdleCallback(load, { timeout: 2500 });
+  } else {
+    idleHandle = window.setTimeout(load, 1200);
+  }
+}
+
+function init() {
   if (!canvas.value || !container.value) return;
 
   prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -277,11 +319,32 @@ function init() {
     document.documentElement.addEventListener("mouseleave", mouseLeaveHandler);
   }
 
-  animate();
+  tabVisible = !document.hidden;
+  visibilityHandler = () => {
+    tabVisible = !document.hidden;
+    updateRunning();
+  };
+  document.addEventListener("visibilitychange", visibilityHandler);
+
+  intersectionObserver = new IntersectionObserver(([entry]) => {
+    onScreen = entry.isIntersecting;
+    updateRunning();
+  });
+  intersectionObserver.observe(container.value);
+
+  updateRunning();
 }
 
 function dispose() {
+  disposed = true;
+  running = false;
+  if (idleHandle !== null) {
+    if ("cancelIdleCallback" in window) window.cancelIdleCallback(idleHandle);
+    window.clearTimeout(idleHandle);
+  }
   if (animationFrame) cancelAnimationFrame(animationFrame);
+  if (visibilityHandler) document.removeEventListener("visibilitychange", visibilityHandler);
+  intersectionObserver?.disconnect();
   resizeObserver?.disconnect();
   themeObserver?.disconnect();
   if (mouseMoveHandler) window.removeEventListener("mousemove", mouseMoveHandler);
@@ -296,7 +359,7 @@ function dispose() {
   renderer?.dispose();
 }
 
-onMounted(init);
+onMounted(scheduleLoad);
 onUnmounted(dispose);
 </script>
 
