@@ -774,7 +774,7 @@ class AIResponseService
         $config = $this->getOrganizationConfig($organizationId);
         $accessToken = (new WhatsappTokenVault())->resolveTokenFromMetadata($config);
         $apiVersion = Setting::where('key', 'graph_api_version')->value('value')
-            ?: env('GRAPH_API_VERSION', 'v21.0');
+            ?: config('graph.api_version', 'v21.0');
         $appId = $config['whatsapp']['app_id'] ?? null;
         $phoneNumberId = $config['whatsapp']['phone_number_id'] ?? null;
         $wabaId = $config['whatsapp']['waba_id'] ?? null;
