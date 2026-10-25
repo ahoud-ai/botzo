@@ -392,7 +392,7 @@ h2 {
 }
 
 .chat-bg {
-    background-image: url('/resources/images/whatsapp-bg-02.png');
+    background-image: url('/resources/images/whatsapp-bg-02.webp');
 }
 
 .speech-bubble-right::before {
@@ -1831,7 +1831,7 @@ body {
    so the doodles read as a faint texture, matching WhatsApp's dark chat bg. */
 .ui-workspace-main--chat {
     background-color: #efeae2;
-    background-image: url('/resources/images/whatsapp-bg-02.png');
+    background-image: url('/resources/images/whatsapp-bg-02.webp');
     background-size: cover;
     background-position: center;
     background-repeat: repeat;
@@ -1839,7 +1839,7 @@ body {
 
 .dark .ui-workspace-main--chat {
     background-color: #0b141a;
-    background-image: linear-gradient(rgba(11, 20, 26, 0.55), rgba(11, 20, 26, 0.55)), url('/resources/images/whatsapp-bg-02.png');
+    background-image: linear-gradient(rgba(11, 20, 26, 0.55), rgba(11, 20, 26, 0.55)), url('/resources/images/whatsapp-bg-02.webp');
     background-blend-mode: multiply, normal;
 }
 
