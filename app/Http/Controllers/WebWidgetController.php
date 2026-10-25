@@ -50,29 +50,50 @@ class WebWidgetController extends Controller
             return response()->json(['error' => 'rate_limited'], 429);
         }
 
+        return response()->json(array_filter([
+            'token' => $opened['token'],
+            'settings' => $this->settings($widget),
+            'messages' => $this->widgets->messages($opened['session']),
+        ], fn ($value) => $value !== null));
+    }
+
+    /**
+     * Look and texts only, no session: the script draws the launcher from this and opens a session
+     * when the visitor opens the chat. The browser keeps it for a few minutes across page views.
+     */
+    public function config(Request $request, string $key): JsonResponse
+    {
+        $widget = $this->widget($request, $key);
+        if (! $widget) {
+            return $this->unavailable();
+        }
+
+        return response()->json(['settings' => $this->settings($widget)])
+            ->header('Cache-Control', 'private, max-age=300')
+            ->header('Vary', 'Origin');
+    }
+
+    private function settings(WebWidget $widget): array
+    {
         $settings = $widget->settingsWithDefaults();
         $organizationName = (string) Organization::where('id', $widget->organization_id)->value('name');
         $entitlements = app(WebWidgetEntitlements::class)->for((int) $widget->organization_id);
 
-        return response()->json(array_filter([
-            'token' => $opened['token'],
-            'settings' => [
-                'theme' => in_array($settings['theme'], (array) config('web_widget.themes', []), true) ? $settings['theme'] : 'mochi',
-                'accent' => $settings['accent'],
-                'accent_secondary' => $settings['accent_secondary'],
-                'position' => $settings['position'],
-                'assistant_name' => trim((string) $settings['assistant_name']) ?: $organizationName,
-                'business_label' => trim((string) $settings['business_label']) ?: $organizationName,
-                'welcome_text' => (string) $settings['welcome_text'],
-                'suggestions' => array_values((array) $settings['suggestions']),
-                'pages' => WebWidgetPages::forWidget($settings),
-                'poll_interval' => max(5, (int) config('web_widget.poll_interval_seconds', 15)),
-                'max_length' => (int) config('web_widget.limits.message_max_length', 500),
-                'branding' => ! ($entitlements['remove_branding'] && ! empty($settings['hide_branding'])),
-                'voice' => app(WebWidgetVoiceService::class)->availability($widget)['available'],
-            ],
-            'messages' => $this->widgets->messages($opened['session']),
-        ], fn ($value) => $value !== null));
+        return [
+            'theme' => in_array($settings['theme'], (array) config('web_widget.themes', []), true) ? $settings['theme'] : 'mochi',
+            'accent' => $settings['accent'],
+            'accent_secondary' => $settings['accent_secondary'],
+            'position' => $settings['position'],
+            'assistant_name' => trim((string) $settings['assistant_name']) ?: $organizationName,
+            'business_label' => trim((string) $settings['business_label']) ?: $organizationName,
+            'welcome_text' => (string) $settings['welcome_text'],
+            'suggestions' => array_values((array) $settings['suggestions']),
+            'pages' => WebWidgetPages::forWidget($settings),
+            'poll_interval' => max(5, (int) config('web_widget.poll_interval_seconds', 15)),
+            'max_length' => (int) config('web_widget.limits.message_max_length', 500),
+            'branding' => ! ($entitlements['remove_branding'] && ! empty($settings['hide_branding'])),
+            'voice' => app(WebWidgetVoiceService::class)->availability($widget)['available'],
+        ];
     }
 
     public function store(Request $request, string $key): JsonResponse

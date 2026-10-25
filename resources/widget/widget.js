@@ -178,7 +178,32 @@
 
     var ui = {};
 
+    // A new visitor has no session until they open the chat; the first call that needs one opens it.
     function request(method, path, body) {
+        if (!state.token && path !== '/session' && path !== '/config') {
+            return ensureSession().then(function (ok) {
+                return ok ? fetchJson(method, path, body) : { status: 0, data: {} };
+            });
+        }
+        return fetchJson(method, path, body);
+    }
+
+    var sessionPromise = null;
+
+    function ensureSession() {
+        if (state.token) {
+            return Promise.resolve(true);
+        }
+        if (!sessionPromise) {
+            sessionPromise = openSession(true).then(function (ok) {
+                sessionPromise = null;
+                return ok;
+            });
+        }
+        return sessionPromise;
+    }
+
+    function fetchJson(method, path, body) {
         var headers = { 'Accept': 'application/json' };
         if (body) {
             headers['Content-Type'] = 'application/json';
@@ -202,7 +227,10 @@
         });
     }
 
-    function openSession() {
+    /**
+     * @param {boolean} keepMessages opening lazily mid-action: keep what is on screen (a pending bubble)
+     */
+    function openSession(keepMessages) {
         return request('POST', '/session', {
             token: state.token,
             page_url: window.location.href.slice(0, 2000),
@@ -215,11 +243,30 @@
                 state.token = result.data.token;
                 writeStore('localStorage', TOKEN_KEY, state.token);
             }
-            state.settings = result.data.settings;
-            state.theme = ['classic', 'botzo'].indexOf(state.settings.theme) !== -1 ? state.settings.theme : 'mochi';
-            state.messages = [];
-            state.lastId = 0;
+            applySettings(result.data.settings);
+            if (!keepMessages) {
+                state.messages = [];
+                state.lastId = 0;
+            }
             addMessages(result.data.messages || []);
+            return true;
+        }).catch(function () {
+            return false;
+        });
+    }
+
+    function applySettings(settings) {
+        state.settings = settings;
+        state.theme = ['classic', 'botzo'].indexOf(settings.theme) !== -1 ? settings.theme : 'mochi';
+    }
+
+    // Look and texts only (browser-cached for a few minutes); no session row for page views.
+    function loadConfig() {
+        return request('GET', '/config').then(function (result) {
+            if (result.status !== 200 || !result.data.settings) {
+                return false;
+            }
+            applySettings(result.data.settings);
             return true;
         }).catch(function () {
             return false;
@@ -1253,10 +1300,9 @@
             state.lastId = 0;
             state.note = null;
             state.failedText = null;
-            openSession().then(function () {
-                mochi.draw();
-                ui.field.focus();
-            });
+            // The next message opens a fresh session.
+            mochi.draw();
+            ui.field.focus();
         },
 
         micPressed: function () {
@@ -1903,7 +1949,10 @@
     }
 
     function start() {
-        openSession().then(function (ok) {
+        // Returning visitors need their messages and replies; new ones only need the look.
+        (state.token ? openSession() : loadConfig().then(function (ok) {
+            return ok || openSession();
+        })).then(function (ok) {
             if (ok) {
                 (state.theme === 'mochi' ? mochi.render : render)();
             }

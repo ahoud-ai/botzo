@@ -6,6 +6,7 @@ use App\Models\Chat;
 use App\Models\Contact;
 use App\Models\Organization;
 use App\Models\WebWidget;
+use App\Models\WebWidgetSession;
 use App\Services\AddonStateService;
 use App\Services\WebWidget\WebWidgetMessageStore;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -65,6 +66,21 @@ class WebWidgetApiTest extends TestCase
         // Reopening with the token resumes the same session and issues no new token.
         $again = $this->postJson($this->url($widget, 'session'), ['token' => $response->json('token')], ['Origin' => self::ORIGIN])->assertOk();
         $this->assertNull($again->json('token'));
+    }
+
+    public function test_a_page_view_reads_the_look_without_opening_a_session(): void
+    {
+        $widget = $this->widget(['welcome_text' => 'أهلاً بيك']);
+
+        $response = $this->getJson($this->url($widget, 'config'), ['Origin' => self::ORIGIN])->assertOk();
+
+        $response->assertJsonPath('settings.welcome_text', 'أهلاً بيك')
+            ->assertJsonMissingPath('token')
+            ->assertJsonMissingPath('messages');
+        $this->assertStringContainsString('max-age=300', (string) $response->headers->get('Cache-Control'));
+        $this->assertSame(0, WebWidgetSession::where('web_widget_id', $widget->id)->count());
+
+        $this->getJson($this->url($widget, 'config'), ['Origin' => 'https://evil.example.net'])->assertForbidden();
     }
 
     public function test_the_botzo_credit_can_be_hidden_only_when_the_plan_allows_it(): void
