@@ -13,6 +13,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Tests\Concerns\CreatesOrganizationContext;
 use Tests\TestCase;
 
@@ -115,6 +116,26 @@ class WebWidgetApiTest extends TestCase
         $this->assertNull($contact->phone);
         $this->assertSame(2, Chat::where('contact_id', $contact->id)->count());
         Http::assertNotSent(fn ($request) => str_contains($request->url(), 'graph.facebook.com'));
+    }
+
+    public function test_each_reply_logs_where_its_time_went_without_the_text(): void
+    {
+        $widget = $this->widget();
+        $token = $this->openSession($widget);
+        $logged = [];
+        Log::listen(function ($event) use (&$logged) {
+            if ($event->message === 'intellireply.reply.timing') {
+                $logged[] = $event->context;
+            }
+        });
+
+        $this->postJson($this->url($widget, 'messages'), ['text' => 'بكام الكبسة؟'], $this->headers($token))->assertOk();
+
+        $this->assertCount(1, $logged);
+        foreach (['prepare_ms', 'knowledge_ms', 'model_ms', 'send_ms', 'total_ms'] as $step) {
+            $this->assertIsInt($logged[0][$step], $step);
+        }
+        $this->assertStringNotContainsString('الكبسة', json_encode($logged[0], JSON_UNESCAPED_UNICODE));
     }
 
     public function test_requests_need_the_visitors_own_token(): void

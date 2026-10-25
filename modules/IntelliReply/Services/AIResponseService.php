@@ -81,6 +81,9 @@ class AIResponseService
 
     public function handleAIResponse($chat, $receivedMessage)
     {
+        $this->timingStart = microtime(true);
+        $this->timing = [];
+
         // Check organization metadata
         $organizationId = $chat->organization_id;
         $aimodule = CustomHelper::isModuleEnabled('AI Assistant', $organizationId);
@@ -262,17 +265,22 @@ class AIResponseService
 
                     // Documents are optional: without a match the assistant answers from the persona
                     // and hands the chat to the team when it cannot answer.
+                    $this->timing['prepare_ms'] = $this->elapsed();
+                    $stepStart = microtime(true);
                     $closestDocument = $this->findClosestDocumentByQuery($organizationId, $receivedMessage);
                     $documentation = ($closestDocument['success'] ?? false) === true ? (string) ($closestDocument['document'] ?? '') : null;
                     $context = $this->buildReplyContext($chat, $metadataArray, (int) $organizationId, $documentation);
+                    $this->timing['knowledge_ms'] = $this->elapsed($stepStart);
 
                     // Pass the context and received message to the chat method
+                    $stepStart = microtime(true);
                     try {
                         $res = $this->chat($organizationId, $lastMessage['type'], $context, $apiKeyBundle);
                     } catch (\Throwable $exception) {
                         report($exception);
                         $res = null;
                     }
+                    $this->timing['model_ms'] = $this->elapsed($stepStart);
 
                     // The model failed, timed out or returned nothing: apologize and hand over instead of going silent.
                     if (!$res || trim((string) ($res['text'] ?? '')) === '') {
@@ -308,6 +316,7 @@ class AIResponseService
                     }
 
                     if ($res) {
+                        $stepStart = microtime(true);
                         $channel = $this->replyChannel($contact);
 
                         // Bot disclosure, once per conversation (WhatsApp policy for AI replies).
@@ -343,6 +352,8 @@ class AIResponseService
                             ? $usageLimiter->consumeAudio($organizationId, $keySource)
                             : $usageLimiter->consumeText($organizationId, $keySource);
                         $safetyGuard->recordReplyToContact((int) $organizationId, (int) $contact->id);
+                        $this->timing['send_ms'] = $this->elapsed($stepStart);
+                        $this->logTiming((int) $organizationId, (int) $contact->id, $res, $documentation !== null, $sentAsVoice);
                         return true; // Indicates that an AI response was sent
                     }
                 }
@@ -350,6 +361,36 @@ class AIResponseService
         }
 
         return false; // Indicates that no AI response was sent
+    }
+
+    /** @var array<string, int> per-step milliseconds of the reply being built */
+    private array $timing = [];
+
+    private float $timingStart = 0.0;
+
+    private function elapsed(?float $since = null): int
+    {
+        return (int) round((microtime(true) - ($since ?? $this->timingStart)) * 1000);
+    }
+
+    /**
+     * One line per reply with where the time went (settings and checks, knowledge search, the model,
+     * sending), so slow replies can be traced to a step. No message text is logged.
+     */
+    private function logTiming(int $organizationId, int $contactId, array $res, bool $hadDocumentation, bool $voice): void
+    {
+        $usage = (array) ($res['usage'] ?? []);
+
+        Log::channel('intellireply')->info('intellireply.reply.timing', $this->timing + [
+            'total_ms' => $this->elapsed(),
+            'organization_id' => $organizationId,
+            'contact_id' => $contactId,
+            'had_documentation' => $hadDocumentation,
+            'voice' => $voice,
+            'prompt_tokens' => $usage['prompt_tokens'] ?? $usage['input_tokens'] ?? null,
+            'completion_tokens' => $usage['completion_tokens'] ?? $usage['output_tokens'] ?? null,
+        ]);
+        \App\Support\ServerTiming::add('ai', (float) ($this->timing['model_ms'] ?? 0));
     }
 
     public function chat($organizationId, $type, $context, ?array $apiKeyBundle = null)
