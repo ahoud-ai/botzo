@@ -243,9 +243,17 @@
         @endphp
 
         <link rel="icon" href="{{ $faviconUrl }}">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+        @php
+            // IBM Plex is self-hosted (resources/css/app.css); preload the regular Arabic face, used by every page.
+            try {
+                $plexPreloadUrl = \Illuminate\Support\Facades\Vite::asset('resources/fonts/ibm-plex-sans-arabic/ibm-plex-sans-arabic-400-arabic.woff2');
+            } catch (\Throwable $e) {
+                $plexPreloadUrl = null;
+            }
+        @endphp
+        @if($plexPreloadUrl)
+            <link rel="preload" href="{{ $plexPreloadUrl }}" as="font" type="font/woff2" crossorigin>
+        @endif
         @if($isPublicFrontendPage)
             <title>{{ $computedTitle }}</title>
             @if($computedDescription !== '')
