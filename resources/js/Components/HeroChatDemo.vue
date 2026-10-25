@@ -1,8 +1,13 @@
 <script setup>
     import { ref, nextTick, onMounted, onUnmounted } from 'vue';
     import { useI18n } from 'vue-i18n';
+    import { useTheme } from '@/Composables/useTheme';
 
     const { t } = useI18n();
+    const { theme } = useTheme();
+
+    // The box is hidden below md, so the background is only fetched on wider screens, and only for the active theme.
+    const showBackground = ref(false);
 
     const SCRIPT = [
         { role: 'bot', key: 'Hi there! This is Botzo — how can I help you today?' },
@@ -88,6 +93,7 @@
     };
 
     onMounted(() => {
+        showBackground.value = window.matchMedia('(min-width: 768px)').matches;
         playCycle();
     });
 
@@ -101,14 +107,13 @@
         class="relative hidden h-[420px] w-full max-w-[950px] items-start justify-center overflow-hidden rounded-3xl bg-[var(--surface-0)] shadow-[0_40px_80px_-50px_rgba(13,31,22,0.5)] dark:bg-gradient-to-b dark:from-white dark:from-[-40%] dark:to-[#25d366] dark:shadow-none md:flex lg:h-[625px]"
     >
         <img
-            src="/images/hero/overview-bg-light.png"
-            class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[55%] dark:hidden"
-            alt=""
-            aria-hidden="true"
-        />
-        <img
-            src="/images/hero/overview-bg-dark.png"
-            class="pointer-events-none absolute inset-0 hidden h-full w-full object-cover opacity-[55%] dark:block"
+            v-if="showBackground"
+            :key="theme"
+            :src="theme === 'dark' ? '/images/hero/overview-bg-dark.webp' : '/images/hero/overview-bg-light.webp'"
+            :width="1100"
+            :height="theme === 'dark' ? 1006 : 1892"
+            decoding="async"
+            class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[55%]"
             alt=""
             aria-hidden="true"
         />
