@@ -29,15 +29,7 @@ class DateTimeHelper
         $organizationId = session()->get('current_organization');
 
         if ($organizationId) {
-            $organization = Organization::find($organizationId);
-            if ($organization) {
-                $metadata = $organization->metadata;
-                $metadata = isset($metadata) ? json_decode($metadata, true) : null;
-
-                if ($metadata && isset($metadata['timezone'])) {
-                    $timezone = $metadata['timezone'];
-                }
-            }
+            $timezone = self::organizationTimezone((int) $organizationId) ?? $timezone;
         }
 
         // NOTE: $date's stored source timezone varies by caller/model (some are
@@ -47,6 +39,27 @@ class DateTimeHelper
         // (e.g. Carbon::parse($raw, 'UTC')) rather than a raw string, since
         // parse() preserves an existing DateTime's timezone instead of guessing.
         return Carbon::parse($date)->setTimezone($timezone);
+    }
+
+    /**
+     * Every date on a page goes through here (a chat list formats hundreds), so the organization's
+     * timezone is read once per request instead of one query per date.
+     */
+    private static function organizationTimezone(int $organizationId): ?string
+    {
+        $key = 'organization_timezone:'.$organizationId;
+        $attributes = request()->attributes;
+        if ($attributes->has($key)) {
+            return $attributes->get($key);
+        }
+
+        $metadata = Organization::whereKey($organizationId)->value('metadata');
+        $metadata = isset($metadata) ? json_decode($metadata, true) : null;
+        $timezone = is_array($metadata) && isset($metadata['timezone']) ? $metadata['timezone'] : null;
+
+        $attributes->set($key, $timezone);
+
+        return $timezone;
     }
 
     public static function convertToCompanyTimezone($date)
