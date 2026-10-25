@@ -138,6 +138,8 @@ class HandleInertiaRequests extends Middleware
             'languages' => fn () => $resolveSharedSettingsPayload()['languages'],
             'unreadMessages' => fn () => $resolveWorkspacePayload()['unreadMessages'],
             'currentLanguage' => $language,
+            // Static, compressed, long-cached translation files (see App\Support\TranslationAssets).
+            'translationUrls' => fn () => \App\Support\TranslationAssets::urls((array) config('i18n.supported_locales', ['en', 'ar'])),
             'onboardingTourStatus' => fn () => $user?->onboardingTourStatus(),
             'features' => fn () => [
                 'flowBuilderV2' => $resolveWorkspacePayload()['flowBuilderV2Available'],

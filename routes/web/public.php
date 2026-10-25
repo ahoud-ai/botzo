@@ -67,7 +67,7 @@ Route::get('/translations/{locale}', function ($locale) {
     if (File::exists($path)) {
         $translations = File::get($path);
 
-        return response()->json(json_decode($translations, true));
+        return response()->json(json_decode($translations, true), 200, [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     return response()->json(['error' => __('Locale not found')], 404);

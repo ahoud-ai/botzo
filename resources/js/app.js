@@ -81,9 +81,21 @@ function createMissingTranslationResolver(getLocaleMessages, fallbackLocale = 'e
   };
 }
 
-// Function to load locale messages via API
+// Locale messages come from a static, compressed, long-cached file when the server shared one;
+// the /translations route stays as the fallback.
+let translationUrls = {};
+
 async function loadLocaleMessages(locale) {
   const normalizedLocale = normalizeLocale(locale);
+  const staticUrl = translationUrls[normalizedLocale];
+  if (staticUrl) {
+    try {
+      const response = await axios.get(staticUrl, { withCredentials: false });
+      return response.data;
+    } catch (_error) {
+      // Fall back to the route below (for example right after the strings changed).
+    }
+  }
   const response = await axios.get(`/translations/${normalizedLocale}`);
   return response.data;
 }
@@ -121,6 +133,7 @@ createInertiaApp({
 
     const boot = async () => {
       const initialPageProps = props?.initialPage?.props || {};
+      translationUrls = initialPageProps.translationUrls || {};
       const currentLocale = normalizeLocale(initialPageProps.currentLanguage, 'en');
       const initialComponent = props?.initialPage?.component || '';
       const isPublicFrontend = publicFrontendComponent(initialComponent);
