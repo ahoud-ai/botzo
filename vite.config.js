@@ -53,6 +53,12 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks(id) {
+                    // Shared Rollup/Vite helpers go with the core, otherwise they land in whichever
+                    // vendor chunk saw them first (jspdf) and that chunk then loads on every page.
+                    if (id.includes('vite/preload-helper') || id.includes('commonjsHelpers')) {
+                        return 'app-core';
+                    }
+
                     if (id.includes('node_modules')) {
                         const moduleId = normalizedId(id);
 
