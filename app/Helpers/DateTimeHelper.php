@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-use App\Models\Organization;
+use App\Services\OrganizationHierarchyService;
 use App\Services\SettingValueService;
 use App\Support\RequestMemo;
 use Carbon\Carbon;
@@ -49,7 +49,7 @@ class DateTimeHelper
     private static function organizationTimezone(int $organizationId): ?string
     {
         return RequestMemo::remember('organization_timezone', $organizationId, function () use ($organizationId) {
-            $metadata = Organization::whereKey($organizationId)->value('metadata');
+            $metadata = app(OrganizationHierarchyService::class)->find($organizationId)?->metadata;
             $metadata = isset($metadata) ? json_decode($metadata, true) : null;
 
             return is_array($metadata) && isset($metadata['timezone']) ? $metadata['timezone'] : null;

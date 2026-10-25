@@ -18,6 +18,7 @@ use App\Models\TaxRate;
 use App\Models\Team;
 use App\Models\User;
 use App\Resolvers\PaymentPlatformResolver;
+use App\Support\RequestMemo;
 use App\Support\SupportedPaymentProcessors;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -556,9 +557,14 @@ class SubscriptionService
         return (float) str_replace(',', '', (string) ($coupon['discount'] ?? 0));
     }
 
+    private static function activeTaxRates()
+    {
+        return RequestMemo::remember('tax_rates', 'active', fn () => TaxRate::where('status', 'active')->whereNull('deleted_at')->get());
+    }
+
     private static function calculateTotalTaxPercentage()
     {
-        $activeTaxRates = TaxRate::where('status', 'active')->whereNull('deleted_at')->get();
+        $activeTaxRates = self::activeTaxRates();
         $totalTaxPercent = 0;
 
         foreach($activeTaxRates as $taxRate){
@@ -570,7 +576,7 @@ class SubscriptionService
 
     private static function calculateTaxRates($grossAmount)
     {
-        $activeTaxRates = TaxRate::where('status', 'active')->whereNull('deleted_at')->get();
+        $activeTaxRates = self::activeTaxRates();
         $taxRatesDetails = [];
         $totalTaxAmount = 0;
 

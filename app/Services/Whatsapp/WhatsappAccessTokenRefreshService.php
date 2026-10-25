@@ -4,6 +4,7 @@ namespace App\Services\Whatsapp;
 
 use App\Models\Organization;
 use App\Models\Setting;
+use App\Services\OrganizationHierarchyService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +17,7 @@ class WhatsappAccessTokenRefreshService
 
     public function resolveTokenForOrganization(int $organizationId, bool $attemptRefresh = true): ?string
     {
-        $organization = Organization::find($organizationId);
+        $organization = app(OrganizationHierarchyService::class)->find($organizationId);
         if (!$organization) {
             return null;
         }
@@ -38,7 +39,8 @@ class WhatsappAccessTokenRefreshService
 
     public function refreshIfNeeded(int $organizationId, bool $force = false, ?array $knownMetadata = null): object
     {
-        $organization = Organization::find($organizationId);
+        // A forced refresh reads the row fresh; the usual check reuses this request's copy.
+        $organization = $force ? Organization::find($organizationId) : app(OrganizationHierarchyService::class)->find($organizationId);
         if (!$organization) {
             return $this->result(false, false, null, 'organization_not_found');
         }

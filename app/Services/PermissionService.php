@@ -131,7 +131,7 @@ class PermissionService
         return $role->getPermissionsArray();
     }
 
-    private function teamForUserAndOrganization(int $userId, ?int $organizationId): ?Team
+    public function teamForUserAndOrganization(int $userId, ?int $organizationId): ?Team
     {
         if ($organizationId === null || $organizationId <= 0) {
             return null;

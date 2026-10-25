@@ -264,19 +264,11 @@ class HandleInertiaRequests extends Middleware
         );
 
         if ($organizationId) {
-            $directTeam = Team::query()
-                ->where('organization_id', $organizationId)
-                ->where('user_id', $user->id)
-                ->whereNull('deleted_at')
-                ->with('organizationRole')
-                ->first();
+            $directTeam = app(PermissionService::class)->teamForUserAndOrganization((int) $user->id, (int) $organizationId);
 
             $authUser->setRelation('teams', $directTeam ? collect([$directTeam]) : collect());
 
-            $organization = Organization::with('parentOrganization')
-                ->where('id', $organizationId)
-                ->whereNull('deleted_at')
-                ->first();
+            $organization = app(OrganizationHierarchyService::class)->find((int) $organizationId);
             $flowBuilderV2Available = app(AutomationFlowAccessService::class)
                 ->surfaceAvailableForOrganization((int) $organizationId);
 

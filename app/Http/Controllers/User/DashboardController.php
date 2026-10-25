@@ -45,7 +45,13 @@ class DashboardController extends BaseController
                 $query->whereNull('deleted_at');
             })
             ->count();
-        $data['campaignCount'] = Campaign::where('organization_id', $organizationId)->whereNull('deleted_at')->count();
+        // All campaign numbers on the page from one grouped count.
+        $campaignStatusCounts = Campaign::where('organization_id', $organizationId)
+            ->whereNull('deleted_at')
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+        $data['campaignCount'] = (int) $campaignStatusCounts->sum();
         $data['contactCount'] = Contact::where('organization_id', $organizationId)->whereNull('deleted_at')->count();
         $data['templateCount'] = Template::where('organization_id', $organizationId)->whereNull('deleted_at')->count();
         $data['teamMemberCount'] = Team::where('organization_id', $organizationId)->whereNull('deleted_at')->count();
@@ -68,7 +74,7 @@ class DashboardController extends BaseController
             ->count();
         $data['graphAPIVersion'] = config('graph.api_version');
 
-        $organization = Organization::where('id', $organizationId)->first();
+        $organization = app(OrganizationHierarchyService::class)->find((int) $organizationId);
         $config = $organization->metadata ? json_decode($organization->metadata, true) : [];
         $settings = Setting::whereIn('key', ['is_embedded_signup_active', 'whatsapp_client_id', 'whatsapp_config_id'])
             ->pluck('value', 'key');
@@ -97,8 +103,8 @@ class DashboardController extends BaseController
             ->get();
         $data['campaigns'] = $this->withRecipientCounts($campaignsForQueue);
         $data['campaignSummary'] = [
-            'pending' => Campaign::where('organization_id', $organizationId)->whereNull('deleted_at')->where('status', 'pending')->count(),
-            'scheduled' => Campaign::where('organization_id', $organizationId)->whereNull('deleted_at')->where('status', 'scheduled')->count(),
+            'pending' => (int) ($campaignStatusCounts['pending'] ?? 0),
+            'scheduled' => (int) ($campaignStatusCounts['scheduled'] ?? 0),
         ];
         $data['ticketSummary'] = $this->ticketSummary((int) $organizationId, $ticketingActive);
         $data['messageEngagement'] = $this->messageEngagementSummary((int) $organizationId);
@@ -129,8 +135,9 @@ class DashboardController extends BaseController
             ->values();
         $data['setupWhatsapp'] = isset($config['whatsapp']) ? false : true;;
         $data['period'] = $this->period();
-        $data['inbound'] = $this->getChatCounts('inbound');
-        $data['outbound'] = $this->getChatCounts('outbound');
+        $chatCounts = $this->getChatCounts();
+        $data['inbound'] = $chatCounts['inbound'];
+        $data['outbound'] = $chatCounts['outbound'];
         $embeddedSignupGate = new EmbeddedSignupGate();
         $data['embeddedSignupActive'] = $embeddedSignupGate->isEnabledForOrganization($organizationId);
         $data['appId'] = $settings->get('whatsapp_client_id', null);
@@ -257,20 +264,29 @@ class DashboardController extends BaseController
         return $dateArray;
     }
 
-    private function getChatCounts($type){
+    /**
+     * @return array{inbound: array<int>, outbound: array<int>} daily counts for the chart, one grouped query
+     */
+    private function getChatCounts(): array
+    {
         $organizationId = session()->get('current_organization');
         $days = array_map(fn ($dateString) => Carbon::parse($dateString)->toDateString(), $this->period());
 
-        // One grouped query for the whole chart instead of one count per day.
-        $counts = Chat::where('organization_id', $organizationId)
-            ->where('type', $type)
+        $rows = Chat::where('organization_id', $organizationId)
+            ->whereIn('type', ['inbound', 'outbound'])
             ->whereNull('deleted_at')
             ->whereDate('created_at', '>=', min($days))
             ->whereDate('created_at', '<=', max($days))
-            ->selectRaw('DATE(created_at) as day, COUNT(*) as total')
-            ->groupBy('day')
-            ->pluck('total', 'day');
+            ->selectRaw('type, DATE(created_at) as day, COUNT(*) as total')
+            ->groupBy('type', 'day')
+            ->get();
 
-        return array_map(fn ($day) => (int) ($counts[$day] ?? 0), $days);
+        $series = [];
+        foreach (['inbound', 'outbound'] as $type) {
+            $counts = $rows->where('type', $type)->pluck('total', 'day');
+            $series[$type] = array_map(fn ($day) => (int) ($counts[$day] ?? 0), $days);
+        }
+
+        return $series;
     }
 }

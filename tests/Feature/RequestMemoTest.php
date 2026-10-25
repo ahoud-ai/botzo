@@ -4,9 +4,11 @@ namespace Tests\Feature;
 
 use App\Helpers\DateTimeHelper;
 use App\Http\Resources\ContactResource;
+use App\Models\Addon;
 use App\Models\Chat;
 use App\Models\Contact;
 use App\Models\Organization;
+use App\Services\AddonStateService;
 use App\Services\OrganizationHierarchyService;
 use App\Support\RequestMemo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -49,11 +51,35 @@ class RequestMemoTest extends TestCase
             DateTimeHelper::convertToOrganizationTimezone('2026-01-01 00:00:00');
             app(OrganizationHierarchyService::class)->find($organization->id);
         }
-        $this->assertCount(2, DB::getQueryLog(), 'One timezone read and one organization read.');
+        $this->assertCount(1, DB::getQueryLog(), 'The timezone comes from the same organization read.');
 
         $organization->update(['metadata' => json_encode(['timezone' => 'Africa/Cairo'])]);
 
         $this->assertSame('Africa/Cairo', DateTimeHelper::convertToOrganizationTimezone('2026-01-01 00:00:00')->getTimezone()->getName());
+    }
+
+    public function test_addons_are_read_once_matched_ignoring_case_and_refreshed_after_a_save(): void
+    {
+        $addon = Addon::updateOrCreate(['name' => 'Memo Addon'], [
+            'uuid' => (string) Str::uuid(),
+            'category' => 'business',
+            'logo' => 'memo.svg',
+            'description' => 'Memo addon',
+            'metadata' => '{}',
+            'status' => 1,
+            'is_active' => 1,
+            'is_plan_restricted' => 1,
+        ]);
+        $addons = app(AddonStateService::class);
+
+        DB::enableQueryLog();
+        $this->assertTrue($addons->isAddonEnabled('Memo Addon'));
+        $this->assertTrue($addons->isAddonEnabled('memo addon'));
+        $this->assertCount(1, DB::getQueryLog());
+
+        $addon->update(['is_active' => 0]);
+
+        $this->assertFalse($addons->isAddonEnabled('Memo Addon'));
     }
 
     public function test_unread_badges_for_a_page_come_from_one_query(): void

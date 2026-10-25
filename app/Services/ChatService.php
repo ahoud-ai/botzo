@@ -100,7 +100,7 @@ class ChatService
 
     private function initializeWhatsappService()
     {
-        $config = Organization::where('id', $this->organizationId)->first()->metadata;
+        $config = app(OrganizationHierarchyService::class)->find((int) $this->organizationId)->metadata;
         $config = $config ? json_decode($config, true) : [];
         $accessToken = app(WhatsappAccessTokenRefreshService::class)
             ->resolveTokenForOrganization((int) $this->organizationId, true);
@@ -118,7 +118,7 @@ class ChatService
         $currentRole = $permissionService->getCurrentRole($this->organizationId);
         $roleName = $currentRole ? strtolower($currentRole->name) : 'owner'; // Fallback to owner for safety
         $contact = new Contact;
-        $config = Organization::where('id', $this->organizationId)->first();
+        $config = app(OrganizationHierarchyService::class)->find((int) $this->organizationId);
         $agents = Team::where('organization_id', $this->organizationId)->whereNull('deleted_at')->with('user')->get();
         $sortDirection = $request->session()->get('chat_sort_direction') ?? 'desc';
         $allowAgentsToViewAllChats = true;

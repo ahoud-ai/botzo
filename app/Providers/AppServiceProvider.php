@@ -9,9 +9,11 @@ use App\Modules\Platform\Application\Context\OrganizationContextResolver;
 use App\Modules\Platform\Application\Environment\DatabaseConfigMode;
 use App\Modules\Platform\Application\Environment\DemoModeService;
 use App\Modules\Platform\Http\Support\DomainExceptionResponder;
+use App\Models\Addon;
 use App\Models\Organization;
 use App\Models\Subscription;
 use App\Models\SubscriptionPlan;
+use App\Models\TaxRate;
 use App\Models\Team;
 use App\Services\AddonStateService;
 use App\Services\QueueProfileService;
@@ -49,12 +51,16 @@ class AppServiceProvider extends ServiceProvider
         $forgetOrganization = fn () => RequestMemo::forget('organization', 'organization_timezone', 'subscription');
         Organization::saved($forgetOrganization);
         Organization::deleted($forgetOrganization);
-        Team::saved(fn () => RequestMemo::forget('team'));
-        Team::deleted(fn () => RequestMemo::forget('team'));
+        Team::saved(fn () => RequestMemo::forget('team', 'organization'));
+        Team::deleted(fn () => RequestMemo::forget('team', 'organization'));
         Subscription::saved(fn () => RequestMemo::forget('subscription'));
         Subscription::deleted(fn () => RequestMemo::forget('subscription'));
         SubscriptionPlan::saved(fn () => RequestMemo::forget('subscription'));
         SubscriptionPlan::deleted(fn () => RequestMemo::forget('subscription'));
+        Addon::saved(fn () => RequestMemo::forget('addon'));
+        Addon::deleted(fn () => RequestMemo::forget('addon'));
+        TaxRate::saved(fn () => RequestMemo::forget('tax_rates'));
+        TaxRate::deleted(fn () => RequestMemo::forget('tax_rates'));
 
         // Force HTTPS in non-local environments
         if (! app()->environment('local')) {

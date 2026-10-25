@@ -57,7 +57,7 @@ class OrganizationHierarchyService
             return [];
         }
 
-        $ids = Organization::query()
+        $ids = RequestMemo::remember('organization', 'family:'.$billingOwnerId, fn () => Organization::query()
             ->whereNull('deleted_at')
             ->where(function ($query) use ($billingOwnerId) {
                 $query->where('id', $billingOwnerId)
@@ -66,7 +66,7 @@ class OrganizationHierarchyService
             ->pluck('id')
             ->map(fn ($id) => (int) $id)
             ->values()
-            ->all();
+            ->all());
 
         return $ids !== [] ? $ids : [$billingOwnerId];
     }

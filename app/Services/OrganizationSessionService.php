@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Organization;
 use App\Models\Team;
+use App\Support\RequestMemo;
 
 class OrganizationSessionService
 {
@@ -13,7 +14,8 @@ class OrganizationSessionService
             return [];
         }
 
-        return Team::query()
+        // Middleware, the organization switcher and page props all ask this on every request.
+        return RequestMemo::remember('team', 'organizations:'.$userId, fn () => Team::query()
             ->where('user_id', $userId)
             ->whereNull('deleted_at')
             ->orderBy('id')
@@ -21,7 +23,7 @@ class OrganizationSessionService
             ->map(fn ($organizationId) => (int) $organizationId)
             ->unique()
             ->values()
-            ->all();
+            ->all());
     }
 
     public function accessibleOrganizationIdsForUser(?int $userId): array
@@ -30,10 +32,10 @@ class OrganizationSessionService
             return [];
         }
 
-        return array_values(array_unique(array_merge(
+        return RequestMemo::remember('organization', 'accessible:'.$userId, fn () => array_values(array_unique(array_merge(
             $this->organizationIdsForUser($userId),
             $this->branchOrganizationIdsAccessibleThroughOwnedParents($userId)
-        )));
+        ))));
     }
 
     public function firstOrganizationIdForUser(?int $userId): ?int

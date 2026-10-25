@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\FeatureGateContract;
 use App\Models\Addon;
+use App\Support\RequestMemo;
 use App\Support\SaClientPlanProfile;
 
 class AddonStateService implements FeatureGateContract
@@ -16,7 +17,13 @@ class AddonStateService implements FeatureGateContract
 
     public function findByName(string $name): ?Addon
     {
-        return Addon::query()->where('name', $name)->first();
+        // A handful of rows, checked several times per page: read them once per request.
+        // Keys are lowercased because the column's collation compares names case-insensitively.
+        $addons = RequestMemo::remember('addon', 'all', fn () => Addon::query()->orderBy('id')->get()
+            ->groupBy(fn (Addon $addon) => mb_strtolower((string) $addon->name))
+            ->map(fn ($group) => $group->first()));
+
+        return $addons->get(mb_strtolower($name));
     }
 
     public function isAddonEnabled(string $name): bool
