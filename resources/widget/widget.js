@@ -53,7 +53,12 @@
             today: 'اليوم',
             yesterday: 'أمس',
             unread: 'رسائل جديدة',
-            sent: 'تم الإرسال'
+            sent: 'تم الإرسال',
+            endAsk: 'هل خدمتك تمت؟',
+            endYes: 'نعم، شكراً',
+            endNo: 'لا، عندي سؤال',
+            ended: 'سعدنا بخدمتك! إذا احتجت أي شيء، ابدأ محادثة جديدة.',
+            startNew: 'ابدأ محادثة جديدة'
         },
         en: {
             open: 'Open chat',
@@ -77,7 +82,12 @@
             today: 'Today',
             yesterday: 'Yesterday',
             unread: 'new messages',
-            sent: 'Sent'
+            sent: 'Sent',
+            endAsk: 'Did we answer your question?',
+            endYes: 'Yes, thanks',
+            endNo: 'No, I have another question',
+            ended: 'Glad we could help! Start a new chat any time.',
+            startNew: 'Start a new chat'
         }
     }[LOCALE];
 
@@ -173,7 +183,11 @@
         failedText: null,
         unread: 0,
         pollTimer: null,
-        hideTimer: null
+        hideTimer: null,
+        endAsk: false,
+        endAskTimer: null,
+        endAskedId: 0,
+        ended: false
     };
 
     var ui = {};
@@ -585,6 +599,11 @@
                 send(text);
             } }));
             body.appendChild(el('div', { 'class': 'row bot' }, [botAvatar(previousSide !== 'bot'), failed]));
+        } else if (state.ended) {
+            body.appendChild(endedView('retry'));
+        } else if (state.endAsk) {
+            body.appendChild(el('div', { 'class': 'row bot' }, [botAvatar(previousSide !== 'bot'), el('div', { 'class': 'msg', text: TEXT.endAsk })]));
+            body.appendChild(endAskView());
         } else if (state.note) {
             body.appendChild(el('div', { 'class': 'note', text: state.note }));
         }
@@ -593,6 +612,9 @@
     }
 
     function syncSend() {
+        if (ui.field.value.trim() !== '') {
+            cancelEndAsk();
+        }
         if (state.sending || ui.field.value.trim() === '') {
             ui.send.setAttribute('disabled', '');
         } else {
@@ -629,8 +651,12 @@
 
         if (state.open) {
             setUnread(0);
+            if (conversationExpired()) {
+                resetConversation();
+            }
             ui.panel.removeAttribute('hidden');
             drawMessages();
+            scheduleEndAsk();
             requestAnimationFrame(function () {
                 ui.panel.classList.add('show');
             });
@@ -651,6 +677,11 @@
             return;
         }
 
+        if (state.ended && !retried) {
+            resetConversation();
+        }
+        clearTimeout(state.endAskTimer);
+        state.endAsk = false;
         state.sending = true;
         state.typing = true;
         state.note = null;
@@ -723,6 +754,114 @@
         state.typing = false;
         syncSend();
         drawMessages();
+        scheduleEndAsk();
+    }
+
+    // End of a conversation: after an assistant answer, a quiet visitor is asked whether we helped,
+    // and "yes" ends the conversation (the next message starts a new one). A conversation also ends
+    // by itself after a quiet period, which is longer while the team is involved so a reply is not lost.
+    var END_ASK_AFTER_MS = 2 * 60 * 1000;
+    var IDLE_END_MS = 30 * 60 * 1000;
+    var TEAM_IDLE_END_MS = 24 * 60 * 60 * 1000;
+
+    function lastMessage() {
+        return state.messages[state.messages.length - 1] || null;
+    }
+
+    function teamInvolved() {
+        return state.note === TEXT.awaiting || state.messages.some(function (message) {
+            return message.from === 'agent';
+        });
+    }
+
+    function scheduleEndAsk() {
+        clearTimeout(state.endAskTimer);
+        state.endAskTimer = null;
+        var last = lastMessage();
+        if (!state.open || state.ended || state.endAsk || state.inCall || state.sending || teamInvolved()
+            || !last || last.from !== 'assistant' || last.revealed === false || !last.id || last.id <= state.endAskedId) {
+            return;
+        }
+        state.endAskTimer = setTimeout(function () {
+            state.endAskTimer = null;
+            if (!state.open || state.sending || state.inCall || ui.field.value.trim() !== '' || lastMessage() !== last || teamInvolved()) {
+                return;
+            }
+            state.endAsk = true;
+            state.endAskedId = last.id;
+            drawMessages();
+        }, END_ASK_AFTER_MS);
+    }
+
+    // The visitor started typing: they are not done, so the question goes away.
+    function cancelEndAsk() {
+        clearTimeout(state.endAskTimer);
+        state.endAskTimer = null;
+        if (state.endAsk) {
+            state.endAsk = false;
+            drawMessages();
+        }
+    }
+
+    function endConversation() {
+        clearTimeout(state.endAskTimer);
+        state.endAskTimer = null;
+        state.endAsk = false;
+        state.ended = true;
+        // Forget the session; the conversation stays in the team's inbox.
+        state.token = null;
+        writeStore('localStorage', TOKEN_KEY, null);
+        drawMessages();
+    }
+
+    function keepConversation() {
+        state.endAsk = false;
+        drawMessages();
+        ui.field.focus();
+    }
+
+    function resetConversation() {
+        clearTimeout(state.endAskTimer);
+        state.endAskTimer = null;
+        state.endAsk = false;
+        state.ended = false;
+        state.token = null;
+        writeStore('localStorage', TOKEN_KEY, null);
+        state.messages = [];
+        state.lastId = 0;
+        state.endAskedId = 0;
+        state.note = null;
+        state.failedText = null;
+    }
+
+    function startNewConversation() {
+        resetConversation();
+        drawMessages();
+        ui.field.focus();
+    }
+
+    // A conversation whose last message is older than the quiet period has ended.
+    function conversationExpired() {
+        var last = lastMessage();
+        if (!last || !last.at) {
+            return false;
+        }
+        var quiet = Date.now() - new Date(last.at).getTime();
+        return quiet > (teamInvolved() || last.from === 'visitor' ? TEAM_IDLE_END_MS : IDLE_END_MS);
+    }
+
+    function endAskView() {
+        return el('div', { 'class': 'chips end-chips', role: 'group', 'aria-label': TEXT.endAsk }, [
+            el('button', { type: 'button', 'class': 'chip', text: TEXT.endYes, onclick: endConversation }),
+            el('button', { type: 'button', 'class': 'chip', text: TEXT.endNo, onclick: keepConversation })
+        ]);
+    }
+
+    function endedView(buttonClass) {
+        return el('div', { 'class': 'note', role: 'status' }, [
+            el('div', { text: TEXT.ended }),
+            el('button', { type: 'button', 'class': buttonClass, text: TEXT.startNew, onclick: startNewConversation })
+        ]);
     }
 
     // Open: check for team replies every poll interval. Closed: check slowly, only once a
@@ -747,6 +886,7 @@
                 }
                 if (state.open) {
                     drawMessages();
+                    scheduleEndAsk();
                 } else if (fresh > 0) {
                     setUnread(state.unread + fresh);
                 }
@@ -1135,7 +1275,7 @@
             });
 
             ui.convChips.textContent = '';
-            if (!state.sending) {
+            if (!state.sending && !state.endAsk && !state.ended) {
                 chips(suggestions.filter(function (item) {
                     return asked.indexOf(item) === -1;
                 }).slice(0, 3)).forEach(function (chip) {
@@ -1192,6 +1332,11 @@
                     send(text);
                 } }));
                 body.appendChild(el('div', { 'class': 'row bot' }, [failed]));
+            } else if (state.ended) {
+                body.appendChild(endedView('resume'));
+            } else if (state.endAsk) {
+                body.appendChild(el('div', { 'class': 'row bot' }, [el('div', { 'class': 'msg', text: TEXT.endAsk })]));
+                body.appendChild(endAskView());
             } else if (state.note) {
                 body.appendChild(el('div', { 'class': 'note', text: state.note }));
             }
@@ -1242,6 +1387,7 @@
                     }, 900);
                 }
                 mochi.reveal();
+                scheduleEndAsk();
             };
 
             if (REDUCED_MOTION) {
@@ -1294,13 +1440,8 @@
         },
 
         newChat: function () {
-            state.token = null;
-            writeStore('localStorage', TOKEN_KEY, null);
-            state.messages = [];
-            state.lastId = 0;
-            state.note = null;
-            state.failedText = null;
             // The next message opens a fresh session.
+            resetConversation();
             mochi.draw();
             ui.field.focus();
         },
@@ -1923,9 +2064,13 @@
 
         if (state.open) {
             setUnread(0);
+            if (conversationExpired()) {
+                resetConversation();
+            }
             ui.launcherWrap.setAttribute('hidden', '');
             ui.panel.removeAttribute('hidden');
             drawMessages();
+            scheduleEndAsk();
             if (restoring || REDUCED_MOTION) {
                 ui.panel.classList.add('show');
             } else {
@@ -1954,6 +2099,10 @@
             return ok || openSession();
         })).then(function (ok) {
             if (ok) {
+                // A returning visitor whose conversation went quiet long ago starts a new one.
+                if (conversationExpired()) {
+                    resetConversation();
+                }
                 (state.theme === 'mochi' ? mochi.render : render)();
             }
         });
