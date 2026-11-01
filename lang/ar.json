@@ -32,7 +32,7 @@
     "Back to all requests": "الرجوع لكل الطلبات",
     "Request details": "بيانات الطلب",
     "Verification stages": "مراحل التوثيق",
-    "Demo requests": "طلبات تجريبية",
+    "Demo requests": "طلبات العرض التوضيحي",
     "Meta verification pending": "طلبات توثيق واتساب معلّقة",
     "Subscriptions expiring soon": "اشتراكات قريبة من الانتهاء",
     "Unassigned tickets": "تذاكر غير معيّنة",
@@ -5698,5 +5698,14 @@
     "This customer is chatting from your app through the Mochi API. Text replies only.": "العميل ده بيكلّمك من تطبيقك عن طريق API موتشي. الرد بالنص بس.",
     "Read the full developer guide: keys, WhatsApp rules, Mochi API, webhooks, errors and complete examples": "اقرأ دليل المطوّرين الكامل: المفاتيح، قواعد واتساب، API موتشي، الـ Webhooks، الأخطاء، وأمثلة كاملة",
     "Developer guide": "دليل المطوّرين",
-    "App user": "مستخدم التطبيق"
+    "App user": "مستخدم التطبيق",
+    "Requests from the website form and from Mochi. Reach each person on WhatsApp and keep the status up to date.": "الطلبات اللي وصلت من فورم الموقع ومن موتشي. تواصل مع كل شخص على واتساب وحدّث حالة الطلب.",
+    "Total requests": "إجمالي الطلبات",
+    "Best time": "الوقت المناسب",
+    "Contact on WhatsApp": "تواصل على واتساب",
+    "Website form": "فورم الموقع",
+    "No demo requests yet": "لا توجد طلبات عرض توضيحي حتى الآن",
+    "Requests from the website form and from Mochi will appear here.": "الطلبات اللي تجي من فورم الموقع ومن موتشي بتظهر هنا.",
+    "Any time": "أي وقت",
+    "Status updated": "تم تحديث الحالة"
 }

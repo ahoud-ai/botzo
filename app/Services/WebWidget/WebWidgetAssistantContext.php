@@ -3,7 +3,9 @@
 namespace App\Services\WebWidget;
 
 use App\Models\Contact;
+use App\Models\Setting;
 use App\Models\SubscriptionPlan;
+use App\Services\DemoRequests\DemoRequestService;
 use App\Models\WebWidget;
 use Illuminate\Support\Facades\Cache;
 
@@ -55,6 +57,7 @@ class WebWidgetAssistantContext
 
         if ($this->offersPricingCard($widget)) {
             $lines[] = 'When the visitor asks about prices or plans, answer briefly and end your reply with the marker [[CARD:pricing]] to show the pricing card under your message.';
+            $lines[] = 'When the visitor wants a demo, a call, a consultation, or to talk to sales about subscribing, say one short line (for example: أبشر! عبّ بياناتك وفريقنا يتواصل معك على واتساب 👇) and end your reply with the marker [[CARD:demo]] to show the booking form. Do not ask for their name or number in the chat; the form collects them. Use this marker instead of opening a demo page.';
         }
 
         return implode("\n", $lines);
@@ -93,11 +96,35 @@ class WebWidgetAssistantContext
             return $page ? ['type' => 'navigate', 'label' => $page['label'], 'url' => $page['url']] : null;
         }
 
-        if (($stored['type'] ?? null) === 'card' && ($stored['key'] ?? null) === 'pricing' && $this->offersPricingCard($widget)) {
-            return $this->pricingCard();
+        if (($stored['type'] ?? null) === 'card' && $this->isBotzoSite($widget)) {
+            return match ($stored['key'] ?? null) {
+                'pricing' => $this->pricingCard(),
+                'demo' => ['type' => 'demo_form'],
+                'demo_done' => ['type' => 'demo_done', 'whatsapp_url' => $this->companyWhatsappUrl()],
+                default => null,
+            };
         }
 
         return null;
+    }
+
+    /**
+     * Botzo's own site (botzo.net): the cards about Botzo itself (plans, demo booking) show only there.
+     */
+    public function isBotzoSite(WebWidget $widget): bool
+    {
+        return (int) $widget->organization_id === (int) app(SiteWidget::class)->organization()?->id;
+    }
+
+    /**
+     * "Talk to us now" link to the company number from the site's contact settings, with a ready message.
+     */
+    private function companyWhatsappUrl(): ?string
+    {
+        $settings = Setting::whereIn('key', ['frontend_contact_phone_primary', 'phone'])->pluck('value', 'key');
+        $phone = trim((string) ($settings['frontend_contact_phone_primary'] ?? '')) ?: trim((string) ($settings['phone'] ?? ''));
+
+        return DemoRequestService::whatsappUrl($phone, 'السلام عليكم، أرسلت طلب عرض توضيحي من موقع بوتزو');
     }
 
     /**
@@ -105,7 +132,7 @@ class WebWidgetAssistantContext
      */
     public function offersPricingCard(WebWidget $widget): bool
     {
-        return (int) $widget->organization_id === (int) app(SiteWidget::class)->organization()?->id;
+        return $this->isBotzoSite($widget);
     }
 
     /**

@@ -770,7 +770,7 @@
 
     function teamInvolved() {
         return state.note === TEXT.awaiting || state.messages.some(function (message) {
-            return message.from === 'agent';
+            return message.from === 'agent' || (message.action && message.action.type === 'demo_done');
         });
     }
 
@@ -925,7 +925,23 @@
             startNow: 'ابدأ الآن',
             failed: 'النت فيه شوية مشكلة، جرّب مرة ثانية',
             mic: 'تكلّم مع المساعد',
-            voiceSoon: 'المكالمة الصوتية جاية قريب، اكتب لي الحين 👇'
+            voiceSoon: 'المكالمة الصوتية جاية قريب، اكتب لي الحين 👇',
+            demoTitle: 'احجز عرضك التوضيحي',
+            demoName: 'الاسم',
+            demoPhone: 'رقم الواتساب',
+            demoActivity: 'نشاطك التجاري (اختياري)',
+            demoTime: 'الوقت المناسب للتواصل (اختياري)',
+            demoMorning: 'الصباح',
+            demoEvening: 'المساء',
+            demoAny: 'أي وقت',
+            demoSubmit: 'أرسل الطلب',
+            demoSending: 'جاري الإرسال…',
+            demoNeedName: 'اكتب اسمك',
+            demoNeedPhone: 'اكتب رقم واتساب صحيح',
+            demoSent: '✓ تم إرسال الطلب',
+            demoAlready: 'طلبك وصلنا قبل شوي ✓',
+            demoFailed: 'صار خطأ بسيط، جرّب مرة ثانية',
+            demoWhatsapp: 'كلّمنا الآن على واتساب'
         },
         en: {
             bubble: 'Hi! Got a question? 👋',
@@ -946,7 +962,23 @@
             startNow: 'Start now',
             failed: 'Connection problem, please try again',
             mic: 'Talk to the assistant',
-            voiceSoon: 'Voice calls are coming soon. Type to me for now 👇'
+            voiceSoon: 'Voice calls are coming soon. Type to me for now 👇',
+            demoTitle: 'Book your demo',
+            demoName: 'Name',
+            demoPhone: 'WhatsApp number',
+            demoActivity: 'Your business (optional)',
+            demoTime: 'Best time to contact you (optional)',
+            demoMorning: 'Morning',
+            demoEvening: 'Evening',
+            demoAny: 'Any time',
+            demoSubmit: 'Send request',
+            demoSending: 'Sending…',
+            demoNeedName: 'Please enter your name',
+            demoNeedPhone: 'Please enter a valid WhatsApp number',
+            demoSent: '✓ Request sent',
+            demoAlready: 'We already have your request ✓',
+            demoFailed: 'Something went wrong, please try again',
+            demoWhatsapp: 'Message us on WhatsApp now'
         }
     }[LOCALE];
 
@@ -1111,6 +1143,19 @@
             '.card-badge{font-size:11px;font-weight:700;color:#0A0E16;background:#22D366;border-radius:8px;padding:2px 8px;white-space:nowrap}',
             '.card-price{margin-top:8px;font-size:20px;font-weight:700}.card-price small{font-size:12px;font-weight:400;color:#A3ADBD;margin-inline-start:6px}',
             '.card-cta{display:block;margin-top:10px;text-align:center;border-radius:12px;background:#22D366;color:#0A0E16;font-weight:700;padding:9px;text-decoration:none}',
+            '.dtitle{font-weight:700;margin-bottom:2px}',
+            '.dfield{display:block;margin-top:10px}',
+            '.dlabel{display:block;font-size:12.5px;color:#C9D1DC;margin-bottom:4px}',
+            '.dinput{display:block;width:100%;box-sizing:border-box;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(10,14,22,.55);color:#F2F5F9;font:inherit;font-size:16px;padding:0 12px}',
+            '.dinput:focus{outline:2px solid var(--accent);outline-offset:1px}',
+            '.dinput[aria-invalid=true]{border-color:#FF8A8A}',
+            '.derr{display:block;color:#FF9C9C;font-size:12.5px;margin-top:4px}.derr[hidden]{display:none}',
+            '.dtimes{display:flex;gap:6px;flex-wrap:wrap}',
+            '.dtime{min-height:34px;padding:4px 12px;border-radius:17px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#F2F5F9;font:inherit;font-size:13px}',
+            '.dtime[aria-pressed=true]{background:var(--accent);color:#0A0E16;border-color:transparent;font-weight:700}',
+            '.dsubmit{display:block;width:100%;margin-top:12px;min-height:42px;border:0;border-radius:12px;background:var(--accent);color:#0A0E16;font:inherit;font-weight:700}',
+            '.dsubmit[disabled]{opacity:.6}',
+            '.ddone{font-weight:700;color:#7CF0A8}',
             '.c-chips{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;padding:8px 14px 0}',
             '.rtl .c-chips{justify-content:flex-end}',
             // input pill
@@ -1310,8 +1355,14 @@
                 var textNode = document.createTextNode(message.revealed === false ? (message.shown || '') : message.text);
                 bubble.appendChild(textNode);
                 message.node = textNode;
-                if (message.revealed !== false && message.action && message.action.type === 'pricing') {
-                    bubble.appendChild(mochi.card(message.action));
+                if (message.revealed !== false && message.action) {
+                    if (message.action.type === 'pricing') {
+                        bubble.appendChild(mochi.card(message.action));
+                    } else if (message.action.type === 'demo_form') {
+                        bubble.appendChild(mochi.demoForm(message));
+                    } else if (message.action.type === 'demo_done' && safeUrl(message.action.whatsapp_url)) {
+                        bubble.appendChild(el('a', { 'class': 'card-cta', href: safeUrl(message.action.whatsapp_url), target: '_blank', rel: 'noopener', text: MOCHI_TEXT.demoWhatsapp }));
+                    }
                 }
                 body.appendChild(el('div', { 'class': 'row bot' }, [bubble]));
             });
@@ -1357,6 +1408,114 @@
                 el('div', { 'class': 'card-price' }, [price, el('small', { text: MOCHI_TEXT.perMonth })]),
                 href ? el('a', { 'class': 'card-cta', href: href, text: MOCHI_TEXT.startNow }) : null
             ]);
+        },
+
+        // Demo booking on botzo.net. The form keeps its node across redraws so typing is never lost.
+        demoForm: function (message) {
+            var sent = state.messages.some(function (item) {
+                return item.action && item.action.type === 'demo_done';
+            });
+            if (sent) {
+                return el('div', { 'class': 'card' }, [el('div', { 'class': 'ddone', text: MOCHI_TEXT.demoSent })]);
+            }
+
+            ui.demoForms = ui.demoForms || {};
+            var key = String(message.id || 'new');
+            if (ui.demoForms[key]) {
+                return ui.demoForms[key];
+            }
+
+            var uid = 'bz-demo-' + key;
+            var errors = {};
+            var time = null;
+            var field = function (name, label, input) {
+                var error = el('span', { 'class': 'derr', id: uid + '-' + name + '-error', hidden: '' });
+                input.setAttribute('aria-describedby', error.id);
+                errors[name] = { input: input, node: error };
+                return el('div', { 'class': 'dfield' }, [el('label', { 'class': 'dlabel', 'for': input.id, text: label }), input, error]);
+            };
+            var showError = function (name, text) {
+                errors[name].node.textContent = text;
+                errors[name].node.hidden = !text;
+                errors[name].input.setAttribute('aria-invalid', text ? 'true' : 'false');
+            };
+
+            var name = el('input', { 'class': 'dinput', id: uid + '-name', type: 'text', autocomplete: 'name', maxlength: '120' });
+            var phone = el('input', { 'class': 'dinput', id: uid + '-phone', type: 'tel', autocomplete: 'tel', inputmode: 'tel', dir: 'ltr', maxlength: '30', value: '+966 ' });
+            var activity = el('input', { 'class': 'dinput', id: uid + '-activity', type: 'text', autocomplete: 'organization', maxlength: '120' });
+            var times = [['morning', MOCHI_TEXT.demoMorning], ['evening', MOCHI_TEXT.demoEvening], ['any', MOCHI_TEXT.demoAny]].map(function (item) {
+                return el('button', { type: 'button', 'class': 'dtime', 'aria-pressed': 'false', 'data-time': item[0], text: item[1], onclick: function () {
+                    time = time === item[0] ? null : item[0];
+                    times.forEach(function (button) {
+                        button.setAttribute('aria-pressed', button.getAttribute('data-time') === time ? 'true' : 'false');
+                    });
+                } });
+            });
+            var status = el('span', { 'class': 'derr', role: 'alert', hidden: '' });
+            var submit = el('button', { type: 'submit', 'class': 'dsubmit', text: MOCHI_TEXT.demoSubmit });
+            var resetSubmit = function () {
+                submit.disabled = false;
+                submit.textContent = MOCHI_TEXT.demoSubmit;
+            };
+
+            var card = el('form', { 'class': 'card', novalidate: '', 'aria-label': MOCHI_TEXT.demoTitle, onsubmit: function (event) {
+                event.preventDefault();
+                var nameValue = name.value.trim();
+                var digits = phone.value.replace(/\D+/g, '');
+                showError('name', nameValue ? '' : MOCHI_TEXT.demoNeedName);
+                showError('phone', digits.length >= 9 && digits.length <= 15 ? '' : MOCHI_TEXT.demoNeedPhone);
+                if (!nameValue) {
+                    name.focus();
+                    return;
+                }
+                if (!errors.phone.node.hidden) {
+                    phone.focus();
+                    return;
+                }
+
+                submit.disabled = true;
+                submit.textContent = MOCHI_TEXT.demoSending;
+                status.hidden = true;
+                request('POST', '/demo-request', {
+                    full_name: nameValue,
+                    phone: phone.value,
+                    business_activity: activity.value.trim() || null,
+                    preferred_time: time
+                }).then(function (result) {
+                    if (result.status === 200) {
+                        addMessages(result.data.messages || [], true);
+                        state.note = null;
+                        mochi.draw();
+                        mochi.reveal();
+                        return;
+                    }
+                    resetSubmit();
+                    if (result.status === 422) {
+                        showError('phone', MOCHI_TEXT.demoNeedPhone);
+                        phone.focus();
+                        return;
+                    }
+                    status.textContent = result.status === 429 ? MOCHI_TEXT.demoAlready : MOCHI_TEXT.demoFailed;
+                    status.hidden = false;
+                }).catch(function () {
+                    resetSubmit();
+                    status.textContent = MOCHI_TEXT.demoFailed;
+                    status.hidden = false;
+                });
+            } }, [
+                el('div', { 'class': 'dtitle', text: MOCHI_TEXT.demoTitle }),
+                field('name', MOCHI_TEXT.demoName, name),
+                field('phone', MOCHI_TEXT.demoPhone, phone),
+                field('activity', MOCHI_TEXT.demoActivity, activity),
+                el('div', { 'class': 'dfield', role: 'group', 'aria-label': MOCHI_TEXT.demoTime }, [
+                    el('span', { 'class': 'dlabel', text: MOCHI_TEXT.demoTime }),
+                    el('div', { 'class': 'dtimes' }, times)
+                ]),
+                submit,
+                status
+            ]);
+            ui.demoForms[key] = card;
+            return card;
         },
 
         // Reveal new assistant replies a few characters at a time, then run their action.

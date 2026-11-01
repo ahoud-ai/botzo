@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contact;
+use App\Models\DemoRequest;
 use App\Models\Organization;
 use App\Models\WebWidget;
 use App\Models\WebWidgetSession;
 use App\Models\WebWidgetVoiceCall;
+use App\Services\DemoRequests\DemoRequestService;
 use App\Services\WebWidget\WebWidgetAssistantContext;
 use App\Services\WebWidget\WebWidgetEntitlements;
+use App\Services\WebWidget\WebWidgetMessageStore;
 use App\Services\WebWidget\WebWidgetPages;
 use App\Services\WebWidget\WebWidgetService;
 use App\Services\WebWidget\WebWidgetVoiceService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 
 /**
@@ -126,6 +131,69 @@ class WebWidgetController extends Controller
         return response()->json([
             'messages' => $this->widgets->messages($session->refresh(), (int) $received['chat']->id - 1),
             'awaiting_team' => ! $received['replied'],
+        ]);
+    }
+
+    /**
+     * Mochi's demo booking card on botzo.net: saves the request, names the inbox contact, and adds
+     * the request and a confirmation to the conversation. The team is emailed (DemoRequestService).
+     */
+    public function demoRequest(Request $request, string $key): JsonResponse
+    {
+        [$widget, $session] = $this->resolveSession($request, $key);
+        if (! $widget || ! app(WebWidgetAssistantContext::class)->isBotzoSite($widget)) {
+            return $this->unavailable();
+        }
+        if (! $session || ! $session->contact_id || ! ($contact = Contact::find($session->contact_id))) {
+            return response()->json(['error' => 'session_expired'], 401);
+        }
+
+        $data = $request->validate([
+            'full_name' => ['required', 'string', 'max:120'],
+            'phone' => ['required', 'string', 'max:30', 'regex:/^[+0-9 ()\-]+$/'],
+            'business_activity' => ['nullable', 'string', 'max:120'],
+            'preferred_time' => ['nullable', 'in:'.implode(',', DemoRequest::PREFERRED_TIMES)],
+            'email' => ['nullable', 'email', 'max:191'],
+        ]);
+        $data['full_name'] = trim((string) preg_replace('/[\x{0000}-\x{001F}\x{007F}]/u', '', $data['full_name']));
+        $phone = DemoRequestService::normalizePhone($data['phone']);
+        if ($data['full_name'] === '' || DemoRequestService::whatsappUrl($phone) === null) {
+            return response()->json(['error' => 'invalid_details'], 422);
+        }
+
+        // One booking per conversation every few minutes stops double taps and repeat spam.
+        if (! Cache::add('web-widget:demo-request:'.$session->id, 1, now()->addMinutes(10))) {
+            return response()->json(['error' => 'already_requested'], 429);
+        }
+
+        $demo = app(DemoRequestService::class)->create($data, DemoRequest::SOURCE_MOCHI, (int) $contact->id);
+
+        if (str_starts_with((string) $contact->first_name, __('Website visitor'))) {
+            $contact->forceFill(['first_name' => mb_substr($demo->full_name, 0, 100), 'last_name' => null])->save();
+        }
+
+        $arabic = $session->locale !== 'en';
+        // Kept left-to-right inside Arabic text, so "+966..." does not show as "966...+".
+        $phoneText = "\u{2066}".$demo->phone."\u{2069}";
+        $times = $arabic ? ['morning' => 'الصباح', 'evening' => 'المساء', 'any' => 'أي وقت'] : ['morning' => 'Morning', 'evening' => 'Evening', 'any' => 'Any time'];
+        $summary = implode("\n", array_filter([
+            $arabic ? '📅 طلب عرض توضيحي' : '📅 Demo request',
+            ($arabic ? 'الاسم: ' : 'Name: ').$demo->full_name,
+            ($arabic ? 'واتساب: ' : 'WhatsApp: ').$phoneText,
+            $demo->business_activity ? ($arabic ? 'النشاط: ' : 'Business: ').$demo->business_activity : null,
+            $demo->preferred_time ? ($arabic ? 'الوقت المناسب: ' : 'Preferred time: ').$times[$demo->preferred_time] : null,
+            $demo->email ? ($arabic ? 'الإيميل: ' : 'Email: ').$demo->email : null,
+        ]));
+        $store = app(WebWidgetMessageStore::class);
+        $first = $store->storeText($contact, $summary, 'inbound', null, ['demo_request_id' => (int) $demo->id]);
+        $store->storeText($contact, $arabic
+            ? sprintf('تم استلام طلبك يا %s 🎉 فريقنا بيتواصل معك على واتساب على الرقم %s قريباً.', $demo->full_name, $phoneText)
+            : sprintf('Thanks %s 🎉 Our team will contact you on WhatsApp at %s soon.', $demo->full_name, $phoneText),
+            'outbound', null, ['widget_action' => ['type' => 'card', 'key' => 'demo_done']]);
+
+        return response()->json([
+            'messages' => $this->widgets->messages($session->refresh(), (int) $first->id - 1),
+            'awaiting_team' => true,
         ]);
     }
 

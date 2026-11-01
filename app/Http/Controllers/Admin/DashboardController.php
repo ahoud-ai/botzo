@@ -57,7 +57,7 @@ class DashboardController extends BaseController
         $data['needsAttention'] = [
             'demoRequests' => [
                 'count' => DemoRequest::where('status', 'new')->count(),
-                'href' => null,
+                'href' => '/admin/demo-requests?status=new',
             ],
             'metaVerificationsPending' => [
                 'count' => MetaVerificationRequest::whereNotIn('status', [

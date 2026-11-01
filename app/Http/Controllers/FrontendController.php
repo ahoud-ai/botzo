@@ -147,7 +147,7 @@ class FrontendController extends BaseController
 
     public function storeDemoRequest(\App\Http\Requests\StoreDemoRequest $request)
     {
-        \App\Models\DemoRequest::create($request->validated());
+        app(\App\Services\DemoRequests\DemoRequestService::class)->create($request->validated());
 
         return Redirect::back()->with('status', [
             'type' => 'success',
