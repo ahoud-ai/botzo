@@ -60,6 +60,7 @@ class SallaAppInstallTest extends TestCase
         $this->assertSame('access-1', $store->access_token);
         $this->assertSame('refresh-1', $store->refresh_token);
         $this->assertSame(SallaStore::STATUS_INSTALLED, $store->status);
+        $this->assertEqualsWithDelta(now()->addDays(14)->timestamp, $store->token_expires_at->timestamp, 5, 'The expiry keeps the moment Salla sent.');
         $this->assertSame(['متجر الاختبار', 'https://shop.test', 'owner@shop.test'], [$store->store_name, $store->store_domain, $store->store_email]);
 
         $raw = DB::table('salla_stores')->where('id', $store->id)->first();
@@ -285,6 +286,21 @@ class SallaAppInstallTest extends TestCase
         $this->assertSame(SallaStore::STATUS_INSTALLED, $store->status);
         $this->assertSame('access-1', $store->access_token);
         $this->assertNull($store->purge_after);
+    }
+
+    public function test_salla_dates_without_an_offset_are_riyadh_time(): void
+    {
+        config(['app.timezone' => 'UTC']);
+        date_default_timezone_set('UTC');
+
+        try {
+            $this->send($this->authorizeEvent('2026-11-04 19:40:19'))->assertOk();
+
+            $installedAt = SallaStore::where('merchant_id', self::MERCHANT)->sole()->installed_at;
+            $this->assertSame('2026-11-04 16:40:19', $installedAt->utc()->format('Y-m-d H:i:s'));
+        } finally {
+            date_default_timezone_set('Asia/Riyadh');
+        }
     }
 
     public function test_reinstalling_returns_to_the_same_account(): void

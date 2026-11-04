@@ -184,7 +184,7 @@ class SallaStoreInstaller
     private function expiry(mixed $expires): Carbon
     {
         return is_numeric($expires) && (int) $expires > time()
-            ? Carbon::createFromTimestamp((int) $expires)
+            ? Carbon::createFromTimestamp((int) $expires, config('app.timezone'))
             : now()->addDays(14);
     }
 }

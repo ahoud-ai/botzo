@@ -109,12 +109,13 @@ class SallaWebhookProcessor
         return $clean;
     }
 
-    /** Salla sends dates such as "Wed Jun 30 2021 12:16:25 GMT+0300 (Arabian Standard Time)". */
+    /** Salla sends Riyadh time without an offset ("2026-11-04 19:40:19"); its docs also show "... GMT+0300". */
     private function occurredAt(mixed $value): CarbonInterface
     {
         if (is_string($value) && trim($value) !== '') {
             try {
-                return Carbon::parse(trim((string) preg_replace('/\s*\(.*\)\s*$/', '', $value)));
+                return Carbon::parse(trim((string) preg_replace('/\s*\(.*\)\s*$/', '', $value)), 'Asia/Riyadh')
+                    ->setTimezone(config('app.timezone'));
             } catch (Throwable) {
                 Log::warning('salla.webhook.bad_date', ['value' => Str::limit($value, 64, '')]);
             }
