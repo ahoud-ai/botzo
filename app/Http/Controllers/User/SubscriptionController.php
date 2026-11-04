@@ -13,6 +13,7 @@ use App\Models\PaymentGateway;
 use App\Models\SubscriptionPlan;
 use App\Models\Setting;
 use App\Models\TaxRate;
+use App\Services\Salla\SallaStoreAccess;
 use App\Services\BillingService;
 use App\Services\BillingCheckoutIntentService;
 use App\Services\OrganizationHierarchyService;
@@ -49,7 +50,9 @@ class SubscriptionController extends BaseController
 
         $data['subscription'] = $this->subscriptionPlanLimitService->subscriptionForOrganization((int) $organizationId);
         $data['taxes'] = TaxRate::where('status', 'active')->where('deleted_at', NULL)->get();
+        $managedBySalla = app(SallaStoreAccess::class)->billingIsManagedBySalla((int) $organizationId);
         $planQuery = SubscriptionPlan::query()
+            ->when($managedBySalla, fn ($query) => $query->whereRaw('1 = 0'))
             ->whereNull('deleted_at')
             ->where(function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->query('search'). '%');
@@ -70,7 +73,8 @@ class SubscriptionController extends BaseController
                 ->latest()
                 ->paginate(10)
         );
-        $data['methods'] = $this->paymentMethods();
+        $data['methods'] = $managedBySalla ? [] : $this->paymentMethods();
+        $data['subscriptionManagedBySalla'] = $managedBySalla;
         $data['subscriptionDetails'] = SubscriptionService::planSelectionPreview($organizationId, $data['subscription']?->plan_id);
         $data['title'] = __('Billing');
         $data['addons'] = $this->planRestrictedAddonCatalog();
@@ -260,6 +264,10 @@ class SubscriptionController extends BaseController
 
     private function abortIfBranchSubscriptionManagedByParent(int $organizationId): void
     {
+        if (app(SallaStoreAccess::class)->billingIsManagedBySalla($organizationId)) {
+            abort(403, __('Your subscription is managed from Salla.'));
+        }
+
         if (!$this->organizationHierarchyService->isBranch($organizationId)) {
             return;
         }

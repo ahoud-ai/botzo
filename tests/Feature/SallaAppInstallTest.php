@@ -160,6 +160,8 @@ class SallaAppInstallTest extends TestCase
 
         $this->assertSame('متجر الاختبار', $store->fresh()->store_name);
         $this->assertSame('متجر الاختبار', Organization::find($store->organization_id)->name);
+        $user = User::where('email', 'salla-'.self::MERCHANT.'@merchants.botzo.invalid')->sole();
+        $this->assertSame(['متجر الاختبار', ''], [$user->first_name, $user->last_name], 'The dashboard shows the store, not a placeholder or "null".');
     }
 
     public function test_a_failed_event_answers_500_and_stays_open_for_retries(): void

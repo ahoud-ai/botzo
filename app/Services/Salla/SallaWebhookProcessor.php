@@ -4,12 +4,9 @@ namespace App\Services\Salla;
 
 use App\Models\SallaStore;
 use App\Models\SallaWebhookEvent;
-use Carbon\CarbonInterface;
+use App\Support\SallaDate;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -19,10 +16,10 @@ use Throwable;
  */
 class SallaWebhookProcessor
 {
-    private const HANDLED = ['app.store.authorize', 'app.uninstalled'];
-
-    public function __construct(private readonly SallaStoreInstaller $installer)
-    {
+    public function __construct(
+        private readonly SallaStoreInstaller $installer,
+        private readonly SallaSubscriptions $subscriptions,
+    ) {
     }
 
     public function handle(string $rawBody, array $payload): void
@@ -30,7 +27,7 @@ class SallaWebhookProcessor
         $event = (string) ($payload['event'] ?? '');
         $merchantId = (int) ($payload['merchant'] ?? 0);
 
-        if (! in_array($event, self::HANDLED, true) || $merchantId <= 0) {
+        if (! $this->handles($event) || $merchantId <= 0) {
             $this->recordOnly($rawBody, $event, $merchantId, $payload);
 
             return;
@@ -63,12 +60,18 @@ class SallaWebhookProcessor
 
     private function apply(string $event, int $merchantId, array $payload): bool
     {
-        $occurredAt = $this->occurredAt($payload['created_at'] ?? null);
+        $occurredAt = SallaDate::parse($payload['created_at'] ?? null) ?? now();
 
         return match ($event) {
             'app.store.authorize' => $this->installer->authorize($merchantId, (array) ($payload['data'] ?? []), $occurredAt) !== null,
             'app.uninstalled' => $this->installer->uninstall($merchantId, $occurredAt),
+            default => $this->subscriptions->apply($event, $merchantId, (array) ($payload['data'] ?? []), $occurredAt),
         };
+    }
+
+    private function handles(string $event): bool
+    {
+        return in_array($event, ['app.store.authorize', 'app.uninstalled', ...SallaSubscriptions::EVENTS], true);
     }
 
     private function recordOnly(string $rawBody, string $event, int $merchantId, array $payload): void
@@ -107,20 +110,5 @@ class SallaWebhookProcessor
         }
 
         return $clean;
-    }
-
-    /** Salla sends Riyadh time without an offset ("2026-11-04 19:40:19"); its docs also show "... GMT+0300". */
-    private function occurredAt(mixed $value): CarbonInterface
-    {
-        if (is_string($value) && trim($value) !== '') {
-            try {
-                return Carbon::parse(trim((string) preg_replace('/\s*\(.*\)\s*$/', '', $value)), 'Asia/Riyadh')
-                    ->setTimezone(config('app.timezone'));
-            } catch (Throwable) {
-                Log::warning('salla.webhook.bad_date', ['value' => Str::limit($value, 64, '')]);
-            }
-        }
-
-        return now();
     }
 }

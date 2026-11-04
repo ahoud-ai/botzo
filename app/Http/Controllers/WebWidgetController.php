@@ -10,6 +10,7 @@ use App\Models\WebWidgetSession;
 use App\Models\WebWidgetVoiceCall;
 use App\Services\DemoRequests\DemoRequestService;
 use App\Services\WebWidget\WebWidgetAssistantContext;
+use App\Services\Salla\SallaStoreAccess;
 use App\Services\WebWidget\WebWidgetEntitlements;
 use App\Services\WebWidget\WebWidgetMessageStore;
 use App\Services\WebWidget\WebWidgetPages;
@@ -326,7 +327,11 @@ class WebWidgetController extends Controller
 
         $widget = WebWidget::where('public_key', $key)->where('is_enabled', true)->first();
 
-        return $widget && $widget->allowsOrigin($this->origin($request)) ? $widget : null;
+        if (! $widget || ! $widget->allowsOrigin($this->origin($request))) {
+            return null;
+        }
+
+        return app(SallaStoreAccess::class)->assistantAllowed((int) $widget->organization_id) ? $widget : null;
     }
 
     /**

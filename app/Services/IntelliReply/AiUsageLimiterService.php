@@ -289,6 +289,9 @@ class AiUsageLimiterService
         $textLimit = $this->normalizeLimit($metadata['ai_text_response_limit'] ?? -1);
         $audioLimit = $this->normalizeLimit($metadata['ai_audio_response_limit'] ?? -1);
 
+        // Plans whose replies Botzo pays for keep their limit even when AI billing is off site-wide.
+        $enforced = $enforced || (string) ($metadata['ai_limits_enforced'] ?? '0') === '1';
+
         return [$enforced, $subscription, ['text' => $textLimit, 'audio' => $audioLimit]];
     }
 

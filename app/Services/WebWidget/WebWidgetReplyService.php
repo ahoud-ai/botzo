@@ -7,6 +7,7 @@ use App\Models\Contact;
 use App\Models\WebWidget;
 use App\Services\IntelliReply\AiConversationPauseService;
 use App\Services\IntelliReply\AiHumanHandoffService;
+use App\Services\Salla\SallaStoreAccess;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -43,6 +44,10 @@ class WebWidgetReplyService
 
     private function replyNow(WebWidget $widget, Chat $chat): bool
     {
+        if (! app(SallaStoreAccess::class)->assistantAllowed((int) $chat->organization_id)) {
+            return false;
+        }
+
         $contact = Contact::find($chat->contact_id);
         if (! $contact || app(AiConversationPauseService::class)->isPaused($contact)) {
             return false;

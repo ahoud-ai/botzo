@@ -12,7 +12,12 @@
         <div class="ui-page ui-fade-up ui-page-frame text-[var(--ui-text)] min-h-full">
             <UiPageHeader :title="$t('Billing and subscription')" :subtitle="$t('View and manage your billing history')" />
 
-            <div v-if="subscriptionManagedByParent" class="billing-banner billing-banner--info">
+            <div v-if="subscriptionManagedBySalla" class="billing-banner billing-banner--info">
+                <h3 class="font-semibold">{{ $t('Subscription managed by Salla') }}</h3>
+                <p class="mt-1">{{ $t('You subscribed through the Salla app store. To change or renew your plan, open Botzo in the Salla app store.') }}</p>
+            </div>
+
+            <div v-else-if="subscriptionManagedByParent" class="billing-banner billing-banner--info">
                 <h3 class="font-semibold">{{ $t('Inherited subscription') }}</h3>
                 <p class="mt-1">
                     {{ $t('This branch uses the subscription managed by the parent organization.') }}
@@ -61,7 +66,7 @@
                             <h2 v-if="trialState" class="mt-2 text-[1.65rem] font-bold leading-tight text-[var(--ui-text)]">{{ $t('Trial period') }}</h2>
                             <h2 v-else class="mt-2 text-[1.65rem] font-bold leading-tight text-[var(--ui-text)]">{{ activePlanName }}</h2>
                             <p v-if="['billing_pending', 'inactive'].includes(subscriptionStateVariant) && !subscriptionManagedByParent" class="mt-3 max-w-xl text-sm leading-6 text-[var(--ui-muted)]">{{ subscriptionStateVariant === 'billing_pending' ? $t('No plan is linked yet. Choose one when you are ready to start billing.') : $t('Select a plan to activate billing and start using paid features.') }}</p>
-                            <p v-if="subscriptionManagedByParent && props.billingOwner?.name" class="mt-3 text-sm leading-6 text-[var(--ui-muted)]">{{ $t('Billing owner') }}: {{ props.billingOwner.name }}</p>
+                            <p v-if="subscriptionManagedByParent && !subscriptionManagedBySalla && props.billingOwner?.name" class="mt-3 text-sm leading-6 text-[var(--ui-muted)]">{{ $t('Billing owner') }}: {{ props.billingOwner.name }}</p>
                         </div>
                         <span class="billing-eyebrow">{{ planDetailsEyebrow }}</span>
                     </div>
@@ -124,7 +129,7 @@
                     </div>
                 </div>
                 <div v-else class="billing-action-card billing-action-card--dashed">
-                    {{ subscriptionManagedByParent ? $t('Upgrade, payment, and coupon management are available from the parent organization only.') : $t('No payment methods are available right now. Please contact support.') }}
+                    {{ subscriptionManagedBySalla ? $t('Plan changes and renewals are available from the Salla app store only.') : subscriptionManagedByParent ? $t('Upgrade, payment, and coupon management are available from the parent organization only.') : $t('No payment methods are available right now. Please contact support.') }}
                 </div>
             </div>
 
@@ -207,6 +212,7 @@
         'setting',
         'billingOwner',
         'subscriptionManagedByParent',
+        'subscriptionManagedBySalla',
         'scheduledPlanChange',
         'subscriptionDisplayState',
     ]);
@@ -215,6 +221,7 @@
     const isOpenModal = ref(false);
     const isLoading = ref(false);
     const subscriptionManagedByParent = ref(Boolean(props.subscriptionManagedByParent));
+    const subscriptionManagedBySalla = ref(Boolean(props.subscriptionManagedBySalla));
     const scheduledPlanChange = computed(() => props.scheduledPlanChange ?? null);
     const hasPaymentMethods = computed(() => Array.isArray(props.methods) && props.methods.length > 0);
     const subscriptionDisplayState = computed(() => props.subscriptionDisplayState ?? {});

@@ -5707,5 +5707,9 @@
     "No demo requests yet": "لا توجد طلبات عرض توضيحي حتى الآن",
     "Requests from the website form and from Mochi will appear here.": "الطلبات اللي تجي من فورم الموقع ومن موتشي بتظهر هنا.",
     "Any time": "أي وقت",
-    "Status updated": "تم تحديث الحالة"
+    "Status updated": "تم تحديث الحالة",
+    "Subscription managed by Salla": "اشتراكك من سلة",
+    "You subscribed through the Salla app store. To change or renew your plan, open Botzo in the Salla app store.": "اشتركت عن طريق متجر تطبيقات سلة. لتغيير الباقة أو تجديدها، افتح تطبيق بوتزو من متجر تطبيقات سلة.",
+    "Plan changes and renewals are available from the Salla app store only.": "تغيير الباقة وتجديدها متاحان من متجر تطبيقات سلة فقط.",
+    "Your subscription is managed from Salla.": "تتم إدارة اشتراكك من سلة."
 }

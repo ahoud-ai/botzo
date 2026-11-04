@@ -62,6 +62,37 @@ A refresh that Salla refuses sets the status to `reauth_required` and is not ret
 `app.store.authorize` arrives. A refresh with no answer is logged as
 `salla.token_refresh.no_response`, because Salla may have used the token anyway.
 
+## Subscriptions and limits (phase 2)
+
+Run `php artisan salla:setup-plans` once per environment. It creates four `inactive` rows in
+`subscription_plans`, which keeps them off the public pricing page, and never overwrites existing rows.
+Edit limits and prices on those rows: `ai_system_key_monthly_quota` is the monthly reply limit, and
+`salla_plan_names` lists the Salla plan names that map to the plan. The values are placeholders until
+pricing is decided.
+
+| Salla event | What Botzo does |
+|---|---|
+| `app.trial.started` | Trial plan until the event's end date, or 7 days. A paying merchant is left alone |
+| `app.trial.expired`, `app.trial.canceled` | Ends a running trial |
+| `app.subscription.started`, `app.subscription.renewed` | Sets the plan by name and the paid period |
+| `app.subscription.canceled` | Service continues to the paid end date |
+| `app.subscription.expired` | Ends service now |
+
+- Add-on events do not change the plan.
+- An unknown plan name gives the Basic plan and logs `salla.plan.unknown_name`, so a paying merchant keeps service.
+- An event older than the last applied one is ignored, and so is the end of a subscription other than the current one.
+- A subscription event that arrives before the install event answers 500, so Salla retries it.
+- Trials are saved as status `active` on the trial plan, because status `trial` falls under the site-wide
+  `trial_addons` setting, which could switch the assistant off.
+- `ai_limits_enforced` on the plan keeps the reply limit on even when `enable_ai_billing` is off site-wide.
+
+The widget refuses requests (403) for a Salla store that is uninstalled or has no running subscription,
+and Botzo's own checkout answers 403 for every Salla store. Organizations without a `salla_stores` row
+are not affected.
+
+**Not confirmed yet:** Salla refuses its subscriptions API while the app is in development, so the real
+plan names and event fields have not been seen. Check them with a real subscription before publishing.
+
 ## Deleting data
 
 `salla:purge` (daily) removes, for stores past `purge_after`: contacts, chats and their logs, notes and

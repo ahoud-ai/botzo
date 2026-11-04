@@ -5634,5 +5634,9 @@
     "No demo requests yet": "No demo requests yet",
     "Requests from the website form and from Mochi will appear here.": "Requests from the website form and from Mochi will appear here.",
     "Any time": "Any time",
-    "Status updated": "Status updated"
+    "Status updated": "Status updated",
+    "Subscription managed by Salla": "Subscription managed by Salla",
+    "You subscribed through the Salla app store. To change or renew your plan, open Botzo in the Salla app store.": "You subscribed through the Salla app store. To change or renew your plan, open Botzo in the Salla app store.",
+    "Plan changes and renewals are available from the Salla app store only.": "Plan changes and renewals are available from the Salla app store only.",
+    "Your subscription is managed from Salla.": "Your subscription is managed from Salla."
 }

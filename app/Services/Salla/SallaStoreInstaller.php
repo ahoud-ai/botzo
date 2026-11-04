@@ -129,7 +129,8 @@ class SallaStoreInstaller
 
         $user = new User([
             'first_name' => Str::limit($name, 120, ''),
-            'email' => 'salla-'.$merchantId.'@merchants.botzo.invalid',
+            'last_name' => '',
+            'email' => $this->placeholderEmail($merchantId),
             'password' => Hash::make(Str::random(64)),
             'role' => 'user',
         ]);
@@ -139,9 +140,15 @@ class SallaStoreInstaller
         return $this->organizations->createOwnedMainOrganization($user, $name, (int) $user->id);
     }
 
+    private function placeholderEmail(int $merchantId): string
+    {
+        return 'salla-'.$merchantId.'@merchants.botzo.invalid';
+    }
+
     private function renameAccount(SallaStore $store, string $name): void
     {
         Organization::query()->whereKey($store->organization_id)->update(['name' => $name]);
+        User::query()->where('email', $this->placeholderEmail($store->merchant_id))->update(['first_name' => Str::limit($name, 120, '')]);
     }
 
     /** Store details are a convenience: a failed lookup must not lose the tokens, so it only logs. */

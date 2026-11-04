@@ -11,6 +11,7 @@ use App\Models\Organization;
 use App\Models\PaymentGateway;
 use App\Models\Setting;
 use App\Resolvers\PaymentPlatformResolver;
+use App\Services\Salla\SallaStoreAccess;
 use App\Services\BillingInvoiceService;
 use App\Services\BillingService;
 use App\Services\BillingCheckoutIntentService;
@@ -70,7 +71,9 @@ class BillingController extends BaseController
         $data['setting'] = Setting::whereIn('key', ['enable_custom_payment'])->pluck('value', 'key')->toArray();
         $data['organizationId'] = $organizationId;
         $data['billingOwner'] = $billingOwner;
-        $data['subscriptionManagedByParent'] = $this->organizationHierarchyService->isBranch((int) $organizationId);
+        $data['subscriptionManagedBySalla'] = app(SallaStoreAccess::class)->billingIsManagedBySalla((int) $organizationId);
+        $data['subscriptionManagedByParent'] = $data['subscriptionManagedBySalla'] || $this->organizationHierarchyService->isBranch((int) $organizationId);
+        $data['methods'] = $data['subscriptionManagedBySalla'] ? [] : $data['methods'];
         $data['scheduledPlanChange'] = SubscriptionService::scheduledPlanChangePayload($data['subscription']);
         $data['subscriptionDisplayState'] = SubscriptionService::billingDisplayState((int) $organizationId, $data['subscription']);
 
@@ -229,6 +232,10 @@ class BillingController extends BaseController
 
     private function abortIfBranchSubscriptionManagedByParent(int $organizationId): void
     {
+        if (app(SallaStoreAccess::class)->billingIsManagedBySalla($organizationId)) {
+            abort(403, __('Your subscription is managed from Salla.'));
+        }
+
         if (!$this->organizationHierarchyService->isBranch($organizationId)) {
             return;
         }

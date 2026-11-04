@@ -3,7 +3,12 @@
         <div class="ui-page ui-fade-up ui-page-frame text-[var(--ui-text)] min-h-full">
             <UiPageHeader :title="$t('Billing and subscription')" :subtitle="$t('Select the plan that you want to subscribe to')" />
 
-            <div v-if="subscriptionManagedByParent" class="billing-banner billing-banner--info">
+            <div v-if="subscriptionManagedBySalla" class="billing-banner billing-banner--info">
+                <h3 class="font-semibold">{{ $t('Subscription managed by Salla') }}</h3>
+                <p class="mt-1">{{ $t('You subscribed through the Salla app store. To change or renew your plan, open Botzo in the Salla app store.') }}</p>
+            </div>
+
+            <div v-else-if="subscriptionManagedByParent" class="billing-banner billing-banner--info">
                 <h3 class="font-semibold">{{ $t('Inherited subscription') }}</h3>
                 <p class="mt-1">
                     {{ $t('This branch uses the subscription managed by the parent organization.') }}
@@ -44,7 +49,7 @@
                 </button>
             </div>
 
-            <div class="sub-layout">
+            <div v-if="!subscriptionManagedBySalla" class="sub-layout">
                 <div class="min-w-0">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <SubscriptionPlanCard
@@ -249,6 +254,7 @@ const props = defineProps([
     'subscriptionDetails',
     'billingOwner',
     'subscriptionManagedByParent',
+    'subscriptionManagedBySalla',
     'scheduledPlanChange',
     'selectedPeriod',
     'periodCounts',
@@ -256,6 +262,7 @@ const props = defineProps([
 
 const { t, locale } = useI18n();
 const subscriptionManagedByParent = computed(() => Boolean(props.subscriptionManagedByParent));
+const subscriptionManagedBySalla = computed(() => Boolean(props.subscriptionManagedBySalla));
 const subscriptionDetails = ref(props.subscriptionDetails ?? {});
 const selectedPeriod = computed(() => props.selectedPeriod ?? 'monthly');
 const currentPlanMatchesSelectedPeriod = (props.subscription?.plan?.period ?? null) === selectedPeriod.value;
