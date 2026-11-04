@@ -44,4 +44,12 @@ return [
         'key' => env('ELEVENLABS_API_KEY'),
         'model' => env('ELEVENLABS_TTS_MODEL', 'eleven_multilingual_v2'),
     ],
+    // Botzo's app on the Salla app store. The secrets live only in .env.
+    'salla' => [
+        'client_id' => env('SALLA_CLIENT_ID'),
+        'client_secret' => env('SALLA_CLIENT_SECRET'),
+        'webhook_secret' => env('SALLA_WEBHOOK_SECRET'),
+        'token_url' => env('SALLA_TOKEN_URL', 'https://accounts.salla.sa/oauth2/token'),
+        'user_info_url' => env('SALLA_USER_INFO_URL', 'https://accounts.salla.sa/oauth2/user/info'),
+    ],
 ];

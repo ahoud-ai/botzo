@@ -135,6 +135,15 @@ return Application::configure(basePath: dirname(__DIR__))
             ->hourly()
             ->withoutOverlapping();
         
+        // Salla refresh tokens are single use; the command serializes each store with a lock.
+        $schedule->command('salla:refresh-tokens')
+            ->hourly()
+            ->withoutOverlapping(30);
+
+        $schedule->command('salla:purge')
+            ->dailyAt('04:00')
+            ->withoutOverlapping(60);
+
         $schedule->command('model:prune', [
             '--model' => \App\Models\CampaignLog::class,
             '--hours' => 72,
