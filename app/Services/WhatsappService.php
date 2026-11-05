@@ -1830,11 +1830,21 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
         $headers = $this->setHeaders();
 
         $requestData['messaging_product'] = 'whatsapp';
-        $requestData['about'] = $request->about;
         $requestData['address'] = $request->address;
         $requestData['description'] = $request->description;
-        $requestData['vertical'] = $request->industry;
         $requestData['email'] = $request->email;
+
+        // Meta can report a profile's sector as UNDEFINED, yet refused it on save
+        // (nawiat, org 66), so keep the current sector instead of sending it back.
+        $hasIndustry = $request->filled('industry') && $request->industry !== 'UNDEFINED';
+        if ($hasIndustry) {
+            $requestData['vertical'] = $request->industry;
+        }
+
+        // Meta does not allow an empty about, and the form may not include it.
+        if ($request->filled('about')) {
+            $requestData['about'] = $request->about;
+        }
 
         $profile_picture_url = null;
 
@@ -1866,11 +1876,15 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
             $organizationConfig = Organization::where('id', $this->organizationId)->first();
             $metadataArray = $organizationConfig->metadata ? json_decode($organizationConfig->metadata, true) : [];
 
-            $metadataArray['whatsapp']['business_profile']['about'] = $request->about;
             $metadataArray['whatsapp']['business_profile']['address'] = $request->address;
             $metadataArray['whatsapp']['business_profile']['description'] = $request->description;
-            $metadataArray['whatsapp']['business_profile']['industry'] = $request->industry;
             $metadataArray['whatsapp']['business_profile']['email'] = $request->email;
+            if ($hasIndustry) {
+                $metadataArray['whatsapp']['business_profile']['industry'] = $request->industry;
+            }
+            if ($request->filled('about')) {
+                $metadataArray['whatsapp']['business_profile']['about'] = $request->about;
+            }
             if ($profile_picture_url != null) {
                 $metadataArray['whatsapp']['business_profile']['profile_picture_url'] = $profile_picture_url;
             }
@@ -1879,6 +1893,16 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
 
             $organizationConfig->metadata = $updatedMetadataJson;
             $organizationConfig->save();
+        } else {
+            Log::warning('WhatsApp business profile update failed.', [
+                'organization_id' => $this->organizationId,
+                'phone_number_id' => $this->phoneNumberId,
+                'code' => data_get($responseObject, 'data.error.code'),
+                'subcode' => data_get($responseObject, 'data.error.error_subcode'),
+                'type' => data_get($responseObject, 'data.error.type'),
+                'error' => data_get($responseObject, 'data.error.message'),
+                'fbtrace_id' => data_get($responseObject, 'data.error.fbtrace_id'),
+            ]);
         }
 
         return $responseObject;

@@ -669,8 +669,8 @@ class SettingController extends BaseController
             } else {
                 return back()->with(
                     'status', [
-                        'type' => 'error', 
-                        'message' => __('Something went wrong! Your business profile could not be updated!')
+                        'type' => 'error',
+                        'message' => $this->businessProfileErrorMessage($response)
                     ]
                 );
             }
@@ -934,6 +934,28 @@ class SettingController extends BaseController
         return $this->successResult([
             'warning_message' => $warningMessage,
         ]);
+    }
+
+    /**
+     * Tells the customer where a failed save came from and why. A failure with
+     * no Meta error code means Meta never answered, such as a connection failure.
+     */
+    private function businessProfileErrorMessage(object $response): string
+    {
+        $code = data_get($response, 'data.error.code');
+
+        if ($code === null) {
+            return __('Could not reach WhatsApp (Meta) to update your business profile. Please try again shortly.');
+        }
+
+        $reason = data_get($response, 'data.error.error_user_msg') ?: match ((int) $code) {
+            190 => __('The WhatsApp connection is no longer valid. Please reconnect your WhatsApp account.'),
+            10, 200 => __('The WhatsApp connection does not have permission to change this profile.'),
+            4, 80007, 130429 => __('Too many requests were sent to WhatsApp. Please try again later.'),
+            default => data_get($response, 'data.error.message'),
+        };
+
+        return trim(__('WhatsApp (Meta) refused to update your business profile.').' '.$reason.' '.__('Meta error code: :code', ['code' => $code]));
     }
 
     private function extractServiceError(object $response, string $fallback): string
