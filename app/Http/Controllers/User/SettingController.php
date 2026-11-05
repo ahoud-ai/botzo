@@ -105,6 +105,7 @@ class SettingController extends BaseController
             'hasEncryptedWhatsappToken' => !empty(data_get($organizationMetadata, 'whatsapp.access_token_encrypted')),
             'hasEncryptedWhatsappAppSecret' => !empty(data_get($organizationMetadata, 'whatsapp.app_secret_encrypted')),
             'whatsappWebhookReadiness' => $webhookReadiness,
+            'metaProfilePictureUrl' => $this->resolveMetaProfilePictureUrl((int) $organizationId, $organizationMetadata),
             'modules' => Addon::query()->whereIn('name', \App\Support\SaClientPlanProfile::planAddonNames())->get(),
             'title' => __('Settings'),
         ];
@@ -935,6 +936,35 @@ class SettingController extends BaseController
         return $this->successResult([
             'warning_message' => $warningMessage,
         ]);
+    }
+
+    /**
+     * Read fresh on each visit and never saved, because Meta's picture links can expire.
+     */
+    private function resolveMetaProfilePictureUrl(int $organizationId, array $metadata): ?string
+    {
+        $phoneNumberId = data_get($metadata, 'whatsapp.phone_number_id');
+        if (empty($phoneNumberId)) {
+            return null;
+        }
+
+        try {
+            $accessToken = app(WhatsappAccessTokenRefreshService::class)->resolveTokenForOrganization($organizationId, false);
+            if (empty($accessToken)) {
+                return null;
+            }
+
+            return $this->makeWhatsappService(
+                $accessToken,
+                config('graph.api_version'),
+                data_get($metadata, 'whatsapp.app_id'),
+                $phoneNumberId,
+                data_get($metadata, 'whatsapp.waba_id'),
+                $organizationId
+            )->getProfilePictureUrl();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**

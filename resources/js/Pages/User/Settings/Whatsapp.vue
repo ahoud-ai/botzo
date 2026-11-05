@@ -177,7 +177,7 @@
                                 </div>
                             </div>
                             <div class="settings-row-control">
-                                <FormImageLogo v-model="form2.profile_picture_url" :name="''" :error="form2.errors.profile_picture_url" :label="$t('Upload logo')" :imageUrl="form2.profile_picture_url" :class="'col-span-4'"/>
+                                <FormImageLogo v-model="form2.profile_picture_url" :name="''" :error="form2.errors.profile_picture_url" :label="$t('Upload logo')" :imageUrl="props.metaProfilePictureUrl || form2.profile_picture_url" :class="'col-span-4'"/>
                                 <div class="settings-field-hint mt-2">{{ $t('Accepted formats: JPG/PNG') }}</div>
                                 <div class="settings-field-hint">{{ $t('Minimum dimensions: 192x192 pixels.') }}</div>
                             </div>
@@ -352,6 +352,7 @@
     const { t } = useI18n();
 
     const props = defineProps([
+        'metaProfilePictureUrl',
         'settings',
         'embeddedSignupActive',
         'embeddedSignupOrgEnabled',

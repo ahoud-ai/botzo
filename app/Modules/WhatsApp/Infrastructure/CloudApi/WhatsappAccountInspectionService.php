@@ -23,6 +23,27 @@ class WhatsappAccountInspectionService
         );
     }
 
+    /**
+     * For display only: a slow or failing Meta must not hold up the settings page.
+     */
+    public function getProfilePictureUrl(): ?string
+    {
+        try {
+            $url = Http::withToken((string) $this->accessToken)
+                ->connectTimeout(2)
+                ->timeout(3)
+                ->get(
+                    "https://graph.facebook.com/{$this->apiVersion}/{$this->phoneNumberId}/whatsapp_business_profile",
+                    ['fields' => 'profile_picture_url']
+                )
+                ->json('data.0.profile_picture_url');
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return is_string($url) && $url !== '' ? $url : null;
+    }
+
     public function getPhoneNumberId(): stdClass
     {
         return $this->request(

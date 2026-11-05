@@ -1823,6 +1823,11 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
         return $this->accountInspectionService()->getBusinessProfile();
     }
 
+    public function getProfilePictureUrl(): ?string
+    {
+        return $this->accountInspectionService()->getProfilePictureUrl();
+    }
+
     public function updateBusinessProfile(Request $request)
     {
         $url = "https://graph.facebook.com/{$this->apiVersion}/{$this->phoneNumberId}/whatsapp_business_profile";
