@@ -911,6 +911,7 @@ class SettingController extends BaseController
         $metadataArray['whatsapp']['business_profile']['description'] = $businessProfileResponse->data->description ?? null;
         $metadataArray['whatsapp']['business_profile']['industry'] = $businessProfileResponse->data->vertical ?? null;
         $metadataArray['whatsapp']['business_profile']['email'] = $businessProfileResponse->data->email ?? null;
+        $metadataArray['whatsapp']['business_profile']['websites'] = $businessProfileResponse->data->websites ?? [];
 
         if ($isEmbeddedSignup === false) {
             $manualWebhookResponse = $whatsappService->overrideCallbackUrl(

@@ -1829,10 +1829,29 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
 
         $headers = $this->setHeaders();
 
+        $organizationConfig = Organization::where('id', $this->organizationId)->first();
+        $metadataArray = $organizationConfig->metadata ? json_decode($organizationConfig->metadata, true) : [];
+        $savedProfile = $metadataArray['whatsapp']['business_profile'] ?? [];
+
         $requestData['messaging_product'] = 'whatsapp';
-        $requestData['address'] = $request->address;
-        $requestData['description'] = $request->description;
-        $requestData['email'] = $request->email;
+
+        // An emptied field goes as '' so Meta clears it; one that was never set stays out.
+        $textFields = array_values(array_filter(['address', 'description', 'email'], fn ($field) => $request->has($field)));
+        foreach ($textFields as $field) {
+            if ($request->filled($field)) {
+                $requestData[$field] = $request->input($field);
+            } elseif (! empty($savedProfile[$field])) {
+                $requestData[$field] = '';
+            }
+        }
+
+        $websites = null;
+        if ($request->has('websites')) {
+            $websites = array_values(array_filter((array) $request->input('websites'), fn ($website) => filled($website)));
+            if ($websites !== [] || ! empty($savedProfile['websites'])) {
+                $requestData['websites'] = $websites;
+            }
+        }
 
         // Meta can report a profile's sector as UNDEFINED, yet refused it on save
         // (nawiat, org 66), so keep the current sector instead of sending it back.
@@ -1849,6 +1868,18 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
         $profile_picture_url = null;
 
         if ($request->hasFile('profile_picture_url')) {
+            // Upload first: a failure stops the save instead of reporting success without the picture.
+            $fileUploadResponse = $this->initiateResumableUploadSession($request->file('profile_picture_url'));
+
+            if (! $fileUploadResponse->success || empty($fileUploadResponse->data->h)) {
+                $fileUploadResponse->success = false;
+                $this->logBusinessProfileFailure($fileUploadResponse, 'picture_upload');
+
+                return $fileUploadResponse;
+            }
+
+            $requestData['profile_picture_handle'] = $fileUploadResponse->data->h;
+
             $storage = app(SettingValueService::class)->getString('storage_system', 'local');
             $fileContent = $request->file('profile_picture_url');
 
@@ -1862,23 +1893,17 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
                 $mediaFilePath = Storage::disk('s3')->url($uploadedFile);
                 $profile_picture_url = $mediaFilePath;
             }
-
-            $fileUploadResponse = $this->initiateResumableUploadSession($request->file('profile_picture_url'));
-
-            if ($fileUploadResponse->success) {
-                $requestData['profile_picture_handle'] = $fileUploadResponse->data->h;
-            }
         }
 
         $responseObject = $this->sendHttpRequest('POST', $url, $requestData, $headers);
 
         if ($responseObject->success === true) {
-            $organizationConfig = Organization::where('id', $this->organizationId)->first();
-            $metadataArray = $organizationConfig->metadata ? json_decode($organizationConfig->metadata, true) : [];
-
-            $metadataArray['whatsapp']['business_profile']['address'] = $request->address;
-            $metadataArray['whatsapp']['business_profile']['description'] = $request->description;
-            $metadataArray['whatsapp']['business_profile']['email'] = $request->email;
+            foreach ($textFields as $field) {
+                $metadataArray['whatsapp']['business_profile'][$field] = $request->input($field);
+            }
+            if ($websites !== null) {
+                $metadataArray['whatsapp']['business_profile']['websites'] = $websites;
+            }
             if ($hasIndustry) {
                 $metadataArray['whatsapp']['business_profile']['industry'] = $request->industry;
             }
@@ -1894,18 +1919,24 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
             $organizationConfig->metadata = $updatedMetadataJson;
             $organizationConfig->save();
         } else {
-            Log::warning('WhatsApp business profile update failed.', [
-                'organization_id' => $this->organizationId,
-                'phone_number_id' => $this->phoneNumberId,
-                'code' => data_get($responseObject, 'data.error.code'),
-                'subcode' => data_get($responseObject, 'data.error.error_subcode'),
-                'type' => data_get($responseObject, 'data.error.type'),
-                'error' => data_get($responseObject, 'data.error.message'),
-                'fbtrace_id' => data_get($responseObject, 'data.error.fbtrace_id'),
-            ]);
+            $this->logBusinessProfileFailure($responseObject, 'profile_update');
         }
 
         return $responseObject;
+    }
+
+    private function logBusinessProfileFailure(object $responseObject, string $step): void
+    {
+        Log::warning('WhatsApp business profile update failed.', [
+            'organization_id' => $this->organizationId,
+            'phone_number_id' => $this->phoneNumberId,
+            'step' => $step,
+            'code' => data_get($responseObject, 'data.error.code'),
+            'subcode' => data_get($responseObject, 'data.error.error_subcode'),
+            'type' => data_get($responseObject, 'data.error.type'),
+            'error' => data_get($responseObject, 'data.error.message'),
+            'fbtrace_id' => data_get($responseObject, 'data.error.fbtrace_id'),
+        ]);
     }
 
     public function deRegisterPhone()
@@ -2025,7 +2056,7 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
         $fileName = $file->getPathname();
         $url = "https://graph.facebook.com/{$this->apiVersion}/{$uploadSessionId}";
 
-        $client = new Client;
+        $client = app(Client::class);
         $responseObject = new \stdClass;
 
         try {
@@ -2035,31 +2066,14 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
                     'file_offset' => 0,
                 ],
                 'body' => fopen($fileName, 'r'),
-                'timeout' => 2,
+                'timeout' => 60,
+                'connect_timeout' => 10,
             ]);
 
             $responseObject->success = true;
             $responseObject->data = json_decode($response->getBody()->getContents());
-        } catch (ConnectException $e) {
-            $responseObject->success = false;
-            $responseObject->data = new \stdClass;
-            $responseObject->data->error = new \stdClass;
-            $responseObject->data->error->message = $e->getMessage();
-        } catch (GuzzleException $e) {
-            $response = $e->getResponse();
-            $responseObject->success = false;
-            $responseObject->data = json_decode($response->getBody()->getContents());
-
-            if (isset($responseObject->data->error->error_user_msg)) {
-                $responseObject->message = $responseObject->data->error->error_user_msg;
-            } else {
-                $responseObject->message = $responseObject->data->error->message;
-            }
-        } catch (Exception $e) {
-            $responseObject->success = false;
-            $responseObject->data = new \stdClass;
-            $responseObject->data->error = new \stdClass;
-            $responseObject->data->error->message = $e->getMessage();
+        } catch (\Throwable $e) {
+            $responseObject = $this->buildFailureResponseObjectFromThrowable($e);
         }
 
         return $responseObject;
@@ -2069,14 +2083,16 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
     {
         $fileLength = $file->getSize();
         $fileType = $file->getMimeType();
-        $url = "https://graph.facebook.com/{$this->apiVersion}/{$this->appId}/uploads";
+        $appId = $this->appId ?: app(SettingValueService::class)->getString('whatsapp_client_id', '');
+        $url = "https://graph.facebook.com/{$this->apiVersion}/{$appId}/uploads";
 
-        $client = new Client;
+        $client = app(Client::class);
         $responseObject = new \stdClass;
 
         try {
             $response = $client->request('POST', $url, [
                 'form_params' => [
+                    'file_name' => method_exists($file, 'getClientOriginalName') ? $file->getClientOriginalName() : $file->getFilename(),
                     'file_length' => $fileLength,
                     'file_type' => $fileType,
                     'access_token' => $this->accessToken,
@@ -2204,15 +2220,8 @@ class WhatsappService implements MessagingGatewayContract, WhatsappTransportCont
             $responseObject->data->error = new \stdClass;
             $responseObject->data->error->message = $e->getMessage();
         } catch (GuzzleException $e) {
-            $response = $e->getResponse();
-            $responseObject->success = false;
-            $responseObject->data = json_decode($response->getBody()->getContents());
-
-            if (isset($responseObject->data->error->error_user_msg)) {
-                $responseObject->message = $responseObject->data->error->error_user_msg;
-            } else {
-                $responseObject->message = $responseObject->data->error->message;
-            }
+            // Some failures, such as an SSL error, carry no response from Meta at all.
+            $responseObject = $this->buildFailureResponseObjectFromThrowable($e);
         } catch (Exception $e) {
             $responseObject->success = false;
             $responseObject->data = new \stdClass;

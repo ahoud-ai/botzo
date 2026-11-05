@@ -3,15 +3,20 @@
 namespace Tests\Feature;
 
 use App\Http\Middleware\CheckSubscriptionStatus;
+use App\Models\Setting;
 use App\Services\Whatsapp\WhatsappTokenVault;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Psr\Http\Message\RequestInterface;
 use Tests\Concerns\CreatesOrganizationContext;
 use Tests\TestCase;
@@ -165,6 +170,23 @@ class WhatsappBusinessProfileUpdateTest extends TestCase
         );
     }
 
+    public function test_a_network_failure_without_any_response_does_not_crash_the_page(): void
+    {
+        $this->fakeMeta(function (array $body) {
+            throw new RequestException('cURL error 60: SSL certificate problem', new GuzzleRequest('POST', 'https://graph.facebook.com'));
+        });
+        [$user, $organization] = $this->createOwnerContext($this->whatsappMetadata());
+
+        $this->saveProfile($user, $organization, ['industry' => 'OTHER'])
+            ->assertRedirect('/settings/whatsapp')
+            ->assertSessionHas('status.type', 'error');
+
+        $this->assertSame(
+            'Could not reach WhatsApp (Meta) to update your business profile. Please try again shortly.',
+            session('status.message')
+        );
+    }
+
     public function test_the_messages_are_translated_to_arabic(): void
     {
         $this->fakeMeta(fn () => new Response(400, [], json_encode([
@@ -179,6 +201,199 @@ class WhatsappBusinessProfileUpdateTest extends TestCase
         $this->assertArrayHasKey('The WhatsApp connection is no longer valid. Please reconnect your WhatsApp account.', $translations);
         $this->assertArrayHasKey('The WhatsApp connection does not have permission to change this profile.', $translations);
         $this->assertArrayHasKey('Too many requests were sent to WhatsApp. Please try again later.', $translations);
+    }
+
+    public function test_about_and_websites_are_sent_and_saved(): void
+    {
+        $this->fakeMetaRejectingUndefinedVertical();
+        [$user, $organization] = $this->createOwnerContext($this->whatsappMetadata());
+
+        $this->saveProfile($user, $organization, [
+            'about' => 'Real estate in Riyadh',
+            'websites' => ['https://example.com', null],
+            'industry' => 'OTHER',
+        ])->assertSessionHas('status.type', 'success');
+
+        $this->assertSame('Real estate in Riyadh', $this->sentToMeta[0]['about']);
+        $this->assertSame(['https://example.com'], $this->sentToMeta[0]['websites']);
+        $this->assertSame('Real estate in Riyadh', $this->savedProfile($organization)['about']);
+        $this->assertSame(['https://example.com'], $this->savedProfile($organization)['websites']);
+    }
+
+    public function test_emptying_a_saved_value_asks_meta_to_clear_it(): void
+    {
+        $this->fakeMetaRejectingUndefinedVertical();
+        [$user, $organization] = $this->createOwnerContext($this->whatsappMetadata([
+            'address' => 'Old address',
+            'description' => 'Old description',
+            'email' => 'old@example.com',
+            'websites' => ['https://old.example.com'],
+        ]));
+
+        $this->saveProfile($user, $organization, [
+            'address' => '',
+            'description' => '',
+            'email' => '',
+            'websites' => [null, null],
+        ])->assertSessionHas('status.type', 'success');
+
+        $this->assertSame('', $this->sentToMeta[0]['address']);
+        $this->assertSame('', $this->sentToMeta[0]['description']);
+        $this->assertSame('', $this->sentToMeta[0]['email']);
+        $this->assertSame([], $this->sentToMeta[0]['websites']);
+
+        $saved = $this->savedProfile($organization);
+        $this->assertNull($saved['address']);
+        $this->assertNull($saved['email']);
+        $this->assertSame([], $saved['websites']);
+    }
+
+    public function test_fields_with_nothing_saved_and_nothing_entered_are_not_sent(): void
+    {
+        $this->fakeMetaRejectingUndefinedVertical();
+        [$user, $organization] = $this->createOwnerContext($this->whatsappMetadata());
+
+        $this->saveProfile($user, $organization, [
+            'about' => '',
+            'address' => '',
+            'description' => '',
+            'email' => 'owner@example.com',
+            'websites' => [null, null],
+            'industry' => 'UNDEFINED',
+        ])->assertSessionHas('status.type', 'success');
+
+        $this->assertSame(['messaging_product', 'email'], array_keys($this->sentToMeta[0]));
+    }
+
+    public function test_emptying_a_saved_about_is_refused_because_meta_does_not_allow_it(): void
+    {
+        $this->fakeMetaRejectingUndefinedVertical();
+        [$user, $organization] = $this->createOwnerContext($this->whatsappMetadata(['about' => 'Saved about text']));
+
+        $this->saveProfile($user, $organization, ['about' => '', 'industry' => 'OTHER'])
+            ->assertSessionHasErrors('about');
+
+        $this->assertSame([], $this->sentToMeta);
+        $this->assertSame('Saved about text', $this->savedProfile($organization)['about']);
+    }
+
+    public function test_values_beyond_metas_limits_are_refused_next_to_their_fields(): void
+    {
+        $this->fakeMetaRejectingUndefinedVertical();
+        [$user, $organization] = $this->createOwnerContext($this->whatsappMetadata());
+
+        $this->saveProfile($user, $organization, [
+            'about' => str_repeat('a', 140),
+            'address' => str_repeat('a', 257),
+            'description' => str_repeat('a', 513),
+            'email' => 'not-an-email',
+            'websites' => ['example.com', 'https://two.example.com', 'https://three.example.com'],
+        ])->assertSessionHasErrors(['about', 'address', 'description', 'email', 'websites', 'websites.0']);
+
+        $this->assertSame([], $this->sentToMeta);
+    }
+
+    public function test_a_new_picture_is_uploaded_to_meta_and_its_handle_is_sent(): void
+    {
+        Storage::fake('local');
+        $requests = [];
+        $this->fakeMetaSequence($requests, [
+            new Response(200, [], json_encode(['id' => 'upload:session-1'])),
+            new Response(200, [], json_encode(['h' => 'handle-1'])),
+            new Response(200, [], json_encode(['success' => true])),
+        ]);
+        [$user, $organization] = $this->createOwnerContext($this->whatsappMetadata());
+
+        $this->saveProfile($user, $organization, [
+            'profile_picture_url' => UploadedFile::fake()->image('logo.png', 192, 192),
+            'industry' => 'OTHER',
+        ])->assertSessionHas('status.type', 'success');
+
+        $this->assertStringEndsWith('/app-1/uploads', $requests[0]->getUri()->getPath());
+        $this->assertStringContainsString('file_name=logo.png', (string) $requests[0]->getBody());
+        $this->assertStringEndsWith('/upload:session-1', urldecode($requests[1]->getUri()->getPath()));
+        $this->assertSame('OAuth '.self::TOKEN, $requests[1]->getHeaderLine('Authorization'));
+        $this->assertSame('handle-1', json_decode((string) $requests[2]->getBody(), true)['profile_picture_handle']);
+        $this->assertNotEmpty($this->savedProfile($organization)['profile_picture_url']);
+    }
+
+    public function test_the_app_id_falls_back_to_the_platform_setting_for_the_upload(): void
+    {
+        Storage::fake('local');
+        Setting::updateOrCreate(['key' => 'whatsapp_client_id'], ['value' => 'platform-app']);
+        $requests = [];
+        $this->fakeMetaSequence($requests, [
+            new Response(200, [], json_encode(['id' => 'upload:session-1'])),
+            new Response(200, [], json_encode(['h' => 'handle-1'])),
+            new Response(200, [], json_encode(['success' => true])),
+        ]);
+        $metadata = $this->whatsappMetadata();
+        unset($metadata['whatsapp']['app_id']);
+        [$user, $organization] = $this->createOwnerContext($metadata);
+
+        $this->saveProfile($user, $organization, [
+            'profile_picture_url' => UploadedFile::fake()->image('logo.png', 192, 192),
+            'industry' => 'OTHER',
+        ])->assertSessionHas('status.type', 'success');
+
+        $this->assertStringEndsWith('/platform-app/uploads', $requests[0]->getUri()->getPath());
+    }
+
+    public function test_a_failed_picture_upload_stops_the_save_and_tells_the_customer(): void
+    {
+        Storage::fake('local');
+        Log::spy();
+        $requests = [];
+        $this->fakeMetaSequence($requests, [
+            new Response(400, [], json_encode(['error' => ['message' => '(#100) Bad file', 'code' => 100]])),
+        ]);
+        [$user, $organization] = $this->createOwnerContext($this->whatsappMetadata(['email' => 'old@example.com']));
+
+        $this->saveProfile($user, $organization, [
+            'profile_picture_url' => UploadedFile::fake()->image('logo.png', 192, 192),
+            'email' => 'new@example.com',
+            'industry' => 'OTHER',
+        ])->assertSessionHas('status.type', 'error');
+
+        $this->assertCount(1, $requests);
+        $this->assertSame(
+            'WhatsApp (Meta) refused to update your business profile. (#100) Bad file Meta error code: 100',
+            session('status.message')
+        );
+        $saved = $this->savedProfile($organization);
+        $this->assertSame('old@example.com', $saved['email']);
+        $this->assertArrayNotHasKey('profile_picture_url', $saved);
+        Storage::disk('local')->assertDirectoryEmpty('public');
+
+        Log::shouldHaveReceived('warning')->withArgs(
+            fn (string $message, array $context): bool => $message === 'WhatsApp business profile update failed.'
+                && $context['step'] === 'picture_upload'
+                && ! str_contains(json_encode($context), self::TOKEN)
+        )->once();
+    }
+
+    public function test_a_picture_smaller_than_metas_minimum_is_refused_next_to_the_field(): void
+    {
+        $this->fakeMetaRejectingUndefinedVertical();
+        [$user, $organization] = $this->createOwnerContext($this->whatsappMetadata());
+
+        $this->saveProfile($user, $organization, [
+            'profile_picture_url' => UploadedFile::fake()->image('logo.png', 100, 100),
+        ])->assertSessionHasErrors('profile_picture_url');
+
+        $this->assertSame([], $this->sentToMeta);
+    }
+
+    private function fakeMetaSequence(array &$requests, array $responses): void
+    {
+        $stack = HandlerStack::create(new MockHandler($responses));
+        $stack->push(Middleware::mapRequest(function (RequestInterface $request) use (&$requests) {
+            $requests[] = $request;
+
+            return $request;
+        }));
+
+        $this->app->instance(Client::class, new Client(['handler' => $stack]));
     }
 
     private function saveProfile($user, $organization, array $fields)
