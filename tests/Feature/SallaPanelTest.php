@@ -195,6 +195,134 @@ class SallaPanelTest extends TestCase
         $this->assertStringNotContainsString('متجر آخر', $response->getContent());
     }
 
+    private function settingsPayload(array $changes = []): array
+    {
+        return array_replace([
+            'is_enabled' => true,
+            'use_store_color' => true,
+            'accent' => null,
+            'position' => 'left',
+            'assistant_name' => '',
+            'welcome_text' => '',
+            'return_policy' => '',
+            'store_notes' => '',
+        ], $changes);
+    }
+
+    private function saveSettings(string $token, array $changes = []): \Illuminate\Testing\TestResponse
+    {
+        return $this->putJson('/api/salla/panel/settings', $this->settingsPayload($changes), ['Authorization' => 'Bearer '.$token]);
+    }
+
+    private function createWidget(): WebWidget
+    {
+        return WebWidget::create([
+            'organization_id' => $this->organization->id,
+            'public_key' => WebWidget::generatePublicKey(),
+            'is_enabled' => true,
+            'allowed_domains' => ['demostore.salla.sa'],
+            'settings' => ['theme' => 'store'],
+        ]);
+    }
+
+    public function test_settings_save_and_keep_the_store_look(): void
+    {
+        $widget = $this->createWidget();
+
+        $this->saveSettings($this->signIn(), [
+            'use_store_color' => false,
+            'accent' => '#7a1f2b',
+            'position' => 'right',
+            'assistant_name' => ' نورة ',
+            'welcome_text' => 'حياك',
+            'return_policy' => "خلال 7 أيام\nبحالته الأصلية",
+        ])->assertOk()->assertJsonPath('accent', '#7A1F2B')->assertJsonPath('use_store_color', false)->assertJsonPath('assistant_name', 'نورة');
+
+        $widget->refresh();
+        $this->assertSame('store', $widget->settings['theme']);
+        $this->assertSame('right', $widget->settings['position']);
+        $this->assertSame('#7A1F2B', $widget->settings['accent']);
+        $this->assertSame("خلال 7 أيام\nبحالته الأصلية", $this->store->refresh()->store_facts['merchant']['return_policy']);
+    }
+
+    public function test_going_back_to_the_store_color_clears_the_merchant_color(): void
+    {
+        $widget = $this->createWidget();
+        $token = $this->signIn();
+
+        $this->saveSettings($token, ['use_store_color' => false, 'accent' => '#7A1F2B'])->assertOk();
+        $this->saveSettings($token, ['use_store_color' => true, 'accent' => '#7A1F2B'])->assertOk()->assertJsonPath('use_store_color', true)->assertJsonPath('accent', null);
+
+        $this->assertArrayNotHasKey('accent', $widget->refresh()->settings);
+    }
+
+    public function test_bad_settings_are_refused(): void
+    {
+        $this->createWidget();
+        $token = $this->signIn();
+
+        $this->saveSettings($token, ['use_store_color' => false, 'accent' => 'red;background:url(x)'])->assertUnprocessable();
+        $this->saveSettings($token, ['use_store_color' => false, 'accent' => null])->assertUnprocessable();
+        $this->saveSettings($token, ['position' => 'top'])->assertUnprocessable();
+        $this->saveSettings($token, ['assistant_name' => str_repeat('a', 41)])->assertUnprocessable();
+        $this->saveSettings($token, ['return_policy' => str_repeat('a', 2001)])->assertUnprocessable();
+        $this->putJson('/api/salla/panel/settings', $this->settingsPayload())->assertUnauthorized();
+    }
+
+    public function test_a_store_cannot_change_another_store_through_the_request(): void
+    {
+        $widget = $this->createWidget();
+        [, $other] = $this->createOwnerContext();
+        $otherStore = $this->newStore($other, 555, 'متجر آخر');
+        $otherWidget = WebWidget::create(['organization_id' => $other->id, 'public_key' => WebWidget::generatePublicKey(), 'is_enabled' => true, 'allowed_domains' => []]);
+
+        $this->saveSettings($this->signIn(), [
+            'is_enabled' => false,
+            'store_id' => $otherStore->id,
+            'merchant_id' => 555,
+            'organization_id' => $other->id,
+            'public_key' => 'wgt_stolen',
+        ])->assertOk();
+
+        $this->assertTrue($otherWidget->refresh()->is_enabled);
+        $this->assertFalse($widget->refresh()->is_enabled);
+        $this->assertNotSame('wgt_stolen', $widget->public_key);
+    }
+
+    public function test_turning_mochi_off_closes_the_widget_in_the_store(): void
+    {
+        $widget = $this->createWidget();
+        $this->subscribe();
+        $token = $this->signIn();
+        $this->getJson('/api/salla/widget/'.self::MERCHANT, ['Origin' => 'https://demostore.salla.sa'])->assertOk();
+
+        $this->saveSettings($token, ['is_enabled' => false])->assertOk();
+
+        $this->getJson('/api/salla/widget/'.self::MERCHANT, ['Origin' => 'https://demostore.salla.sa'])->assertForbidden();
+        $this->getJson('/api/widget/'.$widget->public_key.'/config', ['Origin' => 'https://demostore.salla.sa'])->assertForbidden();
+    }
+
+    public function test_the_policy_notes_and_name_reach_the_assistant_and_a_sync_keeps_them(): void
+    {
+        $widget = $this->createWidget();
+        $this->saveSettings($this->signIn(), [
+            'assistant_name' => 'نورة',
+            'return_policy' => 'الاسترجاع خلال 7 أيام',
+            'store_notes' => 'نرد من 9 إلى 9',
+        ])->assertOk();
+
+        Http::swap(new \Illuminate\Http\Client\Factory());
+        Http::fake(['*' => Http::response(['data' => []])]);
+        app(\App\Services\Salla\SallaStoreFacts::class)->sync($this->store->refresh());
+
+        $contact = \App\Models\Contact::create(['organization_id' => $this->organization->id, 'first_name' => 'v', 'phone' => 'web:p-'.uniqid(), 'created_by' => $this->owner->id]);
+        $text = implode("\n", app(\App\Services\Salla\SallaShoppingAssistant::class)->instructions($contact, $widget->refresh()));
+
+        $this->assertStringContainsString('Your name in this store is "نورة"', $text);
+        $this->assertStringContainsString('الاسترجاع خلال 7 أيام', $text);
+        $this->assertStringContainsString('نرد من 9 إلى 9', $text);
+    }
+
     public function test_the_overview_says_why_mochi_is_off(): void
     {
         $token = $this->signIn();

@@ -14,4 +14,6 @@ Route::middleware('throttle:120,1')->prefix('/salla/panel')->group(function () {
     Route::get('/', [SallaPanelController::class, 'page']);
     Route::post('/session', [SallaPanelController::class, 'session'])->middleware('throttle:20,1');
     Route::get('/overview', [SallaPanelController::class, 'overview']);
+    Route::get('/settings', [SallaPanelController::class, 'settings']);
+    Route::put('/settings', [SallaPanelController::class, 'updateSettings']);
 });

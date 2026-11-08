@@ -33,7 +33,13 @@ class SallaShoppingAssistant
             return [];
         }
 
-        return array_merge($this->storeLines($store), $this->productLines($store, $contact));
+        $name = trim((string) data_get($widget->settings, 'assistant_name', ''));
+
+        return array_merge(
+            $name === '' ? [] : [sprintf('Your name in this store is "%s". Use it instead of any other name.', $name)],
+            $this->storeLines($store),
+            $this->productLines($store, $contact)
+        );
     }
 
     /** @return list<string> */

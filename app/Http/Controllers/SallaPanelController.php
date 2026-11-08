@@ -8,6 +8,7 @@ use App\Models\WebWidget;
 use App\Models\WebWidgetSession;
 use App\Services\IntelliReply\AiUsageLimiterService;
 use App\Services\Salla\SallaPanelAuth;
+use App\Services\Salla\SallaPanelSettings;
 use App\Services\Salla\SallaStoreAccess;
 use App\Services\SubscriptionPlanLimitService;
 use Illuminate\Http\JsonResponse;
@@ -85,6 +86,23 @@ class SallaPanelController extends Controller
                 'synced_at' => $store->products_synced_at?->toIso8601String(),
             ],
         ]);
+    }
+
+    public function settings(Request $request, SallaPanelSettings $settings): JsonResponse
+    {
+        $store = $this->store($request);
+
+        return $store ? response()->json($settings->read($store)) : $this->denied();
+    }
+
+    public function updateSettings(Request $request, SallaPanelSettings $settings): JsonResponse
+    {
+        $store = $this->store($request);
+        if (! $store) {
+            return $this->denied();
+        }
+
+        return response()->json($settings->save($store, $request->validate($settings->rules())));
     }
 
     private function store(Request $request): ?SallaStore

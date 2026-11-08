@@ -27,6 +27,34 @@ const TEXT = AR ? {
     failedBody: 'حدّث الصفحة وحاول مرة ثانية. إذا استمرت المشكلة تواصل مع دعم بوتزو.',
     retry: 'إعادة المحاولة',
     loading: 'جاري التحميل…',
+    tabs: { home: 'الرئيسية', look: 'شكل موتشي', info: 'معلومات المتجر' },
+    enabled: 'تشغيل موتشي في متجري',
+    enabledHint: 'لما توقفه يختفي من المتجر خلال دقائق، وترجع كل إعداداته لما تشغله.',
+    storeColor: 'استخدم لون متجري تلقائياً',
+    color: 'لون موتشي',
+    positionLabel: 'مكانه في المتجر',
+    left: 'يسار الشاشة',
+    right: 'يمين الشاشة',
+    name: 'اسم المساعد',
+    namePlaceholder: 'موتشي',
+    welcome: 'الجملة الترحيبية',
+    welcomePlaceholder: 'قل لي وش تدور عليه، وأساعدك تلقاه وتكمل طلبك.',
+    previewTitle: 'المعاينة',
+    previewAsk: (name) => `اسأل ${name}`,
+    previewNote: 'لون متجرك يظهر في المتجر نفسه.',
+    returnPolicy: 'سياسة الاسترجاع والاستبدال',
+    returnHint: 'موتشي يرد على العملاء من هذا النص فقط.',
+    returnPlaceholder: 'مثال: الاسترجاع خلال 7 أيام من الاستلام والمنتج بحالته الأصلية.',
+    notes: 'معلومات أخرى تبي موتشي يعرفها',
+    notesHint: 'مثل أوقات العمل أو طريقة التواصل مع فريقك. لا تكتب كلمات مرور أو بيانات خاصة.',
+    notesPlaceholder: 'مثال: نرد على الواتساب من 9 صباحاً إلى 9 مساءً.',
+    save: 'حفظ',
+    saving: 'جاري الحفظ…',
+    saved: 'تم الحفظ. قد يأخذ الشكل الجديد حتى 5 دقائق ليظهر في المتجر.',
+    savedInfo: 'تم الحفظ. موتشي يرد من المعلومات الجديدة الآن.',
+    saveFailed: 'ما قدرنا نحفظ. راجع الخانات وحاول مرة ثانية.',
+    expired: 'انتهت الجلسة. حدّث الصفحة ثم احفظ مرة ثانية.',
+    left_chars: (left) => `باقي ${left} حرف`,
 } : {
     title: 'Mochi panel',
     running: 'Mochi is running in your store',
@@ -49,6 +77,34 @@ const TEXT = AR ? {
     failedBody: 'Reload the page and try again. If it continues, contact Botzo support.',
     retry: 'Try again',
     loading: 'Loading…',
+    tabs: { home: 'Home', look: 'Mochi\'s look', info: 'Store information' },
+    enabled: 'Run Mochi in my store',
+    enabledHint: 'When off, it leaves the store within minutes. Its settings return when you turn it on.',
+    storeColor: 'Use my store\'s color automatically',
+    color: 'Mochi\'s color',
+    positionLabel: 'Place in the store',
+    left: 'Left of the screen',
+    right: 'Right of the screen',
+    name: 'Assistant name',
+    namePlaceholder: 'Mochi',
+    welcome: 'Welcome line',
+    welcomePlaceholder: 'Tell me what you are looking for, and I will help you find it and finish your order.',
+    previewTitle: 'Preview',
+    previewAsk: (name) => `Ask ${name}`,
+    previewNote: 'Your store\'s color shows in the store itself.',
+    returnPolicy: 'Return and exchange policy',
+    returnHint: 'Mochi answers customers from this text only.',
+    returnPlaceholder: 'For example: returns within 7 days of delivery, in original condition.',
+    notes: 'Other things Mochi should know',
+    notesHint: 'Such as working hours or how to reach your team. Do not write passwords or private details.',
+    notesPlaceholder: 'For example: we answer on WhatsApp from 9 am to 9 pm.',
+    save: 'Save',
+    saving: 'Saving…',
+    saved: 'Saved. The new look can take up to 5 minutes to show in the store.',
+    savedInfo: 'Saved. Mochi answers from the new information now.',
+    saveFailed: 'We could not save. Check the fields and try again.',
+    expired: 'Your session ended. Reload the page, then save again.',
+    left_chars: (left) => `${left} characters left`,
 };
 
 const API = '/api/salla/panel';
@@ -138,13 +194,145 @@ function repliesCard(replies) {
     ]);
 }
 
-function render(data) {
-    const plan = data.subscription ? (AR ? data.subscription.plan : data.subscription.plan_en) : null;
-    root.replaceChildren(
-        el('header', { class: 'top' }, [
-            el('h1', { text: data.store_name || TEXT.title }),
-            plan ? el('p', { text: `${TEXT.plan}: ${plan}${data.subscription.valid_until ? ` · ${TEXT.until} ${date(data.subscription.valid_until)}` : ''}` }) : null,
+const state = { tab: 'home', overview: null, settings: null };
+
+function field(id, label, control, hint) {
+    return el('div', { class: 'field' }, [
+        el('label', { for: id, text: label }),
+        control,
+        hint ? el('p', { class: 'hint', id: `${id}-hint`, text: hint }) : null,
+    ]);
+}
+
+function textArea(id, value, max, placeholder) {
+    const input = el('textarea', { id, rows: '5', maxlength: String(max), placeholder, 'aria-describedby': `${id}-hint` });
+    input.value = value;
+    return input;
+}
+
+function mochiPicture(color) {
+    const holder = el('span', { class: 'mochi', 'aria-hidden': 'true' });
+    holder.innerHTML = '<svg viewBox="0 0 240 230" width="48" height="46"><path d="M120 42C192 42 228 104 228 154C228 198 190 216 120 216C50 216 12 198 12 154C12 104 48 42 120 42Z" fill="#EEF0F3"/>'
+        + `<path d="M30 120C34 20 206 20 210 120" fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round"/><rect x="14" y="110" width="26" height="46" rx="13" fill="${color}"/><rect x="200" y="110" width="26" height="46" rx="13" fill="${color}"/>`
+        + '<ellipse cx="90" cy="132" rx="11" ry="15" fill="#0E0F12"/><ellipse cx="150" cy="132" rx="11" ry="15" fill="#0E0F12"/><path d="M104 162Q120 176 136 162" stroke="#0E0F12" stroke-width="5" fill="none" stroke-linecap="round"/></svg>';
+    return holder;
+}
+
+/** Saves all settings together: the two forms edit parts of the same record. */
+async function save(changes, button, status, message) {
+    button.disabled = true;
+    button.textContent = TEXT.saving;
+    status.className = 'save-status';
+    status.textContent = '';
+
+    try {
+        state.settings = await api('/settings', {
+            method: 'PUT',
+            body: JSON.stringify({ ...state.settings, ...changes }),
+        });
+        state.overview = await api('/overview');
+        status.textContent = message;
+    } catch (error) {
+        status.className = 'save-status is-error';
+        status.textContent = error.message === '401' ? TEXT.expired : TEXT.saveFailed;
+    }
+
+    button.disabled = false;
+    button.textContent = TEXT.save;
+}
+
+function lookTab() {
+    const settings = state.settings;
+    const enabled = el('input', { id: 'enabled', type: 'checkbox', 'aria-describedby': 'enabled-hint' });
+    enabled.checked = settings.is_enabled;
+    const storeColor = el('input', { id: 'store-color', type: 'checkbox' });
+    storeColor.checked = settings.use_store_color;
+    const color = el('input', { id: 'color', type: 'color' });
+    color.value = settings.accent || '#0F7B45';
+    const position = el('select', { id: 'position' }, [
+        el('option', { value: 'left', text: TEXT.left }),
+        el('option', { value: 'right', text: TEXT.right }),
+    ]);
+    position.value = settings.position;
+    const name = el('input', { id: 'name', type: 'text', maxlength: '40', placeholder: TEXT.namePlaceholder });
+    name.value = settings.assistant_name;
+    const welcome = textArea('welcome', settings.welcome_text, 300, TEXT.welcomePlaceholder);
+    welcome.rows = 3;
+
+    const colorRow = field('color', TEXT.color, color);
+    const preview = el('div', { class: 'preview-stage' });
+    const previewNote = el('p', { class: 'hint', text: TEXT.previewNote });
+    const drawPreview = () => {
+        colorRow.hidden = storeColor.checked;
+        previewNote.hidden = !storeColor.checked;
+        preview.className = `preview-stage at-${position.value}`;
+        preview.replaceChildren(el('span', { class: 'preview-pill' }, [
+            mochiPicture(storeColor.checked ? '#111827' : color.value),
+            TEXT.previewAsk(name.value.trim() || TEXT.namePlaceholder),
+        ]));
+    };
+    [storeColor, color, position, name].forEach((input) => input.addEventListener('input', drawPreview));
+    drawPreview();
+
+    const button = el('button', { type: 'submit', class: 'primary', text: TEXT.save });
+    const status = el('p', { class: 'save-status', role: 'status' });
+
+    return el('div', { class: 'split' }, [
+        el('form', { class: 'card form', onsubmit: (event) => {
+            event.preventDefault();
+            save({
+                is_enabled: enabled.checked,
+                use_store_color: storeColor.checked,
+                accent: storeColor.checked ? null : color.value,
+                position: position.value,
+                assistant_name: name.value,
+                welcome_text: welcome.value,
+            }, button, status, TEXT.saved);
+        } }, [
+            el('div', { class: 'check' }, [enabled, el('div', {}, [el('label', { for: 'enabled', text: TEXT.enabled }), el('p', { class: 'hint', id: 'enabled-hint', text: TEXT.enabledHint })])]),
+            el('div', { class: 'check' }, [storeColor, el('label', { for: 'store-color', text: TEXT.storeColor })]),
+            colorRow,
+            field('position', TEXT.positionLabel, position),
+            field('name', TEXT.name, name),
+            field('welcome', TEXT.welcome, welcome),
+            el('div', { class: 'actions' }, [button, status]),
         ]),
+        el('aside', { class: 'card preview' }, [el('h2', { text: TEXT.previewTitle }), preview, previewNote]),
+    ]);
+}
+
+function infoTab() {
+    const settings = state.settings;
+    const policy = textArea('policy', settings.return_policy, 2000, TEXT.returnPlaceholder);
+    const notes = textArea('notes', settings.store_notes, 2000, TEXT.notesPlaceholder);
+    const button = el('button', { type: 'submit', class: 'primary', text: TEXT.save });
+    const status = el('p', { class: 'save-status', role: 'status' });
+
+    return el('form', { class: 'card form', onsubmit: (event) => {
+        event.preventDefault();
+        save({ return_policy: policy.value, store_notes: notes.value }, button, status, TEXT.savedInfo);
+    } }, [
+        field('policy', TEXT.returnPolicy, policy, TEXT.returnHint),
+        field('notes', TEXT.notes, notes, TEXT.notesHint),
+        el('div', { class: 'actions' }, [button, status]),
+    ]);
+}
+
+function nav() {
+    return el('nav', { class: 'tabs', 'aria-label': TEXT.title }, Object.entries(TEXT.tabs).map(([key, label]) => el('button', {
+        type: 'button',
+        class: state.tab === key ? 'tab is-active' : 'tab',
+        ...(state.tab === key ? { 'aria-current': 'page' } : {}),
+        text: label,
+        onclick: () => {
+            state.tab = key;
+            draw();
+        },
+    })));
+}
+
+function homeTab(data) {
+    return el('div', { class: 'stack' }, [
         statusCard(data),
         el('div', { class: 'grid' }, [
             repliesCard(data.replies),
@@ -155,6 +343,21 @@ function render(data) {
                 data.products.synced_at ? `${TEXT.syncedAt}: ${date(data.products.synced_at, true)}` : TEXT.productsWaiting,
             ),
         ]),
+    ]);
+}
+
+function draw() {
+    const data = state.overview;
+    const plan = data.subscription ? (AR ? data.subscription.plan : data.subscription.plan_en) : null;
+    const tab = { home: () => homeTab(data), look: lookTab, info: infoTab }[state.tab];
+
+    root.replaceChildren(
+        el('header', { class: 'top' }, [
+            el('h1', { text: data.store_name || TEXT.title }),
+            plan ? el('p', { text: `${TEXT.plan}: ${plan}${data.subscription.valid_until ? ` · ${TEXT.until} ${date(data.subscription.valid_until)}` : ''}` }) : null,
+        ]),
+        nav(),
+        tab(),
     );
 }
 
@@ -194,7 +397,36 @@ h1,h2,p{margin:0}
 .failure h1{font-size:20px;font-weight:700}
 .failure p{color:var(--muted)}
 button{min-height:44px;padding:0 20px;border:1px solid var(--text);border-radius:10px;background:transparent;color:var(--text);font:inherit;font-weight:600;cursor:pointer}
-button:focus-visible{outline:3px solid var(--fill);outline-offset:2px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--fill);outline-offset:2px}
+button[disabled]{opacity:.6;cursor:default}
+button.primary{background:var(--text);color:var(--surface)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.tab{border:0;border-radius:10px}
+.tab:hover{background:var(--track)}
+.tab.is-active{background:var(--text);color:var(--surface)}
+.split{display:grid;grid-template-columns:minmax(0,3fr) minmax(240px,2fr);gap:16px;align-items:start}
+.form{display:flex;flex-direction:column;gap:18px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field[hidden]{display:none}
+label{font-size:14px;font-weight:600}
+input[type=text],select,textarea{width:100%;min-height:44px;padding:10px 12px;border:1px solid #6B7280;border-radius:10px;background:var(--surface);color:var(--text);font:inherit}
+input[type=color]{width:64px;height:44px;padding:4px;border:1px solid #6B7280;border-radius:10px;background:var(--surface);cursor:pointer}
+textarea{resize:vertical}
+::placeholder{color:var(--muted)}
+.check{display:flex;gap:12px;align-items:flex-start}
+.check input{width:22px;height:22px;margin:2px 0 0;flex-shrink:0;accent-color:var(--fill)}
+.field .hint,.check .hint{margin-top:0}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.save-status{font-size:14px;color:var(--on)}
+.save-status.is-error{color:var(--off)}
+.preview h2{font-size:14px;font-weight:500;color:var(--muted)}
+.preview-stage{display:flex;align-items:flex-end;height:180px;margin-top:12px;padding:16px;border-radius:10px;background:var(--bg);direction:ltr}
+.preview-stage.at-right{justify-content:flex-end}
+.preview-pill{display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 16px 0 8px;border-radius:26px;background:#fff;color:#111827;font-size:14px;font-weight:600;box-shadow:0 10px 28px rgba(17,24,39,.2)}
+.mochi{display:inline-block;margin-top:-16px;line-height:0}
+.preview .hint[hidden]{display:none}
+@media (max-width:640px){.split{grid-template-columns:minmax(0,1fr)}.value{font-size:24px}}
 `;
 
 async function start() {
@@ -205,7 +437,8 @@ async function start() {
         await embedded.init();
         const session = await api('/session', { method: 'POST', body: JSON.stringify({ token: embedded.auth.getToken() }) });
         panelToken = session.token;
-        render(await api('/overview'));
+        [state.overview, state.settings] = await Promise.all([api('/overview'), api('/settings')]);
+        draw();
         embedded.ready();
     } catch (error) {
         renderFailure();

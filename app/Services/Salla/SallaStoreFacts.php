@@ -74,6 +74,18 @@ class SallaStoreFacts
             }
         }
 
+        $policy = trim((string) data_get($facts, 'merchant.return_policy', ''));
+        if ($policy !== '') {
+            $lines[] = 'The store\'s return and exchange policy, written by the merchant. Answer from it and do not add to it:';
+            $lines[] = $policy;
+        }
+
+        $notes = trim((string) data_get($facts, 'merchant.notes', ''));
+        if ($notes !== '') {
+            $lines[] = 'More facts about the store, written by the merchant:';
+            $lines[] = $notes;
+        }
+
         return $lines;
     }
 
