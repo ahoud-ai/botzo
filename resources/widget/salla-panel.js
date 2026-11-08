@@ -462,9 +462,13 @@ function threadView() {
             chats.error = '';
             try {
                 chats.open = await api(`/conversations/${open.id}/reply`, { method: 'POST', body: JSON.stringify({ text }) });
-                chats.draft = '';
-                input.value = '';
                 chats.list = (await api('/conversations')).conversations;
+                // A refresh may have replaced the box while sending, so clear the one on screen now.
+                const current = document.getElementById('reply');
+                if (current) {
+                    current.value = '';
+                }
+                chats.draft = '';
             } catch (error) {
                 chats.error = error.message === '401' ? TEXT.expired : TEXT.sendFailed;
             }
@@ -612,7 +616,7 @@ textarea{resize:vertical}
 .preview .hint[hidden]{display:none}
 .chats{display:grid;grid-template-columns:minmax(240px,2fr) minmax(0,3fr);gap:16px;align-items:start}
 .chat-list{padding:8px;display:flex;flex-direction:column;gap:4px;max-height:640px;overflow-y:auto}
-.chat-row{display:flex;flex-direction:column;align-items:stretch;gap:2px;width:100%;min-height:64px;padding:10px 12px;border:0;border-radius:10px;text-align:start;font-weight:400}
+.chat-row{display:flex;flex-direction:column;flex-shrink:0;align-items:stretch;gap:2px;width:100%;min-height:64px;padding:10px 12px;border:0;border-radius:10px;text-align:start;font-weight:400}
 .chat-row:hover{background:var(--track)}
 .chat-row.is-open{background:var(--track)}
 .chat-top{display:flex;justify-content:space-between;gap:8px;font-size:14px}
