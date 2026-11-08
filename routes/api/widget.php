@@ -10,6 +10,7 @@ Route::middleware('throttle:120,1')->prefix('widget/{key}')->group(function () {
     Route::get('/messages', [WebWidgetController::class, 'index']);
     Route::post('/messages', [WebWidgetController::class, 'store']);
     Route::post('/demo-request', [WebWidgetController::class, 'demoRequest']);
+    Route::post('/order-status', [WebWidgetController::class, 'orderStatus']);
     Route::post('/voice/start', [WebWidgetController::class, 'voiceStart']);
     Route::post('/voice/{call}/end', [WebWidgetController::class, 'voiceEnd']);
     Route::post('/voice/{call}/transcript', [WebWidgetController::class, 'voiceTranscript']);

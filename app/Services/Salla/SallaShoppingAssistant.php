@@ -18,16 +18,36 @@ class SallaShoppingAssistant
 
     private const MAX_CATEGORIES = 20;
 
-    public function __construct(private readonly SallaProductCatalog $catalog)
-    {
+    public function __construct(
+        private readonly SallaProductCatalog $catalog,
+        private readonly SallaStoreFacts $facts,
+    ) {
     }
 
-    /** @return list<string> instructions for the assistant; empty when this is not a store with products */
+    /** @return list<string> instructions for the assistant; empty when this is not a Salla store */
     public function instructions(Contact $contact, WebWidget $widget): array
     {
         $store = $this->store($widget);
 
-        if (! $store || ! SallaProduct::query()->where('salla_store_id', $store->id)->exists()) {
+        if (! $store) {
+            return [];
+        }
+
+        return array_merge($this->storeLines($store), $this->productLines($store, $contact));
+    }
+
+    /** @return list<string> */
+    private function storeLines(SallaStore $store): array
+    {
+        return array_merge($this->facts->lines($store), [
+            'When the visitor asks where their order is or wants to track it, write one short line and end your reply with the marker [[CARD:order]] to show a form. Do not ask for the order number or phone in the chat, and never guess an order\'s status.',
+        ]);
+    }
+
+    /** @return list<string> */
+    private function productLines(SallaStore $store, Contact $contact): array
+    {
+        if (! SallaProduct::query()->where('salla_store_id', $store->id)->exists()) {
             return [];
         }
 
@@ -64,6 +84,11 @@ class SallaShoppingAssistant
             ->all();
 
         return $items === [] ? null : ['type' => 'products', 'items' => $items];
+    }
+
+    public function offersOrderTracking(WebWidget $widget): bool
+    {
+        return $this->store($widget) !== null;
     }
 
     private function store(WebWidget $widget): ?SallaStore

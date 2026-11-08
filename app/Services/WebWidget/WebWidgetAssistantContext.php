@@ -111,6 +111,10 @@ class WebWidgetAssistantContext
             return app(SallaShoppingAssistant::class)->cards($widget, (array) ($stored['keys'] ?? []));
         }
 
+        if (($stored['type'] ?? null) === 'card' && ($stored['key'] ?? null) === 'order') {
+            return app(SallaShoppingAssistant::class)->offersOrderTracking($widget) ? ['type' => 'order_form'] : null;
+        }
+
         if (($stored['type'] ?? null) === 'card' && $this->isBotzoSite($widget)) {
             return match ($stored['key'] ?? null) {
                 'pricing' => $this->pricingCard(),

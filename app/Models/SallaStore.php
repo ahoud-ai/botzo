@@ -30,6 +30,8 @@ class SallaStore extends Model
         'installed_at' => 'datetime',
         'uninstalled_at' => 'datetime',
         'purge_after' => 'datetime',
+        'products_synced_at' => 'datetime',
+        'store_facts' => 'array',
     ];
 
     public function organization(): BelongsTo

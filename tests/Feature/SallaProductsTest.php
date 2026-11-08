@@ -291,6 +291,132 @@ class SallaProductsTest extends TestCase
         $this->assertNull(app(SallaShoppingAssistant::class)->cards($widget, ['1']));
     }
 
+    public function test_shipping_and_active_offers_reach_the_assistant_and_coupons_do_not(): void
+    {
+        Http::fake(['salla.test/v2/shipping/zones' => Http::response(['data' => [[
+            'country' => ['name' => 'السعودية'],
+            'city' => ['name' => 'كل المدن'],
+            'fees' => ['amount' => '50.00', 'currency' => 'SAR'],
+            'cash_on_delivery' => ['status' => true],
+            'duration' => '3 - 5 أيام',
+        ]]]), 'salla.test/v2/specialoffers' => Http::response(['data' => [
+            ['name' => 'عرض الصيف', 'message' => 'خصم 20%', 'status' => 'active', 'expiry_date' => '2026-12-01'],
+            ['name' => 'عرض قديم', 'message' => 'انتهى', 'status' => 'inactive'],
+        ]])]);
+
+        app(\App\Services\Salla\SallaStoreFacts::class)->sync($this->store);
+        $text = implode("\n", app(SallaShoppingAssistant::class)->instructions($this->visitor(), $this->widget));
+
+        $this->assertStringContainsString('السعودية, كل المدن: 50.00 SAR, delivery 3 - 5 أيام, cash on delivery available', $text);
+        $this->assertStringContainsString('عرض الصيف خصم 20% (until 2026-12-01)', $text);
+        $this->assertStringNotContainsString('عرض قديم', $text);
+        $this->assertStringNotContainsString('coupon', mb_strtolower($text));
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), 'coupons'));
+    }
+
+    public function test_a_failed_facts_list_keeps_its_last_copy(): void
+    {
+        $this->store->forceFill(['store_facts' => ['shipping' => [['country' => 'x', 'city' => 'y', 'fees' => '1', 'currency' => 'SAR', 'duration' => '', 'cash_on_delivery' => false]]]])->save();
+        Http::fake(['salla.test/*' => Http::response([], 500)]);
+
+        app(\App\Services\Salla\SallaStoreFacts::class)->sync($this->store);
+
+        $this->assertSame('x', $this->store->refresh()->store_facts['shipping'][0]['country']);
+    }
+
+    private function openSession(): string
+    {
+        \App\Models\Subscription::query()->where('organization_id', $this->organization->id)->delete();
+        \App\Models\Subscription::create(['organization_id' => $this->organization->id, 'plan_id' => $this->planId(), 'status' => 'active', 'start_date' => now()->subDay(), 'valid_until' => now()->addMonth()]);
+
+        return (string) $this->postJson('/api/widget/'.$this->widget->public_key.'/session', ['locale' => 'ar'], ['Origin' => 'https://demostore.salla.sa'])->assertOk()->json('token');
+    }
+
+    private function planId(): int
+    {
+        return (int) \App\Models\SubscriptionPlan::query()->firstOrCreate(['name' => 'Order test'], ['price' => 0, 'period' => 'monthly', 'status' => 'inactive', 'metadata' => '{}'])->id;
+    }
+
+    private function askOrder(string $token, string $number = '٢٠٢٦', string $phone = '+966 555 123 456'): \Illuminate\Testing\TestResponse
+    {
+        return $this->postJson('/api/widget/'.$this->widget->public_key.'/order-status', ['order_number' => $number, 'phone' => $phone], ['Origin' => 'https://demostore.salla.sa', 'X-Widget-Token' => $token]);
+    }
+
+    private function fakeOrder(): void
+    {
+        Http::fake(['salla.test/v2/orders*' => Http::response(['data' => [[
+            'id' => 5,
+            'reference_id' => 2026,
+            'status' => ['name' => 'جديد', 'customized' => ['name' => 'قيد التنفيذ']],
+            'customer' => ['mobile' => 555123456, 'full_name' => 'اسم خاص', 'email' => 'private@example.com'],
+        ]]]), 'salla.test/v2/shipments*' => Http::response(['data' => [['tracking_link' => 'https://track.example.com/1']]])]);
+    }
+
+    public function test_the_right_number_and_phone_give_the_status_and_nothing_private(): void
+    {
+        $this->fakeOrder();
+        $response = $this->askOrder($this->openSession())->assertOk();
+
+        $text = json_encode($response->json(), JSON_UNESCAPED_UNICODE);
+        $this->assertStringContainsString('قيد التنفيذ', $text);
+        $this->assertStringContainsString('track.example.com', $text);
+        $this->assertStringNotContainsString('اسم خاص', $text);
+        $this->assertStringNotContainsString('private@example.com', $text);
+        $this->assertStringNotContainsString('555123456', $text);
+        $this->assertSame(0, \App\Models\Chat::where('organization_id', $this->organization->id)->where('metadata', 'like', '%555%123%456%')->count());
+    }
+
+    public function test_a_wrong_phone_gets_the_same_answer_as_a_wrong_number(): void
+    {
+        $this->fakeOrder();
+        $token = $this->openSession();
+
+        $wrongPhone = $this->askOrder($token, '2026', '0500000000')->assertNotFound()->json();
+        $wrongNumber = $this->askOrder($token, '999', '0555123456')->assertNotFound()->json();
+
+        $this->assertSame($wrongPhone, $wrongNumber);
+    }
+
+    public function test_guessing_stops_after_five_tries_per_conversation(): void
+    {
+        $this->fakeOrder();
+        $token = $this->openSession();
+
+        foreach (range(1, 5) as $try) {
+            $this->askOrder($token, '999')->assertNotFound();
+        }
+
+        $this->askOrder($token)->assertStatus(429);
+    }
+
+    public function test_order_status_needs_a_session_and_a_store(): void
+    {
+        $this->fakeOrder();
+        $this->openSession();
+
+        $this->askOrder('')->assertUnauthorized();
+
+        $this->store->delete();
+        $this->postJson('/api/widget/'.$this->widget->public_key.'/order-status', ['order_number' => '1', 'phone' => '0555123456'], ['Origin' => 'https://demostore.salla.sa'])->assertForbidden();
+    }
+
+    public function test_when_salla_does_not_answer_the_shopper_is_told_to_try_later(): void
+    {
+        Http::fake(['salla.test/*' => Http::response([], 500)]);
+
+        $this->askOrder($this->openSession())->assertStatus(503);
+    }
+
+    public function test_the_order_form_marker_works_only_for_a_store(): void
+    {
+        $context = app(WebWidgetAssistantContext::class);
+        $this->assertSame(['type' => 'order_form'], $context->resolveAction($this->widget, ['type' => 'card', 'key' => 'order']));
+
+        [, $plain] = $this->createOwnerContext();
+        $widget = WebWidget::create(['organization_id' => $plain->id, 'public_key' => WebWidget::generatePublicKey(), 'is_enabled' => true, 'allowed_domains' => ['a.example.com']]);
+        $this->assertNull($context->resolveAction($widget, ['type' => 'card', 'key' => 'order']));
+    }
+
     public function test_purge_deletes_the_store_products(): void
     {
         $this->sync([$this->product(1)]);

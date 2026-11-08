@@ -148,6 +148,27 @@ can therefore be up to an hour old; the cart and checkout always use Salla's cur
 
 Bookings, donations, options with no list of values and multi-choice options open the product page instead.
 
+## Shipping, offers and orders
+
+The same command copies shipping zones and active special offers into `salla_stores.store_facts`, and the assistant
+receives them with each message. A list Salla does not return keeps its last copy.
+
+- **Coupons are left out on purpose:** a code can be private to some customers.
+- **Policies:** Salla has no route for the store's policy pages, so they wait for a field in the merchant panel.
+
+"Where is my order?" shows a form (`[[CARD:order]]`) that posts to `POST /api/widget/{key}/order-status`:
+
+- Both the order number and the last nine digits of the phone on the order must match. Any mismatch gets the same answer.
+- Five tries per conversation an hour, and 60 lookups a minute per store.
+- The answer holds the status and a tracking link only, and the phone is not stored in the conversation.
+
+**Scopes needed (read only):** settings, customers, orders, carts, branches, categories, brands, products, special
+offers, shipping, marketing, reviews, store settings. Carts, branches, brands, marketing and reviews are not used yet;
+remove any still unused before publishing, because Salla's review and merchants read this list.
+
+**Not confirmed yet:** a real tracking link, a real special offer, the inside of the checkout page (the demo store is
+in maintenance mode), and a price changed in Salla reaching the cart.
+
 ## Deleting data
 
 `salla:purge` (daily) removes, for stores past `purge_after`: contacts, chats and their logs, notes and

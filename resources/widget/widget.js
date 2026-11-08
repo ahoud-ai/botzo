@@ -924,6 +924,16 @@
             payNow: 'إتمام الطلب والدفع',
             opening: 'جاري الفتح…',
             viewProduct: 'عرض المنتج',
+            orderTitle: 'متابعة الطلب',
+            orderNumber: 'رقم الطلب',
+            orderPhone: 'رقم الجوال المسجل في الطلب',
+            orderCheck: 'وين طلبي؟',
+            orderChecking: 'جاري البحث…',
+            orderNeedBoth: 'اكتب رقم الطلب ورقم الجوال.',
+            orderNotFound: 'ما لقينا طلب بهالبيانات. تأكد من الرقمين وجرّب مرة ثانية.',
+            orderTooMany: 'محاولات كثيرة. حاول بعد ساعة أو تواصل مع فريق المتجر.',
+            orderFailed: 'ما قدرنا نوصل لبيانات الطلب الحين. جرّب مرة ثانية بعد قليل.',
+            orderDone: 'تم البحث عن طلبك.',
             welcomeTitle: 'هلا وغلا في {business} 👋',
             welcomeSub: 'أنا {name}، مساعدك الذكي — أعرّفك على خدماتنا وأرد على كل أسئلتك',
             pressTalk: 'اضغط وتكلم',
@@ -974,6 +984,16 @@
             payNow: 'Checkout and pay',
             opening: 'Opening…',
             viewProduct: 'View product',
+            orderTitle: 'Track your order',
+            orderNumber: 'Order number',
+            orderPhone: 'Phone number on the order',
+            orderCheck: 'Find my order',
+            orderChecking: 'Searching…',
+            orderNeedBoth: 'Enter the order number and the phone number.',
+            orderNotFound: 'We found no order with these details. Check both numbers and try again.',
+            orderTooMany: 'Too many tries. Try again in an hour or contact the store team.',
+            orderFailed: 'We could not reach the order details. Please try again shortly.',
+            orderDone: 'Your order was looked up.',
             welcomeTitle: 'Welcome to {business} 👋',
             welcomeSub: "I'm {name}, your smart assistant. Ask me anything.",
             pressTalk: 'Press and talk',
@@ -1498,6 +1518,8 @@
                 if (message.revealed !== false && message.action) {
                     if (message.action.type === 'products') {
                         bubble.appendChild(mochi.products(message));
+                    } else if (message.action.type === 'order_form') {
+                        bubble.appendChild(mochi.orderForm(message));
                     } else if (message.action.type === 'pricing') {
                         bubble.appendChild(mochi.card(message.action));
                     } else if (message.action.type === 'demo_form') {
@@ -1567,6 +1589,56 @@
                 ui.productCards[key] = el('div', { 'class': 'pcards' }, message.action.items.map(mochi.product));
             }
             return ui.productCards[key];
+        },
+
+        // "Where is my order?": the answer arrives as messages, and the phone stays out of the chat.
+        orderForm: function (message) {
+            ui.orderForms = ui.orderForms || {};
+            var key = String(message.id);
+            if (ui.orderForms[key]) {
+                return ui.orderForms[key];
+            }
+
+            var number = el('input', { 'class': 'pselect', id: 'bz-order-' + key, type: 'text', inputmode: 'numeric', autocomplete: 'off', maxlength: '30', dir: 'ltr' });
+            var phone = el('input', { 'class': 'pselect', id: 'bz-order-phone-' + key, type: 'tel', inputmode: 'tel', autocomplete: 'tel', maxlength: '30', dir: 'ltr' });
+            var status = el('p', { 'class': 'pstatus', role: 'alert', hidden: '' });
+            var submit = el('button', { type: 'submit', 'class': 'pbtn primary', text: MOCHI_TEXT.orderCheck });
+            var problem = function (text) {
+                status.textContent = text;
+                status.hidden = false;
+                submit.disabled = false;
+                submit.textContent = MOCHI_TEXT.orderCheck;
+            };
+            var form = el('form', { 'class': 'pcard', novalidate: '', 'aria-label': MOCHI_TEXT.orderTitle, onsubmit: function (event) {
+                event.preventDefault();
+                if (!number.value.trim() || !phone.value.trim()) {
+                    problem(MOCHI_TEXT.orderNeedBoth);
+                    (number.value.trim() ? phone : number).focus();
+                    return;
+                }
+
+                status.hidden = true;
+                submit.disabled = true;
+                submit.textContent = MOCHI_TEXT.orderChecking;
+                request('POST', '/order-status', { order_number: number.value, phone: phone.value }).then(function (result) {
+                    if (result.status === 200) {
+                        ui.orderForms[key] = el('div', { 'class': 'pcard', text: MOCHI_TEXT.orderDone });
+                        addMessages(result.data.messages || []);
+                        drawMessages();
+                        return;
+                    }
+                    problem(result.status === 404 ? MOCHI_TEXT.orderNotFound : (result.status === 429 ? MOCHI_TEXT.orderTooMany : MOCHI_TEXT.orderFailed));
+                }).catch(function () {
+                    problem(MOCHI_TEXT.orderFailed);
+                });
+            } }, [
+                el('div', { 'class': 'pfield' }, [el('label', { 'for': number.id, text: MOCHI_TEXT.orderNumber }), number]),
+                el('div', { 'class': 'pfield' }, [el('label', { 'for': phone.id, text: MOCHI_TEXT.orderPhone }), phone]),
+                status,
+                submit
+            ]);
+            ui.orderForms[key] = form;
+            return form;
         },
 
         product: function (item) {

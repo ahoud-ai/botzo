@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\SallaStore;
 use App\Services\Salla\SallaProductSync;
+use App\Services\Salla\SallaStoreFacts;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -13,9 +14,9 @@ class SyncSallaProductsCommand extends Command
 
     protected $signature = 'salla:sync-products';
 
-    protected $description = 'Copy the products of new stores and of stores not synced in the last hour.';
+    protected $description = 'Copy the products, shipping and offers of new stores and of stores not synced in the last hour.';
 
-    public function handle(SallaProductSync $sync): int
+    public function handle(SallaProductSync $sync, SallaStoreFacts $facts): int
     {
         $synced = 0;
         $failed = 0;
@@ -29,8 +30,9 @@ class SyncSallaProductsCommand extends Command
             ->orderByRaw('products_synced_at is not null, products_synced_at')
             ->limit(self::STORES_PER_RUN)
             ->get()
-            ->each(function (SallaStore $store) use ($sync, &$synced, &$failed) {
+            ->each(function (SallaStore $store) use ($sync, $facts, &$synced, &$failed) {
                 try {
+                    $facts->sync($store);
                     $sync->sync($store) ? $synced++ : $failed++;
                 } catch (Throwable $exception) {
                     report($exception);

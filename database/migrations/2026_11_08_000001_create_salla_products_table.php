@@ -31,13 +31,14 @@ return new class extends Migration
 
         Schema::table('salla_stores', function (Blueprint $table) {
             $table->timestamp('products_synced_at')->nullable()->after('subscription_event_at');
+            $table->json('store_facts')->nullable()->after('products_synced_at');
         });
     }
 
     public function down(): void
     {
         Schema::table('salla_stores', function (Blueprint $table) {
-            $table->dropColumn('products_synced_at');
+            $table->dropColumn(['products_synced_at', 'store_facts']);
         });
 
         Schema::dropIfExists('salla_products');

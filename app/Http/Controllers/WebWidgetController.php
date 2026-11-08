@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Contact;
 use App\Models\DemoRequest;
 use App\Models\Organization;
+use App\Models\SallaStore;
 use App\Models\WebWidget;
 use App\Models\WebWidgetSession;
 use App\Models\WebWidgetVoiceCall;
 use App\Services\DemoRequests\DemoRequestService;
 use App\Services\WebWidget\WebWidgetAssistantContext;
+use App\Services\Salla\SallaOrderLookup;
 use App\Services\Salla\SallaStoreAccess;
 use App\Services\WebWidget\WebWidgetEntitlements;
 use App\Services\WebWidget\WebWidgetMessageStore;
@@ -18,7 +20,9 @@ use App\Services\WebWidget\WebWidgetService;
 use App\Services\WebWidget\WebWidgetVoiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
+use Throwable;
 
 /**
  * Public endpoints the website widget script calls from customers' sites. No login: a request
@@ -196,6 +200,53 @@ class WebWidgetController extends Controller
             'messages' => $this->widgets->messages($session->refresh(), (int) $first->id - 1),
             'awaiting_team' => true,
         ]);
+    }
+
+    /**
+     * "Where is my order?" in a Salla store. Both the number and the phone must match, with few tries,
+     * and the phone is not stored in the conversation.
+     */
+    public function orderStatus(Request $request, string $key, SallaOrderLookup $orders): JsonResponse
+    {
+        [$widget, $session] = $this->resolveSession($request, $key);
+        $store = $widget ? SallaStore::query()->where('organization_id', $widget->organization_id)->first() : null;
+        if (! $store) {
+            return $this->unavailable();
+        }
+        if (! $session) {
+            return response()->json(['error' => 'session_expired'], 401);
+        }
+
+        $data = $request->validate([
+            'order_number' => ['required', 'string', 'max:30'],
+            'phone' => ['required', 'string', 'max:30'],
+        ]);
+
+        if (! RateLimiter::attempt('web-widget:order-status:'.$session->id, 5, fn () => true, 3600)
+            || ! RateLimiter::attempt('web-widget:order-status-store:'.$store->id, 60, fn () => true, 60)) {
+            return response()->json(['error' => 'too_many_tries'], 429);
+        }
+
+        try {
+            $order = $orders->find($store, $data['order_number'], $data['phone']);
+        } catch (Throwable) {
+            return response()->json(['error' => 'unavailable'], 503);
+        }
+
+        if (! $order) {
+            return response()->json(['error' => 'not_found'], 404);
+        }
+
+        $contact = $this->widgets->contactFor($session);
+        $arabic = $session->locale !== 'en';
+        $messages = app(WebWidgetMessageStore::class);
+        $first = $messages->storeText($contact, ($arabic ? 'متابعة الطلب رقم ' : 'Track order ').$order['number'], 'inbound');
+        $messages->storeText($contact, implode("\n", array_filter([
+            sprintf($arabic ? 'طلبك رقم %s حالته الآن: %s' : 'Order %s is now: %s', $order['number'], $order['status']),
+            $order['tracking_url'] ? ($arabic ? 'رابط تتبع الشحنة: ' : 'Track the shipment: ').$order['tracking_url'] : null,
+        ])), 'outbound');
+
+        return response()->json(['messages' => $this->widgets->messages($session->refresh(), (int) $first->id - 1)]);
     }
 
     public function index(Request $request, string $key): JsonResponse
