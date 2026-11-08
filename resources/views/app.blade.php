@@ -568,7 +568,7 @@
 
         @inertia
 
-        @if ($isPublicFrontendPage && ($siteWidgetKey = app(\App\Services\WebWidget\SiteWidget::class)->embedKey()))
+        @if (($isPublicFrontendPage || str_starts_with((string) ($page['component'] ?? ''), 'User/')) && ($siteWidgetKey = app(\App\Services\WebWidget\SiteWidget::class)->embedKey()))
         <script src="{{ url('/widget.js') }}" data-key="{{ $siteWidgetKey }}" async></script>
         @endif
 

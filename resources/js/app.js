@@ -5,6 +5,7 @@ import axios from 'axios';
 import { resolveMessageByCandidates } from '@/Utils/i18nLookup';
 import { initTheme } from '@/Composables/useTheme';
 import { vReveal } from '@/directives/reveal';
+import { syncPlatformMochi } from '@/platformMochi';
 
 initTheme();
 
@@ -193,10 +194,12 @@ createInertiaApp({
       app.use(plugin);
       registerDeferredGlobalComponents(app);
       app.use(i18n).mount(el);
+      syncPlatformMochi(initialComponent);
 
       router.on('navigate', async (event) => {
         const pageProps = event?.detail?.page?.props || {};
         applyDocumentLocaleDirection(pageProps);
+        syncPlatformMochi(event?.detail?.page?.component);
 
         const nextLocales = extractAvailableLocales(pageProps, 'en');
         nextLocales.forEach((locale) => availableLocales.add(locale));
