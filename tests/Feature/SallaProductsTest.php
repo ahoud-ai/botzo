@@ -141,6 +141,18 @@ class SallaProductsTest extends TestCase
         $this->assertNull(SallaProduct::where('salla_product_id', 2)->first());
     }
 
+    public function test_a_page_of_products_is_saved_with_one_query(): void
+    {
+        $products = array_map(fn (int $id) => $this->product($id), range(1, 50));
+        \Illuminate\Support\Facades\DB::enableQueryLog();
+
+        $this->sync($products);
+
+        $writes = collect(\Illuminate\Support\Facades\DB::getQueryLog())->filter(fn (array $query) => str_contains($query['query'], 'salla_products') && str_starts_with(strtolower($query['query']), 'insert'));
+        $this->assertCount(1, $writes);
+        $this->assertSame(50, SallaProduct::where('salla_store_id', $this->store->id)->count());
+    }
+
     public function test_a_failed_sync_keeps_the_catalog(): void
     {
         $this->sync([$this->product(1)]);
@@ -192,6 +204,7 @@ class SallaProductsTest extends TestCase
         $this->assertSame([1], $catalog->search($this->store, 'الفساتين')->pluck('salla_product_id')->all());
         $this->assertSame([], $catalog->search($this->store, 'كم السعر؟')->all());
         $this->assertSame([], $catalog->search($this->store, '%')->all());
+        $this->assertSame([], $catalog->search($this->store, 'لون')->all(), 'Part of a word in the middle is not a match.');
     }
 
     public function test_products_of_another_store_never_appear(): void

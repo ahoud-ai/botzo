@@ -39,10 +39,18 @@ class SallaProductSync
                 return false;
             }
 
-            foreach ((array) ($body['data'] ?? []) as $product) {
-                if (is_array($product) && ($saved = $this->save($store, $product))) {
-                    $seen[] = $saved;
-                }
+            $rows = collect((array) ($body['data'] ?? []))
+                ->filter(fn ($product) => is_array($product))
+                ->map(fn (array $product) => $this->row($store, $product))
+                ->filter()
+                ->keyBy('salla_product_id')
+                ->values()
+                ->all();
+
+            // One query per page, so a large catalog does not cost thousands of queries every hour.
+            if ($rows !== []) {
+                SallaProduct::query()->upsert($rows, ['salla_store_id', 'salla_product_id'], array_values(array_diff(array_keys($rows[0]), ['salla_store_id', 'salla_product_id'])));
+                array_push($seen, ...array_column($rows, 'salla_product_id'));
             }
 
             if ($page >= (int) data_get($body, 'pagination.totalPages', 1)) {
@@ -86,7 +94,7 @@ class SallaProductSync
         return (array) $response->json();
     }
 
-    private function save(SallaStore $store, array $product): ?int
+    private function row(SallaStore $store, array $product): ?array
     {
         $id = (int) ($product['id'] ?? 0);
         $name = trim((string) ($product['name'] ?? ''));
@@ -101,25 +109,23 @@ class SallaProductSync
         $price = $this->amount($product['taxed_price'] ?? null) ?? $this->amount($product['price'] ?? null) ?? 0.0;
         $regular = $this->amount($product['regular_price'] ?? null);
 
-        SallaProduct::query()->updateOrCreate(
-            ['salla_store_id' => $store->id, 'salla_product_id' => $id],
-            [
-                'name' => Str::limit($name, 250, ''),
-                'type' => Str::limit((string) ($product['type'] ?? 'product'), 32, ''),
-                'category' => $category ? Str::limit((string) $category, 250, '') : null,
-                'description' => $description === '' ? null : Str::limit($description, 1500, ''),
-                'price' => $price,
-                'regular_price' => $regular !== null && $regular > $price ? $regular : null,
-                'currency' => Str::limit((string) data_get($product, 'price.currency', 'SAR'), 8, ''),
-                'is_available' => ($product['status'] ?? null) === 'sale' && (bool) ($product['is_available'] ?? false),
-                'image_url' => $this->url($product['main_image'] ?? $product['thumbnail'] ?? null),
-                'url' => $this->url($product['url'] ?? data_get($product, 'urls.customer')),
-                'options' => $options,
-                'search_text' => $this->catalog->searchText($name, (string) $category, $description, data_get($product, 'brand.name'), (array) ($product['tags'] ?? []), $options),
-            ]
-        );
-
-        return $id;
+        return [
+            'salla_store_id' => $store->id,
+            'salla_product_id' => $id,
+            'name' => Str::limit($name, 250, ''),
+            'type' => Str::limit((string) ($product['type'] ?? 'product'), 32, ''),
+            'category' => $category ? Str::limit((string) $category, 250, '') : null,
+            'description' => $description === '' ? null : Str::limit($description, 1500, ''),
+            'price' => $price,
+            'regular_price' => $regular !== null && $regular > $price ? $regular : null,
+            'currency' => Str::limit((string) data_get($product, 'price.currency', 'SAR'), 8, ''),
+            'is_available' => ($product['status'] ?? null) === 'sale' && (bool) ($product['is_available'] ?? false),
+            'image_url' => $this->url($product['main_image'] ?? $product['thumbnail'] ?? null),
+            'url' => $this->url($product['url'] ?? data_get($product, 'urls.customer')),
+            // upsert skips model casts.
+            'options' => json_encode($options, JSON_UNESCAPED_UNICODE),
+            'search_text' => $this->catalog->searchText($name, (string) $category, $description, data_get($product, 'brand.name'), (array) ($product['tags'] ?? []), $options),
+        ];
     }
 
     /** Only what the card needs, not Salla's whole option. */

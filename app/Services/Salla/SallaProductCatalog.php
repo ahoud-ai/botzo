@@ -58,6 +58,7 @@ class SallaProductCatalog
 
         return $products
             ->map(fn (SallaProduct $product) => ['product' => $product, 'score' => $this->score($product, $terms)])
+            ->filter(fn (array $match) => $match['score'] > 0)
             ->sortByDesc('score')
             ->take($limit)
             ->pluck('product')
@@ -156,8 +157,17 @@ class SallaProductCatalog
         $name = $this->normalize($product->name);
         $score = 0;
 
+        $text = ' '.$product->search_text.' ';
+
         foreach ($terms as $term) {
-            $score += str_contains($name, $term) ? 3 : (str_contains((string) $product->search_text, $term) ? 1 : 0);
+            if (str_contains(' '.$name.' ', ' '.$term.' ')) {
+                $score += 4;
+            } elseif (str_contains($name, $term)) {
+                $score += 3;
+            } elseif (preg_match('/[\s](?:ال)?'.preg_quote($term, '/').'/u', $text) === 1) {
+                // The start of a word, so "فساتين" finds "الفساتين" while "غير" does not find "صغير".
+                $score += 1;
+            }
         }
 
         return $score;
