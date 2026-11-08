@@ -86,7 +86,7 @@ class WebWidgetController extends Controller
         $entitlements = app(WebWidgetEntitlements::class)->for((int) $widget->organization_id);
 
         return [
-            'theme' => in_array($settings['theme'], (array) config('web_widget.themes', []), true) ? $settings['theme'] : 'mochi',
+            'theme' => in_array($settings['theme'], array_merge((array) config('web_widget.themes', []), (array) config('web_widget.internal_themes', [])), true) ? $settings['theme'] : 'mochi',
             'accent' => $settings['accent'],
             'accent_secondary' => $settings['accent_secondary'],
             'position' => $settings['position'],

@@ -158,6 +158,7 @@ class SallaWidgetTest extends TestCase
 
         $this->getJson('/api/widget/'.$key.'/config', ['Origin' => self::ORIGIN])
             ->assertOk()
+            ->assertJsonPath('settings.theme', 'store')
             ->assertJsonPath('settings.business_label', 'متجر تجريبي')
             ->assertJsonPath('settings.voice', false);
     }

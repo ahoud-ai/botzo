@@ -21,7 +21,7 @@ class WebWidgetSettingsUpdater
             'is_enabled' => ['required', 'boolean'],
             'allowed_domains' => ['present', 'array', 'max:'.(int) config('web_widget.max_domains', 10)],
             'allowed_domains.*' => ['nullable', 'string', 'max:255'],
-            'theme' => ['required', Rule::in((array) config('web_widget.themes', ['mochi', 'botzo', 'classic']))],
+            'theme' => ['required', Rule::in(array_merge((array) config('web_widget.themes', ['mochi', 'botzo', 'classic']), (array) config('web_widget.internal_themes', [])))],
             'accent' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'accent_secondary' => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'position' => ['required', Rule::in(['right', 'left'])],

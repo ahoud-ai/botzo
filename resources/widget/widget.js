@@ -271,6 +271,8 @@
 
     function applySettings(settings) {
         state.settings = settings;
+        // "store" looks different but behaves as the Mochi theme.
+        state.store = settings.theme === 'store';
         state.theme = ['classic', 'botzo'].indexOf(settings.theme) !== -1 ? settings.theme : 'mochi';
     }
 
@@ -909,6 +911,8 @@
         ar: {
             bubble: 'هلا! عندك سؤال؟ 👋',
             talkToMe: 'تكلّم معي',
+            askName: 'اسأل {name}',
+            storeWelcomeSub: 'اكتب سؤالك هنا، وإذا احتجت فريق المتجر أوجهك لهم.',
             welcomeTitle: 'هلا وغلا في {business} 👋',
             welcomeSub: 'أنا {name}، مساعدك الذكي — أعرّفك على خدماتنا وأرد على كل أسئلتك',
             pressTalk: 'اضغط وتكلم',
@@ -946,6 +950,8 @@
         en: {
             bubble: 'Hi! Got a question? 👋',
             talkToMe: 'Talk to me',
+            askName: 'Ask {name}',
+            storeWelcomeSub: 'Type your question here, and I will point you to the store team if you need them.',
             welcomeTitle: 'Welcome to {business} 👋',
             welcomeSub: "I'm {name}, your smart assistant. Ask me anything.",
             pressTalk: 'Press and talk',
@@ -1179,23 +1185,113 @@
         ].join('');
     }
 
+    // The merchant's choice, else the color of the store's theme in Salla.
+    function storeAccent(chosen) {
+        var hex = /^#[0-9a-fA-F]{6}$/;
+        var fromStore = null;
+        try {
+            fromStore = window.salla.config.get('theme.color.primary');
+        } catch (error) {
+            fromStore = null;
+        }
+        var color = hex.test(chosen || '') && chosen.toUpperCase() !== '#22D366' ? chosen : fromStore;
+        if (!hex.test(color || '')) {
+            return '#0F7B45';
+        }
+        // A near-white color would vanish on the white panel.
+        return luminance(color) > 0.8 ? '#111827' : color;
+    }
+
+    function luminance(hex) {
+        var channels = [1, 3, 5].map(function (start) {
+            var value = parseInt(hex.substr(start, 2), 16) / 255;
+            return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+        });
+        return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+    }
+
+    function storeStyles(accent) {
+        var onAccent = 1.05 / (luminance(accent) + 0.05) >= 4.5 ? '#FFFFFF' : '#111827';
+        return [
+            '.store.root{color:#111827;--accent:' + accent + ';--on-accent:' + onAccent + '}',
+            '.store button:focus-visible,.store a:focus-visible{outline:3px solid ' + accent + '}',
+            // closed: a small pill with Mochi leaning over its top edge
+            '.store .launcher{width:auto;height:52px;padding:0;padding-inline:8px 16px;gap:8px;align-items:center;border-radius:26px;background:#fff;color:#111827;font-size:14px;font-weight:600;box-shadow:0 10px 28px rgba(17,24,39,.24),0 1px 4px rgba(17,24,39,.12)}',
+            '.store .launcher .mochi{width:48px;margin-top:-16px}',
+            '.store .launcher-label{display:none}',
+            '.store .badge{top:-6px;border-color:#fff}',
+            // panel: light, with Mochi sitting on its top edge
+            '.store .panel{width:392px;height:min(640px,calc(100vh - 84px));border-radius:20px;background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;border:0;overflow:visible;box-shadow:0 24px 64px rgba(17,24,39,.22),0 2px 8px rgba(17,24,39,.08)}',
+            '.store .glow,.store .head-mochi,.store .w-mochi{display:none}',
+            '.store .edge-mochi{position:absolute;top:-44px;inset-inline-start:20px;width:84px;z-index:1;pointer-events:none}',
+            '.store .icon-btn{width:44px;height:44px;border-radius:12px;background:#F3F4F6;color:#111827}',
+            '.store .icon-btn:hover{background:#E5E7EB}',
+            '.store .welcome{padding:44px 20px 20px;justify-content:flex-end}',
+            '.store .welcome .icon-btn{top:10px;inset-inline-end:10px}',
+            '.store .w-title{margin:0;font-size:20px}',
+            '.store .w-sub,.store .note{color:#374151}',
+            '.store .note{background:#F3F4F6}',
+            '.store .chip{min-height:44px;border-color:#D1D5DB;background:#fff;color:#111827}',
+            '.store .chip:hover{border-color:' + accent + '}',
+            // conversation
+            '.store .c-head{padding:40px 16px 14px 20px;border-bottom:1px solid #EEF0F2}',
+            '.store .c-status{font-size:13px;color:#15803D}',
+            '.store .c-body{background:#FAFAFB}',
+            '.store .msg{font-size:15px}',
+            '.store .bot .msg{background:#fff;border-color:#E8EAED}',
+            '.store .user .msg{color:var(--on-accent);font-weight:400}',
+            '.store .meta,.store .agent-label{color:#4B5563}',
+            '.store .retry{border-color:' + accent + ';color:' + accent + '}',
+            '.store .dot:nth-child(n){background:#6B7280}',
+            // input and footer
+            '.store .form{margin:12px 16px 0;border-radius:14px;border:1.5px solid #9CA3AF;background:#fff}',
+            '.store .form:focus-within{border-color:' + accent + ';box-shadow:0 0 0 3px rgba(17,24,39,.08)}',
+            '.store .field{color:#111827}',
+            '.store .field::placeholder{color:#4B5563}',
+            '.store .round{width:44px;height:44px;border-radius:11px}',
+            '.store .send{color:var(--on-accent);box-shadow:none}',
+            '.store .foot{justify-content:center;color:#4B5563}',
+            '.store .foot button{display:none}',
+            '.store .foot a{color:#111827}',
+            // phones: the whole screen, with Mochi back in the header
+            '@media (max-width:480px){',
+            '.store .panel{inset:0;width:auto;height:auto;border-radius:0;overflow:hidden}',
+            '.store .edge-mochi{display:none}',
+            '.store .head-mochi{display:inline-block}',
+            '.store .c-head{padding:10px 12px 10px 16px}',
+            '.store .welcome{padding-top:64px;justify-content:center}',
+            '.store .w-mochi{display:inline-block;width:140px;margin:16px 0 0;filter:none}',
+            '}'
+        ].join('');
+    }
+
+    function poweredBy() {
+        return el('span', { dir: state.store ? 'auto' : 'ltr' }, [
+            (state.store ? TEXT.poweredBy : 'Powered by') + ' ',
+            el('a', { href: 'https://botzo.net', target: '_blank', rel: 'noopener', text: 'botzo' })
+        ]);
+    }
+
     var mochi = {
         render: function () {
             var settings = state.settings;
             var accent = /^#[0-9a-fA-F]{6}$/.test(settings.accent || '') ? settings.accent : '#22D366';
+            if (state.store) {
+                accent = settings.accent = settings.accent_secondary = storeAccent(settings.accent);
+            }
             var host = el('div', { id: 'botzo-widget' });
             var shadow = host.attachShadow({ mode: 'open' });
             var name = settings.assistant_name || '';
             var business = settings.business_label || name;
             var rtl = LOCALE === 'ar';
 
-            shadow.appendChild(el('style', { text: mochiStyles(accent) + voiceStyles() }));
-            ui.root = el('div', { 'class': 'root mochi-theme' + (rtl ? ' rtl' : ''), dir: rtl ? 'rtl' : 'ltr', lang: LOCALE });
+            shadow.appendChild(el('style', { text: mochiStyles(accent) + voiceStyles() + (state.store ? storeStyles(accent) : '') }));
+            ui.root = el('div', { 'class': 'root mochi-theme' + (rtl ? ' rtl' : '') + (state.store ? ' store' : ''), dir: rtl ? 'rtl' : 'ltr', lang: LOCALE });
             ui.root.style.setProperty('--user-bg', accent);
 
             // ① closed: Mochi, the label and a one-time bubble
             ui.badge = el('span', { 'class': 'badge', hidden: '' });
-            ui.launcher = el('button', { type: 'button', 'class': 'launcher', 'aria-label': TEXT.open, 'aria-expanded': 'false', onclick: toggle }, [mochiEl('launcher-mochi'), ui.badge]);
+            ui.launcher = el('button', { type: 'button', 'class': 'launcher', 'aria-label': TEXT.open, 'aria-expanded': 'false', onclick: toggle }, [mochiEl('launcher-mochi'), state.store ? fill(MOCHI_TEXT.askName, { name: name }) : null, ui.badge]);
             ui.teaser = el('button', { type: 'button', 'class': 'bubble', text: MOCHI_TEXT.bubble, hidden: '', onclick: toggle });
             ui.launcherWrap = el('div', { 'class': 'launcher-wrap' }, [ui.teaser, ui.launcher, el('span', { 'class': 'launcher-label', text: MOCHI_TEXT.talkToMe })]);
 
@@ -1203,7 +1299,7 @@
             ui.welcome = el('div', { 'class': 'welcome' }, [
                 el('button', { type: 'button', 'class': 'icon-btn', 'aria-label': TEXT.close, onclick: toggle }, [svg(['M6 6l12 12M18 6L6 18'], 16)]),
                 el('h2', { 'class': 'w-title', text: fill(MOCHI_TEXT.welcomeTitle, { business: business }) }),
-                el('p', { 'class': 'w-sub', text: settings.welcome_text || fill(MOCHI_TEXT.welcomeSub, { name: name }) }),
+                el('p', { 'class': 'w-sub', text: settings.welcome_text || (state.store ? MOCHI_TEXT.storeWelcomeSub : fill(MOCHI_TEXT.welcomeSub, { name: name })) }),
                 mochiEl('w-mochi'),
                 settings.voice ? el('span', { 'class': 'w-talk' }, [svg(['M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z', 'M5 11a7 7 0 0 0 14 0M12 18v3'], 14), MOCHI_TEXT.pressTalk]) : null
             ]);
@@ -1244,18 +1340,16 @@
                 el('button', { type: 'button', text: MOCHI_TEXT.replyByText, onclick: function () {
                     ui.field.focus();
                 } }),
-                settings.branding === false ? el('span') : el('span', { dir: 'ltr' }, ['Powered by ', el('a', { href: 'https://botzo.net', target: '_blank', rel: 'noopener', text: 'botzo' })]),
+                settings.branding === false ? el('span') : poweredBy(),
                 el('button', { type: 'button', text: MOCHI_TEXT.end, onclick: toggle })
             ]);
-            ui.footConvo = el('div', { 'class': 'foot center', hidden: '' }, settings.branding === false ? [] : [
-                el('span', { dir: 'ltr' }, ['Powered by ', el('a', { href: 'https://botzo.net', target: '_blank', rel: 'noopener', text: 'botzo' })])
-            ]);
+            ui.footConvo = el('div', { 'class': 'foot center', hidden: '' }, settings.branding === false ? [] : [poweredBy()]);
 
             ui.panel = el('section', { 'class': 'panel', role: 'dialog', 'aria-label': TEXT.label, hidden: '', onkeydown: function (event) {
                 if (event.key === 'Escape') {
                     toggle();
                 }
-            } }, [el('span', { 'class': 'glow', 'aria-hidden': 'true' }), ui.welcome, ui.convo, ui.callView = callView(), ui.form, ui.footWelcome, ui.footConvo]);
+            } }, [el('span', { 'class': 'glow', 'aria-hidden': 'true' }), state.store ? mochiEl('edge-mochi') : null, ui.welcome, ui.convo, ui.callView = callView(), ui.form, ui.footWelcome, ui.footConvo]);
 
             ui.root.appendChild(ui.panel);
             ui.root.appendChild(ui.launcherWrap);

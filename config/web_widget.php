@@ -35,6 +35,10 @@ return [
     // "mochi": the Mochi mascot (default); "botzo": dark with Botzo's brand icons; "classic": light.
     'themes' => ['mochi', 'botzo', 'classic'],
 
+    // Set by Botzo for a group of customers, not offered in the admin's list. "store": light, in the
+    // store's color, for Salla stores.
+    'internal_themes' => ['store'],
+
     // OpenAI Realtime voices a customer may pick for voice calls.
     'voices' => ['alloy', 'marin', 'cedar', 'coral', 'sage', 'shimmer', 'ash', 'ballad', 'verse', 'echo'],
 

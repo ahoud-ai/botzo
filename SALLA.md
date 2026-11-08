@@ -115,6 +115,9 @@ reached an installed store within seconds, with no reinstall.
   a disabled widget, or another domain.
 - Salla sends no event when a store changes its domain. An unknown domain makes Botzo ask Salla again, at most
   once an hour per store, and the allowed domain follows the answer.
+- New widgets use the `store` look: a light panel in the store's color with Mochi on its top edge. The color is the
+  widget's `accent` when set, else `theme.color.primary` from `salla.config`. It lives in `storeStyles` in
+  `resources/widget/widget.js`, behaves as the Mochi theme, and is not offered in the admin's theme list.
 - New assistants use Botzo's AI key and the texts in `database/data/salla_store_assistant.php`. They have no
   product, price or order data yet and are told not to guess.
 - `daily_reply_limit` stays at the table default of 300 per store until pricing is decided; a plan with more than

@@ -28,6 +28,7 @@ class SallaWidgetProvisioner
                 'is_enabled' => true,
                 'allowed_domains' => $domain ? [$domain] : [],
                 'created_by' => $organization->created_by,
+                'settings' => ['theme' => 'store'],
             ]);
         }
 
