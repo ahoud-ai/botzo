@@ -63,4 +63,15 @@ const loader = await build({
 });
 writeFileSync('public/widget.js', loader.outputFiles[0].text);
 
+// Added by the snippet in Salla stores; finds the store's widget key, then adds public/widget.js.
+const sallaLoader = await build({
+    entryPoints: ['resources/widget/salla-loader.js'],
+    minify: true,
+    target: 'es2017',
+    legalComments: 'none',
+    banner: { js: '/* Botzo loader for Salla stores. Built from resources/widget/salla-loader.js. */' },
+    write: false,
+});
+writeFileSync('public/salla-widget.js', sallaLoader.outputFiles[0].text);
+
 console.log(`widget: ${outDir}/${name} (${code.length} bytes), loader public/widget.js (${loader.outputFiles[0].text.length} bytes)`);

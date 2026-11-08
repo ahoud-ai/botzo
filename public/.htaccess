@@ -66,7 +66,7 @@ DirectoryIndex index.php
 
     # Website widget: customers embed the loader (/widget.js), so it is cached briefly and picks up
     # new versions; the widget itself (/widget/widget.<hash>.js) is named by content.
-    <FilesMatch "^widget\.js$">
+    <FilesMatch "^(salla-)?widget\.js$">
         Header set Cache-Control "public, max-age=300"
         Header unset Expires
     </FilesMatch>

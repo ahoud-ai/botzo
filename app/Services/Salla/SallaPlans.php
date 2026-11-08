@@ -102,7 +102,8 @@ class SallaPlans
             'ai_organization_key_enabled' => false,
             'widget_voice_minutes_monthly' => 0,
             'widget_remove_branding' => '0',
-            'message_limit' => 0,
+            // Zero would stop every reply and the merchant's inbox. Cost is capped by the reply quota above.
+            'message_limit' => -1,
             'contacts_limit' => -1,
             'team_limit' => 3,
             'canned_replies_limit' => 20,

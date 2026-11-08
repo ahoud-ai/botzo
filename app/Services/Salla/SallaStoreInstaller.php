@@ -24,8 +24,10 @@ class SallaStoreInstaller
 {
     public const RETENTION_DAYS = 30;
 
-    public function __construct(private readonly OrganizationService $organizations)
-    {
+    public function __construct(
+        private readonly OrganizationService $organizations,
+        private readonly SallaWidgetProvisioner $widgets,
+    ) {
     }
 
     /**
@@ -75,6 +77,8 @@ class SallaStoreInstaller
             $this->renameAccount($store, $details['store_name']);
         }
 
+        $this->widgets->ensure($store);
+
         return $store;
     }
 
@@ -116,6 +120,8 @@ class SallaStoreInstaller
         if (isset($details['store_name'])) {
             $this->renameAccount($store, $details['store_name']);
         }
+
+        $this->widgets->ensure($store);
     }
 
     /**

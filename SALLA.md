@@ -93,6 +93,41 @@ are not affected.
 **Not confirmed yet:** Salla refuses its subscriptions API while the app is in development, so the real
 plan names and event fields have not been seen. Check them with a real subscription before publishing.
 
+## Widget in the store (phase 3)
+
+The snippet is the same for every store. Salla's editor accepts plain JavaScript only, not HTML or
+`<script>` tags, and its preview does not run the code, so test on the store itself. A saved snippet
+reached an installed store within seconds, with no reinstall.
+
+```js
+(function(){var s=document.createElement('script');s.src='https://botzo.net/salla-widget.js';s.async=true;document.head.appendChild(s)})();
+```
+
+1. `public/salla-widget.js`, built from `resources/widget/salla-loader.js` by `npm run build:widget`, reads
+   `store.id` from `salla.config`.
+2. It asks `GET /api/salla/widget/{store id}` for the widget key.
+3. It adds the usual `public/widget.js` with that key.
+
+- Stores keep the snippet Salla approved, so `salla-widget.js` and the key route must keep working with it.
+- `app.store.authorize` creates the widget and assistant once. A reinstall keeps the key and the merchant's edits.
+  The widget's only allowed domain is the host of the store's domain in Salla.
+- The key route answers 403 for an unknown store, an uninstalled store, a store with no running subscription,
+  a disabled widget, or another domain.
+- Salla sends no event when a store changes its domain. An unknown domain makes Botzo ask Salla again, at most
+  once an hour per store, and the allowed domain follows the answer.
+- New assistants use Botzo's AI key and the texts in `database/data/salla_store_assistant.php`. They have no
+  product, price or order data yet and are told not to guess.
+- `daily_reply_limit` stays at the table default of 300 per store until pricing is decided; a plan with more than
+  300 replies a day needs a higher value.
+
+**Known limit:** browsers send only the host of the page, and some stores share a host (`demostore.salla.sa`,
+and probably `salla.sa`), so a store on the same host could use another store's key, and a script outside a
+browser can fake the header anyway. Conversations stay private to each visitor's token. The exposure is
+another store's reply allowance, capped by its daily and monthly limits.
+
+**Before release:** check that the server's `addons` table has `AI Assistant` turned on and the server can
+reach `accounts.salla.sa`, and that Salla's review accepts loading a script from Botzo's server.
+
 ## Deleting data
 
 `salla:purge` (daily) removes, for stores past `purge_after`: contacts, chats and their logs, notes and
