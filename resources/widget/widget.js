@@ -1695,6 +1695,7 @@
                     add.button.classList.add('done');
                     pay.button = el('button', { type: 'button', 'class': 'pbtn primary', text: MOCHI_TEXT.payNow, onclick: pay });
                     actions.appendChild(pay.button);
+                    pay.button.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                 }).catch(function () {
                     add.button.disabled = false;
                     add.button.textContent = MOCHI_TEXT.addToCart;
