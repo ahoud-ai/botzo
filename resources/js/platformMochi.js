@@ -1,9 +1,9 @@
 /**
- * Makes the Mochi site widget smaller and movable on customer pages of the platform.
+ * Makes the Mochi site widget smaller and movable across botzo.net: public and customer pages.
  *
  * The widget itself (resources/widget/widget.js) is shared with every customer's website, so it
- * is left alone. This module adjusts it from outside, only while a User/ page is showing, and
- * puts it back as it was when the visitor returns to a public page.
+ * is left alone. This module adjusts it from outside, so only pages of this app are affected,
+ * and puts it back as it was on admin and sign-in pages, where it can arrive by in-app navigation.
  */
 
 const STORAGE_KEY = 'botzo_platform_mochi_position';
@@ -413,9 +413,11 @@ function attachWhenReady() {
  * Call with the Inertia component of the page now showing.
  */
 export function syncPlatformMochi(component) {
-  const isCustomerPage = typeof component === 'string' && component.startsWith('User/');
+  const page = typeof component === 'string' ? component : '';
+  const isCustomerPage = page.startsWith('User/');
+  const isMovablePage = page !== '' && !/^(Admin|Auth)\//.test(page);
 
-  if (!isCustomerPage) {
+  if (!isMovablePage) {
     stopWatchingForHost();
     attached?.detach();
     attached = null;
@@ -427,7 +429,10 @@ export function syncPlatformMochi(component) {
     return;
   }
 
-  loadWidgetIfMissing();
+  // Public pages already get the widget from their own script tag.
+  if (isCustomerPage) {
+    loadWidgetIfMissing();
+  }
 
   if (attachWhenReady() || hostWatcher) {
     return;
