@@ -27,7 +27,23 @@ const TEXT = AR ? {
     failedBody: 'حدّث الصفحة وحاول مرة ثانية. إذا استمرت المشكلة تواصل مع دعم بوتزو.',
     retry: 'إعادة المحاولة',
     loading: 'جاري التحميل…',
-    tabs: { home: 'الرئيسية', look: 'شكل موتشي', info: 'معلومات المتجر' },
+    tabs: { home: 'الرئيسية', chats: 'المحادثات', look: 'شكل موتشي', info: 'معلومات المتجر' },
+    noChats: 'لسه ما فيه محادثات. لما يكلم زائر موتشي بتظهر هنا.',
+    pickChat: 'اختر محادثة لقراءتها والرد عليها.',
+    back: 'رجوع للمحادثات',
+    needsTeam: 'رسالة جديدة',
+    fromVisitor: 'الزائر',
+    fromAssistant: 'موتشي',
+    fromTeam: 'أنت',
+    showedProducts: (count) => `عرض ${count} منتج`,
+    replyLabel: 'ردك على الزائر',
+    replyPlaceholder: 'اكتب ردك هنا…',
+    send: 'إرسال',
+    sending: 'جاري الإرسال…',
+    sendFailed: 'ما وصل الرد. حاول مرة ثانية.',
+    replyNote: 'لما ترد، يتوقف موتشي في هذه المحادثة مؤقتاً عشان ما يقاطعك.',
+    paused: 'موتشي متوقف في هذه المحادثة لأنك رديت.',
+    resume: 'رجّع موتشي يرد',
     enabled: 'تشغيل موتشي في متجري',
     enabledHint: 'لما توقفه يختفي من المتجر خلال دقائق، وترجع كل إعداداته لما تشغله.',
     storeColor: 'استخدم لون متجري تلقائياً',
@@ -77,7 +93,23 @@ const TEXT = AR ? {
     failedBody: 'Reload the page and try again. If it continues, contact Botzo support.',
     retry: 'Try again',
     loading: 'Loading…',
-    tabs: { home: 'Home', look: 'Mochi\'s look', info: 'Store information' },
+    tabs: { home: 'Home', chats: 'Conversations', look: 'Mochi\'s look', info: 'Store information' },
+    noChats: 'No conversations yet. They appear here when a visitor talks to Mochi.',
+    pickChat: 'Choose a conversation to read and reply.',
+    back: 'Back to conversations',
+    needsTeam: 'New message',
+    fromVisitor: 'Visitor',
+    fromAssistant: 'Mochi',
+    fromTeam: 'You',
+    showedProducts: (count) => `Showed ${count} products`,
+    replyLabel: 'Your reply to the visitor',
+    replyPlaceholder: 'Type your reply…',
+    send: 'Send',
+    sending: 'Sending…',
+    sendFailed: 'The reply was not sent. Please try again.',
+    replyNote: 'When you reply, Mochi pauses in this conversation so it does not interrupt you.',
+    paused: 'Mochi is paused in this conversation because you replied.',
+    resume: 'Let Mochi reply again',
     enabled: 'Run Mochi in my store',
     enabledHint: 'When off, it leaves the store within minutes. Its settings return when you turn it on.',
     storeColor: 'Use my store\'s color automatically',
@@ -318,6 +350,154 @@ function infoTab() {
     ]);
 }
 
+const POLL_MS = 15000;
+const chats = { list: null, open: null, draft: '', error: '', timer: null };
+
+function schedulePoll() {
+    clearTimeout(chats.timer);
+    if (state.tab === 'chats') {
+        chats.timer = setTimeout(refreshChats, POLL_MS);
+    }
+}
+
+async function refreshChats() {
+    try {
+        const list = await api('/conversations');
+        const open = chats.open ? await api(`/conversations/${chats.open.id}`) : null;
+        chats.list = list.conversations;
+        const changed = open && open.messages.length !== chats.open.messages.length;
+        chats.open = open;
+        if (state.tab === 'chats') {
+            keepingDraft(drawChats, changed);
+        }
+    } catch (error) {
+        // The next check tries again; what is on screen stays.
+    }
+    schedulePoll();
+}
+
+/** Redraws without losing what the merchant is typing. */
+function keepingDraft(redraw, scrollDown) {
+    const input = document.getElementById('reply');
+    const focused = input && document.activeElement === input;
+    if (input) {
+        chats.draft = input.value;
+    }
+    const thread = document.querySelector('.thread');
+    const top = thread ? thread.scrollTop : 0;
+    redraw();
+    const nextInput = document.getElementById('reply');
+    if (focused && nextInput) {
+        nextInput.focus();
+    }
+    const nextThread = document.querySelector('.thread');
+    if (nextThread) {
+        nextThread.scrollTop = scrollDown || !thread ? nextThread.scrollHeight : top;
+    }
+}
+
+/** Visitors are saved with an English placeholder name and a number. */
+function visitorName(name) {
+    return String(name).replace(/^Website visitor/, AR ? 'زائر' : 'Visitor');
+}
+
+function chatRow(item) {
+    const isOpen = chats.open && chats.open.id === item.id;
+    return el('button', {
+        type: 'button',
+        class: `chat-row${isOpen ? ' is-open' : ''}`,
+        ...(isOpen ? { 'aria-current': 'true' } : {}),
+        onclick: async () => {
+            chats.error = '';
+            chats.draft = '';
+            chats.open = await api(`/conversations/${item.id}`).catch(() => null);
+            keepingDraft(drawChats, true);
+        },
+    }, [
+        el('span', { class: 'chat-top' }, [
+            el('strong', { text: visitorName(item.name) }),
+            el('time', { datetime: item.at || '', text: item.at ? date(item.at, true) : '' }),
+        ]),
+        el('span', { class: 'chat-last', text: item.last_message }),
+        item.needs_team ? el('span', { class: 'chat-new', text: TEXT.needsTeam }) : null,
+    ]);
+}
+
+function threadView() {
+    const open = chats.open;
+    const who = { visitor: TEXT.fromVisitor, assistant: TEXT.fromAssistant, team: TEXT.fromTeam };
+    const input = el('textarea', { id: 'reply', rows: '2', maxlength: '1000', placeholder: TEXT.replyPlaceholder, 'aria-describedby': 'reply-note' });
+    input.value = chats.draft;
+    const button = el('button', { type: 'submit', class: 'primary', text: TEXT.send });
+
+    return el('section', { class: 'card thread-card' }, [
+        el('header', { class: 'thread-head' }, [
+            el('button', { type: 'button', class: 'back', text: TEXT.back, onclick: () => {
+                chats.open = null;
+                drawChats();
+            } }),
+            el('h2', { text: visitorName(open.name) }),
+        ]),
+        open.assistant_paused ? el('div', { class: 'paused' }, [
+            el('p', { text: TEXT.paused }),
+            el('button', { type: 'button', text: TEXT.resume, onclick: async () => {
+                chats.open = await api(`/conversations/${open.id}/resume`, { method: 'POST' }).catch(() => open);
+                keepingDraft(drawChats);
+            } }),
+        ]) : null,
+        el('div', { class: 'thread', tabindex: '0' }, open.messages.map((message) => el('div', { class: `bubble from-${message.from}` }, [
+            el('span', { class: 'bubble-who', text: `${who[message.from]} · ${date(message.at, true)}` }),
+            el('p', { text: message.text }),
+            message.products ? el('span', { class: 'bubble-who', text: TEXT.showedProducts(number(message.products)) }) : null,
+        ]))),
+        el('form', { class: 'reply', onsubmit: async (event) => {
+            event.preventDefault();
+            const text = input.value.trim();
+            if (!text) {
+                input.focus();
+                return;
+            }
+            button.disabled = true;
+            button.textContent = TEXT.sending;
+            chats.error = '';
+            try {
+                chats.open = await api(`/conversations/${open.id}/reply`, { method: 'POST', body: JSON.stringify({ text }) });
+                chats.draft = '';
+                input.value = '';
+                chats.list = (await api('/conversations')).conversations;
+            } catch (error) {
+                chats.error = error.message === '401' ? TEXT.expired : TEXT.sendFailed;
+            }
+            keepingDraft(drawChats, true);
+        } }, [
+            el('label', { for: 'reply', text: TEXT.replyLabel }),
+            input,
+            chats.error ? el('p', { class: 'save-status is-error', role: 'alert', text: chats.error }) : null,
+            el('div', { class: 'actions' }, [button, el('p', { class: 'hint', id: 'reply-note', text: TEXT.replyNote })]),
+        ]),
+    ]);
+}
+
+function chatsTab() {
+    if (chats.list === null) {
+        return el('p', { role: 'status', text: TEXT.loading });
+    }
+    if (chats.list.length === 0) {
+        return el('section', { class: 'card', text: TEXT.noChats });
+    }
+
+    return el('div', { class: `chats${chats.open ? ' has-open' : ''}` }, [
+        el('section', { class: 'card chat-list', 'aria-label': TEXT.tabs.chats }, chats.list.map(chatRow)),
+        chats.open ? threadView() : el('section', { class: 'card chat-empty', text: TEXT.pickChat }),
+    ]);
+}
+
+function drawChats() {
+    if (state.tab === 'chats') {
+        draw();
+    }
+}
+
 function nav() {
     return el('nav', { class: 'tabs', 'aria-label': TEXT.title }, Object.entries(TEXT.tabs).map(([key, label]) => el('button', {
         type: 'button',
@@ -327,6 +507,10 @@ function nav() {
         onclick: () => {
             state.tab = key;
             draw();
+            clearTimeout(chats.timer);
+            if (key === 'chats') {
+                refreshChats();
+            }
         },
     })));
 }
@@ -349,7 +533,7 @@ function homeTab(data) {
 function draw() {
     const data = state.overview;
     const plan = data.subscription ? (AR ? data.subscription.plan : data.subscription.plan_en) : null;
-    const tab = { home: () => homeTab(data), look: lookTab, info: infoTab }[state.tab];
+    const tab = { home: () => homeTab(data), chats: chatsTab, look: lookTab, info: infoTab }[state.tab];
 
     root.replaceChildren(
         el('header', { class: 'top' }, [
@@ -426,7 +610,37 @@ textarea{resize:vertical}
 .preview-pill{display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 16px 0 8px;border-radius:26px;background:#fff;color:#111827;font-size:14px;font-weight:600;box-shadow:0 10px 28px rgba(17,24,39,.2)}
 .mochi{display:inline-block;margin-top:-16px;line-height:0}
 .preview .hint[hidden]{display:none}
-@media (max-width:640px){.split{grid-template-columns:minmax(0,1fr)}.value{font-size:24px}}
+.chats{display:grid;grid-template-columns:minmax(240px,2fr) minmax(0,3fr);gap:16px;align-items:start}
+.chat-list{padding:8px;display:flex;flex-direction:column;gap:4px;max-height:640px;overflow-y:auto}
+.chat-row{display:flex;flex-direction:column;align-items:stretch;gap:2px;width:100%;min-height:64px;padding:10px 12px;border:0;border-radius:10px;text-align:start;font-weight:400}
+.chat-row:hover{background:var(--track)}
+.chat-row.is-open{background:var(--track)}
+.chat-top{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.chat-top time{flex-shrink:0;font-size:12px;color:var(--muted)}
+.chat-last{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-new{align-self:flex-start;font-size:12px;font-weight:600;color:var(--on)}
+.chat-empty{color:var(--muted)}
+.thread-card{display:flex;flex-direction:column;gap:12px}
+.thread-head h2{font-size:16px;font-weight:700}
+.back{display:none;min-height:44px;padding:0;margin-bottom:4px;border:0;font-weight:500;color:var(--muted)}
+.paused{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-radius:10px;background:var(--bg);font-size:14px}
+.thread{display:flex;flex-direction:column;gap:10px;max-height:420px;min-height:160px;overflow-y:auto;padding:4px}
+.bubble{max-width:85%;padding:10px 12px;border-radius:12px;background:var(--bg);align-self:flex-start;overflow-wrap:anywhere}
+.bubble p{white-space:pre-wrap;font-size:15px}
+.bubble.from-visitor{align-self:flex-end;border:1px solid var(--line);background:var(--surface)}
+.bubble.from-team{background:var(--text);color:var(--surface)}
+.bubble-who{display:block;font-size:12px;color:var(--muted)}
+.from-team .bubble-who{color:inherit;opacity:.85}
+.reply{display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.reply .hint{margin:0;flex:1 1 200px}
+@media (max-width:640px){
+.split,.chats{grid-template-columns:minmax(0,1fr)}
+.value{font-size:24px}
+.chats.has-open .chat-list{display:none}
+.chats:not(.has-open) .chat-empty{display:none}
+.back{display:inline-flex;align-items:center}
+.thread{max-height:50vh}
+}
 `;
 
 async function start() {

@@ -8,6 +8,7 @@ use App\Models\WebWidget;
 use App\Models\WebWidgetSession;
 use App\Services\IntelliReply\AiUsageLimiterService;
 use App\Services\Salla\SallaPanelAuth;
+use App\Services\Salla\SallaPanelConversations;
 use App\Services\Salla\SallaPanelSettings;
 use App\Services\Salla\SallaStoreAccess;
 use App\Services\SubscriptionPlanLimitService;
@@ -103,6 +104,61 @@ class SallaPanelController extends Controller
         }
 
         return response()->json($settings->save($store, $request->validate($settings->rules())));
+    }
+
+    public function conversations(Request $request, SallaPanelConversations $conversations): JsonResponse
+    {
+        $store = $this->store($request);
+
+        return $store ? response()->json(['conversations' => $conversations->list($store)]) : $this->denied();
+    }
+
+    public function conversation(Request $request, int $contact, SallaPanelConversations $conversations): JsonResponse
+    {
+        $store = $this->store($request);
+        if (! $store) {
+            return $this->denied();
+        }
+
+        $found = $conversations->show($store, $contact);
+
+        return $found ? response()->json($found) : $this->notFound();
+    }
+
+    public function reply(Request $request, int $contact, SallaPanelConversations $conversations): JsonResponse
+    {
+        $store = $this->store($request);
+        if (! $store) {
+            return $this->denied();
+        }
+
+        $data = $request->validate(['text' => ['required', 'string', 'max:1000']]);
+        $text = trim((string) preg_replace('/[\x{0000}-\x{0009}\x{000B}\x{000C}\x{000E}-\x{001F}\x{007F}]/u', '', $data['text']));
+
+        if ($text === '') {
+            return response()->json(['error' => 'empty_message'], 422);
+        }
+
+        return $conversations->reply($store, $contact, $text)
+            ? response()->json($conversations->show($store, $contact))
+            : $this->notFound();
+    }
+
+    public function resumeAssistant(Request $request, int $contact, SallaPanelConversations $conversations): JsonResponse
+    {
+        $store = $this->store($request);
+        if (! $store) {
+            return $this->denied();
+        }
+
+        return $conversations->resumeAssistant($store, $contact)
+            ? response()->json($conversations->show($store, $contact))
+            : $this->notFound();
+    }
+
+    private function notFound(): JsonResponse
+    {
+        return response()->json(['error' => 'not_found'], 404);
     }
 
     private function store(Request $request): ?SallaStore

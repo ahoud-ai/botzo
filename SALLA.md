@@ -169,6 +169,28 @@ remove any still unused before publishing, because Salla's review and merchants 
 **Not confirmed yet:** a real tracking link, a real special offer, the inside of the checkout page (the demo store is
 in maintenance mode), and a price changed in Salla reaching the cart.
 
+## Merchant panel (phase 4)
+
+The panel opens inside Salla's dashboard at `https://s.salla.sa/embedded/app/896353331/panel`. Set its Iframe URL in
+the app's embedded pages to `https://<domain>/api/salla/panel`, and `SALLA_APP_ID` in `.env`.
+
+- `salla-panel.js` bundles `@salla.sa/embedded-sdk`, pinned to an exact version, and reads Salla's short token.
+- `POST /api/salla/panel/session` checks that token with Salla's introspect API and returns an encrypted panel token
+  that lasts two hours. No cookie is used, so the rest of the site keeps its cookie and frame settings.
+- The store comes only from the panel token. Every lookup starts from the store's organization, so a request cannot
+  name another store.
+- Only `/api/salla/panel` may open inside Salla: its `frame-ancestors` allows `s.salla.sa`, and `public/.htaccess` skips
+  `X-Frame-Options` for it. Local `php -S` ignores `.htaccess`, so check this on the server.
+
+| Screen | What it does |
+|---|---|
+| Home | Mochi's state, replies used, conversations, products |
+| Conversations | Read web visitors' chats and reply. A reply pauses Mochi in that chat until it is resumed or the pause ends |
+| Mochi's look | On or off, store color or a chosen one, place, name, welcome line |
+| Store information | Return policy and notes, which reach the assistant with each message |
+
+A saved look can take up to 5 minutes to reach shoppers, because browsers keep the widget's settings that long.
+
 ## Deleting data
 
 `salla:purge` (daily) removes, for stores past `purge_after`: contacts, chats and their logs, notes and

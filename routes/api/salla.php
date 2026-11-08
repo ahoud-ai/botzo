@@ -16,4 +16,10 @@ Route::middleware('throttle:120,1')->prefix('/salla/panel')->group(function () {
     Route::get('/overview', [SallaPanelController::class, 'overview']);
     Route::get('/settings', [SallaPanelController::class, 'settings']);
     Route::put('/settings', [SallaPanelController::class, 'updateSettings']);
+    Route::get('/conversations', [SallaPanelController::class, 'conversations']);
+    Route::whereNumber('contact')->prefix('/conversations/{contact}')->group(function () {
+        Route::get('/', [SallaPanelController::class, 'conversation']);
+        Route::post('/reply', [SallaPanelController::class, 'reply']);
+        Route::post('/resume', [SallaPanelController::class, 'resumeAssistant']);
+    });
 });

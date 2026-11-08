@@ -323,6 +323,96 @@ class SallaPanelTest extends TestCase
         $this->assertStringContainsString('نرد من 9 إلى 9', $text);
     }
 
+    private function visitor(Organization $organization, string $text): \App\Models\Contact
+    {
+        $contact = \App\Models\Contact::create([
+            'organization_id' => $organization->id,
+            'first_name' => 'زائر 1234',
+            'channel' => \App\Models\Contact::CHANNEL_WEB,
+            'ai_assistance_enabled' => 1,
+            'created_by' => 0,
+        ]);
+        app(\App\Services\WebWidget\WebWidgetMessageStore::class)->storeText($contact, $text, 'inbound');
+
+        return $contact;
+    }
+
+    private function auth(string $token): array
+    {
+        return ['Authorization' => 'Bearer '.$token];
+    }
+
+    public function test_conversations_list_shows_only_this_stores_web_visitors_newest_first(): void
+    {
+        $token = $this->signIn();
+        $older = $this->visitor($this->organization, 'الأقدم');
+        $newer = $this->visitor($this->organization, 'الأحدث');
+        \App\Models\Contact::create(['organization_id' => $this->organization->id, 'first_name' => 'واتساب', 'phone' => '966500000000', 'created_by' => 0]);
+        [, $other] = $this->createOwnerContext();
+        $this->visitor($other, 'سر متجر آخر');
+
+        $response = $this->getJson('/api/salla/panel/conversations', $this->auth($token))->assertOk();
+
+        $this->assertSame([$newer->id, $older->id], array_column($response->json('conversations'), 'id'));
+        $response->assertJsonPath('conversations.0.last_message', 'الأحدث')->assertJsonPath('conversations.0.needs_team', true);
+        $this->assertStringNotContainsString('سر متجر آخر', $response->getContent());
+    }
+
+    public function test_another_stores_conversation_does_not_exist(): void
+    {
+        $token = $this->signIn();
+        [, $other] = $this->createOwnerContext();
+        $theirs = $this->visitor($other, 'سر متجر آخر');
+        $url = '/api/salla/panel/conversations/'.$theirs->id;
+
+        $this->getJson($url, $this->auth($token))->assertNotFound();
+        $this->postJson($url.'/reply', ['text' => 'اختراق'], $this->auth($token))->assertNotFound();
+        $this->postJson($url.'/resume', [], $this->auth($token))->assertNotFound();
+
+        $this->assertSame(1, \App\Models\Chat::where('contact_id', $theirs->id)->count());
+        $this->assertNull($theirs->refresh()->ai_paused_until);
+    }
+
+    public function test_a_whatsapp_contact_cannot_be_reached_from_the_panel(): void
+    {
+        $contact = \App\Models\Contact::create(['organization_id' => $this->organization->id, 'first_name' => 'واتساب', 'phone' => '966500000000', 'created_by' => 0]);
+
+        $this->getJson('/api/salla/panel/conversations/'.$contact->id, $this->auth($this->signIn()))->assertNotFound();
+    }
+
+    public function test_a_reply_reaches_the_visitor_and_pauses_mochi_until_resumed(): void
+    {
+        $token = $this->signIn();
+        $contact = $this->visitor($this->organization, 'وين طلبي');
+        $url = '/api/salla/panel/conversations/'.$contact->id;
+
+        $this->postJson($url.'/reply', ['text' => '  أبشر، نتابعه لك  '], $this->auth($token))
+            ->assertOk()
+            ->assertJsonPath('assistant_paused', true)
+            ->assertJsonPath('messages.1.from', 'team')
+            ->assertJsonPath('messages.1.text', 'أبشر، نتابعه لك');
+
+        $chat = \App\Models\Chat::where('contact_id', $contact->id)->latest('id')->first();
+        $this->assertSame('outbound', $chat->type);
+        $this->assertNotNull($chat->user_id);
+        $this->assertTrue(app(\App\Services\IntelliReply\AiConversationPauseService::class)->isPaused($contact->refresh()));
+
+        $this->postJson($url.'/resume', [], $this->auth($token))->assertOk()->assertJsonPath('assistant_paused', false);
+    }
+
+    public function test_an_empty_or_too_long_reply_is_refused_and_tokens_are_required(): void
+    {
+        $token = $this->signIn();
+        $contact = $this->visitor($this->organization, 'هلا');
+        $url = '/api/salla/panel/conversations/'.$contact->id;
+
+        $this->postJson($url.'/reply', ['text' => "  \x01 "], $this->auth($token))->assertUnprocessable();
+        $this->postJson($url.'/reply', ['text' => str_repeat('a', 1001)], $this->auth($token))->assertUnprocessable();
+        $this->postJson($url.'/reply', ['text' => 'هلا'])->assertUnauthorized();
+        $this->getJson('/api/salla/panel/conversations')->assertUnauthorized();
+        $this->assertSame(1, \App\Models\Chat::where('contact_id', $contact->id)->count());
+    }
+
     public function test_the_overview_says_why_mochi_is_off(): void
     {
         $token = $this->signIn();
