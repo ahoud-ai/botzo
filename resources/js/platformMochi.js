@@ -379,6 +379,25 @@ function stopWatchingForHost() {
   hostWatcher = null;
 }
 
+// The page's own script tag only exists after a full load of a customer page. Arriving another
+// way, such as from the admin area without a reload, the widget has to be added here.
+function loadWidgetIfMissing() {
+  if (document.getElementById('botzo-widget') || document.querySelector('script[data-key][src*="widget.js"]')) {
+    return;
+  }
+
+  const source = document.querySelector('meta[name="botzo-site-widget"]');
+  if (!source?.content || !source.dataset.src) {
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.src = source.dataset.src;
+  script.async = true;
+  script.setAttribute('data-key', source.content);
+  document.body.appendChild(script);
+}
+
 function attachWhenReady() {
   const host = document.getElementById('botzo-widget');
   if (!host?.shadowRoot) {
@@ -407,6 +426,8 @@ export function syncPlatformMochi(component) {
     attached.applyText();
     return;
   }
+
+  loadWidgetIfMissing();
 
   if (attachWhenReady() || hostWatcher) {
     return;

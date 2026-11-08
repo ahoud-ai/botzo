@@ -7,6 +7,16 @@
             <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
         @endif
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        @php
+            // Named by its content: browsers keep an old /widget.js for a long time, and a new
+            // address makes them fetch the current one. Customers' own embeds are not affected.
+            $siteWidgetKey = app(\App\Services\WebWidget\SiteWidget::class)->embedKey();
+            $siteWidgetFile = public_path('widget.js');
+            $siteWidgetSrc = url('/widget.js').(is_file($siteWidgetFile) ? '?v='.substr(md5_file($siteWidgetFile), 0, 10) : '');
+        @endphp
+        @if ($siteWidgetKey)
+        <meta name="botzo-site-widget" content="{{ $siteWidgetKey }}" data-src="{{ $siteWidgetSrc }}">
+        @endif
         <script>
             // Applies the saved theme before first paint so the splash screen
             // below (and the rest of the page) never flashes the wrong theme
@@ -568,8 +578,8 @@
 
         @inertia
 
-        @if (($isPublicFrontendPage || str_starts_with((string) ($page['component'] ?? ''), 'User/')) && ($siteWidgetKey = app(\App\Services\WebWidget\SiteWidget::class)->embedKey()))
-        <script src="{{ url('/widget.js') }}" data-key="{{ $siteWidgetKey }}" async></script>
+        @if (($isPublicFrontendPage || str_starts_with((string) ($page['component'] ?? ''), 'User/')) && $siteWidgetKey)
+        <script src="{{ $siteWidgetSrc }}" data-key="{{ $siteWidgetKey }}" async></script>
         @endif
 
         @if ($isPublicFrontendPage && !empty($body_scripts))
