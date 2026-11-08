@@ -4,6 +4,7 @@ namespace App\Services\Salla;
 
 use App\Models\SallaStore;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -40,7 +41,7 @@ class SallaPanelAuth
 
         $merchantId = (int) $response->json('data.merchant_id', 0);
 
-        if (! $response->successful() || $response->json('success') !== true || $merchantId <= 0) {
+        if (! $response->successful() || $response->json('success') !== true || $merchantId <= 0 || ! $this->stillValid($response->json('data.exp'))) {
             Log::warning('salla.panel.introspect_refused', ['status' => $response->status()]);
 
             return null;
@@ -50,6 +51,22 @@ class SallaPanelAuth
             ->where('merchant_id', $merchantId)
             ->where('status', '!=', SallaStore::STATUS_UNINSTALLED)
             ->first();
+    }
+
+    /** Checked here too, so an answer for an expired token can never open the panel. */
+    private function stillValid(mixed $expiry): bool
+    {
+        if (! is_string($expiry) && ! is_int($expiry)) {
+            return false;
+        }
+
+        try {
+            $time = is_int($expiry) ? Carbon::createFromTimestamp($expiry) : Carbon::parse($expiry);
+        } catch (Throwable) {
+            return false;
+        }
+
+        return $time->isFuture();
     }
 
     public function issue(SallaStore $store): string

@@ -128,6 +128,16 @@ class SallaPanelTest extends TestCase
         $this->postJson('/api/salla/panel/session', [])->assertUnauthorized();
     }
 
+    public function test_an_answer_for_an_expired_token_or_with_no_expiry_is_refused(): void
+    {
+        foreach ([now()->subMinute()->toIso8601String(), now()->subMinute()->timestamp, null, 'not a date', ['x']] as $expiry) {
+            Http::swap(new \Illuminate\Http\Client\Factory());
+            Http::fake(['salla.test/*' => Http::response(['status' => 200, 'success' => true, 'data' => ['merchant_id' => self::MERCHANT, 'exp' => $expiry]])]);
+
+            $this->postJson('/api/salla/panel/session', ['token' => 'em_tok_x'])->assertUnauthorized();
+        }
+    }
+
     public function test_salla_being_down_refuses_without_an_error_page(): void
     {
         Http::fake(fn () => throw new \Illuminate\Http\Client\ConnectionException('down'));

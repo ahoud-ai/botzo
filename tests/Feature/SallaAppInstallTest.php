@@ -71,7 +71,7 @@ class SallaAppInstallTest extends TestCase
         $this->assertSame('متجر الاختبار', $organization->name);
         $this->assertSame('main', $organization->organization_type);
         $owner = Team::where('organization_id', $organization->id)->sole();
-        $this->assertSame('salla-'.self::MERCHANT.'@merchants.botzo.invalid', User::findOrFail($owner->user_id)->email);
+        $this->assertMatchesRegularExpression('/^salla-'.self::MERCHANT.'-[a-z0-9]{24}@merchants\.botzo\.invalid$/', User::findOrFail($owner->user_id)->email, 'A store\'s address cannot be guessed and claimed before it installs.');
 
         $this->assertArrayNotHasKey('access_token', $store->toArray());
     }
@@ -160,7 +160,7 @@ class SallaAppInstallTest extends TestCase
 
         $this->assertSame('متجر الاختبار', $store->fresh()->store_name);
         $this->assertSame('متجر الاختبار', Organization::find($store->organization_id)->name);
-        $user = User::where('email', 'salla-'.self::MERCHANT.'@merchants.botzo.invalid')->sole();
+        $user = User::findOrFail(Organization::find($store->organization_id)->created_by);
         $this->assertSame(['متجر الاختبار', ''], [$user->first_name, $user->last_name], 'The dashboard shows the store, not a placeholder or "null".');
     }
 

@@ -146,15 +146,19 @@ class SallaStoreInstaller
         return $this->organizations->createOwnedMainOrganization($user, $name, (int) $user->id);
     }
 
+    /** Not guessable, so nobody can claim a store's address before it installs the app. */
     private function placeholderEmail(int $merchantId): string
     {
-        return 'salla-'.$merchantId.'@merchants.botzo.invalid';
+        return 'salla-'.$merchantId.'-'.Str::lower(Str::random(24)).'@merchants.botzo.invalid';
     }
 
     private function renameAccount(SallaStore $store, string $name): void
     {
         Organization::query()->whereKey($store->organization_id)->update(['name' => $name]);
-        User::query()->where('email', $this->placeholderEmail($store->merchant_id))->update(['first_name' => Str::limit($name, 120, '')]);
+        User::query()
+            ->whereKey(Organization::query()->whereKey($store->organization_id)->value('created_by'))
+            ->where('email', 'like', '%@merchants.botzo.invalid')
+            ->update(['first_name' => Str::limit($name, 120, '')]);
     }
 
     /** Store details are a convenience: a failed lookup must not lose the tokens, so it only logs. */
