@@ -6,6 +6,7 @@ use App\Models\Contact;
 use App\Models\Setting;
 use App\Models\SubscriptionPlan;
 use App\Services\DemoRequests\DemoRequestService;
+use App\Services\Salla\SallaShoppingAssistant;
 use App\Models\WebWidget;
 use Illuminate\Support\Facades\Cache;
 
@@ -20,6 +21,8 @@ class WebWidgetAssistantContext
     private const PAGE_TTL_MINUTES = 60;
 
     private const MARKER = '/\[\[\s*(GO|CARD)\s*:\s*([A-Za-z0-9_-]{1,20})\s*\]\]/u';
+
+    private const PRODUCT_MARKER = '/\[\[\s*PRODUCT\s*:\s*([0-9]{1,20})\s*\]\]/iu';
 
     public function rememberPage(Contact $contact, ?string $url, ?string $title): void
     {
@@ -60,13 +63,15 @@ class WebWidgetAssistantContext
             $lines[] = 'When the visitor wants a demo, a call, a consultation, or to talk to sales about subscribing, say one short line (for example: أبشر! عبّ بياناتك وفريقنا يتواصل معك على واتساب 👇) and end your reply with the marker [[CARD:demo]] to show the booking form. Do not ask for their name or number in the chat; the form collects them. Use this marker instead of opening a demo page.';
         }
 
+        array_push($lines, ...app(SallaShoppingAssistant::class)->instructions($contact, $widget));
+
         return implode("\n", $lines);
     }
 
     /**
      * Remove the action markers from a reply.
      *
-     * @return array{text: string, action: ?array{type:string, key:string}}
+     * @return array{text: string, action: ?array{type:string, key?:string, keys?:list<string>}}
      */
     public static function extractActions(string $text): array
     {
@@ -76,7 +81,11 @@ class WebWidgetAssistantContext
             $action = ['type' => strtoupper($match[1]) === 'GO' ? 'navigate' : 'card', 'key' => $match[2]];
         }
 
-        $clean = trim((string) preg_replace(self::MARKER, '', $text));
+        if (preg_match_all(self::PRODUCT_MARKER, $text, $products) > 0) {
+            $action = ['type' => 'products', 'keys' => array_slice(array_values(array_unique($products[1])), 0, SallaShoppingAssistant::MAX_CARDS)];
+        }
+
+        $clean = trim((string) preg_replace([self::MARKER, self::PRODUCT_MARKER], '', $text));
 
         return ['text' => $clean, 'action' => $action];
     }
@@ -94,6 +103,10 @@ class WebWidgetAssistantContext
             $page = WebWidgetPages::find($widget->settingsWithDefaults(), (string) ($stored['key'] ?? ''));
 
             return $page ? ['type' => 'navigate', 'label' => $page['label'], 'url' => $page['url']] : null;
+        }
+
+        if (($stored['type'] ?? null) === 'products') {
+            return app(SallaShoppingAssistant::class)->cards($widget, (array) ($stored['keys'] ?? []));
         }
 
         if (($stored['type'] ?? null) === 'card' && $this->isBotzoSite($widget)) {

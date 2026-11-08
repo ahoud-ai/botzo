@@ -68,7 +68,9 @@ class PurgeSallaStoresCommand extends Command
 
         DB::table('chats')->where('organization_id', $organizationId)->delete();
 
-        $store->forceFill(['store_email' => null, 'purge_after' => null])->save();
+        DB::table('salla_products')->where('salla_store_id', $store->id)->delete();
+
+        $store->forceFill(['store_email' => null, 'purge_after' => null, 'products_synced_at' => null])->save();
     }
 
     /** Files customers sent are private to this organization, so they go with the conversation. */

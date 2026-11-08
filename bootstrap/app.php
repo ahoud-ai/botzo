@@ -140,6 +140,10 @@ return Application::configure(basePath: dirname(__DIR__))
             ->hourly()
             ->withoutOverlapping(30);
 
+        $schedule->command('salla:sync-products')
+            ->everyFiveMinutes()
+            ->withoutOverlapping(30);
+
         $schedule->command('salla:purge')
             ->dailyAt('04:00')
             ->withoutOverlapping(60);

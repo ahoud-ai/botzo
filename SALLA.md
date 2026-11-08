@@ -119,7 +119,7 @@ reached an installed store within seconds, with no reinstall.
   widget's `accent` when set, else `theme.color.primary` from `salla.config`. It lives in `storeStyles` in
   `resources/widget/widget.js`, behaves as the Mochi theme, and is not offered in the admin's theme list.
 - New assistants use Botzo's AI key and the texts in `database/data/salla_store_assistant.php`. They have no
-  product, price or order data yet and are told not to guess.
+  order or shipping data yet and are told not to guess.
 - `daily_reply_limit` stays at the table default of 300 per store until pricing is decided; a plan with more than
   300 replies a day needs a higher value.
 
@@ -130,6 +130,23 @@ another store's reply allowance, capped by its daily and monthly limits.
 
 **Before release:** check that the server's `addons` table has `AI Assistant` turned on and the server can
 reach `accounts.salla.sa`, and that Salla's review accepts loading a script from Botzo's server.
+
+## Selling from the chat (phase 5)
+
+`salla:sync-products` (every five minutes) copies the products of new stores and of stores not synced in the last
+hour into `salla_products`. Products gone from Salla are removed only after every page was read. Prices on a card
+can therefore be up to an hour old; the cart and checkout always use Salla's current price.
+
+1. For each visitor message, `SallaShoppingAssistant` searches the catalog and gives the matches to the model,
+   with the products the visitor was last shown.
+2. The model ends its reply with `[[PRODUCT:id]]`, at most three. Cards are built from the catalog of the visitor's
+   own store, so an invented id shows nothing.
+3. The card calls `salla.cart.addItem` in the visitor's browser, which needs no extra scope. Salla refuses the call
+   without a choice for each option even when the option says `required: false`, so the card asks for them first.
+4. "Checkout and pay" calls `salla.cart.submit`, which takes guests to login and then to `pay.salla.sa`. Botzo never
+   sees card details.
+
+Bookings, donations, options with no list of values and multi-choice options open the product page instead.
 
 ## Deleting data
 

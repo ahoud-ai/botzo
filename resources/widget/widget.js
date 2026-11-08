@@ -912,7 +912,18 @@
             bubble: 'هلا! عندك سؤال؟ 👋',
             talkToMe: 'تكلّم معي',
             askName: 'اسأل {name}',
-            storeWelcomeSub: 'اكتب سؤالك هنا، وإذا احتجت فريق المتجر أوجهك لهم.',
+            storeWelcomeSub: 'قل لي وش تدور عليه، وأساعدك تلقاه وتكمل طلبك.',
+            sar: 'ر.س',
+            choose: 'اختر',
+            soldOut: 'غير متوفر',
+            chooseFirst: 'اختر {option} أولاً',
+            addToCart: 'أضف إلى السلة',
+            adding: 'جاري الإضافة…',
+            added: '✓ تمت الإضافة',
+            addFailed: 'ما قدرنا نضيفه. جرّب مرة ثانية أو افتح صفحة المنتج.',
+            payNow: 'إتمام الطلب والدفع',
+            opening: 'جاري الفتح…',
+            viewProduct: 'عرض المنتج',
             welcomeTitle: 'هلا وغلا في {business} 👋',
             welcomeSub: 'أنا {name}، مساعدك الذكي — أعرّفك على خدماتنا وأرد على كل أسئلتك',
             pressTalk: 'اضغط وتكلم',
@@ -951,7 +962,18 @@
             bubble: 'Hi! Got a question? 👋',
             talkToMe: 'Talk to me',
             askName: 'Ask {name}',
-            storeWelcomeSub: 'Type your question here, and I will point you to the store team if you need them.',
+            storeWelcomeSub: 'Tell me what you are looking for, and I will help you find it and finish your order.',
+            sar: 'SAR',
+            choose: 'Choose',
+            soldOut: 'Sold out',
+            chooseFirst: 'Choose {option} first',
+            addToCart: 'Add to cart',
+            adding: 'Adding…',
+            added: '✓ Added',
+            addFailed: 'We could not add it. Try again or open the product page.',
+            payNow: 'Checkout and pay',
+            opening: 'Opening…',
+            viewProduct: 'View product',
             welcomeTitle: 'Welcome to {business} 👋',
             welcomeSub: "I'm {name}, your smart assistant. Ask me anything.",
             pressTalk: 'Press and talk',
@@ -1149,6 +1171,29 @@
             '.card-badge{font-size:11px;font-weight:700;color:#0A0E16;background:#22D366;border-radius:8px;padding:2px 8px;white-space:nowrap}',
             '.card-price{margin-top:8px;font-size:20px;font-weight:700}.card-price small{font-size:12px;font-weight:400;color:#A3ADBD;margin-inline-start:6px}',
             '.card-cta{display:block;margin-top:10px;text-align:center;border-radius:12px;background:#22D366;color:#0A0E16;font-weight:700;padding:9px;text-decoration:none}',
+            // product cards: white on every look, in the store's color
+            '.pcards{display:flex;flex-direction:column;gap:10px;margin-top:10px;white-space:normal}',
+            '.pcard{width:264px;max-width:100%;padding:10px;border-radius:14px;border:1px solid #E8EAED;background:#fff;color:#111827;display:flex;flex-direction:column;gap:10px}',
+            '.ptop{display:flex;gap:12px}',
+            '.pimg{width:76px;height:92px;flex-shrink:0;border-radius:10px;object-fit:cover;background:#E5E7EB}',
+            '.pinfo{display:flex;flex-direction:column;gap:4px;min-width:0}',
+            '.pname{font-size:14px;font-weight:600;line-height:1.5;color:inherit;text-decoration:none;overflow-wrap:anywhere}',
+            'a.pname:hover{text-decoration:underline}',
+            '.pprice{font-size:14px;font-weight:700;display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}',
+            '.pprice s{font-size:12px;font-weight:400;color:#4B5563}',
+            '.pout{font-size:13px;font-weight:600;color:#B42318}',
+            '.pfields{display:flex;flex-direction:column;gap:8px}',
+            '.pfields:empty{display:none}',
+            '.pfield{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:500}',
+            '.pselect{height:44px;width:100%;padding:0 10px;border:1px solid #9CA3AF;border-radius:10px;background:#fff;color:#111827;font:inherit;font-size:16px}',
+            '.pstatus{margin:0;font-size:13px;color:#B42318}',
+            '.pstatus[hidden]{display:none}',
+            '.pactions{display:flex;flex-direction:column;gap:8px}',
+            '.pactions:empty{display:none}',
+            '.pbtn{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 12px;border:1px solid #111827;border-radius:10px;background:#fff;color:#111827;font-size:14px;font-weight:600;text-decoration:none}',
+            '.pbtn.primary{border:0;background:var(--accent);color:var(--on-accent,#0A0E16)}',
+            '.pbtn.done{background:#F3F4F6;color:#15803D}',
+            '.pbtn[disabled]{cursor:default}',
             '.dtitle{font-weight:700;margin-bottom:2px}',
             '.dfield{display:block;margin-top:10px}',
             '.dlabel{display:block;font-size:12.5px;color:#C9D1DC;margin-bottom:4px}',
@@ -1450,7 +1495,9 @@
                 bubble.appendChild(textNode);
                 message.node = textNode;
                 if (message.revealed !== false && message.action) {
-                    if (message.action.type === 'pricing') {
+                    if (message.action.type === 'products') {
+                        bubble.appendChild(mochi.products(message));
+                    } else if (message.action.type === 'pricing') {
                         bubble.appendChild(mochi.card(message.action));
                     } else if (message.action.type === 'demo_form') {
                         bubble.appendChild(mochi.demoForm(message));
@@ -1490,7 +1537,14 @@
                 body.appendChild(el('div', { 'class': 'note' }, [el('button', { type: 'button', 'class': 'resume', text: VOICE_TEXT.resume, onclick: mochi.micPressed })]));
             }
 
-            body.scrollTop = body.scrollHeight;
+            // Product cards are tall: stop at the start of the reply so its text and first card show.
+            var last = state.messages[state.messages.length - 1];
+            var lastRow = body.lastElementChild;
+            if (last && last.action && last.action.type === 'products' && last.revealed !== false && lastRow && lastRow.classList.contains('bot')) {
+                body.scrollTop = lastRow.offsetTop - 8;
+            } else {
+                body.scrollTop = body.scrollHeight;
+            }
         },
 
         card: function (card) {
@@ -1501,6 +1555,100 @@
                 el('div', { 'class': 'card-top' }, [el('span', { text: name }), el('span', { 'class': 'card-badge', text: MOCHI_TEXT.mostRequested })]),
                 el('div', { 'class': 'card-price' }, [price, el('small', { text: MOCHI_TEXT.perMonth })]),
                 href ? el('a', { 'class': 'card-cta', href: href, text: MOCHI_TEXT.startNow }) : null
+            ]);
+        },
+
+        // Product cards in a Salla store. They keep their nodes across redraws so a chosen size is never lost.
+        products: function (message) {
+            ui.productCards = ui.productCards || {};
+            var key = String(message.id);
+            if (!ui.productCards[key]) {
+                ui.productCards[key] = el('div', { 'class': 'pcards' }, message.action.items.map(mochi.product));
+            }
+            return ui.productCards[key];
+        },
+
+        product: function (item) {
+            var cart = window.salla && window.salla.cart;
+            var money = function (value) {
+                return Number(value).toLocaleString(LOCALE === 'ar' ? 'ar-SA' : 'en-US', { maximumFractionDigits: 2 }) + ' ' + (item.currency === 'SAR' ? MOCHI_TEXT.sar : item.currency);
+            };
+            var url = safeUrl(item.url);
+            var image = safeUrl(item.image);
+            var uid = 'bz-p' + item.id + '-' + (++mochiCount);
+            var picks = (cart && item.can_add ? item.options : []).map(function (option, index) {
+                var select = el('select', { 'class': 'pselect', id: uid + '-' + index }, [el('option', { value: '', text: MOCHI_TEXT.choose })].concat(option.values.map(function (value) {
+                    return el('option', value.out_of_stock
+                        ? { value: String(value.id), disabled: '', text: value.name + ' · ' + MOCHI_TEXT.soldOut }
+                        : { value: String(value.id), text: value.name });
+                })));
+                return { id: option.id, name: option.name, select: select, row: el('div', { 'class': 'pfield' }, [el('label', { 'for': select.id, text: option.name }), select]) };
+            });
+
+            var status = el('p', { 'class': 'pstatus', role: 'status', hidden: '' });
+            var showStatus = function (text) {
+                status.textContent = text;
+                status.hidden = !text;
+            };
+            var actions = el('div', { 'class': 'pactions' });
+            var pay = function () {
+                pay.button.disabled = true;
+                pay.button.textContent = MOCHI_TEXT.opening;
+                // Salla takes a guest to login first, then to its own checkout.
+                Promise.resolve().then(function () {
+                    return cart.submit();
+                }).catch(function () {
+                    window.location.href = window.salla.url.get('cart');
+                });
+            };
+            var add = function () {
+                var chosen = {};
+                for (var i = 0; i < picks.length; i++) {
+                    if (!picks[i].select.value) {
+                        showStatus(fill(MOCHI_TEXT.chooseFirst, { option: picks[i].name }));
+                        picks[i].select.focus();
+                        return;
+                    }
+                    chosen[picks[i].id] = Number(picks[i].select.value);
+                }
+
+                showStatus('');
+                add.button.disabled = true;
+                add.button.textContent = MOCHI_TEXT.adding;
+                Promise.resolve().then(function () {
+                    return cart.addItem({ id: item.id, quantity: 1, options: chosen });
+                }).then(function () {
+                    add.button.textContent = MOCHI_TEXT.added;
+                    add.button.classList.add('done');
+                    pay.button = el('button', { type: 'button', 'class': 'pbtn primary', text: MOCHI_TEXT.payNow, onclick: pay });
+                    actions.appendChild(pay.button);
+                }).catch(function () {
+                    add.button.disabled = false;
+                    add.button.textContent = MOCHI_TEXT.addToCart;
+                    showStatus(MOCHI_TEXT.addFailed);
+                });
+            };
+
+            if (cart && item.can_add) {
+                add.button = el('button', { type: 'button', 'class': 'pbtn primary', text: MOCHI_TEXT.addToCart, onclick: add });
+                actions.appendChild(add.button);
+            } else if (url) {
+                actions.appendChild(el('a', { 'class': 'pbtn primary', href: url, text: MOCHI_TEXT.viewProduct }));
+            }
+
+            var info = el('div', { 'class': 'pinfo' }, [
+                el('a', url ? { 'class': 'pname', href: url, text: item.name } : { 'class': 'pname', text: item.name }),
+                el('div', { 'class': 'pprice' }, [money(item.price), item.regular_price ? el('s', { text: money(item.regular_price) }) : null]),
+                item.available ? null : el('div', { 'class': 'pout', text: MOCHI_TEXT.soldOut })
+            ]);
+
+            return el('div', { 'class': 'pcard' }, [
+                el('div', { 'class': 'ptop' }, [image ? el('img', { 'class': 'pimg', src: image, alt: '', loading: 'lazy' }) : null, info]),
+                el('div', { 'class': 'pfields' }, picks.map(function (pick) {
+                    return pick.row;
+                })),
+                status,
+                item.available ? actions : null
             ]);
         },
 
