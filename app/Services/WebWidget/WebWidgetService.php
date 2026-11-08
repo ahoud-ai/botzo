@@ -7,6 +7,7 @@ use App\Models\Contact;
 use App\Models\User;
 use App\Models\WebWidget;
 use App\Models\WebWidgetSession;
+use App\Services\Salla\SallaStoreAccess;
 use App\Services\ChatService;
 use App\Services\IntelliReply\AiDisclosureService;
 use App\Services\SubscriptionService;
@@ -40,8 +41,11 @@ class WebWidgetService
         }
 
         $ipHash = $ip ? hash_hmac('sha256', $ip, (string) config('app.key')) : null;
-        $limiterKey = 'web-widget:sessions:'.($ipHash ?? 'unknown');
-        if (! RateLimiter::attempt($limiterKey, max(1, (int) config('web_widget.limits.sessions_per_ip_per_hour', 10)), fn () => true, 3600)) {
+        // Many shoppers can share one mobile carrier address, so a Salla store has its own, larger allowance.
+        $forStore = app(SallaStoreAccess::class)->billingIsManagedBySalla((int) $widget->organization_id);
+        $limiterKey = 'web-widget:sessions:'.($forStore ? $widget->id.':' : '').($ipHash ?? 'unknown');
+        $limit = $forStore ? config('web_widget.limits.store_sessions_per_ip_per_hour', 60) : config('web_widget.limits.sessions_per_ip_per_hour', 10);
+        if (! RateLimiter::attempt($limiterKey, max(1, (int) $limit), fn () => true, 3600)) {
             return ['limited' => self::LIMIT_SESSIONS];
         }
 

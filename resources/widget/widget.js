@@ -1427,7 +1427,8 @@
             if (state.inCall) {
                 return;
             }
-            var conversation = state.messages.length > 0 || state.sending;
+            // A failed first message stays visible with its retry button, not back on the welcome screen.
+            var conversation = state.messages.length > 0 || state.sending || !!state.failedText;
             if (ui.mic) {
                 ui.mic.classList.toggle('green', !conversation);
             }

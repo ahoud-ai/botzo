@@ -86,6 +86,8 @@ class WebWidgetAssistantContext
         }
 
         $clean = trim((string) preg_replace([self::MARKER, self::PRODUCT_MARKER], '', $text));
+        // A marker written mid-sentence leaves its full stop alone at the end.
+        $clean = trim((string) preg_replace('/\s+[.،,]+$/u', '', $clean));
 
         return ['text' => $clean, 'action' => $action];
     }

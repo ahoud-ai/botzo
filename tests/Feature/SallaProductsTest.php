@@ -211,6 +211,7 @@ class SallaProductsTest extends TestCase
 
         $this->assertSame('هذا الخيار', $reply['text']);
         $this->assertSame(['type' => 'products', 'keys' => ['1', '2', '3']], $reply['action']);
+        $this->assertSame('تقدر تشوف الخيارات التالية:', WebWidgetAssistantContext::extractActions('تقدر تشوف الخيارات التالية: [[PRODUCT:1]] .')['text']);
     }
 
     public function test_cards_use_the_catalog_and_skip_an_invented_id(): void

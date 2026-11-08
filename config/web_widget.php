@@ -16,6 +16,7 @@ return [
         'message_min_interval_seconds' => (int) env('WEB_WIDGET_MESSAGE_MIN_INTERVAL', 3),
         'messages_per_hour' => (int) env('WEB_WIDGET_MESSAGES_PER_HOUR', 30),
         'sessions_per_ip_per_hour' => (int) env('WEB_WIDGET_SESSIONS_PER_IP_PER_HOUR', 10),
+        'store_sessions_per_ip_per_hour' => (int) env('WEB_WIDGET_STORE_SESSIONS_PER_IP_PER_HOUR', 60),
         'message_max_length' => 500,
     ],
 

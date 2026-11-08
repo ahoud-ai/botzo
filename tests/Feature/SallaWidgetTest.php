@@ -181,6 +181,21 @@ class SallaWidgetTest extends TestCase
             ->assertJsonPath('awaiting_team', false);
     }
 
+    public function test_shoppers_sharing_one_address_are_not_blocked_at_the_normal_limit(): void
+    {
+        config(['web_widget.limits.sessions_per_ip_per_hour' => 2, 'web_widget.limits.store_sessions_per_ip_per_hour' => 4]);
+        $this->fakeSalla();
+        $store = $this->install();
+        $this->subscribe($store);
+        $key = $this->widget($store)->public_key;
+
+        foreach (range(1, 4) as $visitor) {
+            $this->postJson('/api/widget/'.$key.'/session', [], ['Origin' => self::ORIGIN])->assertOk();
+        }
+
+        $this->postJson('/api/widget/'.$key.'/session', [], ['Origin' => self::ORIGIN])->assertStatus(429);
+    }
+
     public function test_no_key_for_another_domain_without_an_origin_or_for_an_unknown_store(): void
     {
         $this->fakeSalla();
