@@ -74,4 +74,19 @@ const sallaLoader = await build({
 });
 writeFileSync('public/salla-widget.js', sallaLoader.outputFiles[0].text);
 
+// The merchant's panel inside Salla's dashboard, with Salla's SDK bundled in.
+const sallaPanel = await build({
+    entryPoints: ['resources/widget/salla-panel.js'],
+    bundle: true,
+    format: 'iife',
+    minify: true,
+    target: 'es2019',
+    charset: 'utf8',
+    legalComments: 'none',
+    banner: { js: '/* Botzo panel for Salla. Built from resources/widget/salla-panel.js. */' },
+    write: false,
+});
+writeFileSync('public/salla-panel.js', sallaPanel.outputFiles[0].text);
+console.log(`salla panel: public/salla-panel.js (${sallaPanel.outputFiles[0].text.length} bytes)`);
+
 console.log(`widget: ${outDir}/${name} (${code.length} bytes), loader public/widget.js (${loader.outputFiles[0].text.length} bytes)`);

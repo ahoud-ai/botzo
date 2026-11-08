@@ -52,5 +52,7 @@ return [
         'token_url' => env('SALLA_TOKEN_URL', 'https://accounts.salla.sa/oauth2/token'),
         'user_info_url' => env('SALLA_USER_INFO_URL', 'https://accounts.salla.sa/oauth2/user/info'),
         'api_url' => env('SALLA_API_URL', 'https://api.salla.dev/admin/v2'),
+        'app_id' => env('SALLA_APP_ID'),
+        'introspect_url' => env('SALLA_INTROSPECT_URL', 'https://api.salla.dev/exchange-authority/v1/introspect'),
     ],
 ];

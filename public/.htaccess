@@ -5,7 +5,9 @@ DirectoryIndex index.php
 ## ------------------------------
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"
-    Header always set X-Frame-Options "SAMEORIGIN"
+    # The Salla panel opens inside Salla's dashboard: its own frame-ancestors rule allows only Salla.
+    SetEnvIf Request_URI "^/api/salla/panel/?$" BOTZO_SALLA_PANEL
+    Header always set X-Frame-Options "SAMEORIGIN" env=!BOTZO_SALLA_PANEL
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
