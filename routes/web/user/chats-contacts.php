@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('/alerts', [App\Http\Controllers\User\HumanRequestController::class, 'page']);
+Route::get('/human-requests', [App\Http\Controllers\User\HumanRequestController::class, 'index']);
+Route::post('/human-requests/{uuid}/close', [App\Http\Controllers\User\HumanRequestController::class, 'close']);
 Route::get('/chats/get-all-uuids', [App\Http\Controllers\User\ChatController::class, 'getAllUuids']);
 Route::post('/chats/update-sort-direction', [App\Http\Controllers\User\ChatController::class, 'updateChatSortDirection']);
 Route::post('/chats/bulk-action', [App\Http\Controllers\User\ChatController::class, 'bulkAction']);

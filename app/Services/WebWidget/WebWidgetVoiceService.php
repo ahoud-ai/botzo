@@ -3,6 +3,7 @@
 namespace App\Services\WebWidget;
 
 use App\Models\Contact;
+use App\Models\ConversationHumanRequest;
 use App\Models\Organization;
 use App\Models\WebWidget;
 use App\Models\WebWidgetSession;
@@ -12,6 +13,7 @@ use App\Services\IntelliReply\AiConversationPauseService;
 use App\Services\IntelliReply\AiKeyResolver;
 use App\Services\IntelliReply\AiKnowledgeRetriever;
 use App\Services\IntelliReply\AiPersonaPromptBuilder;
+use App\Services\IntelliReply\HumanRequestService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -43,6 +45,12 @@ class WebWidgetVoiceService
     {
         $settings = $widget->settingsWithDefaults();
         if (empty($settings['voice_enabled'])) {
+            return ['available' => false, 'reason' => self::UNAVAILABLE_OFF, 'remaining_seconds' => 0];
+        }
+
+        // A call is the assistant talking, so the organization's assistant switch covers it too.
+        $metadata = json_decode((string) Organization::query()->whereKey($widget->organization_id)->value('metadata'), true);
+        if (! data_get($metadata, 'ai.active', false)) {
             return ['available' => false, 'reason' => self::UNAVAILABLE_OFF, 'remaining_seconds' => 0];
         }
 
@@ -204,6 +212,7 @@ class WebWidgetVoiceService
         if ($name === 'request_human') {
             $contact = Contact::find($call->contact_id);
             if ($contact) {
+                app(HumanRequestService::class)->open($contact, ConversationHumanRequest::REASON_VOICE_REQUEST);
                 app(AiConversationPauseService::class)->pauseFor($contact, (int) config('intellireply.handoff.pause_minutes', 720));
                 try {
                     app(AutomationFlowConversationHandoffService::class)->assignToAgent($contact, 'auto_assign', null, true, 'voice_call_handoff');

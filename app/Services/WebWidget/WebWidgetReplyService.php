@@ -4,6 +4,7 @@ namespace App\Services\WebWidget;
 
 use App\Models\Chat;
 use App\Models\Contact;
+use App\Models\Organization;
 use App\Models\WebWidget;
 use App\Services\IntelliReply\AiConversationPauseService;
 use App\Services\IntelliReply\AiHumanHandoffService;
@@ -49,12 +50,25 @@ class WebWidgetReplyService
         }
 
         $contact = Contact::find($chat->contact_id);
-        if (! $contact || app(AiConversationPauseService::class)->isPaused($contact)) {
+        if (! $contact) {
             return false;
         }
 
-        if (app(AiHumanHandoffService::class)->handleIfRequested($chat)) {
+        // Before the pause, so a request made during a pause still reaches the team.
+        $handoff = app(AiHumanHandoffService::class);
+        if ($handoff->handleIfRequested($chat)) {
             return true;
+        }
+
+        if (app(AiConversationPauseService::class)->isPaused($contact)) {
+            return false;
+        }
+
+        if (! data_get(json_decode((string) Organization::query()->whereKey($chat->organization_id)->value('metadata'), true), 'ai.active', false)) {
+            $handoff->acknowledgeAssistantOff($chat);
+
+            // Not an answer: the visitor is still waiting, and apps rely on awaiting_team to keep checking.
+            return false;
         }
 
         $counterKey = sprintf('web-widget:replies:%d:%s', $widget->id, now()->toDateString());

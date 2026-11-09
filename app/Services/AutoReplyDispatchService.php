@@ -104,14 +104,15 @@ class AutoReplyDispatchService
                     return;
                 }
 
-                // A team member is handling this customer; stay quiet until the takeover pause ends.
-                $contact = Contact::find($chat->contact_id);
-                if ($contact && app(AiConversationPauseService::class)->isPaused($contact)) {
+                // The customer asked for a person: hand over instead of replying automatically.
+                // This comes before the pause, so a request made during a pause still reaches the team.
+                if (app(AiHumanHandoffService::class)->handleIfRequested($chat)) {
                     return;
                 }
 
-                // The customer asked for a person: hand over instead of replying automatically.
-                if (app(AiHumanHandoffService::class)->handleIfRequested($chat)) {
+                // A team member is handling this customer; stay quiet until the takeover pause ends.
+                $contact = Contact::find($chat->contact_id);
+                if ($contact && app(AiConversationPauseService::class)->isPaused($contact)) {
                     return;
                 }
 

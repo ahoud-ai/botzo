@@ -133,9 +133,13 @@ class WebWidgetController extends Controller
             return response()->json(['error' => $received['limited']], 429);
         }
 
+        $messages = $this->widgets->messages($session->refresh(), (int) $received['chat']->id - 1);
+        // The widget adds its own "the team will reply" note, which a message saying the same makes redundant.
+        $alreadyTold = collect($messages)->contains(fn (array $message) => $message['from'] !== 'visitor');
+
         return response()->json([
-            'messages' => $this->widgets->messages($session->refresh(), (int) $received['chat']->id - 1),
-            'awaiting_team' => ! $received['replied'],
+            'messages' => $messages,
+            'awaiting_team' => ! $received['replied'] && ! $alreadyTold,
         ]);
     }
 

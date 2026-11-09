@@ -9,10 +9,12 @@ use App\Models\ChatLog;
 use App\Models\ChatTicket;
 use App\Models\ChatTicketLog;
 use App\Models\Contact;
+use App\Models\ConversationHumanRequest;
 use App\Models\Organization;
 use App\Models\Team;
 use App\Services\AddonStateService;
 use App\Services\ChatTicketProvisioningService;
+use App\Services\IntelliReply\HumanRequestService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -137,6 +139,9 @@ class AutomationFlowConversationHandoffService
         ?int $agentUserId = null,
         bool $reopenClosed = true,
     ): array {
+        // Before the assignment, which fails when ticketing is off: the team must hear about it either way.
+        app(HumanRequestService::class)->open($contact, ConversationHumanRequest::REASON_FLOW_HANDOFF);
+
         $result = $this->assignToAgent(
             $contact,
             $assignmentMode,
@@ -175,6 +180,7 @@ class AutomationFlowConversationHandoffService
         }
 
         $this->setAiAssistanceEnabled($contact, true);
+        app(HumanRequestService::class)->close($contact, ConversationHumanRequest::RESOLUTION_ASSISTANT_RESUMED);
 
         return [
             'successful' => true,

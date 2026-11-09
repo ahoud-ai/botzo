@@ -6,6 +6,7 @@ use App\Models\Chat;
 use App\Models\Contact;
 use App\Models\ContactContactGroup;
 use App\Models\ContactGroup;
+use App\Services\IntelliReply\HumanRequestService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use App\Services\PhoneService;
@@ -102,6 +103,7 @@ class ContactService
                 ->whereNull('deleted_at')
                 ->get();
             Contact::whereNotNull('id')->where('organization_id', $this->organizationId)->delete();
+            app(HumanRequestService::class)->forgetOrganization((int) $this->organizationId);
 
             // Prepare deleted contacts for the webhook
             foreach ($contacts as $contact) {
@@ -146,6 +148,7 @@ class ContactService
             }
 
             Contact::whereIn('id', $contacts->pluck('id'))->delete();
+            app(HumanRequestService::class)->forgetContacts($contacts->pluck('id')->all());
         }
 
     }

@@ -12,6 +12,8 @@ use App\Services\Ai\AiProviderManager;
 use App\Services\Ai\Data\AiChatRequest;
 use App\Services\Ai\Exceptions\AiProviderException;
 use App\Services\IntelliReply\AiDisclosureService;
+use App\Services\IntelliReply\AiHumanHandoffService;
+use App\Services\IntelliReply\HumanRequestService;
 use App\Services\IntelliReply\AiKeyResolver;
 use App\Services\IntelliReply\AiKnowledgeRetriever;
 use App\Services\IntelliReply\AiPersonaPromptBuilder;
@@ -183,6 +185,17 @@ class AIResponseService
                     }
                 }
 
+                // The customer asked for a person and nobody has dealt with that yet: the assistant stays out.
+                if (app(HumanRequestService::class)->blocksAssistant($contact)) {
+                    Log::channel('intellireply')->info('intellireply.reply.skipped', [
+                        'organization_id' => $organizationId,
+                        'contact_id' => $chat->contact_id,
+                        'reason' => 'open_human_request',
+                    ]);
+
+                    return false;
+                }
+
                 // Staying silent must be explainable from the AI log.
                 if (!$is_ai_active || !$ai_assistance_enabled) {
                     Log::channel('intellireply')->info('intellireply.reply.skipped', [
@@ -260,6 +273,11 @@ class AIResponseService
                         if ($this->containsKeyword($receivedMessage, $stop_words)) {
                             $contact->update(['ai_assistance_enabled' => 0]);
                             return false;
+                        }
+
+                        // A spoken request for a person counts like a written one.
+                        if (app(AiHumanHandoffService::class)->handleTranscribedRequest($chat, $receivedMessage)) {
+                            return true;
                         }
                     }
 

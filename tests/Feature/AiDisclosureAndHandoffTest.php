@@ -10,6 +10,7 @@ use App\Services\AutoReplyService;
 use App\Services\IntelliReply\AiConversationPauseService;
 use App\Services\IntelliReply\AiDisclosureService;
 use App\Services\IntelliReply\AiHumanHandoffService;
+use App\Services\IntelliReply\HumanRequestService;
 use App\Services\WhatsappService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery;
@@ -74,15 +75,20 @@ class AiDisclosureAndHandoffTest extends TestCase
         $this->assertTrue(app(AiConversationPauseService::class)->isPaused($contact->fresh()));
     }
 
-    public function test_handoff_keywords_are_ignored_when_the_assistant_is_off(): void
+    public function test_a_request_for_a_person_still_reaches_the_team_when_the_assistant_is_off(): void
     {
+        config(['intellireply.handoff.confirmation_text' => 'حوّلناك لفريقنا.']);
         [$organization, $contact] = $this->contactContext();
-        $this->bindHandoff(assistantActive: false, whatsapp: Mockery::mock(WhatsappService::class));
-        $this->expectAutoReplies(1);
+        $whatsapp = Mockery::mock(WhatsappService::class);
+        $whatsapp->shouldReceive('sendMessage')->once()->with((string) $contact->uuid, 'حوّلناك لفريقنا.')->andReturn((object) ['success' => true]);
+        $this->bindHandoff(assistantActive: false, whatsapp: $whatsapp);
+        $this->expectAutoReplies(0);
 
         app(AutoReplyDispatchService::class)->run($this->inboundChat($organization, $contact, 'wamid.H2', 'موظف'));
 
+        // The switch stops the assistant only, so keyword replies and flows are not paused for later messages.
         $this->assertFalse(app(AiConversationPauseService::class)->isPaused($contact->fresh()));
+        $this->assertTrue(app(HumanRequestService::class)->blocksAssistant($contact));
     }
 
     public function test_regular_messages_go_to_the_normal_auto_reply_flow(): void
@@ -98,6 +104,7 @@ class AiDisclosureAndHandoffTest extends TestCase
     {
         $handoff = Mockery::mock(AiHumanHandoffService::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $handoff->shouldReceive('assistantActive')->andReturn($assistantActive);
+        $handoff->shouldReceive('assistantModuleEnabled')->andReturn(true);
         $handoff->shouldReceive('whatsapp')->andReturn($whatsapp);
         $this->app->instance(AiHumanHandoffService::class, $handoff);
     }

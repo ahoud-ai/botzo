@@ -5,10 +5,12 @@ namespace Modules\IntelliReply\Controllers;
 use App\Helpers\CustomHelper;
 use App\Http\Controllers\Controller as BaseController;
 use App\Models\Contact;
+use App\Models\ConversationHumanRequest;
 use App\Models\Organization;
 use App\Services\IntelliReply\AiEmbeddingService;
 use App\Services\IntelliReply\AiKeyResolver;
 use App\Services\IntelliReply\AiPersonaPromptBuilder;
+use App\Services\IntelliReply\HumanRequestService;
 use App\Services\Ai\AiProviderManager;
 use App\Services\OrganizationUsageSummaryService;
 use Illuminate\Http\Request;
@@ -241,6 +243,14 @@ class MainController extends BaseController
                 // Turning the assistant back on by hand ends any human-takeover pause right away.
                 (bool) $payload['ai_assistant'] ? ['ai_paused_until' => null] : []
             ));
+
+        // Someone decided the assistant may answer this customer again, so nobody is waiting anymore.
+        if ((bool) $payload['ai_assistant']) {
+            $contact = Contact::where('uuid', $uuid)->where('organization_id', $organizationId)->first();
+            if ($contact) {
+                app(HumanRequestService::class)->close($contact, ConversationHumanRequest::RESOLUTION_ASSISTANT_RESUMED, (int) auth()->id());
+            }
+        }
 
         Log::channel('intellireply')->info('intellireply.contact_toggle.updated', [
             'organization_id' => $organizationId,
