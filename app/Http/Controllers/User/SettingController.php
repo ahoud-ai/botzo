@@ -105,6 +105,7 @@ class SettingController extends BaseController
             'hasEncryptedWhatsappToken' => !empty(data_get($organizationMetadata, 'whatsapp.access_token_encrypted')),
             'hasEncryptedWhatsappAppSecret' => !empty(data_get($organizationMetadata, 'whatsapp.app_secret_encrypted')),
             'whatsappWebhookReadiness' => $webhookReadiness,
+            'metaProfilePictureUrl' => $this->resolveMetaProfilePictureUrl((int) $organizationId, $organizationMetadata),
             'modules' => Addon::query()->whereIn('name', \App\Support\SaClientPlanProfile::planAddonNames())->get(),
             'title' => __('Settings'),
         ];
@@ -669,8 +670,8 @@ class SettingController extends BaseController
             } else {
                 return back()->with(
                     'status', [
-                        'type' => 'error', 
-                        'message' => __('Something went wrong! Your business profile could not be updated!')
+                        'type' => 'error',
+                        'message' => $this->businessProfileErrorMessage($response)
                     ]
                 );
             }
@@ -911,6 +912,7 @@ class SettingController extends BaseController
         $metadataArray['whatsapp']['business_profile']['description'] = $businessProfileResponse->data->description ?? null;
         $metadataArray['whatsapp']['business_profile']['industry'] = $businessProfileResponse->data->vertical ?? null;
         $metadataArray['whatsapp']['business_profile']['email'] = $businessProfileResponse->data->email ?? null;
+        $metadataArray['whatsapp']['business_profile']['websites'] = $businessProfileResponse->data->websites ?? [];
 
         if ($isEmbeddedSignup === false) {
             $manualWebhookResponse = $whatsappService->overrideCallbackUrl(
@@ -934,6 +936,57 @@ class SettingController extends BaseController
         return $this->successResult([
             'warning_message' => $warningMessage,
         ]);
+    }
+
+    /**
+     * Read fresh on each visit and never saved, because Meta's picture links can expire.
+     */
+    private function resolveMetaProfilePictureUrl(int $organizationId, array $metadata): ?string
+    {
+        $phoneNumberId = data_get($metadata, 'whatsapp.phone_number_id');
+        if (empty($phoneNumberId)) {
+            return null;
+        }
+
+        try {
+            $accessToken = app(WhatsappAccessTokenRefreshService::class)->resolveTokenForOrganization($organizationId, false);
+            if (empty($accessToken)) {
+                return null;
+            }
+
+            return $this->makeWhatsappService(
+                $accessToken,
+                config('graph.api_version'),
+                data_get($metadata, 'whatsapp.app_id'),
+                $phoneNumberId,
+                data_get($metadata, 'whatsapp.waba_id'),
+                $organizationId
+            )->getProfilePictureUrl();
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * Tells the customer where a failed save came from and why. A failure with
+     * no Meta error code means Meta never answered, such as a connection failure.
+     */
+    private function businessProfileErrorMessage(object $response): string
+    {
+        $code = data_get($response, 'data.error.code');
+
+        if ($code === null) {
+            return __('Could not reach WhatsApp (Meta) to update your business profile. Please try again shortly.');
+        }
+
+        $reason = data_get($response, 'data.error.error_user_msg') ?: match ((int) $code) {
+            190 => __('The WhatsApp connection is no longer valid. Please reconnect your WhatsApp account.'),
+            10, 200 => __('The WhatsApp connection does not have permission to change this profile.'),
+            4, 80007, 130429 => __('Too many requests were sent to WhatsApp. Please try again later.'),
+            default => data_get($response, 'data.error.message'),
+        };
+
+        return trim(__('WhatsApp (Meta) refused to update your business profile.').' '.$reason.' '.__('Meta error code: :code', ['code' => $code]));
     }
 
     private function extractServiceError(object $response, string $fallback): string

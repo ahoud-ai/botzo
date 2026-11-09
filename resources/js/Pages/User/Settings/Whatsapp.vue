@@ -177,9 +177,22 @@
                                 </div>
                             </div>
                             <div class="settings-row-control">
-                                <FormImageLogo v-model="form2.profile_picture_url" :name="''" :error="form2.errors.profile_picture_url" :label="$t('Upload logo')" :imageUrl="form2.profile_picture_url" :class="'col-span-4'"/>
+                                <FormImageLogo v-model="form2.profile_picture_url" :name="''" :error="form2.errors.profile_picture_url" :label="$t('Upload logo')" :imageUrl="props.metaProfilePictureUrl || form2.profile_picture_url" :class="'col-span-4'"/>
                                 <div class="settings-field-hint mt-2">{{ $t('Accepted formats: JPG/PNG') }}</div>
                                 <div class="settings-field-hint">{{ $t('Minimum dimensions: 192x192 pixels.') }}</div>
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <div class="settings-row-label">
+                                <span class="settings-field-label">{{ $t('Business about') }}</span>
+                                <div class="settings-field-hint">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
+                                    <span>{{ $t('A short line shown on your WhatsApp profile, up to 139 characters') }}</span>
+                                </div>
+                            </div>
+                            <div class="settings-row-control">
+                                <FormTextArea v-model="form2.about" :error="form2.errors.about" :name="''" :showLabel="false" :textAreaRows="2" :class="'col-span-4'"/>
+                                <div class="settings-field-hint mt-2" :class="(form2.about || '').length > 139 ? 'ui-danger-text' : ''" dir="ltr">{{ (form2.about || '').length }} / 139</div>
                             </div>
                         </div>
                         <div class="settings-row">
@@ -216,6 +229,19 @@
                             </div>
                             <div class="settings-row-control">
                                 <FormTextArea v-model="form2.description" :error="form2.errors.description" :name="''" :type="'text'" :class="'col-span-4'"/>
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <div class="settings-row-label">
+                                <span class="settings-field-label">{{ $t('Business websites') }}</span>
+                                <div class="settings-field-hint">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v5m0 5a9 9 0 1 1 0-18a9 9 0 0 1 0 18Zm.05-13v.1h-.1V8h.1Z"/></svg>
+                                    <span>{{ $t('Up to 2 links, each starting with') }} <bdi dir="ltr">https://</bdi></span>
+                                </div>
+                            </div>
+                            <div class="settings-row-control space-y-3">
+                                <FormInput v-model="form2.websites[0]" :error="form2.errors['websites.0']" :name="$t('Website 1')" :type="'url'" :class="'col-span-4'"/>
+                                <FormInput v-model="form2.websites[1]" :error="form2.errors['websites.1']" :name="$t('Website 2')" :type="'url'" :class="'col-span-4'"/>
                             </div>
                         </div>
                         <div class="settings-row">
@@ -326,6 +352,7 @@
     const { t } = useI18n();
 
     const props = defineProps([
+        'metaProfilePictureUrl',
         'settings',
         'embeddedSignupActive',
         'embeddedSignupOrgEnabled',
@@ -366,11 +393,15 @@
 
     const form2 = useForm({
         profile_picture_url: settings.value && settings.value.whatsapp ? settings.value?.whatsapp?.business_profile?.profile_picture_url : null,
+        about: settings.value?.whatsapp?.business_profile?.about ?? null,
         description: settings.value && settings.value.whatsapp ? settings.value?.whatsapp?.business_profile?.description : null,
         address: settings.value && settings.value.whatsapp ? settings.value?.whatsapp?.business_profile?.address : null,
         email: settings.value && settings.value.whatsapp ? settings.value?.whatsapp?.business_profile?.email : null,
         industry: settings.value && settings.value.whatsapp ? settings.value?.whatsapp?.business_profile?.industry : null,
-        websites: []
+        websites: [
+            settings.value?.whatsapp?.business_profile?.websites?.[0] ?? '',
+            settings.value?.whatsapp?.business_profile?.websites?.[1] ?? '',
+        ],
     });
 
     const form3 = useForm({
@@ -399,6 +430,10 @@
         { label: t('Shopping and retail'), value: 'RETAIL' },
         { label: t('Travel and transportation'), value: 'TRAVEL' },
         { label: t('Restaurant'), value: 'RESTAURANT' },
+        { label: t('Alcoholic beverages'), value: 'ALCOHOL' },
+        { label: t('Online gambling and gaming'), value: 'ONLINE_GAMBLING' },
+        { label: t('Gambling and gaming venues'), value: 'PHYSICAL_GAMBLING' },
+        { label: t('Over-the-counter medicines'), value: 'OTC_DRUGS' },
         { label: t('Not a business'), value: 'NOT_A_BIZ' },
         { label: t('Undefined'), value: 'UNDEFINED' },
         { label: t('Other'), value: 'OTHER' },
