@@ -100,7 +100,7 @@ class SallaWidgetTest extends TestCase
         $this->assertTrue($ai['enable_automatic_responses']);
         $this->assertSame('global', $ai['key_source']);
         $this->assertSame('متجر تجريبي', $ai['persona']['business_name']);
-        $this->assertSame('gulf', $ai['persona']['dialect']);
+        $this->assertSame('auto', $ai['persona']['dialect'], 'Mochi answers in the customer\'s own language and dialect.');
     }
 
     public function test_reinstall_keeps_the_key_and_what_the_merchant_changed(): void
