@@ -14,7 +14,7 @@
     import { useWorkspaceAccess } from '@/Composables/useWorkspaceAccess';
     const { t } = useI18n();
 
-    const props = defineProps(['contact', 'displayContactInfo', 'ticketingIsEnabled', 'ticket', 'addon', 'activeConversationChannel']);
+    const props = defineProps(['contact', 'displayContactInfo', 'ticketingIsEnabled', 'ticket', 'addon', 'activeConversationChannel', 'aiStatus']);
 
     const accountUser = computed(() => usePage().props.auth.user);
     const page = usePage();
@@ -158,7 +158,49 @@
     });
 
     const form3 = useForm({
-        'ai_assistant': props.contact?.ai_assistance_enabled,
+        'ai_assistant': false,
+    });
+
+    // The strip shows what the assistant will really do here, not just this conversation's own switch.
+    const aiState = computed(() => props.aiStatus?.state ?? null);
+    const aiOffEverywhere = computed(() => aiState.value === 'off_everywhere');
+    const aiOn = computed(() => aiState.value === 'on');
+    watchEffect(() => {
+        form3.ai_assistant = aiOn.value;
+    });
+
+    const pausedUntilText = computed(() => {
+        const value = props.aiStatus?.paused_until;
+        if (!value) {
+            return '';
+        }
+        const date = new Date(value);
+        return Number.isNaN(date.getTime())
+            ? ''
+            : date.toLocaleTimeString(document.documentElement.lang || undefined, { hour: 'numeric', minute: '2-digit' });
+    });
+
+    const aiTitle = computed(() => ({
+        on: t('AI assistant is replying in this conversation'),
+        off_everywhere: t('AI assistant is off for all conversations'),
+        waiting_team: t('AI assistant is stopped: the customer asked for a person'),
+        team_replied: t('AI assistant is stopped because the team replied'),
+        off_here: t('AI assistant is off for this conversation'),
+    }[aiState.value] ?? ''));
+
+    const aiHint = computed(() => {
+        switch (aiState.value) {
+            case 'off_everywhere':
+                return t('It was turned off from the AI assistant page.');
+            case 'waiting_team':
+                return t('It stays stopped until someone replies or turns it back on.');
+            case 'team_replied':
+                return pausedUntilText.value
+                    ? t('It comes back on its own at {time}.', { time: pausedUntilText.value })
+                    : '';
+            default:
+                return '';
+        }
     });
 
     const changeTicketStatus = (value) => {
@@ -234,8 +276,14 @@
     }
 
     const submitForm3 = () => {
+        if (aiOffEverywhere.value) {
+            return;
+        }
         form3.post('/automation/contact/' + props.contact.uuid, {
             preserveState: true,
+            preserveScroll: true,
+            // Show the saved state again, whether the save worked or not.
+            onFinish: () => { form3.ai_assistant = aiOn.value; },
         });
     }
 </script>
@@ -288,16 +336,26 @@
             </div>
         </div>
     </div>
-    <div v-if="addon == 1 && canManageAiAssistant" class="flex justify-between items-center bg-white dark:bg-[#111b21] border-b border-1 py-2 px-4 md:px-4">
-        <div class="text-sm py-1 px-3 rounded-md flex items-center gap-x-2 w-[fit-content]" :class="form3.ai_assistant ? 'bg-green-50 dark:bg-green-500/10' : 'bg-red-50 dark:bg-red-500/10'">
-            <span :class="form3.ai_assistant ? 'text-green-500' : 'text-red-500'">
-                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"/></svg>
-            </span>
-            <span>{{ $t('AI Assistant') }}</span>
+    <div v-if="addon == 1 && aiState" class="ai-strip" :class="`ai-strip--${aiOn ? 'on' : (aiState === 'off_everywhere' || aiState === 'off_here' ? 'off' : 'paused')}`" data-ai-state-strip :data-state="aiState">
+        <div class="ai-strip__text" role="status" aria-live="polite">
+            <span class="ai-strip__dot" aria-hidden="true"></span>
+            <div class="min-w-0">
+                <p class="ai-strip__title">{{ aiTitle }}</p>
+                <p v-if="aiHint" class="ai-strip__hint">{{ aiHint }}</p>
+            </div>
         </div>
-        <div class="flex items-center gap-x-2">
-            <span class="text-[13px]">{{ $t('Enable/disable AI assistant') }}</span>
-            <FormToggleSwitch v-model="form3.ai_assistant" @update:modelValue="submitForm3" />
+        <div v-if="canManageAiAssistant" class="ai-strip__actions">
+            <Link v-if="aiOffEverywhere" href="/automation/ai" class="ai-strip__link">{{ $t('Turn it on') }}</Link>
+            <template v-else>
+                <span class="ai-strip__label" aria-hidden="true">{{ $t('In this conversation') }}</span>
+                <FormToggleSwitch
+                    v-model="form3.ai_assistant"
+                    :disabled="form3.processing"
+                    :aria-label="$t('AI assistant in this conversation')"
+                    class="ai-strip__toggle"
+                    @update:modelValue="submitForm3"
+                />
+            </template>
         </div>
     </div>
 
@@ -339,6 +397,29 @@
     background: transparent;
     transition: background-color 160ms ease, color 160ms ease;
 }
+
+.ai-strip {
+    --ai-tone: var(--ui-success);
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
+    padding: 8px 16px; border-bottom: 1px solid var(--ui-border);
+    background: color-mix(in srgb, var(--ai-tone) 8%, var(--ui-surface));
+    border-inline-start: 3px solid var(--ai-tone);
+}
+.ai-strip--off { --ai-tone: var(--ui-danger); }
+.ai-strip--paused { --ai-tone: var(--ui-warning); }
+.ai-strip__text { display: flex; align-items: flex-start; gap: 10px; min-width: 0; flex: 1 1 220px; }
+.ai-strip__dot { width: 10px; height: 10px; margin-top: 6px; border-radius: 999px; background: var(--ai-tone); flex: none; }
+.ai-strip__title { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--ui-text); }
+.ai-strip__hint { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ui-muted); }
+.ai-strip__actions { display: flex; align-items: center; gap: 8px; }
+.ai-strip__label { font-size: 13px; color: var(--ui-muted); }
+.ai-strip__toggle { min-width: 44px; min-height: 44px; border-radius: 10px; }
+.ai-strip__toggle:focus-visible, .ai-strip__link:focus-visible { outline: 3px solid var(--ui-secondary); outline-offset: 2px; }
+.ai-strip__link {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 10px;
+    font-size: 14px; font-weight: 600; color: #fff; background: var(--ui-secondary); touch-action: manipulation;
+}
+.ai-strip__link:hover { opacity: 0.92; }
 
 .chat-header-icon-btn:hover {
     background: var(--ui-surface-soft);
