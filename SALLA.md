@@ -179,8 +179,10 @@ the app's embedded pages to `https://<domain>/api/salla/panel`, and `SALLA_APP_I
   that lasts two hours. No cookie is used, so the rest of the site keeps its cookie and frame settings.
 - The store comes only from the panel token. Every lookup starts from the store's organization, so a request cannot
   name another store.
-- Only `/api/salla/panel` may open inside Salla: its `frame-ancestors` allows `s.salla.sa`, and `public/.htaccess` skips
-  `X-Frame-Options` for it. Local `php -S` ignores `.htaccess`, so check this on the server.
+- Only `/api/salla/panel` may open inside Salla: its `frame-ancestors` allows `s.salla.sa`. The `.htaccess` exception for
+  `X-Frame-Options` has no effect on the server, which still sends `SAMEORIGIN`. Chrome opens the panel anyway, because
+  `frame-ancestors` takes priority. Check other browsers before publishing.
+- Salla's webhook URL, snippet and panel use `botzo.sa`. The approved snippet keeps that address, so keep it serving.
 
 | Screen | What it does |
 |---|---|
