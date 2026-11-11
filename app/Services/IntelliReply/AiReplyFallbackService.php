@@ -3,6 +3,7 @@
 namespace App\Services\IntelliReply;
 
 use App\Models\Contact;
+use App\Models\ConversationHumanRequest;
 use App\Models\Organization;
 use App\Services\AutomationFlows\AutomationFlowConversationHandoffService;
 use App\Services\IntelliReply\Channels\AiReplyChannel;
@@ -96,6 +97,12 @@ class AiReplyFallbackService
         }
 
         app(AiConversationPauseService::class)->pauseFor($contact, $pauseMinutes);
+
+        // The customer was just told the team will answer, so the team has to hear about it.
+        app(HumanRequestService::class)->open(
+            $contact,
+            $assignReason === 'ai_unavailable' ? ConversationHumanRequest::REASON_AI_UNAVAILABLE : ConversationHumanRequest::REASON_KNOWLEDGE_GAP
+        );
 
         try {
             app(AutomationFlowConversationHandoffService::class)->assignToAgent($contact, 'auto_assign', null, true, $assignReason);

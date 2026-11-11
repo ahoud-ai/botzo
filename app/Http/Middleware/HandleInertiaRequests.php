@@ -127,6 +127,10 @@ class HandleInertiaRequests extends Middleware
             'workspaceAccess' => fn () => $resolveWorkspacePayload()['workspaceAccess'],
             'permissions' => fn () => $resolveWorkspacePayload()['permissions'],
             'adminPermissions' => fn () => $this->resolveAdminPermissions($request),
+            // Signed token that tells Mochi on botzo.net who is signed in (null for guests and admins).
+            'mochiIdentity' => fn () => $user && app(\App\Services\WebWidget\SiteWidget::class)->embedKey()
+                ? app(\App\Services\WebWidget\SiteVisitorIdentity::class)->tokenFor($user, (int) session('current_organization'))
+                : null,
             'flash' => [
                 'status'=> session('status'),
                 'generated_api_token' => session('generated_api_token'),

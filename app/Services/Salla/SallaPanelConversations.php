@@ -7,6 +7,7 @@ use App\Models\Contact;
 use App\Models\Organization;
 use App\Models\SallaStore;
 use App\Services\IntelliReply\AiConversationPauseService;
+use App\Services\IntelliReply\HumanRequestService;
 use App\Services\WebWidget\WebWidgetMessageStore;
 use Illuminate\Support\Carbon;
 
@@ -75,7 +76,7 @@ class SallaPanelConversations
         return [
             'id' => (int) $contact->id,
             'name' => trim((string) $contact->first_name.' '.(string) $contact->last_name),
-            'assistant_paused' => $this->pause->isPaused($contact),
+            'assistant_paused' => $this->pause->isPaused($contact) || app(HumanRequestService::class)->blocksAssistant($contact),
             'messages' => $chats->map(fn (Chat $chat) => [
                 'id' => (int) $chat->id,
                 'from' => $this->from($chat),

@@ -2,6 +2,7 @@
 
 namespace App\Services\IntelliReply;
 
+use App\Services\WebWidget\SiteWidget;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Modules\IntelliReply\Models\Document;
@@ -24,7 +25,11 @@ class AiKnowledgeRetriever
     {
     }
 
-    public function retrieve(int $organizationId, array $organizationMetadata, ?string $apiKey, string $query): ?string
+    /**
+     * @param  bool  $allowWhole  false keeps the ranked excerpts even for Botzo's own assistant
+     *                            (voice calls, where every input token costs far more)
+     */
+    public function retrieve(int $organizationId, array $organizationMetadata, ?string $apiKey, string $query, bool $allowWhole = true): ?string
     {
         $faqs = Faq::where('organization_id', $organizationId)->orderBy('id')->get();
         $documents = Document::where('organization_id', $organizationId)
@@ -34,6 +39,21 @@ class AiKnowledgeRetriever
 
         if ($faqs->isEmpty() && $documents->isEmpty()) {
             return null;
+        }
+
+        // Botzo's own assistant answers about the whole product, so it reads every document instead
+        // of the few closest excerpts. Customers' assistants keep the ranked excerpts below.
+        if ($allowWhole && $this->readsWholeKnowledge($organizationId)) {
+            $whole = $this->wholeDocuments($documents);
+
+            Log::channel('intellireply')->info('intellireply.retrieval.completed', [
+                'organization_id' => $organizationId,
+                'faq_count' => $faqs->count(),
+                'document_count' => count($whole),
+                'mode' => 'whole',
+            ]);
+
+            return $this->format($faqs, $whole, 'Knowledge base (all documents):');
         }
 
         $faqsFitInline = $faqs->sum(fn (Faq $faq) => mb_strlen($faq->question) + mb_strlen($faq->answer))
@@ -165,7 +185,43 @@ class AiKnowledgeRetriever
         return $selected;
     }
 
-    private function format(Collection $faqs, array $chunks): ?string
+    private function readsWholeKnowledge(int $organizationId): bool
+    {
+        if (! config('intellireply.retrieval.site_whole_knowledge', true) || $organizationId < 1) {
+            return false;
+        }
+
+        return $organizationId === app(SiteWidget::class)->organizationId();
+    }
+
+    /**
+     * Every document in full, oldest first, within a character budget; a document that does not
+     * fit is left out whole rather than cut in the middle.
+     *
+     * @param  Collection<int, Document>  $documents
+     * @return list<array{title:string,text:string}>
+     */
+    private function wholeDocuments(Collection $documents): array
+    {
+        $budget = max(1, (int) config('intellireply.retrieval.site_whole_knowledge_max_chars', 60000));
+        $selected = [];
+
+        foreach ($documents->sortBy('id') as $document) {
+            $text = trim((string) $document->content);
+            $length = mb_strlen($text);
+
+            if ($text === '' || $length > $budget) {
+                continue;
+            }
+
+            $selected[] = ['title' => trim((string) $document->title), 'text' => $text];
+            $budget -= $length;
+        }
+
+        return $selected;
+    }
+
+    private function format(Collection $faqs, array $chunks, string $chunksHeading = 'Knowledge base excerpts:'): ?string
     {
         $sections = [];
 
@@ -175,7 +231,7 @@ class AiKnowledgeRetriever
         }
 
         if ($chunks !== []) {
-            $sections[] = "Knowledge base excerpts:\n"
+            $sections[] = $chunksHeading."\n"
                 .collect($chunks)->map(fn (array $chunk) => ($chunk['title'] !== '' ? '['.$chunk['title']."]\n" : '').$chunk['text'])->implode("\n---\n");
         }
 

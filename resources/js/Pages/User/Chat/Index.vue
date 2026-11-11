@@ -13,7 +13,8 @@
                     :activeConversationChannel="activeConversationChannel"
                     :displayContactInfo="displayContactInfo" 
                     :ticket="ticket" 
-                    :addon="addon" 
+                    :addon="addon"
+                    :aiStatus="aiStatus"
                     @toggleView="toggleContactView" 
                     @deleteThread="deleteThread" 
                     @closeThread="closeThread"
@@ -142,8 +143,13 @@
         fields: Array,
         locationSettings: Object,
         showAiAssist: Boolean,
+        aiStatus: Object,
         agents: Array
     });
+
+    // The assistant's real state in the open conversation; refreshed with every new message.
+    const aiStatus = ref(props.aiStatus ?? null);
+    watch(() => props.aiStatus, (value) => { aiStatus.value = value ?? null; });
 
     const rows = ref(props.rows);
     const rowCount = ref(props.rowCount);
@@ -426,6 +432,9 @@
             }
             if (response?.data?.contact) {
                 mergeSelectedContact(response.data.contact);
+                if (response.data.contact.uuid === contact.value?.uuid && 'aiStatus' in response.data) {
+                    aiStatus.value = response.data.aiStatus;
+                }
             }
         } catch (error) {
             console.error('Error updating side panel:', error);

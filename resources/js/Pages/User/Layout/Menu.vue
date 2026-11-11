@@ -39,6 +39,8 @@
                         <span v-if="parseInt(unreadMessages) > 0 && !menuIconsOnly" class="ui-sidebar-badge">{{ unreadMessages }}</span>
                     </Link>
                 </li>
+                <!-- Shown to anyone who can be notified, members limited to their own chats included. -->
+                <NotificationsLink :iconsOnly="menuIconsOnly" />
                 <li v-if="canViewContacts" class="ui-sidebar-item rounded-xl px-2 truncate" :class="$page.url.startsWith('/contact') ? 'ui-sidebar-item--active' : ''">
                     <Link rel="noopener noreferrer" href="/contacts" class="flex items-center p-2 gap-x-3 rounded-xl">
                         <span class="ui-sidebar-icon-chip"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.75"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -233,6 +235,7 @@
     import Modal from '@/Components/Modal.vue';
     import ProfileModal from '@/Components/ProfileModal.vue';
     import OrganizationModal from '@/Components/OrganizationModal.vue';
+    import NotificationsLink from '@/Components/NotificationsLink.vue';
     import LangToggle from '@/Components/LangToggle.vue';
     import NavBrandMark from '@/Components/NavBrandMark.vue';
     import ThemeToggle from '@/Components/ThemeToggle.vue';

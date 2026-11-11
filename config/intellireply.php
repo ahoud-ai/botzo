@@ -32,10 +32,15 @@ return [
     ],
 
     // A customer asking for a person (e.g. "موظف") pauses automatic replies and hands the chat to the team.
+    // A website visitor writes while the assistant is switched off: said once, and the team is told.
+    'assistant_off' => [
+        'text' => env('INTELLIREPLY_ASSISTANT_OFF_TEXT', 'وصلتنا رسالتك، وفريقنا هيرد عليك هنا.'),
+    ],
+
     'handoff' => [
         'keywords' => array_values(array_filter(array_map(
             'trim',
-            explode(',', (string) env('INTELLIREPLY_HANDOFF_KEYWORDS', 'موظف,انسان,بشري,خدمة العملاء,agent,human'))
+            explode(',', (string) env('INTELLIREPLY_HANDOFF_KEYWORDS', 'موظف,انسان,بشري,مندوب,ممثل خدمة,خدمة العملاء,agent,human,customer service'))
         ))),
         'confirmation_text' => env('INTELLIREPLY_HANDOFF_CONFIRMATION_TEXT', 'تمام، حوّلنا محادثتك لأحد أعضاء فريقنا وهيرد عليك في أقرب وقت.'),
         'pause_minutes' => (int) env('INTELLIREPLY_HANDOFF_PAUSE_MINUTES', 720),
@@ -50,6 +55,10 @@ return [
         'faq_inline_chars' => (int) env('INTELLIREPLY_FAQ_INLINE_CHARS', 4000),
         'faq_top_k' => (int) env('INTELLIREPLY_FAQ_TOP_K', 5),
         'faq_min_similarity' => (float) env('INTELLIREPLY_FAQ_MIN_SIMILARITY', 0.35),
+        // Botzo's own site assistant (Mochi on botzo.net) reads every document in full, not the
+        // closest excerpts. Voice calls keep the excerpts. Customers' assistants are not affected.
+        'site_whole_knowledge' => (bool) env('INTELLIREPLY_SITE_WHOLE_KNOWLEDGE', true),
+        'site_whole_knowledge_max_chars' => (int) env('INTELLIREPLY_SITE_WHOLE_KNOWLEDGE_MAX_CHARS', 60000),
     ],
 
     // The model could not answer from the business information: hand the chat to the team.

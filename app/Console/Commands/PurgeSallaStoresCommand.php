@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\ChatMedia;
 use App\Models\SallaStore;
 use App\Models\SallaWebhookEvent;
+use App\Services\IntelliReply\HumanRequestService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -53,6 +54,7 @@ class PurgeSallaStoresCommand extends Command
 
         DB::table('web_widget_voice_calls')->where('organization_id', $organizationId)->delete();
         DB::table('web_widget_sessions')->where('organization_id', $organizationId)->delete();
+        app(HumanRequestService::class)->forgetOrganization($organizationId);
 
         DB::table('contacts')->where('organization_id', $organizationId)->select('id')->chunkById(200, function ($contacts) use ($organizationId) {
             $contactIds = $contacts->pluck('id')->all();

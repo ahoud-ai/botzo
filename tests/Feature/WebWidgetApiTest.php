@@ -191,8 +191,17 @@ class WebWidgetApiTest extends TestCase
         $widget = $this->widget([], aiActive: false);
         $token = $this->openSession($widget);
 
+        // The first message gets the team's acknowledgement, so the widget's own note would only repeat it.
         $this->postJson($this->url($widget, 'messages'), ['text' => 'مساء الخير'], $this->headers($token))
             ->assertOk()
+            ->assertJsonPath('messages.1.text', config('intellireply.assistant_off.text'))
+            ->assertJsonPath('awaiting_team', false);
+
+        $this->travel(5)->seconds();
+
+        $this->postJson($this->url($widget, 'messages'), ['text' => 'في حد هنا؟'], $this->headers($token))
+            ->assertOk()
+            ->assertJsonCount(1, 'messages')
             ->assertJsonPath('awaiting_team', true);
     }
 

@@ -17,11 +17,23 @@ class SiteWidget
 
     private const CACHE_KEY = 'web-widget:site-key';
 
+    private const ORGANIZATION_CACHE_KEY = 'web-widget:site-organization-id';
+
     public function organization(): ?Organization
     {
         $id = (int) Setting::getValueByKey(self::SETTING_KEY);
 
         return $id > 0 ? Organization::find($id) : null;
+    }
+
+    /**
+     * The id of the site organization, or 0 when none is set. Cached: it is asked on every reply.
+     */
+    public function organizationId(): int
+    {
+        return (int) Cache::remember(self::ORGANIZATION_CACHE_KEY, now()->addMinutes(10), function () {
+            return (int) Setting::getValueByKey(self::SETTING_KEY);
+        });
     }
 
     public function widget(): ?WebWidget
@@ -52,5 +64,6 @@ class SiteWidget
     public function forget(): void
     {
         Cache::forget(self::CACHE_KEY);
+        Cache::forget(self::ORGANIZATION_CACHE_KEY);
     }
 }

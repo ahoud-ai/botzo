@@ -18,6 +18,7 @@ use App\Models\Setting;
 use App\Models\Team;
 use App\Models\Template;
 use App\Services\IntelliReply\AiConversationPauseService;
+use App\Services\IntelliReply\HumanRequestService;
 use App\Services\WebWidget\WebWidgetMessageStore;
 use App\Services\IntelliReply\AiKeyResolver;
 use App\Services\IntelliReply\AiUsageLimiterService;
@@ -261,6 +262,7 @@ class ChatService
                 return response()->json([
                     'result' => ContactResource::collection($contacts)->response()->getData(),
                     'contact' => ContactResource::make($contact)->resolve(request()),
+                    'aiStatus' => $this->conversationAiStatus($contact, $aimodule, $config),
                 ], 200);
             } else {
                 $settings = json_decode($config->metadata);
@@ -335,6 +337,7 @@ class ChatService
                     'hasMoreMessages' => $initialMessages['hasMoreMessages'],
                     'nextPage' => $initialMessages['nextPage'],
                     'contact' => ContactResource::make($contact)->resolve(),
+                    'aiStatus' => $this->conversationAiStatus($contact, $aimodule, $config),
                     'fields' => ContactField::where('organization_id', $this->organizationId)->where('deleted_at', null)->get(),
                     'locationSettings' => $this->getLocationSettings(),
                     'ticket' => $ticket,
@@ -543,7 +546,7 @@ class ChatService
     private function afterAgentReply(Contact $contact, mixed $response): mixed
     {
         if (($response->success ?? false) === true) {
-            app(AiConversationPauseService::class)->pauseForHumanReply($contact);
+            app(AiConversationPauseService::class)->pauseForHumanReply($contact, auth()->id());
         }
 
         return $response;
@@ -575,6 +578,8 @@ class ChatService
             'deleted_by' => auth()->user()->id,
             'deleted_at' => now()
         ]);
+
+        app(HumanRequestService::class)->forgetContacts([(int) $contact->id]);
 
         ChatLog::where('contact_id', $contact->id)
             ->where('entity_type', 'chat')
@@ -629,6 +634,19 @@ class ChatService
         }
     
         return 0;
+    }
+
+    /** The assistant's real state in this conversation, or null when the organization has no assistant. */
+    private function conversationAiStatus(Contact $contact, $aimodule, $config): ?array
+    {
+        if (! $aimodule) {
+            return null;
+        }
+
+        $metadata = json_decode((string) ($config->metadata ?? ''), true);
+
+        return app(\App\Services\IntelliReply\ConversationAiStatus::class)
+            ->for($contact, is_array($metadata) ? $metadata : []);
     }
 
     private function shouldShowAiAssist($settings): bool

@@ -12,6 +12,7 @@
                     <div class="min-w-0">
                         <h2 class="ai-card-title">{{ $t('Enable AI Assistant') }}</h2>
                         <p class="ai-card-desc">{{ $t('Activate AI-generated responses in your conversations') }}</p>
+                        <p class="mt-1 text-xs leading-5 text-[var(--ui-muted)]">{{ $t('Applies to every conversation on WhatsApp and your website, including voice calls. Keyword replies and automation flows keep working, and requests for a team member still reach you.') }}</p>
                         <p class="mt-2 text-xs text-[var(--ui-muted)]">
                             {{ $t('Key policy') }}: {{ keyPolicyLabel }} &middot; {{ $t('Current key source') }}: {{ effectiveKeySourceLabel }}
                         </p>
