@@ -10,6 +10,7 @@ use App\Models\WebWidget;
 use App\Models\WebWidgetSession;
 use App\Models\WebWidgetVoiceCall;
 use App\Services\DemoRequests\DemoRequestService;
+use App\Services\WebWidget\SiteVisitorIdentity;
 use App\Services\WebWidget\WebWidgetAssistantContext;
 use App\Services\Salla\SallaOrderLookup;
 use App\Services\Salla\SallaStoreAccess;
@@ -45,11 +46,20 @@ class WebWidgetController extends Controller
             'token' => ['nullable', 'string', 'max:128'],
             'page_url' => ['nullable', 'string', 'max:2000'],
             'locale' => ['nullable', 'string', 'max:10'],
+            'identity' => ['nullable', 'string', 'max:2000'],
         ]);
+
+        // Botzo's own site: who is signed in. A chat someone else used is not shown to this person.
+        [$identitySent, $identity] = $this->identity($widget, $data);
+        $token = $data['token'] ?? null;
+        $existing = $token ? $this->widgets->findSession($widget, $token) : null;
+        if ($existing && $identitySent !== null && app(SiteVisitorIdentity::class)->belongsToSomeoneElse($existing, $identity)) {
+            $token = null;
+        }
 
         $opened = $this->widgets->openSession(
             $widget,
-            $data['token'] ?? null,
+            $token,
             $request->ip(),
             (string) $this->origin($request),
             $data['page_url'] ?? null,
@@ -58,6 +68,10 @@ class WebWidgetController extends Controller
 
         if (isset($opened['limited'])) {
             return response()->json(['error' => 'rate_limited'], 429);
+        }
+
+        if ($identitySent !== null) {
+            app(SiteVisitorIdentity::class)->remember($opened['session'], $identity);
         }
 
         return response()->json(array_filter([
@@ -120,7 +134,20 @@ class WebWidgetController extends Controller
             'text' => ['required', 'string', 'max:'.(int) config('web_widget.limits.message_max_length', 500)],
             'page_url' => ['nullable', 'string', 'max:2000'],
             'page_title' => ['nullable', 'string', 'max:300'],
+            'identity' => ['nullable', 'string', 'max:2000'],
         ]);
+
+        // Signed out or another customer signed in since the chat opened: the widget opens a new one.
+        [$identitySent, $identity] = $this->identity($widget, $data);
+        if ($identitySent !== null) {
+            $identities = app(SiteVisitorIdentity::class);
+            if ($identities->belongsToSomeoneElse($session, $identity)) {
+                return response()->json(['error' => 'session_expired'], 401);
+            }
+            if ($identity) {
+                $identities->remember($session, $identity);
+            }
+        }
 
         // Control characters have no place in a chat message.
         $text = trim((string) preg_replace('/[\x{0000}-\x{0008}\x{000B}\x{000C}\x{000E}-\x{001F}\x{007F}]/u', '', $data['text']));
@@ -372,6 +399,28 @@ class WebWidgetController extends Controller
         }
 
         return [$widget, $this->widgets->findSession($widget, $token)];
+    }
+
+    /**
+     * Who is signed in on Botzo's own pages. The widget sends "identity" only there: empty for a
+     * guest, a signed token for a customer. Not sent (other websites, an older widget) or a token
+     * that no longer checks out (expired after a long idle tab) changes nothing.
+     *
+     * @return array{0: ?bool, 1: ?array{user_id:int, organization_id:int}}
+     */
+    private function identity(WebWidget $widget, array $data): array
+    {
+        if (! array_key_exists('identity', $data)) {
+            return [null, null];
+        }
+
+        if (blank($data['identity'])) {
+            return [true, null];
+        }
+
+        $identity = app(SiteVisitorIdentity::class)->resolve($widget, (string) $data['identity']);
+
+        return $identity ? [true, $identity] : [null, null];
     }
 
     private function widget(Request $request, string $key): ?WebWidget

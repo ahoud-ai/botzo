@@ -410,6 +410,20 @@ function attachWhenReady() {
 }
 
 /**
+ * Tells the widget who is signed in: an empty value for a guest, the server's signed token for a
+ * customer. The widget reads it when it opens a chat or sends a message. Botzo's pages only.
+ */
+export function setMochiIdentity(token) {
+  let meta = document.querySelector('meta[name="botzo-site-identity"]');
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.name = 'botzo-site-identity';
+    document.head.appendChild(meta);
+  }
+  meta.content = typeof token === 'string' ? token : '';
+}
+
+/**
  * Call with the Inertia component of the page now showing.
  */
 export function syncPlatformMochi(component) {

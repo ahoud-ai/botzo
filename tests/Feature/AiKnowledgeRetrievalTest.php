@@ -74,6 +74,59 @@ class AiKnowledgeRetrievalTest extends TestCase
         $this->assertNull($this->retrieve($organization->id, 'what is the weather?'), 'Unrelated questions get no excerpts.');
     }
 
+    public function test_botzos_own_assistant_reads_every_document_without_an_embedding_request(): void
+    {
+        [, $organization] = $this->createOwnerContext([], true);
+        app(\App\Services\WebWidget\SiteWidget::class)->remember($organization);
+        foreach (['Pricing' => 'PRICING '.str_repeat('a', 1000), 'Flows' => 'FLOWS '.str_repeat('b', 1000)] as $title => $content) {
+            Document::create([
+                'organization_id' => $organization->id,
+                'source' => 'File',
+                'title' => $title,
+                'content' => $content,
+                'embeddings' => json_encode([[1, 0, 0]]),
+                'status' => 'Complete',
+            ]);
+        }
+        Http::fake();
+
+        $knowledge = $this->retrieve($organization->id, 'what is the weather?');
+
+        $this->assertStringContainsString("[Pricing]\nPRICING", $knowledge);
+        $this->assertStringContainsString("[Flows]\nFLOWS", $knowledge);
+        Http::assertNothingSent();
+
+        // Voice calls keep the ranked excerpts; an unrelated question then finds nothing.
+        $this->fakeQueryEmbedding([0, 0, 1]);
+        $this->assertNull(app(AiKnowledgeRetriever::class)->retrieve($organization->id, [], 'sk-test', 'what is the weather?', false));
+    }
+
+    public function test_a_document_too_long_for_the_budget_is_left_out_whole(): void
+    {
+        config(['intellireply.retrieval.site_whole_knowledge_max_chars' => 1500]);
+        [, $organization] = $this->createOwnerContext([], true);
+        app(\App\Services\WebWidget\SiteWidget::class)->remember($organization);
+        Document::create(['organization_id' => $organization->id, 'source' => 'File', 'title' => 'Short', 'content' => 'SHORT '.str_repeat('a', 1000), 'embeddings' => json_encode([[1, 0, 0]]), 'status' => 'Complete']);
+        Document::create(['organization_id' => $organization->id, 'source' => 'File', 'title' => 'Long', 'content' => 'LONG '.str_repeat('b', 1000), 'embeddings' => json_encode([[1, 0, 0]]), 'status' => 'Complete']);
+        Http::fake();
+
+        $knowledge = $this->retrieve($organization->id, 'hello');
+
+        $this->assertStringContainsString('SHORT', $knowledge);
+        $this->assertStringNotContainsString('LONG', $knowledge);
+    }
+
+    public function test_other_organizations_keep_the_ranked_excerpts(): void
+    {
+        [, $site] = $this->createOwnerContext([], true);
+        app(\App\Services\WebWidget\SiteWidget::class)->remember($site);
+        [, $organization] = $this->createOwnerContext([], true);
+        Document::create(['organization_id' => $organization->id, 'source' => 'File', 'title' => 'Policies', 'content' => 'PRICING '.str_repeat('a', 1000), 'embeddings' => json_encode([[1, 0, 0]]), 'status' => 'Complete']);
+        $this->fakeQueryEmbedding([0, 0, 1]);
+
+        $this->assertNull($this->retrieve($organization->id, 'what is the weather?'));
+    }
+
     public function test_a_large_faq_list_is_ranked_by_similarity(): void
     {
         config(['intellireply.retrieval.faq_inline_chars' => 10]);

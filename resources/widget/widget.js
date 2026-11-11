@@ -202,6 +202,16 @@
         return fetchJson(method, path, body);
     }
 
+    // Botzo's own pages say who is signed in with a meta tag (empty for a guest); other websites
+    // have none, so nothing is sent from them.
+    function withIdentity(body) {
+        var meta = document.querySelector('meta[name="botzo-site-identity"]');
+        if (meta) {
+            body.identity = (meta.getAttribute('content') || '').slice(0, 2000);
+        }
+        return body;
+    }
+
     var sessionPromise = null;
 
     function ensureSession() {
@@ -245,11 +255,11 @@
      * @param {boolean} keepMessages opening lazily mid-action: keep what is on screen (a pending bubble)
      */
     function openSession(keepMessages) {
-        return request('POST', '/session', {
+        return request('POST', '/session', withIdentity({
             token: state.token,
             page_url: window.location.href.slice(0, 2000),
             locale: LOCALE
-        }).then(function (result) {
+        })).then(function (result) {
             if (result.status !== 200 || !result.data.settings) {
                 return false;
             }
@@ -695,11 +705,11 @@
         syncSend();
         drawMessages();
 
-        request('POST', '/messages', {
+        request('POST', '/messages', withIdentity({
             text: text,
             page_url: window.location.href.slice(0, 2000),
             page_title: (document.title || '').slice(0, 300)
-        }).then(function (result) {
+        })).then(function (result) {
             if (result.status === 401 && !retried) {
                 state.token = null;
                 writeStore('localStorage', TOKEN_KEY, null);

@@ -204,7 +204,7 @@ class WebWidgetVoiceService
 
         if ($name === 'search_knowledge') {
             $apiKey = app(AiKeyResolver::class)->resolveForOrganization($metadata, data_get($metadata, 'ai.key_source', 'auto'), (int) $call->organization_id)['key'] ?? null;
-            $found = app(AiKnowledgeRetriever::class)->retrieve((int) $call->organization_id, $metadata, $apiKey, mb_substr((string) ($arguments['query'] ?? ''), 0, 300));
+            $found = app(AiKnowledgeRetriever::class)->retrieve((int) $call->organization_id, $metadata, $apiKey, mb_substr((string) ($arguments['query'] ?? ''), 0, 300), false);
 
             return ['result' => $found ? mb_substr($found, 0, 6000) : 'No matching information. Offer to connect the visitor with the team.'];
         }
@@ -239,7 +239,8 @@ class WebWidgetVoiceService
 
     private function instructions(?Organization $organization, array $metadata, Contact $contact, string $apiKey): string
     {
-        $faqs = app(AiKnowledgeRetriever::class)->retrieve((int) $organization?->id, $metadata, $apiKey, '');
+        // Voice keeps the ranked excerpts: every input token of a realtime call costs far more.
+        $faqs = app(AiKnowledgeRetriever::class)->retrieve((int) $organization?->id, $metadata, $apiKey, '', false);
         $parts = [
             app(AiPersonaPromptBuilder::class)->replySystemPrompt($metadata, $organization?->name, $faqs),
             (string) $this->context->instructions($contact),

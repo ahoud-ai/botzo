@@ -55,6 +55,10 @@ return [
         'faq_inline_chars' => (int) env('INTELLIREPLY_FAQ_INLINE_CHARS', 4000),
         'faq_top_k' => (int) env('INTELLIREPLY_FAQ_TOP_K', 5),
         'faq_min_similarity' => (float) env('INTELLIREPLY_FAQ_MIN_SIMILARITY', 0.35),
+        // Botzo's own site assistant (Mochi on botzo.net) reads every document in full, not the
+        // closest excerpts. Voice calls keep the excerpts. Customers' assistants are not affected.
+        'site_whole_knowledge' => (bool) env('INTELLIREPLY_SITE_WHOLE_KNOWLEDGE', true),
+        'site_whole_knowledge_max_chars' => (int) env('INTELLIREPLY_SITE_WHOLE_KNOWLEDGE_MAX_CHARS', 60000),
     ],
 
     // The model could not answer from the business information: hand the chat to the team.

@@ -43,7 +43,11 @@ class WebWidgetAssistantContext
 
         $settings = $widget->settingsWithDefaults();
         $page = (array) Cache::get($this->pageKey($contact), []);
-        $lines = ['The customer is chatting from the website chat widget, not WhatsApp. Keep replies short and spoken-style (1 to 3 sentences, one question at a time).'];
+        $lines = ['The customer is chatting from the website chat widget, not WhatsApp. Keep replies short and spoken-style (1 to 3 sentences, one question at a time). When the visitor asks how to do something step by step, or for a plan such as a flow, numbered short lines are fine. Write plain text: no ** or # or other Markdown, the chat shows them as symbols.'];
+
+        if ($this->isBotzoSite($widget)) {
+            array_push($lines, ...app(SiteVisitorIdentity::class)->instructions($contact));
+        }
 
         if (! empty($page['url'])) {
             $lines[] = sprintf('The visitor is now on the page "%s" (%s).', $page['title'] ?: $page['url'], $page['url']);
