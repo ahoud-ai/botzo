@@ -262,6 +262,9 @@ class AutomationFlowRuntimeService
         $currentNodeId = $run->current_node_id;
         $steps = 0;
         $maxSteps = (int) config('automation_flows.max_execution_steps', 60);
+        // Once the flow has sent the customer a message in this pass, the message that started the pass
+        // is no longer an answer: a "save the reply" step after it must wait for what the customer sends next.
+        $promptedSinceInput = false;
         $contact = Contact::find($run->contact_id);
         if (!$contact) {
             $run->update([
@@ -383,6 +386,7 @@ class AutomationFlowRuntimeService
                         return;
                     }
                     $this->recordStep($run, $currentNodeId, 'executed', $context, ['message' => $message]);
+                    $promptedSinceInput = true;
                     $nextNodeId = $this->resolveNextNodeId($outgoing, 'default');
                     break;
                 case 'send_media':
@@ -417,6 +421,7 @@ class AutomationFlowRuntimeService
                         return;
                     }
                     $this->recordStep($run, $currentNodeId, 'executed', $context, ['asset_id' => $assetId, 'media_url' => $mediaUrl, 'caption' => $caption]);
+                    $promptedSinceInput = true;
                     $nextNodeId = $this->resolveNextNodeId($outgoing, 'default');
                     break;
                 case 'send_buttons':
@@ -487,7 +492,7 @@ class AutomationFlowRuntimeService
                     $fieldUuid = (string) Arr::get($node, 'config.field_uuid', '');
                     $variableKey = (string) Arr::get($node, 'config.variable_key', '');
                     $value = Arr::get($run->last_input_json ?? [], 'last_user_message');
-                    if (blank($value) && !$chat) {
+                    if ($promptedSinceInput || (blank($value) && !$chat)) {
                         $this->runtimeSupport->markWaitingForFreeText($run, $currentNodeId, $context);
                         return;
                     }
@@ -523,7 +528,7 @@ class AutomationFlowRuntimeService
                     $variableKey = (string) Arr::get($node, 'config.variable_key', '');
                     $mode = (string) Arr::get($node, 'config.mode', Arr::get($node, 'config.value_mode', 'save_last_user_message'));
                     $value = $this->runtimeSupport->resolveUpdateNodeValue($run, $node, $mode);
-                    if (in_array($mode, ['save_last_user_message', 'last_input'], true) && blank($value) && !$chat) {
+                    if (in_array($mode, ['save_last_user_message', 'last_input'], true) && ($promptedSinceInput || (blank($value) && !$chat))) {
                         $this->runtimeSupport->markWaitingForFreeText($run, $currentNodeId, $context);
                         return;
                     }

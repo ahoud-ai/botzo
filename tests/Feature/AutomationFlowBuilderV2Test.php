@@ -1560,6 +1560,73 @@ class AutomationFlowBuilderV2Test extends TestCase
 
     #[RunInSeparateProcess]
     #[PreserveGlobalState(false)]
+    public function test_a_reply_step_after_a_question_waits_for_the_answer_instead_of_saving_the_earlier_message(): void
+    {
+        [$user, $organization] = $this->createOwnerContext();
+        $this->enableFlowBuilderForOrganization($organization->id);
+        $flow = $this->createFlow($user->id, $organization->id, 'Ask then save');
+        $this->publishGraph($user, $organization->id, $flow, $this->askThenSaveGraph());
+
+        $sentMessages = [];
+        $this->mockRuntimeWhatsappService($sentMessages);
+
+        $contact = $this->createContact($organization->id, $user->id, '+15550000031');
+        $runtime = app(AutomationFlowRuntimeService::class);
+
+        $this->assertTrue($runtime->handleInbound($this->createInboundChat($contact, [
+            'type' => 'text',
+            'text' => ['body' => 'السلام عليكم'],
+        ])));
+
+        // Only the question went out, and the greeting was not taken as the name.
+        $this->assertCount(1, $sentMessages);
+        $this->assertSame('ممكن أعرف اسم حضرتك؟', $sentMessages[0][1]);
+        $run = AutomationFlowRun::query()->where('automation_flow_id', $flow->id)->latest('id')->firstOrFail();
+        $this->assertSame('waiting_input', $run->status);
+        $this->assertSame('free_text', $run->waiting_for);
+        $this->assertSame('save-name-1', $run->waiting_node_id);
+        $this->assertNull(data_get($run->state_json, 'session_variables.name'));
+
+        $this->assertTrue($runtime->handleInbound($this->createInboundChat($contact, [
+            'type' => 'text',
+            'text' => ['body' => 'محمود'],
+        ])));
+
+        $run->refresh();
+        $this->assertSame('completed', $run->status);
+        $this->assertSame('محمود', data_get($run->state_json, 'session_variables.name'));
+        $this->assertCount(2, $sentMessages);
+        $this->assertSame('تم حفظ الاسم.', $sentMessages[1][1]);
+    }
+
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function test_saving_the_choice_right_after_a_button_still_keeps_the_tapped_button(): void
+    {
+        [$user, $organization] = $this->createOwnerContext();
+        $this->enableFlowBuilderForOrganization($organization->id);
+        $flow = $this->createFlow($user->id, $organization->id, 'Save the tapped button');
+        $this->publishGraph($user, $organization->id, $flow, $this->saveTappedButtonGraph());
+
+        $sentMessages = [];
+        $this->mockRuntimeWhatsappService($sentMessages);
+
+        $contact = $this->createContact($organization->id, $user->id, '+15550000032');
+        $runtime = app(AutomationFlowRuntimeService::class);
+
+        $runtime->handleInbound($this->createInboundChat($contact, ['type' => 'text', 'text' => ['body' => 'Hello']]));
+        $this->assertTrue($runtime->handleInbound($this->createInboundChat($contact, [
+            'type' => 'interactive',
+            'interactive' => ['type' => 'button_reply', 'button_reply' => ['id' => 'villa', 'title' => 'فيلا']],
+        ])));
+
+        $run = AutomationFlowRun::query()->where('automation_flow_id', $flow->id)->latest('id')->firstOrFail();
+        $this->assertSame('completed', $run->status);
+        $this->assertSame('فيلا', data_get($run->state_json, 'session_variables.property_type'));
+    }
+
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function test_runtime_update_contact_field_can_store_a_static_value_in_a_flow_variable(): void
     {
         [$user, $organization] = $this->createOwnerContext();
@@ -2406,6 +2473,54 @@ class AutomationFlowBuilderV2Test extends TestCase
                     'target_id' => 'handoff-ai-1',
                     'branch' => 'default',
                 ],
+            ],
+        ];
+    }
+
+    private function askThenSaveGraph(): array
+    {
+        $node = fn (string $id, string $type, array $config, int $x) => ['id' => $id, 'type' => $type, 'position' => ['x' => $x, 'y' => 120], 'config' => $config, 'ui' => ['expanded' => false]];
+        $edge = fn (string $from, string $to) => ['id' => "edge-{$from}-{$to}", 'source_id' => $from, 'target_id' => $to, 'branch' => 'default'];
+
+        return [
+            'start_node_id' => 'trigger-1',
+            'nodes' => [
+                $node('trigger-1', 'trigger', ['match_mode' => 'any_incoming', 'keywords' => []], 80),
+                $node('ask-name-1', 'send_text', ['text' => 'ممكن أعرف اسم حضرتك؟'], 420),
+                $node('save-name-1', 'save_reply_to_field', ['save_target' => 'session_variable', 'field_uuid' => '', 'variable_key' => 'name'], 760),
+                $node('thanks-1', 'send_text', ['text' => 'تم حفظ الاسم.'], 1100),
+                $node('end-1', 'end', [], 1440),
+            ],
+            'edges' => [
+                $edge('trigger-1', 'ask-name-1'),
+                $edge('ask-name-1', 'save-name-1'),
+                $edge('save-name-1', 'thanks-1'),
+                $edge('thanks-1', 'end-1'),
+            ],
+        ];
+    }
+
+    private function saveTappedButtonGraph(): array
+    {
+        $node = fn (string $id, string $type, array $config, int $x) => ['id' => $id, 'type' => $type, 'position' => ['x' => $x, 'y' => 120], 'config' => $config, 'ui' => ['expanded' => false]];
+        $edge = fn (string $from, string $to, string $branch = 'default') => ['id' => "edge-{$from}-{$branch}-{$to}", 'source_id' => $from, 'target_id' => $to, 'branch' => $branch];
+
+        return [
+            'start_node_id' => 'trigger-1',
+            'nodes' => [
+                $node('trigger-1', 'trigger', ['match_mode' => 'any_incoming', 'keywords' => []], 80),
+                $node('type-buttons-1', 'send_buttons', [
+                    'body' => 'وش نوع العقار؟', 'invalid_reply_behavior' => 'release_to_fallback', 'button_type' => 'reply_buttons',
+                    'buttons' => [['id' => 'apartment', 'title' => 'شقة'], ['id' => 'villa', 'title' => 'فيلا']],
+                ], 420),
+                $node('save-type-1', 'update_contact_field', ['save_target' => 'session_variable', 'variable_key' => 'property_type', 'mode' => 'save_last_user_message'], 760),
+                $node('end-1', 'end', [], 1100),
+            ],
+            'edges' => [
+                $edge('trigger-1', 'type-buttons-1'),
+                $edge('type-buttons-1', 'save-type-1', 'apartment'),
+                $edge('type-buttons-1', 'save-type-1', 'villa'),
+                $edge('save-type-1', 'end-1'),
             ],
         ];
     }
