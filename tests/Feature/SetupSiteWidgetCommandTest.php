@@ -94,6 +94,19 @@ class SetupSiteWidgetCommandTest extends TestCase
         $this->assertGreaterThanOrEqual(10, Document::where('organization_id', $organization->id)->count());
     }
 
+    public function test_the_persona_fits_the_limits_the_prompt_keeps(): void
+    {
+        $content = require database_path('data/botzo_site_assistant.php');
+
+        foreach (\App\Services\IntelliReply\AiPersonaPromptBuilder::LIMITS as $field => $limit) {
+            $this->assertLessThanOrEqual(
+                $limit,
+                mb_strlen((string) ($content['persona'][$field] ?? '')),
+                "The persona field {$field} is longer than the prompt keeps, so its end would be cut."
+            );
+        }
+    }
+
     public function test_an_invalid_email_is_refused(): void
     {
         $this->artisan('botzo:setup-site-widget', ['email' => 'not-an-email'])->assertFailed();
