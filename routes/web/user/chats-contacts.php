@@ -19,6 +19,7 @@ Route::get('/chats/{contactId}/messages', [App\Http\Controllers\User\ChatControl
 Route::get('/tickets/{status}', [App\Http\Controllers\User\ChatTicketController::class, 'index']);
 Route::put('/tickets/{uuid}/update', [App\Http\Controllers\User\ChatTicketController::class, 'update']);
 Route::put('/tickets/{uuid}/assign', [App\Http\Controllers\User\ChatTicketController::class, 'assign']);
+Route::put('/tickets/{uuid}/resume-automation', [App\Http\Controllers\User\ChatTicketController::class, 'resumeAutomation']);
 
 Route::get('/contacts/{uuid?}', [App\Http\Controllers\User\ContactController::class, 'index'])->name('contacts');
 Route::post('/contacts', [App\Http\Controllers\User\ContactController::class, 'store']);

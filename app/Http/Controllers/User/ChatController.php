@@ -398,6 +398,14 @@ class ChatController extends BaseController
             'assigned_to' => $user->id
         ]);
 
+        // Closing means the team is done: the flow and the assistant come back for these customers.
+        if ($status === 'closed') {
+            $resume = app(\App\Services\IntelliReply\ConversationAutomationResume::class);
+            foreach ($contacts as $contact) {
+                $resume->resume($contact, (int) $user->id);
+            }
+        }
+
         $fromStatus = $status === 'closed' ? __('open') : __('closed');
         $toStatus = $status === 'closed' ? __('closed') : __('open');
 

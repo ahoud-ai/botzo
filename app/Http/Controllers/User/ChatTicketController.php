@@ -16,6 +16,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Services\Chat\ChatAccessService;
 use App\Services\ChatService;
+use App\Services\IntelliReply\ConversationAutomationResume;
 use App\Services\WhatsappService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -67,6 +68,11 @@ class ChatTicketController extends BaseController
             'updated_at' => Carbon::now('UTC'),
         ]);
 
+        // Closing means the team is done: the flow and the assistant come back for this customer.
+        if ($request->status === 'closed') {
+            app(ConversationAutomationResume::class)->resume($contact, (int) auth()->id());
+        }
+
         $fromStatus = $request->status === 'closed' ? __('open') : __('closed');
         $toStatus = $request->status === 'closed' ? __('closed') : __('open');
 
@@ -92,8 +98,51 @@ class ChatTicketController extends BaseController
         );
     }
 
+    /**
+     * "Resolved, bring automation back": the flow and the assistant answer this customer again,
+     * without closing the conversation.
+     */
+    public function resumeAutomation(Request $request, $uuid)
+    {
+        $organizationId = session()->get('current_organization');
+        $this->checkPermission('chats.change_status', $organizationId);
+
+        $contact = Contact::where('uuid', $uuid)
+            ->where('organization_id', $organizationId)
+            ->whereNull('deleted_at')
+            ->firstOrFail();
+
+        if (! $this->chatAccess()->canViewContact($contact, (int) $organizationId)) {
+            abort(404, __('Chat not found.'));
+        }
+
+        app(ConversationAutomationResume::class)->resume($contact, (int) auth()->id());
+
+        $ticketId = ChatTicketLog::insertGetId([
+            'contact_id' => $contact->id,
+            'description' => __('Automation was turned back on for this conversation'),
+            'created_at' => Carbon::now('UTC'),
+        ]);
+        $chatLogId = ChatLog::insertGetId([
+            'contact_id' => $contact->id,
+            'entity_type' => 'ticket',
+            'entity_id' => $ticketId,
+            'created_at' => Carbon::now('UTC'),
+        ]);
+        $this->broadcastTicketLog($chatLogId, (int) $organizationId, [auth()->id()]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['resumed' => true]);
+        }
+
+        return Redirect::back()->with('status', [
+            'type' => 'success',
+            'message' => __('Automation is back on for this customer.'),
+        ]);
+    }
+
     public function assign(Request $request, $uuid)
-    { 
+    {
         $organizationId = session()->get('current_organization');
         $this->checkPermission('chats.assign', $organizationId);
 

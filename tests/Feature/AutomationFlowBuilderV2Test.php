@@ -1524,6 +1524,128 @@ class AutomationFlowBuilderV2Test extends TestCase
 
     #[RunInSeparateProcess]
     #[PreserveGlobalState(false)]
+    public function test_closing_the_conversation_brings_automation_back_and_the_next_message_starts_the_flow(): void
+    {
+        [$user, $organization, $contact, $flow] = $this->handedOffToTheTeam('+15550000031');
+
+        $this->actingAs($user, 'user')
+            ->withSession(['current_organization' => $organization->id])
+            ->put('/tickets/'.$contact->uuid.'/update', ['status' => 'closed'])
+            ->assertRedirect();
+
+        $this->assertAutomationIsBack($contact, $flow);
+
+        // The customer's very next message starts the flow again instead of being lost.
+        $handled = app(AutomationFlowRuntimeService::class)->handleInbound($this->createInboundChat($contact, [
+            'type' => 'text',
+            'text' => ['body' => 'مرحبا مرة ثانية'],
+        ]));
+        $this->assertTrue($handled);
+        $this->assertSame(2, AutomationFlowRun::query()->where('automation_flow_id', $flow->id)->count());
+    }
+
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function test_the_resolved_button_brings_automation_back_without_closing_the_conversation(): void
+    {
+        [$user, $organization, $contact, $flow] = $this->handedOffToTheTeam('+15550000032');
+
+        $this->actingAs($user, 'user')
+            ->withSession(['current_organization' => $organization->id])
+            ->put('/tickets/'.$contact->uuid.'/resume-automation')
+            ->assertRedirect();
+
+        $this->assertAutomationIsBack($contact, $flow);
+        $this->assertSame('open', ChatTicket::query()->where('contact_id', $contact->id)->value('status'));
+    }
+
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function test_unassigning_the_conversation_keeps_automation_stopped(): void
+    {
+        [$user, $organization, $contact, $flow] = $this->handedOffToTheTeam('+15550000033');
+
+        $this->actingAs($user, 'user')
+            ->withSession(['current_organization' => $organization->id])
+            ->put('/tickets/'.$contact->uuid.'/assign', ['id' => null])
+            ->assertRedirect();
+
+        $this->assertSame('waiting_handoff', AutomationFlowRun::query()->where('automation_flow_id', $flow->id)->latest('id')->value('status'));
+        $this->assertFalse((bool) $contact->fresh()->ai_assistance_enabled);
+        $this->assertNotNull($contact->fresh()->ai_paused_until);
+    }
+
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function test_the_resolved_button_needs_permission_to_change_the_conversation_status(): void
+    {
+        [, $organization, $contact, $flow] = $this->handedOffToTheTeam('+15550000034');
+        $role = OrganizationRole::create([
+            'organization_id' => $organization->id,
+            'name' => 'Viewer '.Str::random(4),
+            'description' => 'Can only read chats',
+            'permissions' => ['chats.view'],
+        ]);
+        $viewer = User::create([
+            'first_name' => 'Read',
+            'last_name' => 'Only',
+            'email' => 'viewer+'.Str::random(8).'@example.com',
+            'password' => bcrypt('password123'),
+            'role' => 'user',
+            'email_verified_at' => now(),
+        ]);
+        Team::create(['organization_id' => $organization->id, 'user_id' => $viewer->id, 'organization_role_id' => $role->id, 'status' => 'active', 'created_by' => $viewer->id]);
+
+        $response = $this->actingAs($viewer, 'user')
+            ->withSession(['current_organization' => $organization->id])
+            ->put('/tickets/'.$contact->uuid.'/resume-automation');
+
+        $this->assertContains($response->status(), [302, 403]);
+        $this->assertSame('waiting_handoff', AutomationFlowRun::query()->where('automation_flow_id', $flow->id)->latest('id')->value('status'));
+    }
+
+    /**
+     * A published flow handed this customer to the team; the assistant is paused for them too.
+     *
+     * @return array{0: User, 1: Organization, 2: Contact, 3: AutomationFlow}
+     */
+    private function handedOffToTheTeam(string $phone): array
+    {
+        [$user, $organization] = $this->createOwnerContext();
+        $this->enableFlowBuilderForOrganization($organization->id);
+        $this->enableTicketingForOrganization($organization->id);
+        $this->addAssignableAgent($organization->id, $user->id);
+        $flow = $this->createFlow($user->id, $organization->id, 'Handoff then resume');
+        $this->publishGraph($user, $organization->id, $flow, $this->humanHandoffGraph());
+        $this->mockRuntimeWhatsappService();
+
+        $contact = $this->createContact($organization->id, $user->id, $phone);
+        Contact::query()->whereKey($contact->id)->update(['ai_assistance_enabled' => true]);
+        $this->assertTrue(app(AutomationFlowRuntimeService::class)->handleInbound($this->createInboundChat($contact, [
+            'type' => 'text',
+            'text' => ['body' => 'أحتاج موظف'],
+        ])));
+        app(\App\Services\IntelliReply\AiConversationPauseService::class)->pauseFor($contact->fresh(), 60);
+
+        $this->assertSame('waiting_handoff', AutomationFlowRun::query()->where('automation_flow_id', $flow->id)->latest('id')->value('status'));
+
+        return [$user, $organization, $contact->fresh(), $flow];
+    }
+
+    private function assertAutomationIsBack(Contact $contact, AutomationFlow $flow): void
+    {
+        $run = AutomationFlowRun::query()->where('automation_flow_id', $flow->id)->latest('id')->firstOrFail();
+        $this->assertSame('cancelled', $run->status);
+        $this->assertTrue(AutomationFlowRunStep::query()->where('automation_flow_run_id', $run->id)->get()
+            ->contains(fn ($step) => data_get($step->metadata_json, 'reason') === 'released_by_team'));
+
+        $contact->refresh();
+        $this->assertTrue((bool) $contact->ai_assistance_enabled);
+        $this->assertNull($contact->ai_paused_until);
+    }
+
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
     public function test_runtime_can_store_the_customer_reply_in_a_flow_variable_and_route_on_it(): void
     {
         [$user, $organization] = $this->createOwnerContext();

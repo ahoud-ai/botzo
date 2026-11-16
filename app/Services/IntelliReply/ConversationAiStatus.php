@@ -17,10 +17,11 @@ class ConversationAiStatus
     public const WAITING_TEAM = 'waiting_team';
     public const TEAM_REPLIED = 'team_replied';
     public const OFF_HERE = 'off_here';
+    public const FLOW_HANDOFF = 'flow_handoff';
 
     /**
      * @param  array<string, mixed>  $metadata  the organization's metadata
-     * @return array{state: string, paused_until: ?string, request_reason: ?string}
+     * @return array{state: string, paused_until: ?string, request_reason: ?string, held: bool}
      */
     public function for(Contact $contact, array $metadata): array
     {
@@ -36,6 +37,9 @@ class ConversationAiStatus
         } elseif (app(AiConversationPauseService::class)->isPaused($contact)) {
             $state = self::TEAM_REPLIED;
             $pausedUntil = Carbon::parse($contact->ai_paused_until)->toIso8601String();
+        } elseif (app(ConversationAutomationResume::class)->flowWaitsForTeam($contact)) {
+            // The flow holds the customer's messages for the team, so the assistant does not answer.
+            $state = self::FLOW_HANDOFF;
         } elseif (! $contact->ai_assistance_enabled) {
             $state = self::OFF_HERE;
         }
@@ -44,6 +48,9 @@ class ConversationAiStatus
             'state' => $state,
             'paused_until' => $pausedUntil,
             'request_reason' => $requestReason,
+            // Something automatic (assistant or flow) is held back for this customer: the chat
+            // offers "resolved, bring automation back".
+            'held' => app(ConversationAutomationResume::class)->isHeld($contact),
         ];
     }
 

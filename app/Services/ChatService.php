@@ -134,7 +134,9 @@ class ChatService
                 $ticketingActive = true;
 
                 //Check if agents can view all chats
-                $allowAgentsToViewAllChats = $settings->tickets->allow_agents_to_view_all_chats;
+                // Ticketing turned on without this setting saved yet: the same default as the chat
+                // list (ChatController), so a missing setting no longer breaks the page.
+                $allowAgentsToViewAllChats = (bool) ($settings->tickets->allow_agents_to_view_all_chats ?? true);
             }
         }
 
@@ -639,8 +641,14 @@ class ChatService
     /** The assistant's real state in this conversation, or null when the organization has no assistant. */
     private function conversationAiStatus(Contact $contact, $aimodule, $config): ?array
     {
+        // Without the AI assistant only a flow can be held for the team; the chat still offers to
+        // bring it back.
         if (! $aimodule) {
-            return null;
+            $resume = app(\App\Services\IntelliReply\ConversationAutomationResume::class);
+
+            return $resume->isHeld($contact, false)
+                ? ['state' => null, 'paused_until' => null, 'request_reason' => null, 'held' => true]
+                : null;
         }
 
         $metadata = json_decode((string) ($config->metadata ?? ''), true);
