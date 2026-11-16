@@ -1604,6 +1604,30 @@ class AutomationFlowBuilderV2Test extends TestCase
         $this->assertSame('waiting_handoff', AutomationFlowRun::query()->where('automation_flow_id', $flow->id)->latest('id')->value('status'));
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function test_a_flow_talking_to_the_customer_is_not_held_and_the_strip_says_so(): void
+    {
+        [$user, $organization] = $this->createOwnerContext();
+        $this->enableFlowBuilderForOrganization($organization->id);
+        $flow = $this->createFlow($user->id, $organization->id, 'Asks and waits');
+        $this->publishGraph($user, $organization->id, $flow, $this->askThenSaveGraph());
+        $this->mockRuntimeWhatsappService();
+
+        $contact = $this->createContact($organization->id, $user->id, '+15550000035');
+        Contact::query()->whereKey($contact->id)->update(['ai_assistance_enabled' => false]);
+        app(AutomationFlowRuntimeService::class)->handleInbound($this->createInboundChat($contact, [
+            'type' => 'text',
+            'text' => ['body' => 'مرحبا'],
+        ]));
+        $this->assertSame('waiting_input', AutomationFlowRun::query()->where('automation_flow_id', $flow->id)->latest('id')->value('status'));
+
+        $status = app(\App\Services\IntelliReply\ConversationAiStatus::class)->for($contact->fresh(), ['ai' => ['active' => true]]);
+
+        $this->assertSame('flow_running', $status['state']);
+        $this->assertFalse($status['held'], 'Nothing waits for the team, so no "resolved" button.');
+    }
+
     /**
      * A published flow handed this customer to the team; the assistant is paused for them too.
      *

@@ -18,6 +18,7 @@ class ConversationAiStatus
     public const TEAM_REPLIED = 'team_replied';
     public const OFF_HERE = 'off_here';
     public const FLOW_HANDOFF = 'flow_handoff';
+    public const FLOW_RUNNING = 'flow_running';
 
     /**
      * @param  array<string, mixed>  $metadata  the organization's metadata
@@ -40,6 +41,9 @@ class ConversationAiStatus
         } elseif (app(ConversationAutomationResume::class)->flowWaitsForTeam($contact)) {
             // The flow holds the customer's messages for the team, so the assistant does not answer.
             $state = self::FLOW_HANDOFF;
+        } elseif (app(ConversationAutomationResume::class)->flowIsRunning($contact)) {
+            // A flow answers this customer now; the assistant steps in only when it hands over.
+            $state = self::FLOW_RUNNING;
         } elseif (! $contact->ai_assistance_enabled) {
             $state = self::OFF_HERE;
         }

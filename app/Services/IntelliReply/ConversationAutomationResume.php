@@ -53,7 +53,10 @@ class ConversationAutomationResume
     }
 
     /**
-     * Whether anything automatic is held back for this customer right now.
+     * Whether something automatic is held back for this customer because of the team: a flow
+     * handed them over, they asked for a person, or the team's reply paused the assistant.
+     * The assistant simply not being on for a contact (a flow is talking to them, or it was
+     * switched off here) is not a hold.
      *
      * @param  bool  $assistant  false when the organization has no AI assistant: only flows count
      */
@@ -65,9 +68,19 @@ class ConversationAutomationResume
 
         return $assistant && (
             $this->pause->isPaused($contact)
-            || ! $contact->ai_assistance_enabled
             || app(HumanRequestService::class)->blocksAssistant($contact)
         );
+    }
+
+    /**
+     * A flow is talking to this customer right now (not waiting for the team).
+     */
+    public function flowIsRunning(Contact $contact): bool
+    {
+        return AutomationFlowRun::where('organization_id', $contact->organization_id)
+            ->where('contact_id', $contact->id)
+            ->whereIn('status', ['active', 'waiting_input', 'waiting_delay'])
+            ->exists();
     }
 
     /**

@@ -424,6 +424,7 @@
     "Turn it on": "تشغيله",
     "In this conversation": "في هذه المحادثة",
     "AI assistant in this conversation": "المساعد الذكي في هذه المحادثة",
+    "A flow is talking to this customer now": "التدفق يتحدث مع هذا العميل الآن",
     "Automation is stopped: the flow handed this customer to the team": "الأتمتة متوقفة: التدفق حوّل هذا العميل للفريق",
     "It comes back when the conversation is closed or you press Resolved.": "ترجع عند إغلاق المحادثة أو الضغط على «تم الحل».",
     "Resolved, bring automation back": "تم الحل، أعد تشغيل الأتمتة",

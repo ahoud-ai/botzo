@@ -187,6 +187,7 @@
         team_replied: t('AI assistant is stopped because the team replied'),
         off_here: t('AI assistant is off for this conversation'),
         flow_handoff: t('Automation is stopped: the flow handed this customer to the team'),
+        flow_running: t('A flow is talking to this customer now'),
     }[aiState.value] ?? (automationHeld.value ? t('Automation is stopped: the flow handed this customer to the team') : '')));
 
     // Something automatic waits for the team: "resolved" brings the flow and the assistant back.
@@ -355,7 +356,7 @@
             </div>
         </div>
     </div>
-    <div v-if="showAiStrip" class="ai-strip" :class="`ai-strip--${aiOn ? 'on' : (aiState === 'off_everywhere' || aiState === 'off_here' ? 'off' : 'paused')}`" data-ai-state-strip :data-state="aiState || 'held'">
+    <div v-if="showAiStrip" class="ai-strip" :class="`ai-strip--${aiOn || aiState === 'flow_running' ? 'on' : (aiState === 'off_everywhere' || aiState === 'off_here' ? 'off' : 'paused')}`" data-ai-state-strip :data-state="aiState || 'held'">
         <div class="ai-strip__text" role="status" aria-live="polite">
             <span class="ai-strip__dot" aria-hidden="true"></span>
             <div class="min-w-0">
