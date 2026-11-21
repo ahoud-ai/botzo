@@ -9,6 +9,7 @@ use App\Models\WebWidget;
 use App\Services\IntelliReply\AiConversationPauseService;
 use App\Services\IntelliReply\AiHumanHandoffService;
 use App\Services\Salla\SallaStoreAccess;
+use App\Services\SubscriptionPlanLimitService;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -72,7 +73,7 @@ class WebWidgetReplyService
         }
 
         $counterKey = sprintf('web-widget:replies:%d:%s', $widget->id, now()->toDateString());
-        if ((int) Cache::get($counterKey, 0) >= max(0, (int) $widget->daily_reply_limit)) {
+        if ((int) Cache::get($counterKey, 0) >= $this->dailyLimit($widget)) {
             Log::channel('intellireply')->warning('intellireply.limit.reached', [
                 'organization_id' => $chat->organization_id,
                 'contact_id' => $chat->contact_id,
@@ -90,5 +91,13 @@ class WebWidgetReplyService
         }
 
         return $replied;
+    }
+
+    /** A plan may set its own daily cap (Salla plans do); otherwise the widget's setting applies. */
+    private function dailyLimit(WebWidget $widget): int
+    {
+        $fromPlan = app(SubscriptionPlanLimitService::class)->limitForOrganization((int) $widget->organization_id, 'widget_daily_reply_limit', -1);
+
+        return $fromPlan > 0 ? $fromPlan : max(0, (int) $widget->daily_reply_limit);
     }
 }

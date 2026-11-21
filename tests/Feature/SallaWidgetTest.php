@@ -181,6 +181,33 @@ class SallaWidgetTest extends TestCase
             ->assertJsonPath('awaiting_team', false);
     }
 
+    public function test_the_plan_sets_the_daily_reply_cap_instead_of_the_widget_default(): void
+    {
+        $this->fakeSalla();
+        $store = $this->install();
+        $this->subscribe($store);
+        $widget = $this->widget($store);
+        $this->assertSame(300, $widget->daily_reply_limit);
+        $key = $this->key()->json('key');
+        \Illuminate\Support\Facades\Cache::put(sprintf('web-widget:replies:%d:%s', $widget->id, now()->toDateString()), 300, now()->endOfDay());
+        $assistant = $this->mock(\Modules\IntelliReply\Services\AIResponseService::class);
+        $assistant->shouldReceive('handleAIResponse')->once()->andReturn(true);
+
+        $token = $this->postJson('/api/widget/'.$key.'/session', ['locale' => 'ar'], ['Origin' => self::ORIGIN])->json('token');
+
+        // The Basic plan allows 300 a day, so the 301st reply of the day is still refused.
+        $this->postJson('/api/widget/'.$key.'/messages', ['text' => 'هلا'], ['Origin' => self::ORIGIN, 'X-Widget-Token' => $token])
+            ->assertOk()->assertJsonPath('awaiting_team', true);
+
+        $plan = \App\Models\SubscriptionPlan::query()->where('metadata', 'like', '%"salla_plan_key":"pro"%')->sole();
+        \App\Models\Subscription::query()->where('organization_id', $store->organization_id)->update(['plan_id' => $plan->id]);
+        $this->travel(5)->seconds();
+
+        // Pro allows 2,000 a day, so the same count no longer blocks.
+        $this->postJson('/api/widget/'.$key.'/messages', ['text' => 'هلا مرة ثانية'], ['Origin' => self::ORIGIN, 'X-Widget-Token' => $token])
+            ->assertOk()->assertJsonPath('awaiting_team', false);
+    }
+
     public function test_shoppers_sharing_one_address_are_not_blocked_at_the_normal_limit(): void
     {
         config(['web_widget.limits.sessions_per_ip_per_hour' => 2, 'web_widget.limits.store_sessions_per_ip_per_hour' => 4]);

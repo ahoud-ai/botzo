@@ -60,26 +60,56 @@ class SallaSubscriptionTest extends TestCase
         ]);
     }
 
-    public function test_setup_creates_hidden_plans_and_never_overwrites_them(): void
+    public function test_setup_creates_hidden_plans_with_the_agreed_prices_and_never_overwrites_them(): void
     {
-        $plan = $this->plan(SallaPlans::FALLBACK);
-        $this->assertSame('inactive', $plan->status);
-        $this->assertSame(1000, $plan->metadataValue('ai_system_key_monthly_quota'));
-        $this->assertSame(0, $plan->metadataValue('widget_voice_minutes_monthly'));
-        $this->assertSame(100, $this->plan(SallaPlans::TRIAL)->metadataValue('ai_system_key_monthly_quota'));
-        $this->assertSame(3000, $this->plan('growth')->metadataValue('ai_system_key_monthly_quota'));
-        $this->assertSame(10000, $this->plan('pro')->metadataValue('ai_system_key_monthly_quota'));
+        $expected = ['free' => ['0.00', 100, 50], SallaPlans::TRIAL => ['0.00', 100, 50], SallaPlans::FALLBACK => ['79.00', 1500, 300], 'growth' => ['199.00', 5000, 800], 'pro' => ['499.00', 15000, 2000]];
+        foreach ($expected as $key => [$price, $replies, $daily]) {
+            $plan = $this->plan($key);
+            $this->assertSame('inactive', $plan->status, $key);
+            $this->assertSame($price, (string) $plan->price, $key);
+            $this->assertSame($replies, $plan->metadataValue('ai_system_key_monthly_quota'), $key);
+            $this->assertSame($daily, $plan->metadataValue('widget_daily_reply_limit'), $key);
+            $this->assertSame(0, $plan->metadataValue('widget_voice_minutes_monthly'), $key);
+        }
 
+        $plan = $this->plan(SallaPlans::FALLBACK);
         $metadata = $plan->metadataArray();
-        $metadata['ai_system_key_monthly_quota'] = 1500;
+        $metadata['ai_system_key_monthly_quota'] = 1234;
         $plan->update(['metadata' => json_encode($metadata), 'price' => 149]);
 
         $this->artisan('salla:setup-plans')->assertSuccessful();
 
         $plan->refresh();
-        $this->assertSame(1500, $plan->metadataValue('ai_system_key_monthly_quota'));
+        $this->assertSame(1234, $plan->metadataValue('ai_system_key_monthly_quota'));
         $this->assertSame('149.00', (string) $plan->price);
-        $this->assertSame(4, SubscriptionPlan::where('metadata', 'like', '%"salla_plan_key"%')->count());
+        $this->assertSame(5, SubscriptionPlan::where('metadata', 'like', '%"salla_plan_key"%')->count());
+    }
+
+    public function test_sync_brings_old_plans_to_the_agreed_prices_and_keeps_other_edits(): void
+    {
+        $plan = $this->plan('growth');
+        $metadata = $plan->metadataArray();
+        $metadata['ai_system_key_monthly_quota'] = 3000;
+        $metadata['team_limit'] = 9;
+        unset($metadata['widget_daily_reply_limit']);
+        $plan->update(['metadata' => json_encode($metadata), 'price' => 0]);
+        SubscriptionPlan::where('metadata', 'like', '%"salla_plan_key":"free"%')->forceDelete();
+
+        $this->artisan('salla:setup-plans --sync')->assertSuccessful()->expectsOutputToContain('Created 1 plans, updated 4');
+
+        $plan->refresh();
+        $this->assertSame('199.00', (string) $plan->price);
+        $this->assertSame(5000, $plan->metadataValue('ai_system_key_monthly_quota'));
+        $this->assertSame(800, $plan->metadataValue('widget_daily_reply_limit'));
+        $this->assertSame(9, $plan->metadataValue('team_limit'));
+        $this->assertSame('inactive', $plan->status);
+    }
+
+    public function test_a_free_subscription_gets_the_free_plan(): void
+    {
+        $this->event('app.subscription.started', ['plan_name' => 'المجانية', 'start_date' => now()->toDateString(), 'end_date' => now()->addMonth()->toDateString()]);
+
+        $this->assertSame('free', app(SubscriptionPlanLimitService::class)->activeSubscriptionForOrganization($this->organization->id)?->plan?->metadataValue('salla_plan_key'));
     }
 
     public function test_a_trial_gives_the_assistant_on_the_trial_plan(): void

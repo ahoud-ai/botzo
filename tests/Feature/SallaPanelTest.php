@@ -198,7 +198,7 @@ class SallaPanelTest extends TestCase
             ->assertJsonPath('store_name', 'متجر تجريبي')
             ->assertJsonPath('assistant.running', true)
             ->assertJsonPath('products.count', 1)
-            ->assertJsonPath('replies.limit', 1000)
+            ->assertJsonPath('replies.limit', 1500)
             ->assertJsonPath('replies.used', 0);
 
         $this->assertStringNotContainsString('secret-', $response->getContent());
