@@ -154,7 +154,9 @@ class AutomationFlowRuntimeService
             return null;
         }
         if ($run->status === 'waiting_handoff') {
-            return $this->runtimeSupport->resumeHandoffRun($run, $chat);
+            // A handoff the team has released ends here, and this same message may start a flow
+            // again instead of being lost.
+            return $this->runtimeSupport->resumeHandoffRun($run, $chat) ? true : null;
         }
         $waitingFor = (string) ($run->waiting_for ?? '');
         $waitingNodeId = $run->waiting_node_id ?: $run->current_node_id;

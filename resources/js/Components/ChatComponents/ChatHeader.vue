@@ -186,7 +186,25 @@
         waiting_team: t('AI assistant is stopped: the customer asked for a person'),
         team_replied: t('AI assistant is stopped because the team replied'),
         off_here: t('AI assistant is off for this conversation'),
-    }[aiState.value] ?? ''));
+        flow_handoff: t('Automation is stopped: the flow handed this customer to the team'),
+        flow_running: t('A flow is talking to this customer now'),
+    }[aiState.value] ?? (automationHeld.value ? t('Automation is stopped: the flow handed this customer to the team') : '')));
+
+    // Something automatic waits for the team: "resolved" brings the flow and the assistant back.
+    const automationHeld = computed(() => Boolean(props.aiStatus?.held));
+    const showAiStrip = computed(() => (props.addon == 1 && Boolean(aiState.value)) || automationHeld.value);
+    const canResumeAutomation = computed(() => automationHeld.value && hasPermission('chats.change_status'));
+    const resumingAutomation = ref(false);
+    const resumeAutomation = () => {
+        if (!canResumeAutomation.value || resumingAutomation.value) {
+            return;
+        }
+        resumingAutomation.value = true;
+        router.put('/tickets/' + props.contact.uuid + '/resume-automation', {}, {
+            preserveScroll: true,
+            onFinish: () => { resumingAutomation.value = false; },
+        });
+    };
 
     const aiHint = computed(() => {
         switch (aiState.value) {
@@ -194,6 +212,8 @@
                 return t('It was turned off from the AI assistant page.');
             case 'waiting_team':
                 return t('It stays stopped until someone replies or turns it back on.');
+            case 'flow_handoff':
+                return t('It comes back when the conversation is closed or you press Resolved.');
             case 'team_replied':
                 return pausedUntilText.value
                     ? t('It comes back on its own at {time}.', { time: pausedUntilText.value })
@@ -336,7 +356,7 @@
             </div>
         </div>
     </div>
-    <div v-if="addon == 1 && aiState" class="ai-strip" :class="`ai-strip--${aiOn ? 'on' : (aiState === 'off_everywhere' || aiState === 'off_here' ? 'off' : 'paused')}`" data-ai-state-strip :data-state="aiState">
+    <div v-if="showAiStrip" class="ai-strip" :class="`ai-strip--${aiOn || aiState === 'flow_running' ? 'on' : (aiState === 'off_everywhere' || aiState === 'off_here' ? 'off' : 'paused')}`" data-ai-state-strip :data-state="aiState || 'held'">
         <div class="ai-strip__text" role="status" aria-live="polite">
             <span class="ai-strip__dot" aria-hidden="true"></span>
             <div class="min-w-0">
@@ -344,8 +364,21 @@
                 <p v-if="aiHint" class="ai-strip__hint">{{ aiHint }}</p>
             </div>
         </div>
-        <div v-if="canManageAiAssistant" class="ai-strip__actions">
-            <Link v-if="aiOffEverywhere" href="/automation/ai" class="ai-strip__link">{{ $t('Turn it on') }}</Link>
+        <div v-if="canResumeAutomation || (canManageAiAssistant && aiState)" class="ai-strip__actions">
+            <button
+                v-if="canResumeAutomation"
+                type="button"
+                class="ai-strip__link ai-strip__resume"
+                :disabled="resumingAutomation"
+                :aria-busy="resumingAutomation ? 'true' : 'false'"
+                data-resume-automation
+                @click="resumeAutomation"
+            >
+                <svg class="ai-strip__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>{{ resumingAutomation ? $t('Turning automation back on...') : $t('Resolved, bring automation back') }}</span>
+            </button>
+            <template v-if="!canManageAiAssistant || !aiState"></template>
+            <Link v-else-if="aiOffEverywhere" href="/automation/ai" class="ai-strip__link">{{ $t('Turn it on') }}</Link>
             <template v-else>
                 <span class="ai-strip__label" aria-hidden="true">{{ $t('In this conversation') }}</span>
                 <FormToggleSwitch
@@ -420,6 +453,14 @@
     font-size: 14px; font-weight: 600; color: #fff; background: var(--ui-secondary); touch-action: manipulation;
 }
 .ai-strip__link:hover { opacity: 0.92; }
+.ai-strip__resume { gap: 6px; border: 0; cursor: pointer; transition: opacity 150ms ease; }
+.ai-strip__resume:disabled { opacity: 0.6; cursor: progress; }
+.ai-strip__resume:focus-visible { outline: 3px solid var(--ui-secondary); outline-offset: 2px; }
+.ai-strip__icon { width: 18px; height: 18px; flex: none; }
+@media (max-width: 480px) {
+    .ai-strip__actions { width: 100%; flex-wrap: wrap; }
+    .ai-strip__resume { flex: 1 1 100%; justify-content: center; }
+}
 
 .chat-header-icon-btn:hover {
     background: var(--ui-surface-soft);
