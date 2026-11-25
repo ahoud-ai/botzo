@@ -5,4 +5,5 @@ Disallow: /dashboard
 Disallow: /automation
 Disallow: /settings
 
-Sitemap: http://127.0.0.1:8000/sitemap.xml
+Sitemap: https://botzo.net/sitemap.xml
+Sitemap: https://botzo.sa/sitemap.xml

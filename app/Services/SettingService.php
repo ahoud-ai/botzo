@@ -393,9 +393,15 @@ class SettingService
                     'Disallow: /settings',
                 ];
 
-                if ($canonicalBaseUrl !== '') {
+                $sitemapUrls = \App\Support\SeoDomains::sitemapUrls();
+                if ($sitemapUrls === [] && $canonicalBaseUrl !== '') {
+                    $sitemapUrls = [$canonicalBaseUrl.'/sitemap.xml'];
+                }
+                if ($sitemapUrls !== []) {
                     $lines[] = '';
-                    $lines[] = 'Sitemap: '.$canonicalBaseUrl.'/sitemap.xml';
+                    foreach ($sitemapUrls as $sitemapUrl) {
+                        $lines[] = 'Sitemap: '.$sitemapUrl;
+                    }
                 }
 
                 $content = implode(PHP_EOL, $lines);

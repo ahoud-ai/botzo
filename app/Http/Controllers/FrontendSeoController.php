@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller as BaseController;
 use App\Models\Page;
-use App\Models\Setting;
+use App\Support\SeoDomains;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 
@@ -12,11 +12,7 @@ class FrontendSeoController extends BaseController
 {
     public function sitemap(): Response
     {
-        $canonicalBaseUrl = trim((string) (Setting::where('key', 'seo_canonical_base_url')->value('value') ?? ''));
-        if ($canonicalBaseUrl === '') {
-            $canonicalBaseUrl = rtrim((string) config('app.url', url('/')), '/');
-        }
-        $canonicalBaseUrl = rtrim($canonicalBaseUrl, '/');
+        $canonicalBaseUrl = SeoDomains::canonicalBaseUrl(request());
 
         $entries = [];
 

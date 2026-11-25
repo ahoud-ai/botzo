@@ -29,6 +29,12 @@ return [
         'privacy',
         'terms-of-service',
     ],
+    // Public sites indexed separately, as hreflang => host. Each uses its own
+    // host for canonical URLs and the sitemap (see App\Support\SeoDomains).
+    'seo_domain_alternates' => [
+        'x-default' => 'botzo.net',
+        'ar-SA' => 'botzo.sa',
+    ],
     'seo_public_path_prefixes' => [
         'pages/',
     ],

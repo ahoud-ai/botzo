@@ -155,11 +155,11 @@
             $computedDescription = trim(\Illuminate\Support\Str::limit((string) $computedDescription, 320, ''));
             $computedKeywords = trim((string) $localizedConfigValue('seo_keywords_ar', 'seo_keywords_en', ''));
 
-            $canonicalBaseUrl = trim((string) $configValue('seo_canonical_base_url', config('app.url', url('/'))));
-            if ($canonicalBaseUrl === '') {
-                $canonicalBaseUrl = rtrim((string) config('app.url', url('/')), '/');
-            }
-            $canonicalBaseUrl = rtrim($canonicalBaseUrl, '/');
+            $canonicalBaseUrl = \App\Support\SeoDomains::canonicalBaseUrl(
+                request(),
+                (string) $configValue('seo_canonical_base_url', '')
+            );
+            $hreflangLinks = \App\Support\SeoDomains::alternateLinks($requestPath);
             $canonicalUrl = $canonicalBaseUrl;
             if ($requestPath !== '') {
                 $canonicalUrl .= '/'.$requestPath;
@@ -275,6 +275,9 @@
 
             <meta name="robots" content="{{ $robotsMetaContent }}">
             <link rel="canonical" href="{{ $canonicalUrl }}">
+            @foreach($hreflangLinks as $hreflang => $hreflangUrl)
+                <link rel="alternate" hreflang="{{ $hreflang }}" href="{{ $hreflangUrl }}">
+            @endforeach
 
             <meta property="og:type" content="{{ $ogType }}">
             <meta property="og:locale" content="{{ $ogLocale }}">
