@@ -226,7 +226,8 @@
             // Generate WhatsApp URL if phone number is available
             if (whatsappNumber.value) {
                 // Remove any non-numeric characters except + for international format
-                const cleanNumber = whatsappNumber.value.replace(/[^\d+]/g, '');
+                // wa.me takes digits only, with the country code.
+                const cleanNumber = whatsappNumber.value.replace(/\D/g, '').replace(/^0(5\d{8})$/, '966$1');
                 whatsappUrl.value = `https://wa.me/${cleanNumber}`;
             }
         } catch (error) {

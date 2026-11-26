@@ -203,7 +203,8 @@
             whatsappNumber.value = socialsArray['whatsapp'] || primaryPhone.value || null;
 
             if (whatsappNumber.value) {
-                const cleanNumber = whatsappNumber.value.replace(/[^\d+]/g, '');
+                // wa.me takes digits only, with the country code.
+                const cleanNumber = whatsappNumber.value.replace(/\D/g, '').replace(/^0(5\d{8})$/, '966$1');
                 whatsappUrl.value = `https://wa.me/${cleanNumber}`;
             }
         } catch (error) {

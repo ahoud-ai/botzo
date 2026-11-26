@@ -1,1 +1,0 @@
-import{ae as e,C as s}from"./app-core-f62a0a1d.js";function a(){const o=e(),t=s(()=>o.props.isRtl),r=s(()=>({"direction-rtl":t.value,"direction-ltr":!t.value}));return{isRtl:t,rtlClass:r}}export{a as u};
